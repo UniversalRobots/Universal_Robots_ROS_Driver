@@ -13,7 +13,7 @@
 
 UrRealtimeCommunication::UrRealtimeCommunication(
 		std::condition_variable& msg_cond, std::string host,
-		uint safety_count_max) :
+		unsigned int safety_count_max) :
 		SAMPLETIME_(0.008) {
 	robot_state_ = new RobotStateRT(msg_cond);
 	bzero((char *) &serv_addr_, sizeof(serv_addr_));

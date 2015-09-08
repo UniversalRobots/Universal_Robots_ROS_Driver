@@ -12,7 +12,7 @@
 #include "ur_modern_driver/ur_driver.h"
 
 UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
-		uint safety_count_max) {
+		unsigned int safety_count_max) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
 

@@ -17,11 +17,13 @@
 #include "ur_realtime_communication.h"
 
 class UrDriver {
+private:
+	double maximum_time_step_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 
 	UrDriver(std::condition_variable& msg_cond, std::string host,
-			uint safety_count_max = 12);
+			unsigned int safety_count_max = 12);
 	void start();
 	void halt();
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,

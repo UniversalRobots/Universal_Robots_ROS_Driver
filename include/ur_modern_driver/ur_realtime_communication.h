@@ -32,7 +32,7 @@
 class UrRealtimeCommunication {
 private:
 	const double SAMPLETIME_;
-	uint safety_count_max_;
+	unsigned int safety_count_max_;
 	int sockfd_;
 	struct sockaddr_in serv_addr_;
 	struct hostent *server_;
@@ -41,7 +41,7 @@ private:
 	int flag_;
 	std::recursive_mutex command_string_lock_;
 	std::string command_;
-	uint safety_count_;
+	unsigned int safety_count_;
 	void run();
 
 public:
@@ -49,7 +49,7 @@ public:
 	RobotStateRT* robot_state_;
 
 	UrRealtimeCommunication(std::condition_variable& msg_cond, std::string host,
-			uint safety_count_max = 12);
+			unsigned int safety_count_max = 12);
 	void start();
 	void halt();
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
