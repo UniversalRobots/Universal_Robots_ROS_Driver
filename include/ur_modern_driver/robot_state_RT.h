@@ -64,6 +64,7 @@ private:
 
 public:
 	RobotStateRT(std::condition_variable& msg_cond);
+	~RobotStateRT();
 	double getVersion();
 	double getTime();
 	std::vector<double> getQTarget();

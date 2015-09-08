@@ -45,6 +45,12 @@ RobotStateRT::RobotStateRT(std::condition_variable& msg_cond) {
 	pMsg_cond_ = &msg_cond;
 }
 
+RobotStateRT::~RobotStateRT() {
+	/* Make sure nobody is waiting after this thread is destroyed */
+	new_data_available_ = true;
+	pMsg_cond_->notify_all();
+}
+
 bool RobotStateRT::getNewDataAvailable() {
 	return new_data_available_;
 }
