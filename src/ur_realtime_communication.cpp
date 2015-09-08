@@ -35,7 +35,7 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
 	connected_ = false;
 	keepalive_ = false;
-	safety_count_ = 0;
+	safety_count_ = safety_count_max+1;
 	safety_count_max_ = safety_count_max;
 }
 
