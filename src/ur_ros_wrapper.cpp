@@ -24,7 +24,7 @@
 #include "actionlib/server/simple_action_server.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
 
-std::condition_variable g_msg_cond;
+
 
 class RosWrapper {
 protected:
@@ -34,22 +34,27 @@ protected:
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speedSub_;
-	UrDriver* robot_;
+	UrDriver robot_;
 	std::thread* rt_publish_thread_;
+	std::condition_variable msg_cond_;
 public:
-	RosWrapper(UrDriver* robot) :
-			as_(nh_, "follow_joint_trajectory", false) {
-		robot_ = robot;
-		//register the goal and feeback callbacks
+	RosWrapper(std::string host, std::vector<std::string> joint_names) :
+			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host,
+					joint_names) {
+
+		//register the goal and feedback callbacks
 		as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
 		as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
 
-		//subscribe to the data topic of interest
+		robot_.start();
 		as_.start();
 
+		//subscribe to the data topic of interest
 		speedSub_ = nh_.subscribe("joint_speed", 1, &RosWrapper::speedInterface,
 				this);
-		rt_publish_thread_ = new std::thread(boost::bind(&RosWrapper::publishRTMsg, this));
+
+		rt_publish_thread_ = new std::thread(
+				boost::bind(&RosWrapper::publishRTMsg, this));
 		ROS_INFO("The action server for this driver has been started");
 
 	}
@@ -85,7 +90,7 @@ public:
 			velocities.push_back(goal_.trajectory.points[i].velocities);
 
 		}
-		robot_->addTraj(timestamps, positions, velocities);
+		robot_.addTraj(timestamps, positions, velocities);
 
 		ros::Duration(timestamps.back()).sleep();
 		result_.error_code = result_.SUCCESSFUL;
@@ -96,12 +101,18 @@ public:
 	void preemptCB() {
 		ROS_INFO("on_cancel");
 		// set the action state to preempted
-		robot_->stopTraj();
+		robot_.stopTraj();
 		as_.setPreempted();
+	}
+
+	void halt() {
+		robot_.halt();
+		rt_publish_thread_->join();
+
 	}
 private:
 	bool validateJointNames() {
-		std::vector<std::string> actual_joint_names = robot_->getJointNames();
+		std::vector<std::string> actual_joint_names = robot_.getJointNames();
 		if (goal_.trajectory.joint_names.size() != actual_joint_names.size())
 			return false;
 
@@ -123,7 +134,7 @@ private:
 
 	void reorder_traj_joints(trajectory_msgs::JointTrajectory& traj) {
 		/* Reorders trajectory - destructive */
-		std::vector<std::string> actual_joint_names = robot_->getJointNames();
+		std::vector<std::string> actual_joint_names = robot_.getJointNames();
 		std::vector<unsigned int> mapping;
 		mapping.resize(actual_joint_names.size(), actual_joint_names.size());
 		for (unsigned int i = 0; i < traj.joint_names.size(); i++) {
@@ -161,22 +172,22 @@ private:
 				"/wrench", 1);
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
-			joint_msg.name = robot_->getJointNames();
+			joint_msg.name = robot_.getJointNames();
 			geometry_msgs::WrenchStamped wrench_msg;
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
 			std::unique_lock<std::mutex> locker(msg_lock);
-			while (!robot_->rt_interface_->robot_state_->getNewDataAvailable()) {
-				g_msg_cond.wait(locker);
+			while (!robot_.rt_interface_->robot_state_->getNewDataAvailable()) {
+				msg_cond_.wait(locker);
 			}
 			joint_msg.header.stamp = ros::Time::now();
 			joint_msg.position =
-					robot_->rt_interface_->robot_state_->getQActual();
+					robot_.rt_interface_->robot_state_->getQActual();
 			joint_msg.velocity =
-					robot_->rt_interface_->robot_state_->getQdActual();
-			joint_msg.effort = robot_->rt_interface_->robot_state_->getIActual();
+					robot_.rt_interface_->robot_state_->getQdActual();
+			joint_msg.effort = robot_.rt_interface_->robot_state_->getIActual();
 			joint_pub.publish(joint_msg);
 			std::vector<double> tcp_force =
-					robot_->rt_interface_->robot_state_->getTcpForce();
+					robot_.rt_interface_->robot_state_->getTcpForce();
 			wrench_msg.header.stamp = joint_msg.header.stamp;
 			wrench_msg.wrench.force.x = tcp_force[0];
 			wrench_msg.wrench.force.y = tcp_force[1];
@@ -186,7 +197,7 @@ private:
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
 
-			robot_->rt_interface_->robot_state_->finishedReading();
+			robot_.rt_interface_->robot_state_->finishedReading();
 
 		}
 	}
@@ -195,15 +206,23 @@ private:
 
 int main(int argc, char **argv) {
 	bool use_sim_time = false;
-	std::string joint_prefix = "";
 	std::string host;
-	std::vector<std::string> joint_names;
 
 	ros::init(argc, argv, "ur_driver");
 	ros::NodeHandle nh;
 	if (ros::param::get("use_sim_time", use_sim_time)) {
 		ROS_WARN("use_sim_time is set!!");
 	}
+	if (argc > 1) {
+		host = argv[1];
+	} else if (!(ros::param::get("~robot_ip", host))) {
+		ROS_FATAL(
+				"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
+		exit(1);
+	}
+	std::string joint_prefix = "";
+	std::vector<std::string> joint_names;
+
 	if (ros::param::get("~prefix", joint_prefix)) {
 		ROS_INFO("Setting prefix to %s", joint_prefix.c_str());
 	}
@@ -214,20 +233,10 @@ int main(int argc, char **argv) {
 	joint_names.push_back(joint_prefix + "wrist_2_joint");
 	joint_names.push_back(joint_prefix + "wrist_3_joint");
 
-	if (argc > 1) {
-		host = argv[1];
-	} else if (!(ros::param::get("~robot_ip", host))) {
-		ROS_FATAL(
-				"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
-		exit(1);
-	}
-	UrDriver robot(g_msg_cond, host, joint_names);
-
-	robot.start();
-
-	RosWrapper interface(&robot);
+	RosWrapper interface(host, joint_names);
 
 	ros::spin();
-	robot.halt();
+	interface.halt();
+
 	exit(0);
 }
