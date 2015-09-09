@@ -17,14 +17,13 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <algorithm>
 
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "actionlib/server/simple_action_server.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
-
-
 
 class RosWrapper {
 protected:
@@ -161,7 +160,14 @@ private:
 		traj.points = new_traj;
 	}
 
-	void speedInterface(const trajectory_msgs::JointTrajectory::ConstPtr& msg) {
+	void speedInterface(const trajectory_msgs::JointTrajectory::Ptr& msg) {
+		reorder_traj_joints(*msg);
+		double acc = *std::max_element(msg->points[0].accelerations.begin(),
+				msg->points[0].accelerations.end());
+		robot_.setSpeed(msg->points[0].velocities[0],
+				msg->points[0].velocities[1], msg->points[0].velocities[2],
+				msg->points[0].velocities[3], msg->points[0].velocities[4],
+				msg->points[0].velocities[5], acc);
 
 	}
 
