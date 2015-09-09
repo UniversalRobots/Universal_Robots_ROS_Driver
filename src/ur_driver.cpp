@@ -15,7 +15,7 @@ UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
 		std::vector<std::string> joint_names, unsigned int safety_count_max) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
-	maximum_time_step_ = 2.;
+	maximum_time_step_ = 0.08;
 	joint_names_ = joint_names;
 
 }
