@@ -30,15 +30,14 @@ class URTrajectoryFollower {
 protected:
 	ros::NodeHandle nh_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
-	std::string action_name_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber sub_;
 	UrDriver* robot_;
 public:
-	URTrajectoryFollower(UrDriver* robot, std::string name) :
-			as_(nh_, "follow_joint_trajectory", false), action_name_(name) {
+	URTrajectoryFollower(UrDriver* robot) :
+			as_(nh_, "follow_joint_trajectory", false) {
 		robot_ = robot;
 		//register the goal and feeback callbacks
 		as_.registerGoalCallback(
@@ -88,7 +87,7 @@ public:
 	}
 
 	void preemptCB() {
-		ROS_INFO("%s: Preempted", action_name_.c_str());
+		ROS_INFO("on_cancel");
 		// set the action state to preempted
 		robot_->stopTraj();
 		as_.setPreempted();
@@ -216,7 +215,7 @@ int main(int argc, char **argv) {
 	robot.start();
 
 	std::thread rt_publish_thread(publishRTMsg, robot);
-	URTrajectoryFollower action_server(&robot, ros::this_node::getName());
+	URTrajectoryFollower action_server(&robot);
 
 	ros::spin();
 	robot.halt();

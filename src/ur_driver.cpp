@@ -55,18 +55,18 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 		}
 	}
 	//make sure we come to a smooth stop
-	/*while (timestamps.back() < inp_timestamps.back()) {
+	while (timestamps.back() < inp_timestamps.back()) {
 	 timestamps.push_back(timestamps.back() + 0.008);
 	 }
 	 timestamps.pop_back();
-	 */
+
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < timestamps.size(); i++) {
 		while (inp_timestamps[j] <= timestamps[i]) {
 			j += 1;
 		}
 		positions.push_back(
-				UrDriver::interp_cubic(timestamps[i], inp_timestamps[j],
+				UrDriver::interp_cubic(timestamps[i] - inp_timestamps[j-1], inp_timestamps[j] - inp_timestamps[j-1],
 						inp_positions[j - 1], inp_positions[j],
 						inp_velocities[j - 1], inp_velocities[j]));
 	}
