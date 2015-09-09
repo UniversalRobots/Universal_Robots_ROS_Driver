@@ -26,29 +26,34 @@
 
 std::condition_variable g_msg_cond;
 
-class URTrajectoryFollower {
+class RosWrapper {
 protected:
 	ros::NodeHandle nh_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
-	ros::Subscriber sub_;
+	ros::Subscriber speedSub_;
 	UrDriver* robot_;
+	std::thread* rt_publish_thread_;
 public:
-	URTrajectoryFollower(UrDriver* robot) :
+	RosWrapper(UrDriver* robot) :
 			as_(nh_, "follow_joint_trajectory", false) {
 		robot_ = robot;
 		//register the goal and feeback callbacks
-		as_.registerGoalCallback(
-				boost::bind(&URTrajectoryFollower::goalCB, this));
-		as_.registerPreemptCallback(
-				boost::bind(&URTrajectoryFollower::preemptCB, this));
+		as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
+		as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
 
 		//subscribe to the data topic of interest
 		as_.start();
+
+		speedSub_ = nh_.subscribe("joint_speed", 1, &RosWrapper::speedInterface,
+				this);
+		rt_publish_thread_ = new std::thread(boost::bind(&RosWrapper::publishRTMsg, this));
 		ROS_INFO("The action server for this driver has been started");
+
 	}
+
 	void goalCB() {
 		ROS_INFO("on_goal");
 
@@ -65,15 +70,17 @@ public:
 					outp_joint_names.c_str());
 			result_.error_code = result_.INVALID_JOINTS;
 			/*result_.error_string =
-					"Received a goal with incorrect joint names: %s", outp_joint_names.c_str(); */
-			as_.setAborted(result_, ("Received a goal with incorrect joint names: %s", outp_joint_names.c_str()));
+			 "Received a goal with incorrect joint names: %s", outp_joint_names.c_str(); */
+			as_.setAborted(result_,
+					("Received a goal with incorrect joint names: %s", outp_joint_names.c_str()));
 		}
 
-		reorder_traj_joints();
+		reorder_traj_joints(goal_.trajectory);
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
 		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
-			timestamps.push_back(goal_.trajectory.points[i].time_from_start.toSec());
+			timestamps.push_back(
+					goal_.trajectory.points[i].time_from_start.toSec());
 			positions.push_back(goal_.trajectory.points[i].positions);
 			velocities.push_back(goal_.trajectory.points[i].velocities);
 
@@ -114,73 +121,77 @@ private:
 		return true;
 	}
 
-	void reorder_traj_joints() {
+	void reorder_traj_joints(trajectory_msgs::JointTrajectory& traj) {
+		/* Reorders trajectory - destructive */
 		std::vector<std::string> actual_joint_names = robot_->getJointNames();
 		std::vector<unsigned int> mapping;
 		mapping.resize(actual_joint_names.size(), actual_joint_names.size());
-		for (unsigned int i = 0; i < goal_.trajectory.joint_names.size(); i++) {
+		for (unsigned int i = 0; i < traj.joint_names.size(); i++) {
 			for (unsigned int j = 0; j < actual_joint_names.size(); j++) {
-				if (goal_.trajectory.joint_names[i] == actual_joint_names[j])
+				if (traj.joint_names[i] == actual_joint_names[j])
 					mapping[j] = i;
 			}
 		}
-		goal_.trajectory.joint_names = actual_joint_names;
+		traj.joint_names = actual_joint_names;
 		std::vector<trajectory_msgs::JointTrajectoryPoint> new_traj;
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		for (unsigned int i = 0; i < traj.points.size(); i++) {
 			trajectory_msgs::JointTrajectoryPoint new_point;
-			for (unsigned int j = 0;
-					j < goal_.trajectory.points[i].positions.size(); j++) {
+			for (unsigned int j = 0; j < traj.points[i].positions.size(); j++) {
 				new_point.positions.push_back(
-						goal_.trajectory.points[i].positions[mapping[j]]);
+						traj.points[i].positions[mapping[j]]);
 				new_point.velocities.push_back(
-						goal_.trajectory.points[i].velocities[mapping[j]]);
+						traj.points[i].velocities[mapping[j]]);
 				new_point.accelerations.push_back(
-						goal_.trajectory.points[i].accelerations[mapping[j]]);
+						traj.points[i].accelerations[mapping[j]]);
 			}
-			new_point.time_from_start =
-					goal_.trajectory.points[i].time_from_start;
+			new_point.time_from_start = traj.points[i].time_from_start;
 			new_traj.push_back(new_point);
 		}
-		goal_.trajectory.points = new_traj;
+		traj.points = new_traj;
+	}
+
+	void speedInterface(const trajectory_msgs::JointTrajectory::ConstPtr& msg) {
+
+	}
+
+	void publishRTMsg() {
+		ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>(
+				"/joint_states", 1);
+		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
+				"/wrench", 1);
+		while (ros::ok()) {
+			sensor_msgs::JointState joint_msg;
+			joint_msg.name = robot_->getJointNames();
+			geometry_msgs::WrenchStamped wrench_msg;
+			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
+			std::unique_lock<std::mutex> locker(msg_lock);
+			while (!robot_->rt_interface_->robot_state_->getNewDataAvailable()) {
+				g_msg_cond.wait(locker);
+			}
+			joint_msg.header.stamp = ros::Time::now();
+			joint_msg.position =
+					robot_->rt_interface_->robot_state_->getQActual();
+			joint_msg.velocity =
+					robot_->rt_interface_->robot_state_->getQdActual();
+			joint_msg.effort = robot_->rt_interface_->robot_state_->getIActual();
+			joint_pub.publish(joint_msg);
+			std::vector<double> tcp_force =
+					robot_->rt_interface_->robot_state_->getTcpForce();
+			wrench_msg.header.stamp = joint_msg.header.stamp;
+			wrench_msg.wrench.force.x = tcp_force[0];
+			wrench_msg.wrench.force.y = tcp_force[1];
+			wrench_msg.wrench.force.z = tcp_force[2];
+			wrench_msg.wrench.torque.x = tcp_force[3];
+			wrench_msg.wrench.torque.y = tcp_force[4];
+			wrench_msg.wrench.torque.z = tcp_force[5];
+			wrench_pub.publish(wrench_msg);
+
+			robot_->rt_interface_->robot_state_->finishedReading();
+
+		}
 	}
 
 };
-
-void publishRTMsg(UrDriver robot) {
-	ros::NodeHandle nh_rt;
-	ros::Publisher joint_pub = nh_rt.advertise<sensor_msgs::JointState>(
-			"/joint_states", 1);
-	ros::Publisher wrench_pub = nh_rt.advertise<geometry_msgs::WrenchStamped>(
-			"/wrench", 1);
-	while (ros::ok()) {
-		sensor_msgs::JointState joint_msg;
-		joint_msg.name = robot.getJointNames();
-		geometry_msgs::WrenchStamped wrench_msg;
-		std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
-		std::unique_lock<std::mutex> locker(msg_lock);
-		while (!robot.rt_interface_->robot_state_->getNewDataAvailable()) {
-			g_msg_cond.wait(locker);
-		}
-		joint_msg.header.stamp = ros::Time::now();
-		joint_msg.position = robot.rt_interface_->robot_state_->getQActual();
-		joint_msg.velocity = robot.rt_interface_->robot_state_->getQdActual();
-		joint_msg.effort = robot.rt_interface_->robot_state_->getIActual();
-		joint_pub.publish(joint_msg);
-		std::vector<double> tcp_force =
-				robot.rt_interface_->robot_state_->getTcpForce();
-		wrench_msg.header.stamp = joint_msg.header.stamp;
-		wrench_msg.wrench.force.x = tcp_force[0];
-		wrench_msg.wrench.force.y = tcp_force[1];
-		wrench_msg.wrench.force.z = tcp_force[2];
-		wrench_msg.wrench.torque.x = tcp_force[3];
-		wrench_msg.wrench.torque.y = tcp_force[4];
-		wrench_msg.wrench.torque.z = tcp_force[5];
-		wrench_pub.publish(wrench_msg);
-
-		robot.rt_interface_->robot_state_->finishedReading();
-
-	}
-}
 
 int main(int argc, char **argv) {
 	bool use_sim_time = false;
@@ -214,8 +225,7 @@ int main(int argc, char **argv) {
 
 	robot.start();
 
-	std::thread rt_publish_thread(publishRTMsg, robot);
-	URTrajectoryFollower action_server(&robot);
+	RosWrapper interface(&robot);
 
 	ros::spin();
 	robot.halt();
