@@ -80,7 +80,7 @@ public:
 		}
 		robot_->addTraj(timestamps, positions, velocities);
 
-		//sleep?
+		ros::Duration(timestamps.back()).sleep();
 		result_.error_code = result_.SUCCESSFUL;
 		as_.setSucceeded(result_);
 
