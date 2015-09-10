@@ -68,7 +68,7 @@ public:
 		{ //Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 			double max_velocity = 10.;
 			if (ros::param::get("~max_velocity", max_velocity)) {
-				ROS_INFO(
+				ROS_DEBUG(
 						"Max velocity accepted by ur_driver: %f [rad/s]", max_velocity);
 				robot_.setMaxVel(max_velocity);
 			}
@@ -79,11 +79,11 @@ public:
 			double min_payload = 0.;
 			double max_payload = 1.;
 			if (ros::param::get("~min_payload", min_payload)) {
-				ROS_INFO(
+				ROS_DEBUG(
 						"Min payload accepted by ur_driver: %f [kg]", min_payload);
 			}
 			if (ros::param::get("~max_payload", max_payload)) {
-				ROS_INFO(
+				ROS_DEBUG(
 						"Max payload accepted by ur_driver: %f [kg]", max_payload);
 			}
 			robot_.setMinPayload(min_payload);
@@ -189,9 +189,11 @@ private:
 
 	bool setPayload(ur_msgs::SetPayloadRequest& req,
 			ur_msgs::SetPayloadResponse& resp) {
-		robot_.setPayload(req.payload);
-		resp.success = true;
-		return true;
+		if (robot_.setPayload(req.payload))
+			resp.success = true;
+		else
+			resp.success = true;
+		return resp.success;
 	}
 
 	bool validateJointNames() {

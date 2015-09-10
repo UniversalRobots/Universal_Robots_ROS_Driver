@@ -50,7 +50,7 @@ public:
 	void setFlag(unsigned int n, bool b);
 	void setDigitalOut(unsigned int n, bool b);
 	void setAnalogOut(unsigned int n, double f);
-	void setPayload(double m);
+	bool setPayload(double m);
 
 	void setMaxVel(double vel);
 	void setMinPayload(double m);
