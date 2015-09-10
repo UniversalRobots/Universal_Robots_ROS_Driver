@@ -12,11 +12,10 @@
 #include "ur_modern_driver/ur_driver.h"
 
 UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
-		std::vector<std::string> joint_names, unsigned int safety_count_max) {
+		unsigned int safety_count_max) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
 	maximum_time_step_ = 0.08;
-	joint_names_ = joint_names;
 
 }
 
@@ -56,9 +55,9 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 	}
 	//make sure we come to a smooth stop
 	while (timestamps.back() < inp_timestamps.back()) {
-	 timestamps.push_back(timestamps.back() + 0.008);
-	 }
-	 timestamps.pop_back();
+		timestamps.push_back(timestamps.back() + 0.008);
+	}
+	timestamps.pop_back();
 
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < timestamps.size(); i++) {
@@ -66,7 +65,8 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 			j += 1;
 		}
 		positions.push_back(
-				UrDriver::interp_cubic(timestamps[i] - inp_timestamps[j-1], inp_timestamps[j] - inp_timestamps[j-1],
+				UrDriver::interp_cubic(timestamps[i] - inp_timestamps[j - 1],
+						inp_timestamps[j] - inp_timestamps[j - 1],
 						inp_positions[j - 1], inp_positions[j],
 						inp_velocities[j - 1], inp_velocities[j]));
 	}
@@ -111,4 +111,41 @@ std::vector<std::string> UrDriver::getJointNames() {
 
 void UrDriver::setJointNames(std::vector<std::string> jn) {
 	joint_names_ = jn;
+}
+
+void UrDriver::setToolVoltage(unsigned int v) {
+	char buf[256];
+	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d)\nend\n", v);
+	printf("%s", buf);
+	rt_interface_->addCommandToQueue(buf);
+}
+void UrDriver::setFlag(unsigned int n, bool b) {
+	char buf[256];
+	sprintf(buf, "sec setOut():\n\tset_flag(%d, %s)\nend\n", n,
+			b ? "True" : "False");
+	printf("%s", buf);
+	rt_interface_->addCommandToQueue(buf);
+
+}
+void UrDriver::setDigitalOut(unsigned int n, bool b) {
+	char buf[256];
+	sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
+			b ? "True" : "False");
+	printf("%s", buf);
+	rt_interface_->addCommandToQueue(buf);
+
+}
+void UrDriver::setAnalogOut(unsigned int n, double f) {
+	char buf[256];
+	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d, %1.4f)\nend\n", n, f);
+	printf("%s", buf);
+	rt_interface_->addCommandToQueue(buf);
+}
+
+void UrDriver::setPayloaf(double m){
+	char buf[256];
+	sprintf(buf, "sec setOut():\n\tset_payload(%1.3f)\nend\n", m);
+	printf("%s", buf);
+	rt_interface_->addCommandToQueue(buf);
+
 }

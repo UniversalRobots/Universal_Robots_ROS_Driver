@@ -24,6 +24,11 @@
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "actionlib/server/simple_action_server.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
+#include "ur_msgs/SetIO.h"
+#include "ur_msgs/SetPayloadRequest.h"
+#include "ur_msgs/SetPayloadResponse.h"
+#include "ur_msgs/SetIORequest.h"
+#include "ur_msgs/SetIOResponse.h"
 
 class RosWrapper {
 protected:
@@ -37,15 +42,29 @@ protected:
 	std::thread* rt_publish_thread_;
 	std::condition_variable msg_cond_;
 public:
-	RosWrapper(std::string host, std::vector<std::string> joint_names) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host,
-					joint_names) {
+	RosWrapper(std::string host) :
+			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host) {
+
+		std::string joint_prefix = "";
+		std::vector<std::string> joint_names;
+
+		if (ros::param::get("~prefix", joint_prefix)) {
+			ROS_INFO("Setting prefix to %s", joint_prefix.c_str());
+		}
+		joint_names.push_back(joint_prefix + "shoulder_pan_joint");
+		joint_names.push_back(joint_prefix + "shoulder_lift_joint");
+		joint_names.push_back(joint_prefix + "elbow_joint");
+		joint_names.push_back(joint_prefix + "wrist_1_joint");
+		joint_names.push_back(joint_prefix + "wrist_2_joint");
+		joint_names.push_back(joint_prefix + "wrist_3_joint");
+		robot_.setJointNames(joint_names);
+
+		robot_.start();
 
 		//register the goal and feedback callbacks
 		as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
 		as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
 
-		robot_.start();
 		as_.start();
 
 		//subscribe to the data topic of interest
@@ -58,6 +77,12 @@ public:
 
 	}
 
+	void halt() {
+		robot_.halt();
+		rt_publish_thread_->join();
+
+	}
+private:
 	void goalCB() {
 		ROS_INFO("on_goal");
 
@@ -104,12 +129,29 @@ public:
 		as_.setPreempted();
 	}
 
-	void halt() {
-		robot_.halt();
-		rt_publish_thread_->join();
-
+	bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& resp) {
+		resp.success = true;
+		if (req.fun == ur_msgs::SetIO::Request::FUN_SET_DIGITAL_OUT) {
+			robot_.setDigitalOut(req.pin, req.state > 0.0 ? true : false);
+		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_FLAG) {
+			robot_.setFlag(req.pin, req.state > 0.0 ? true : false);
+		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_ANALOG_OUT) {
+			robot_.setAnalogOut(req.pin, req.state);
+		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_TOOL_VOLTAGE) {
+			robot_.setToolVoltage((int) req.state);
+		} else {
+			resp.success = false;
+		}
+		return resp.success;
 	}
-private:
+
+	bool setPayloaf(ur_msgs::SetPayloadRequest& req,
+			ur_msgs::SetPayloadResponse& resp) {
+		robot_.setPayloaf(req.payload);
+		resp.success = true;
+		return true;
+	}
+
 	bool validateJointNames() {
 		std::vector<std::string> actual_joint_names = robot_.getJointNames();
 		if (goal_.trajectory.joint_names.size() != actual_joint_names.size())
@@ -226,20 +268,8 @@ int main(int argc, char **argv) {
 				"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
 		exit(1);
 	}
-	std::string joint_prefix = "";
-	std::vector<std::string> joint_names;
 
-	if (ros::param::get("~prefix", joint_prefix)) {
-		ROS_INFO("Setting prefix to %s", joint_prefix.c_str());
-	}
-	joint_names.push_back(joint_prefix + "shoulder_pan_joint");
-	joint_names.push_back(joint_prefix + "shoulder_lift_joint");
-	joint_names.push_back(joint_prefix + "elbow_joint");
-	joint_names.push_back(joint_prefix + "wrist_1_joint");
-	joint_names.push_back(joint_prefix + "wrist_2_joint");
-	joint_names.push_back(joint_prefix + "wrist_3_joint");
-
-	RosWrapper interface(host, joint_names);
+	RosWrapper interface(host);
 
 	ros::spin();
 	interface.halt();

@@ -26,7 +26,6 @@ public:
 	UrRealtimeCommunication* rt_interface_;
 
 	UrDriver(std::condition_variable& msg_cond, std::string host,
-			std::vector<std::string> joint_names,
 			unsigned int safety_count_max = 12);
 	void start();
 	void halt();
@@ -44,6 +43,12 @@ public:
 
 	std::vector<std::string> getJointNames();
 	void setJointNames(std::vector<std::string> jn);
+	void setToolVoltage(unsigned int v);
+	void setFlag(unsigned int n, bool b);
+	void setDigitalOut(unsigned int n, bool b);
+	void setAnalogOut(unsigned int n, double f);
+	void setPayloaf(double m);
+
 };
 
 #endif /* UR_DRIVER_H_ */
