@@ -137,21 +137,21 @@ private:
 					"Received a goal with incorrect joint names: "
 							+ outp_joint_names;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR(result_.error_string.c_str());
+			ROS_ERROR("%s",result_.error_string.c_str());
 		}
 
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR(result_.error_string.c_str());
+			ROS_ERROR("%s",result_.error_string.c_str());
 		}
 
 		if (!traj_is_finite()) {
 			result_.error_string = "Received a goal with infinites or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR(result_.error_string.c_str());
+			ROS_ERROR("%s",result_.error_string.c_str());
 		}
 
 		if (!has_limited_velocities()) {
@@ -159,7 +159,7 @@ private:
 			result_.error_string =
 					"Received a goal with velocities that are higher than %f", max_velocity_;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR(result_.error_string.c_str());
+			ROS_ERROR("%s",result_.error_string.c_str());
 		}
 
 		reorder_traj_joints(goal_.trajectory);
