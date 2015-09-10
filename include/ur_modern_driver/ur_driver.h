@@ -29,7 +29,7 @@ public:
 	UrRealtimeCommunication* rt_interface_;
 
 	UrDriver(std::condition_variable& msg_cond, std::string host,
-			unsigned int safety_count_max = 12);
+			unsigned int safety_count_max = 12, double max_time_step = 0.08, double max_vel = 10., double min_payload= 0., double max_payload=1.);
 	void start();
 	void halt();
 

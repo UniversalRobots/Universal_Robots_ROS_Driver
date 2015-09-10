@@ -48,7 +48,8 @@ protected:
 
 public:
 	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host), io_flag_delay_(0.05) {
+			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host), io_flag_delay_(
+					0.05) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -64,6 +65,31 @@ public:
 		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
 
+		{ //Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
+			double max_velocity = 10.;
+			if (ros::param::get("~max_velocity", max_velocity)) {
+				ROS_INFO(
+						"Max velocity accepted by ur_driver: %f [rad/s]", max_velocity);
+				robot_.setMaxVel(max_velocity);
+			}
+		}
+
+		{ //Bounds for SetPayload service
+		  //Using a very conservative value as it should be set through the parameter server
+			double min_payload = 0.;
+			double max_payload = 1.;
+			if (ros::param::get("~min_payload", min_payload)) {
+				ROS_INFO(
+						"Min payload accepted by ur_driver: %f [kg]", min_payload);
+			}
+			if (ros::param::get("~max_payload", max_payload)) {
+				ROS_INFO(
+						"Max payload accepted by ur_driver: %f [kg]", max_payload);
+			}
+			robot_.setMinPayload(min_payload);
+			robot_.setMaxPayload(max_payload);
+			ROS_INFO("Bounds for set_payload service calls: [%f, %f]", min_payload, max_payload);
+		}
 		robot_.start();
 
 		//register the goal and feedback callbacks
