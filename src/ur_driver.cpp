@@ -12,10 +12,10 @@
 #include "ur_modern_driver/ur_driver.h"
 
 UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
-		unsigned int safety_count_max, double max_time_step, double max_vel,
-		double min_payload, double max_payload) :
-		maximum_time_step_(max_time_step), maximum_velocity_(max_vel), minimum_payload_(
-				min_payload), maximum_payload_(max_payload) {
+		unsigned int safety_count_max, double max_time_step, double min_payload,
+		double max_payload) :
+		maximum_time_step_(max_time_step), minimum_payload_(min_payload), maximum_payload_(
+				max_payload) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
 
@@ -155,9 +155,6 @@ bool UrDriver::setPayload(double m) {
 		return false;
 }
 
-void UrDriver::setMaxVel(double vel) {
-	maximum_velocity_ = vel;
-}
 void UrDriver::setMinPayload(double m) {
 	minimum_payload_ = m;
 }

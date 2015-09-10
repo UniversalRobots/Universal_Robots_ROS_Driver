@@ -21,7 +21,6 @@
 class UrDriver {
 private:
 	double maximum_time_step_;
-	double maximum_velocity_;
 	double minimum_payload_;
 	double maximum_payload_;
 	std::vector<std::string> joint_names_;
@@ -29,7 +28,7 @@ public:
 	UrRealtimeCommunication* rt_interface_;
 
 	UrDriver(std::condition_variable& msg_cond, std::string host,
-			unsigned int safety_count_max = 12, double max_time_step = 0.08, double max_vel = 10., double min_payload= 0., double max_payload=1.);
+			unsigned int safety_count_max = 12, double max_time_step = 0.08, double min_payload= 0., double max_payload=1.);
 	void start();
 	void halt();
 
@@ -52,7 +51,6 @@ public:
 	void setAnalogOut(unsigned int n, double f);
 	bool setPayload(double m);
 
-	void setMaxVel(double vel);
 	void setMinPayload(double m);
 	void setMaxPayload(double m);
 

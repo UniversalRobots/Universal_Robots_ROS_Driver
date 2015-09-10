@@ -9,8 +9,6 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "ros/ros.h"
-#include <ros/console.h>
 #include "ur_modern_driver/ur_driver.h"
 #include <string.h>
 #include <vector>
@@ -18,7 +16,10 @@
 #include <condition_variable>
 #include <thread>
 #include <algorithm>
+#include <cmath>
 
+#include "ros/ros.h"
+#include <ros/console.h>
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
@@ -45,6 +46,7 @@ protected:
 	ros::ServiceServer payloadSrv_;
 	std::thread* rt_publish_thread_;
 	double io_flag_delay_;
+	double max_velocity_;
 
 public:
 	RosWrapper(std::string host) :
@@ -65,13 +67,11 @@ public:
 		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
 
-		{ //Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
-			double max_velocity = 10.;
-			if (ros::param::get("~max_velocity", max_velocity)) {
-				ROS_DEBUG(
-						"Max velocity accepted by ur_driver: %f [rad/s]", max_velocity);
-				robot_.setMaxVel(max_velocity);
-			}
+		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
+		max_velocity_ = 10.;
+		if (ros::param::get("~max_velocity", max_velocity_)) {
+			ROS_DEBUG("Max velocity accepted by ur_driver: %f [rad/s]",
+					max_velocity_);
 		}
 
 		{ //Bounds for SetPayload service
@@ -79,16 +79,17 @@ public:
 			double min_payload = 0.;
 			double max_payload = 1.;
 			if (ros::param::get("~min_payload", min_payload)) {
-				ROS_DEBUG(
-						"Min payload accepted by ur_driver: %f [kg]", min_payload);
+				ROS_DEBUG("Min payload accepted by ur_driver: %f [kg]",
+						min_payload);
 			}
 			if (ros::param::get("~max_payload", max_payload)) {
-				ROS_DEBUG(
-						"Max payload accepted by ur_driver: %f [kg]", max_payload);
+				ROS_DEBUG("Max payload accepted by ur_driver: %f [kg]",
+						max_payload);
 			}
 			robot_.setMinPayload(min_payload);
 			robot_.setMaxPayload(max_payload);
-			ROS_INFO("Bounds for set_payload service calls: [%f, %f]", min_payload, max_payload);
+			ROS_INFO("Bounds for set_payload service calls: [%f, %f]",
+					min_payload, max_payload);
 		}
 		robot_.start();
 
@@ -131,13 +132,34 @@ private:
 					i++) {
 				outp_joint_names += goal_.trajectory.joint_names[i] + " ";
 			}
-			ROS_ERROR("Received a goal with incorrect joint names: %s",
-					outp_joint_names.c_str());
 			result_.error_code = result_.INVALID_JOINTS;
-			/*result_.error_string =
-			 "Received a goal with incorrect joint names: %s", outp_joint_names.c_str(); */
-			as_.setAborted(result_,
-					("Received a goal with incorrect joint names: %s", outp_joint_names.c_str()));
+			result_.error_string =
+					"Received a goal with incorrect joint names: "
+							+ outp_joint_names;
+			as_.setAborted(result_, result_.error_string);
+			ROS_ERROR(result_.error_string.c_str());
+		}
+
+		if (!has_velocities()) {
+			result_.error_code = result_.INVALID_GOAL;
+			result_.error_string = "Received a goal without velocities";
+			as_.setAborted(result_, result_.error_string);
+			ROS_ERROR(result_.error_string.c_str());
+		}
+
+		if (!traj_is_finite()) {
+			result_.error_string = "Received a goal with infinites or NaNs";
+			result_.error_code = result_.INVALID_GOAL;
+			as_.setAborted(result_, result_.error_string);
+			ROS_ERROR(result_.error_string.c_str());
+		}
+
+		if (!has_limited_velocities()) {
+			result_.error_code = result_.INVALID_GOAL;
+			result_.error_string =
+					"Received a goal with velocities that are higher than %f", max_velocity_;
+			as_.setAborted(result_, result_.error_string);
+			ROS_ERROR(result_.error_string.c_str());
 		}
 
 		reorder_traj_joints(goal_.trajectory);
@@ -244,6 +266,40 @@ private:
 			new_traj.push_back(new_point);
 		}
 		traj.points = new_traj;
+	}
+
+	bool has_velocities() {
+		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+			if (goal_.trajectory.points[i].positions.size()
+					!= goal_.trajectory.points[i].velocities.size())
+				return false;
+		}
+		return true;
+	}
+
+	bool has_limited_velocities() {
+		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+			for (unsigned int j = 0;
+					j < goal_.trajectory.points[i].velocities.size(); j++) {
+				if (fabs(goal_.trajectory.points[i].velocities[j])
+						> max_velocity_)
+					return false;
+			}
+		}
+		return true;
+	}
+
+	bool traj_is_finite() {
+		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+			for (unsigned int j = 0;
+					j < goal_.trajectory.points[i].velocities.size(); j++) {
+				if (!std::isfinite(goal_.trajectory.points[i].positions[j]))
+					return false;
+				if (!std::isfinite(goal_.trajectory.points[i].velocities[j]))
+					return false;
+			}
+		}
+		return true;
 	}
 
 	void speedInterface(const trajectory_msgs::JointTrajectory::Ptr& msg) {
