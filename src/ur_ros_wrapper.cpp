@@ -77,7 +77,8 @@ public:
 
 		ioSrv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
 				this);
-		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload",	&RosWrapper::setPayload, this);
+		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload",
+				&RosWrapper::setPayload, this);
 
 		rt_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishRTMsg, this));
