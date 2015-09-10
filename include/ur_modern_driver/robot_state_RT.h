@@ -9,8 +9,8 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef ROBOTSTATERT_H_
-#define ROBOTSTATERT_H_
+#ifndef ROBOT_STATE_RT_H_
+#define ROBOT_STATE_RT_H_
 
 #include <inttypes.h>
 #include <vector>
@@ -99,4 +99,4 @@ public:
 	void unpack(uint8_t * buf);
 };
 
-#endif /* ROBOTSTATERT_H_ */
+#endif /* ROBOT_STATE_RT_H_ */
