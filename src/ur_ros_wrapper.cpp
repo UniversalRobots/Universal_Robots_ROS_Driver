@@ -163,7 +163,7 @@ private:
 
 	bool setPayload(ur_msgs::SetPayloadRequest& req,
 			ur_msgs::SetPayloadResponse& resp) {
-		robot_.setPayloaf(req.payload);
+		robot_.setPayload(req.payload);
 		resp.success = true;
 		return true;
 	}

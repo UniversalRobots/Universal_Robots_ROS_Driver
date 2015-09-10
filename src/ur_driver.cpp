@@ -12,10 +12,11 @@
 #include "ur_modern_driver/ur_driver.h"
 
 UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
-		unsigned int safety_count_max) {
+		unsigned int safety_count_max) :
+		maximum_time_step_(0.08), maximum_velocity_(10.0), minimum_payload_(
+				0.0), maximum_payload_(1.0) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
-	maximum_time_step_ = 0.08;
 
 }
 
@@ -142,10 +143,20 @@ void UrDriver::setAnalogOut(unsigned int n, double f) {
 	rt_interface_->addCommandToQueue(buf);
 }
 
-void UrDriver::setPayloaf(double m){
+void UrDriver::setPayload(double m) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_payload(%1.3f)\nend\n", m);
 	printf("%s", buf);
 	rt_interface_->addCommandToQueue(buf);
 
+}
+
+void UrDriver::setMaxVel(double vel) {
+	maximum_velocity_ = vel;
+}
+void UrDriver::setMinPayload(double m) {
+	minimum_payload_ = m;
+}
+void UrDriver::setMaxPayload(double m) {
+	maximum_payload_ = m;
 }

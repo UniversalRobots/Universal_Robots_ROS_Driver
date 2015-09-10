@@ -21,6 +21,9 @@
 class UrDriver {
 private:
 	double maximum_time_step_;
+	double maximum_velocity_;
+	double minimum_payload_;
+	double maximum_payload_;
 	std::vector<std::string> joint_names_;
 public:
 	UrRealtimeCommunication* rt_interface_;
@@ -47,7 +50,11 @@ public:
 	void setFlag(unsigned int n, bool b);
 	void setDigitalOut(unsigned int n, bool b);
 	void setAnalogOut(unsigned int n, double f);
-	void setPayloaf(double m);
+	void setPayload(double m);
+
+	void setMaxVel(double vel);
+	void setMinPayload(double m);
+	void setMaxPayload(double m);
 
 };
 
