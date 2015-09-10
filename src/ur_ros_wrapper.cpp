@@ -47,11 +47,12 @@ protected:
 	std::thread* rt_publish_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
+	std::vector<double> joint_offsets_;
 
 public:
 	RosWrapper(std::string host) :
 			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host), io_flag_delay_(
-					0.05) {
+					0.05), joint_offsets_(6, 0.0) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -91,6 +92,7 @@ public:
 			ROS_INFO("Bounds for set_payload service calls: [%f, %f]",
 					min_payload, max_payload);
 		}
+
 		robot_.start();
 
 		//register the goal and feedback callbacks
@@ -137,21 +139,21 @@ private:
 					"Received a goal with incorrect joint names: "
 							+ outp_joint_names;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s",result_.error_string.c_str());
+			ROS_ERROR("%s", result_.error_string.c_str());
 		}
 
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s",result_.error_string.c_str());
+			ROS_ERROR("%s", result_.error_string.c_str());
 		}
 
 		if (!traj_is_finite()) {
 			result_.error_string = "Received a goal with infinites or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s",result_.error_string.c_str());
+			ROS_ERROR("%s", result_.error_string.c_str());
 		}
 
 		if (!has_limited_velocities()) {
@@ -159,7 +161,7 @@ private:
 			result_.error_string =
 					"Received a goal with velocities that are higher than %f", max_velocity_;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s",result_.error_string.c_str());
+			ROS_ERROR("%s", result_.error_string.c_str());
 		}
 
 		reorder_traj_joints(goal_.trajectory);
@@ -330,6 +332,9 @@ private:
 			joint_msg.header.stamp = ros::Time::now();
 			joint_msg.position =
 					robot_.rt_interface_->robot_state_->getQActual();
+			for (unsigned int i = 0; i < joint_msg.position.size(); i++) {
+				joint_msg.position[i] += joint_offsets_[i];
+			}
 			joint_msg.velocity =
 					robot_.rt_interface_->robot_state_->getQdActual();
 			joint_msg.effort = robot_.rt_interface_->robot_state_->getIActual();
