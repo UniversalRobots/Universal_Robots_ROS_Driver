@@ -32,15 +32,18 @@
 
 class RosWrapper {
 protected:
+	UrDriver robot_;
+	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speedSub_;
-	UrDriver robot_;
+	ros::ServiceServer ioSrv_;
+	ros::ServiceServer payloadSrv_;
 	std::thread* rt_publish_thread_;
-	std::condition_variable msg_cond_;
+
 public:
 	RosWrapper(std::string host) :
 			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host) {
@@ -70,6 +73,9 @@ public:
 		//subscribe to the data topic of interest
 		speedSub_ = nh_.subscribe("joint_speed", 1, &RosWrapper::speedInterface,
 				this);
+
+		ioSrv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO, this);
+		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload", &RosWrapper::setPayload, this);
 
 		rt_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishRTMsg, this));
@@ -145,7 +151,7 @@ private:
 		return resp.success;
 	}
 
-	bool setPayloaf(ur_msgs::SetPayloadRequest& req,
+	bool setPayload(ur_msgs::SetPayloadRequest& req,
 			ur_msgs::SetPayloadResponse& resp) {
 		robot_.setPayloaf(req.payload);
 		resp.success = true;
