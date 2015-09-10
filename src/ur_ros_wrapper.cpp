@@ -44,10 +44,11 @@ protected:
 	ros::ServiceServer ioSrv_;
 	ros::ServiceServer payloadSrv_;
 	std::thread* rt_publish_thread_;
+	double io_flag_delay_;
 
 public:
 	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host) {
+			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host), io_flag_delay_(0.05) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -147,7 +148,7 @@ private:
 			//} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_FLAG) {
 			robot_.setFlag(req.pin, req.state > 0.0 ? true : false);
 			//According to urdriver.py, set_flag will fail if called to rapidly in succession
-			ros::Duration(0.05).sleep();
+			ros::Duration(io_flag_delay_).sleep();
 		} else if (req.fun == 3) {
 			//} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_ANALOG_OUT) {
 			robot_.setAnalogOut(req.pin, req.state);
