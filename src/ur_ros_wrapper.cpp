@@ -25,6 +25,7 @@
 #include "actionlib/server/simple_action_server.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
 #include "ur_msgs/SetIO.h"
+#include "ur_msgs/SetPayload.h"
 #include "ur_msgs/SetPayloadRequest.h"
 #include "ur_msgs/SetPayloadResponse.h"
 #include "ur_msgs/SetIORequest.h"
@@ -74,8 +75,9 @@ public:
 		speedSub_ = nh_.subscribe("joint_speed", 1, &RosWrapper::speedInterface,
 				this);
 
-		ioSrv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO, this);
-		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload", &RosWrapper::setPayload, this);
+		ioSrv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
+				this);
+		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload",	&RosWrapper::setPayload, this);
 
 		rt_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishRTMsg, this));
@@ -137,13 +139,19 @@ private:
 
 	bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& resp) {
 		resp.success = true;
-		if (req.fun == ur_msgs::SetIO::Request::FUN_SET_DIGITAL_OUT) {
+		//if (req.fun == ur_msgs::SetIO::Request::FUN_SET_DIGITAL_OUT) {
+		if (req.fun == 1) {
 			robot_.setDigitalOut(req.pin, req.state > 0.0 ? true : false);
-		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_FLAG) {
+		} else if (req.fun == 2) {
+			//} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_FLAG) {
 			robot_.setFlag(req.pin, req.state > 0.0 ? true : false);
-		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_ANALOG_OUT) {
+			//According to urdriver.py, set_flag will fail if called to rapidly in succession
+			ros::Duration(0.05).sleep();
+		} else if (req.fun == 3) {
+			//} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_ANALOG_OUT) {
 			robot_.setAnalogOut(req.pin, req.state);
-		} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_TOOL_VOLTAGE) {
+		} else if (req.fun == 4) {
+			//} else if (req.fun == ur_msgs::SetIO::Request::FUN_SET_TOOL_VOLTAGE) {
 			robot_.setToolVoltage((int) req.state);
 		} else {
 			resp.success = false;
