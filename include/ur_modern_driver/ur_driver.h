@@ -17,6 +17,7 @@
 #include "ur_realtime_communication.h"
 #include <vector>
 #include <math.h>
+#include <string>
 
 class UrDriver {
 private:

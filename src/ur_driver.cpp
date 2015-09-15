@@ -75,6 +75,7 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 
 	timestamps.push_back(inp_timestamps[inp_timestamps.size() - 1]);
 	positions.push_back(inp_positions[inp_positions.size() - 1]);
+	/* This is actually faster than using a stringstream :-o */
 	for (unsigned int i = 1; i < timestamps.size(); i++) {
 		char buf[128];
 		sprintf(buf,
