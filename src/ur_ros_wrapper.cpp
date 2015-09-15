@@ -31,6 +31,7 @@
 #include "ur_msgs/SetPayloadResponse.h"
 #include "ur_msgs/SetIORequest.h"
 #include "ur_msgs/SetIOResponse.h"
+#include "std_msgs/String.h"
 
 class RosWrapper {
 protected:
@@ -42,9 +43,10 @@ protected:
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
-	ros::Subscriber speedSub_;
-	ros::ServiceServer ioSrv_;
-	ros::ServiceServer payloadSrv_;
+	ros::Subscriber speed_sub_;
+	ros::Subscriber urscript_sub_;
+	ros::ServiceServer io_srv_;
+	ros::ServiceServer payload_srv_;
 	std::thread* rt_publish_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
@@ -52,8 +54,9 @@ protected:
 
 public:
 	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(rt_msg_cond_, msg_cond_, host), io_flag_delay_(
-					0.05), joint_offsets_(6, 0.0) {
+			as_(nh_, "follow_joint_trajectory", false), robot_(rt_msg_cond_,
+					msg_cond_, host), io_flag_delay_(0.05), joint_offsets_(6,
+					0.0) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -103,12 +106,14 @@ public:
 		as_.start();
 
 		//subscribe to the data topic of interest
-		speedSub_ = nh_.subscribe("joint_speed", 1, &RosWrapper::speedInterface,
-				this);
+		speed_sub_ = nh_.subscribe("joint_speed", 1,
+				&RosWrapper::speedInterface, this);
+		urscript_sub_ = nh_.subscribe("ur_driver/URSCcript", 1,
+				&RosWrapper::urscriptInterface, this);
 
-		ioSrv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
+		io_srv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
 				this);
-		payloadSrv_ = nh_.advertiseService("ur_driver/set_payload",
+		payload_srv_ = nh_.advertiseService("ur_driver/set_payload",
 				&RosWrapper::setPayload, this);
 
 		rt_publish_thread_ = new std::thread(
@@ -313,6 +318,11 @@ private:
 				msg->points[0].velocities[1], msg->points[0].velocities[2],
 				msg->points[0].velocities[3], msg->points[0].velocities[4],
 				msg->points[0].velocities[5], acc);
+
+	}
+	void urscriptInterface(const std_msgs::String::ConstPtr& msg) {
+
+		robot_.rt_interface_->addCommandToQueue(msg->data);
 
 	}
 
