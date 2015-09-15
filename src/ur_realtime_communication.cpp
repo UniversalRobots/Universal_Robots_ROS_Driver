@@ -99,6 +99,7 @@ void UrRealtimeCommunication::run() {
 		command_string_lock_.unlock();
 
 	}
+	close(sockfd_);
 }
 
 void UrRealtimeCommunication::setSafetyCountMax(uint inp) {
