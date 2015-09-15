@@ -43,8 +43,8 @@ void UrRealtimeCommunication::start() {
 	keepalive_ = true;
 	if (connect(sockfd_, (struct sockaddr *) &serv_addr_, sizeof(serv_addr_))
 			< 0)
-		printf("Error connecting");
-	printf("connecting...\n");
+		printf("Error connecting to RT port 30003");
+	printf("Realtime port: Connecting...\n");
 	comThread_ = std::thread(&UrRealtimeCommunication::run, this);
 }
 
@@ -78,7 +78,7 @@ void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
 void UrRealtimeCommunication::run() {
 	uint8_t buf[2048];
 	bzero(buf, 2048);
-	printf("Got connection\n");
+	printf("Realtime port: Got connection\n");
 	connected_ = true;
 	while (keepalive_) {
 		read(sockfd_, buf, 2048);

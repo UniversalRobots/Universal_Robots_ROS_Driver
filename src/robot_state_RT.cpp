@@ -85,6 +85,12 @@ std::vector<bool> RobotStateRT::unpackDigitalInputBits(int64_t data) {
 	return ret;
 }
 
+void RobotStateRT::setVersion(double ver) {
+	val_lock_.lock();
+	version_ = ver;
+	val_lock_.unlock();
+}
+
 double RobotStateRT::getVersion() {
 	double ret;
 	val_lock_.lock();

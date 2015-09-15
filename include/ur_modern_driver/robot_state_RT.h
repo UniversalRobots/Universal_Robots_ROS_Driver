@@ -94,6 +94,9 @@ public:
 	double getVRobot();
 	double getIRobot();
 	bool getNewDataAvailable();
+
+	void setVersion(double ver);
+
 	void finishedReading();
 	std::vector<double> getVActual();
 	void unpack(uint8_t * buf);

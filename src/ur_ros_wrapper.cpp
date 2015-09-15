@@ -35,6 +35,7 @@
 class RosWrapper {
 protected:
 	UrDriver robot_;
+	std::condition_variable rt_msg_cond_;
 	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
 	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
@@ -51,7 +52,7 @@ protected:
 
 public:
 	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(msg_cond_, host), io_flag_delay_(
+			as_(nh_, "follow_joint_trajectory", false), robot_(rt_msg_cond_, msg_cond_, host), io_flag_delay_(
 					0.05), joint_offsets_(6, 0.0) {
 
 		std::string joint_prefix = "";
@@ -327,7 +328,7 @@ private:
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
 			std::unique_lock<std::mutex> locker(msg_lock);
 			while (!robot_.rt_interface_->robot_state_->getNewDataAvailable()) {
-				msg_cond_.wait(locker);
+				rt_msg_cond_.wait(locker);
 			}
 			joint_msg.header.stamp = ros::Time::now();
 			joint_msg.position =

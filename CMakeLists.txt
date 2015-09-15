@@ -146,8 +146,10 @@ include_directories(include
 ## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
     src/ur_ros_wrapper.cpp
-    src/ur_realtime_communication.cpp
     src/ur_driver.cpp
+    src/ur_realtime_communication.cpp
+    src/ur_communication.cpp
+    src/robot_state.cpp
     src/robot_state_RT.cpp)
 add_executable(ur_driver ${${PROJECT_NAME}_SOURCES})
 

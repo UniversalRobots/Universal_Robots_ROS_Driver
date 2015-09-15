@@ -15,6 +15,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "ur_realtime_communication.h"
+#include "ur_communication.h"
 #include <vector>
 #include <math.h>
 #include <string>
@@ -27,8 +28,9 @@ private:
 	std::vector<std::string> joint_names_;
 public:
 	UrRealtimeCommunication* rt_interface_;
+	UrCommunication* sec_interface_;
 
-	UrDriver(std::condition_variable& msg_cond, std::string host,
+	UrDriver(std::condition_variable& rt_msg_cond, std::condition_variable& msg_cond, std::string host,
 			unsigned int safety_count_max = 12, double max_time_step = 0.08,
 			double min_payload = 0., double max_payload = 1.);
 	void start();

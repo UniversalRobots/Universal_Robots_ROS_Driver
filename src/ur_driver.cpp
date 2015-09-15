@@ -11,13 +11,14 @@
 
 #include "ur_modern_driver/ur_driver.h"
 
-UrDriver::UrDriver(std::condition_variable& msg_cond, std::string host,
+UrDriver::UrDriver(std::condition_variable& rt_msg_cond, std::condition_variable& msg_cond, std::string host,
 		unsigned int safety_count_max, double max_time_step, double min_payload,
 		double max_payload) :
 		maximum_time_step_(max_time_step), minimum_payload_(min_payload), maximum_payload_(
 				max_payload) {
 	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
 			safety_count_max);
+	sec_interface_ = new UrCommunication(msg_cond, host);
 
 }
 
@@ -96,10 +97,13 @@ void UrDriver::stopTraj() {
 }
 
 void UrDriver::start() {
+	sec_interface_->start();
+	rt_interface_->robot_state_->setVersion(sec_interface_->robot_state_->getVersion());
 	rt_interface_->start();
 }
 
 void UrDriver::halt() {
+	sec_interface_->halt();
 	rt_interface_->halt();
 }
 
