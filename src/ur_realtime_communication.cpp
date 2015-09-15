@@ -99,6 +99,8 @@ void UrRealtimeCommunication::run() {
 		command_string_lock_.unlock();
 
 	}
+	setSpeed(0., 0., 0., 0., 0., 0.);
+	write(sockfd_, command_.c_str(), command_.length());
 	close(sockfd_);
 }
 

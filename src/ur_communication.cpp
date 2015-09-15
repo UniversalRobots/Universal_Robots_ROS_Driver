@@ -104,6 +104,8 @@ void UrCommunication::run() {
 		command_string_lock_.unlock();
 
 	}
+	//wait for some traffic so the UR socket doesn't die in version 3.1.
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	close(sockfd_);
 }
 
