@@ -314,7 +314,7 @@ void RobotStateRT::unpack(uint8_t * buf) {
 	}
 	offset += 4;
 	memcpy(&unpack_to, &buf[offset], sizeof(unpack_to));
-	time_ = ntohd(unpack_to);
+	time_ = RobotStateRT::ntohd(unpack_to);
 	offset += sizeof(double);
 	q_target_ = unpackVector(buf, offset, 6);
 	offset += sizeof(double) * 6;

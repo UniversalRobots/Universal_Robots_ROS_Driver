@@ -16,7 +16,7 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond, std::condition_variable
 		double max_payload) :
 		maximum_time_step_(max_time_step), minimum_payload_(min_payload), maximum_payload_(
 				max_payload) {
-	rt_interface_ = new UrRealtimeCommunication(msg_cond, host,
+	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
 			safety_count_max);
 	sec_interface_ = new UrCommunication(msg_cond, host);
 

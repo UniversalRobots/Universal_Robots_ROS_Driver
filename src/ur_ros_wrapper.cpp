@@ -51,6 +51,7 @@ protected:
 	ros::ServiceServer io_srv_;
 	ros::ServiceServer payload_srv_;
 	std::thread* rt_publish_thread_;
+	std::thread* mb_publish_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
@@ -111,7 +112,7 @@ public:
 		//subscribe to the data topic of interest
 		speed_sub_ = nh_.subscribe("joint_speed", 1,
 				&RosWrapper::speedInterface, this);
-		urscript_sub_ = nh_.subscribe("ur_driver/URSCcript", 1,
+		urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1,
 				&RosWrapper::urscriptInterface, this);
 
 		io_srv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
@@ -121,6 +122,8 @@ public:
 
 		rt_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishRTMsg, this));
+		mb_publish_thread_ = new std::thread(
+				boost::bind(&RosWrapper::publishMbMsg, this));
 		ROS_INFO("The action server for this driver has been started");
 
 	}
@@ -369,7 +372,7 @@ private:
 		}
 	}
 
-	void publishMsg() {
+	void publishMbMsg() {
 		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>("/io_states",
 				1);
 
@@ -381,7 +384,7 @@ private:
 				msg_cond_.wait(locker);
 			}
 
-			for (unsigned int i = 0; i < 10; i++) {
+			for (unsigned int i = 0; i < 18; i++) {
 				ur_msgs::Digital digi;
 				digi.pin = i;
 				digi.state =

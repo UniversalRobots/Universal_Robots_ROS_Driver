@@ -32,7 +32,7 @@
 
 class UrCommunication {
 private:
-	int sockfd_;
+	int pri_sockfd_, sec_sockfd_;
 	struct sockaddr_in pri_serv_addr_, sec_serv_addr_;
 	struct hostent *server_;
 	bool keepalive_;

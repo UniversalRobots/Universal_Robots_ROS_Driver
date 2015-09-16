@@ -14,6 +14,7 @@
 #include <string.h>
 #include <mutex>
 #include <condition_variable>
+#include <netinet/in.h>
 
 namespace message_types {
 enum message_type {
@@ -58,11 +59,11 @@ struct version_message {
 	int8_t source;
 	int8_t robot_message_type;
 	int8_t project_name_size;
-	char* project_name;
+	char project_name[15];
 	uint8_t major_version;
 	uint8_t minor_version;
 	int svn_revision;
-	char* build_date;
+	char build_date[25];
 };
 
 struct masterboard_data {
@@ -95,7 +96,7 @@ private:
 	version_message version_msg_;
 	masterboard_data mb_data_;
 
-	std::mutex val_lock_; // Locks the variables while unpack parses data;
+	std::recursive_mutex val_lock_; // Locks the variables while unpack parses data;
 
 	std::condition_variable* pMsg_cond_; //Signals that new vars are available
 	bool new_data_available_; //to avoid spurious wakes

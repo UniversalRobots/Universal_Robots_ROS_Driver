@@ -16,8 +16,13 @@ UrCommunication::UrCommunication(std::condition_variable& msg_cond,
 	robot_state_ = new RobotState(msg_cond);
 	bzero((char *) &pri_serv_addr_, sizeof(pri_serv_addr_));
 	bzero((char *) &sec_serv_addr_, sizeof(sec_serv_addr_));
-	sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd_ < 0) {
+	pri_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+	if (pri_sockfd_ < 0) {
+		printf("ERROR opening socket");
+		exit(0);
+	}
+	sec_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+	if (sec_sockfd_ < 0) {
 		printf("ERROR opening socket");
 		exit(0);
 	}
@@ -33,8 +38,10 @@ UrCommunication::UrCommunication(std::condition_variable& msg_cond,
 	pri_serv_addr_.sin_port = htons(30001);
 	sec_serv_addr_.sin_port = htons(30002);
 	flag_ = 1;
-	setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
-	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
+	setsockopt(pri_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
+	setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
+	setsockopt(sec_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
 	connected_ = false;
 	keepalive_ = false;
 }
@@ -47,22 +54,22 @@ void UrCommunication::start() {
 	bzero(buf, 512);
 
 	printf("Acquire firmware version: Connecting...\n");
-	if (connect(sockfd_, (struct sockaddr *) &pri_serv_addr_,
+	if (connect(pri_sockfd_, (struct sockaddr *) &pri_serv_addr_,
 			sizeof(pri_serv_addr_)) < 0) {
 		printf("Error connecting");
 		exit(1);
 	}
 	printf("Acquire firmware version: Got connection\n");
-	bytes_read = read(sockfd_, buf, 512);
-	setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
+	bytes_read = read(pri_sockfd_, buf, 512);
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
 	robot_state_->unpack(buf, bytes_read);
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	printf("Firmware version: %f\n\n", robot_state_->getVersion());
-	close(sockfd_);
+	close(pri_sockfd_);
 
 	printf("Switching to secondary interface for masterboard data: Connecting...\n"); // which generates less network traffic
-		if (connect(sockfd_, (struct sockaddr *) &sec_serv_addr_,
+		if (connect(sec_sockfd_, (struct sockaddr *) &sec_serv_addr_,
 				sizeof(sec_serv_addr_)) < 0) {
 			printf("Error connecting");
 			exit(1);
@@ -92,13 +99,13 @@ void UrCommunication::run() {
 	printf("Got connection\n");
 	connected_ = true;
 	while (keepalive_) {
-		bytes_read = read(sockfd_, buf, 2048); // usually only up to 1295 bytes
-		setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+		bytes_read = read(sec_sockfd_, buf, 2048); // usually only up to 1295 bytes
+		setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 				sizeof(int));
 		robot_state_->unpack(buf, bytes_read);
 		command_string_lock_.lock();
 		if (command_.length() != 0) {
-			write(sockfd_, command_.c_str(), command_.length());
+			write(sec_sockfd_, command_.c_str(), command_.length());
 			command_ = "";
 		}
 		command_string_lock_.unlock();
@@ -106,6 +113,6 @@ void UrCommunication::run() {
 	}
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-	close(sockfd_);
+	close(sec_sockfd_);
 }
 
