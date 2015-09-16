@@ -83,7 +83,7 @@ void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
 		double q3, double q4, double q5, double acc) {
 	char cmd[1024];
 	sprintf(cmd,
-			"speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %1.5f,0.02)\n",
+			"speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.02)\n",
 			q0, q1, q2, q3, q4, q5, acc);
 	addCommandToQueue((std::string) (cmd));
 	if (q0 != 0. or q1 != 0. or q2 != 0. or q3 != 0. or q4 != 0. or q5 != 0.) {

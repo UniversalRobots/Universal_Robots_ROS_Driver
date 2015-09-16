@@ -317,7 +317,6 @@ private:
 	}
 
 	void speedInterface(const trajectory_msgs::JointTrajectory::Ptr& msg) {
-		reorder_traj_joints(*msg);
 		double acc = *std::max_element(msg->points[0].accelerations.begin(),
 				msg->points[0].accelerations.end());
 		robot_.setSpeed(msg->points[0].velocities[0],

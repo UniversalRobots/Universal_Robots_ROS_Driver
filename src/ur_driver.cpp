@@ -86,7 +86,7 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 				timestamps[i] - timestamps[i - 1]);
 		command_string += buf;
 	}
-	command_string += "end\ntraj()\n";
+	command_string += "end\n";
 	//printf("%s", command_string.c_str());
 	rt_interface_->addCommandToQueue(command_string);
 
@@ -123,14 +123,14 @@ void UrDriver::setJointNames(std::vector<std::string> jn) {
 void UrDriver::setToolVoltage(unsigned int v) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d)\nend\n", v);
-	printf("%s", buf);
+	//printf("%s", buf);
 	rt_interface_->addCommandToQueue(buf);
 }
 void UrDriver::setFlag(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_flag(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-	printf("%s", buf);
+	//printf("%s", buf);
 	rt_interface_->addCommandToQueue(buf);
 
 }
@@ -138,14 +138,14 @@ void UrDriver::setDigitalOut(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-	printf("%s", buf);
+	//printf("%s", buf);
 	rt_interface_->addCommandToQueue(buf);
 
 }
 void UrDriver::setAnalogOut(unsigned int n, double f) {
 	char buf[256];
-	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d, %1.4f)\nend\n", n, f);
-	printf("%s", buf);
+	sprintf(buf, "sec setOut():\n\tset_analog_out(%d, %1.4f)\nend\n", n, f);
+	//printf("%s", buf);
 	rt_interface_->addCommandToQueue(buf);
 }
 
