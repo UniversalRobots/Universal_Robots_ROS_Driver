@@ -304,7 +304,7 @@ void RobotStateRT::unpack(uint8_t * buf) {
 
 	offset += sizeof(len);
 	len = ntohl(len);
-	if (len > 1500) {
+	if (version_ < 3.1 & len > 1044) {
 		//In 3.0, every 3rd? package is malformed...?
 		val_lock_.unlock();
 		return;
