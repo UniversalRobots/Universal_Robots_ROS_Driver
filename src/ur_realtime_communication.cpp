@@ -13,19 +13,28 @@
 
 UrRealtimeCommunication::UrRealtimeCommunication(
 		std::condition_variable& msg_cond, std::string host,
-		unsigned int safety_count_max) :
-		SAMPLETIME_(0.008) {
+		unsigned int safety_count_max) {
 	robot_state_ = new RobotStateRT(msg_cond);
 	bzero((char *) &serv_addr_, sizeof(serv_addr_));
 	sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd_ < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR opening socket");
+		ros::shutdown();
+#else
 		printf("ERROR opening socket");
-		exit(0);
+		exit(1);
+#endif
 	}
 	server_ = gethostbyname(host.c_str());
 	if (server_ == NULL) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR, no such host");
+		ros::shutdown();
+#else
 		printf("ERROR, no such host\n");
-		exit(0);
+		exit(1);
+#endif
 	}
 	serv_addr_.sin_family = AF_INET;
 	bcopy((char *) server_->h_addr, (char *)&serv_addr_.sin_addr.s_addr, server_->h_length);
@@ -35,16 +44,24 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
 	connected_ = false;
 	keepalive_ = false;
-	safety_count_ = safety_count_max+1;
+	safety_count_ = safety_count_max + 1;
 	safety_count_max_ = safety_count_max;
 }
 
 void UrRealtimeCommunication::start() {
 	keepalive_ = true;
+#ifdef ROS_BUILD
+	ROS_DEBUG("Realtime port: Connecting...");
+#else
+	printf("Realtime port: Connecting...\n");
+#endif
 	if (connect(sockfd_, (struct sockaddr *) &serv_addr_, sizeof(serv_addr_))
 			< 0)
-		printf("Error connecting to RT port 30003");
-	printf("Realtime port: Connecting...\n");
+#ifdef ROS_BUILD
+		ROS_FATAL("Error connecting to RT port 30003");
+#else
+		printf("Error connecting to RT port 30003\n");
+#endif
 	comThread_ = std::thread(&UrRealtimeCommunication::run, this);
 }
 
@@ -78,7 +95,11 @@ void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
 void UrRealtimeCommunication::run() {
 	uint8_t buf[2048];
 	bzero(buf, 2048);
+#ifdef ROS_BUILD
+	ROS_DEBUG("Realtime port: Got connection");
+#else
 	printf("Realtime port: Got connection\n");
+#endif
 	connected_ = true;
 	while (keepalive_) {
 		read(sockfd_, buf, 2048);

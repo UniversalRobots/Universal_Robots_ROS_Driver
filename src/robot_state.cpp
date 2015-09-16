@@ -143,7 +143,6 @@ void RobotState::unpackRobotStateMasterboard(uint8_t * buf,
 		offset += sizeof(mb_data_.digitalOutputBits);
 		mb_data_.digitalOutputBits = ntohl(mb_data_.digitalOutputBits);
 	}
-	printf("output bits: %X\n", mb_data_.digitalOutputBits);
 
 	memcpy(&mb_data_.analogInputRange0, &buf[offset],
 			sizeof(mb_data_.analogInputRange0));

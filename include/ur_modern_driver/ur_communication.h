@@ -30,6 +30,10 @@
 #include <unistd.h>
 #include <chrono>
 
+#ifdef ROS_BUILD
+#include <ros/ros.h>
+#endif
+
 class UrCommunication {
 private:
 	int pri_sockfd_, sec_sockfd_;

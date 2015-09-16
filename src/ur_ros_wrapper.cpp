@@ -88,11 +88,11 @@ public:
 			double min_payload = 0.;
 			double max_payload = 1.;
 			if (ros::param::get("~min_payload", min_payload)) {
-				ROS_DEBUG("Min payload accepted by ur_driver: %f [kg]",
+				ROS_DEBUG("Min payload set to: %f [kg]",
 						min_payload);
 			}
 			if (ros::param::get("~max_payload", max_payload)) {
-				ROS_DEBUG("Max payload accepted by ur_driver: %f [kg]",
+				ROS_DEBUG("Max payload set to: %f [kg]",
 						max_payload);
 			}
 			robot_.setMinPayload(min_payload);

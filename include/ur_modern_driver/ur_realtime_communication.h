@@ -29,9 +29,12 @@
 #include <iostream>
 #include <unistd.h>
 
+#ifdef ROS_BUILD
+#include <ros/ros.h>
+#endif
+
 class UrRealtimeCommunication {
 private:
-	const double SAMPLETIME_;
 	unsigned int safety_count_max_;
 	int sockfd_;
 	struct sockaddr_in serv_addr_;
