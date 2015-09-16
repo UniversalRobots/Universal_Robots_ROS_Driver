@@ -98,7 +98,7 @@ void UrCommunication::start() {
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 #ifdef ROS_BUILD
-	ROS_DEBUG("Firmware version detected: %f", robot_state_->getVersion());
+	ROS_INFO("Firmware version detected: %f", robot_state_->getVersion());
 #else
 	printf("Firmware version detected: %f\n", robot_state_->getVersion());
 #endif

@@ -299,20 +299,16 @@ void RobotStateRT::unpack(uint8_t * buf) {
 	uint64_t unpack_to;
 	uint16_t offset = 0;
 	val_lock_.lock();
-	if (version_ == 0.0) {
-		uint32_t len;
-		memcpy(&len, &buf[offset], sizeof(len));
-		if (len <= 756) {
-			version_ = 1.6;
-		} else if (len <= 764) {
-			version_ = 1.7;
-		} else if (len <= 812) {
-			version_ = 1.8;
-		} else if (len <= 1044) {
-			version_ = 3.0;
-		}
+	int len;
+	memcpy(&len, &buf[offset], sizeof(len));
+
+	offset += sizeof(len);
+	len = ntohl(len);
+	if (len > 1500) {
+		//In 3.0, every 3rd? package is malformed...?
+		val_lock_.unlock();
+		return;
 	}
-	offset += 4;
 	memcpy(&unpack_to, &buf[offset], sizeof(unpack_to));
 	time_ = RobotStateRT::ntohd(unpack_to);
 	offset += sizeof(double);

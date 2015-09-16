@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mutex>
+#include <netinet/in.h>
 #include <condition_variable>
 
 class RobotStateRT {
