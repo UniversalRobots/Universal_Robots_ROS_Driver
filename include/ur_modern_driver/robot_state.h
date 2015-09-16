@@ -81,13 +81,12 @@ struct masterboard_data {
 	float robotCurrent;
 	float masterIOCurrent;
 	unsigned char safetyMode;
-	unsigned char InReducedMode;
+	unsigned char masterOnOffState;
 	char euromap67InterfaceInstalled;
 	int euromapInputBits;
 	int euromapOutputBits;
 	float euromapVoltage;
 	float euromapCurrent;
-	uint32_t internal;
 
 };
 
@@ -134,8 +133,12 @@ public:
 	void finishedReading();
 	std::vector<double> getVActual();
 	int unpack(uint8_t * buf, unsigned int buf_length);
-	void unpackRobotMessage(uint8_t * buf, unsigned int offset,uint32_t len);
+	void unpackRobotMessage(uint8_t * buf, unsigned int offset, uint32_t len);
+	void unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
+			uint32_t len);
+
 	void unpackRobotState(uint8_t * buf, unsigned int offset, uint32_t len);
+	void unpackRobotStateMasterboard(uint8_t * buf, unsigned int offset);
 };
 
 #endif /* ROBOT_STATE_H_ */
