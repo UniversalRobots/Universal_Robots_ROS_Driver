@@ -123,14 +123,24 @@ void UrDriver::setJointNames(std::vector<std::string> jn) {
 void UrDriver::setToolVoltage(unsigned int v) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d)\nend\n", v);
-	//printf("%s", buf);
+#ifdef ROS_BUILD
+	ROS_DEBUG("%s", buf);
+#else
+	printf("%s", buf);
+#endif
+
 	rt_interface_->addCommandToQueue(buf);
 }
 void UrDriver::setFlag(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_flag(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-	//printf("%s", buf);
+#ifdef ROS_BUILD
+	ROS_DEBUG("%s", buf);
+#else
+	printf("%s", buf);
+#endif
+
 	rt_interface_->addCommandToQueue(buf);
 
 }
@@ -138,14 +148,24 @@ void UrDriver::setDigitalOut(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-	//printf("%s", buf);
+#ifdef ROS_BUILD
+	ROS_DEBUG("%s", buf);
+#else
+	printf("%s", buf);
+#endif
+
 	rt_interface_->addCommandToQueue(buf);
 
 }
 void UrDriver::setAnalogOut(unsigned int n, double f) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_analog_out(%d, %1.4f)\nend\n", n, f);
-	//printf("%s", buf);
+#ifdef ROS_BUILD
+	ROS_DEBUG("%s", buf);
+#else
+	printf("%s", buf);
+#endif
+
 	rt_interface_->addCommandToQueue(buf);
 }
 
@@ -153,7 +173,11 @@ bool UrDriver::setPayload(double m) {
 	if ((m < maximum_payload_) && (m > minimum_payload_)) {
 		char buf[256];
 		sprintf(buf, "sec setOut():\n\tset_payload(%1.3f)\nend\n", m);
-		printf("%s", buf);
+#ifdef ROS_BUILD
+	ROS_DEBUG("%s", buf);
+#else
+	printf("%s", buf);
+#endif
 		rt_interface_->addCommandToQueue(buf);
 		return true;
 	} else
