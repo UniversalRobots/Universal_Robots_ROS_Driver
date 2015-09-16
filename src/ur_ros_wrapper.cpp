@@ -31,6 +31,9 @@
 #include "ur_msgs/SetPayloadResponse.h"
 #include "ur_msgs/SetIORequest.h"
 #include "ur_msgs/SetIOResponse.h"
+#include "ur_msgs/IOStates.h"
+#include "ur_msgs/Digital.h"
+#include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
 
 class RosWrapper {
@@ -362,6 +365,51 @@ private:
 			wrench_pub.publish(wrench_msg);
 
 			robot_.rt_interface_->robot_state_->finishedReading();
+
+		}
+	}
+
+	void publishMsg() {
+		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>("/io_states",
+				1);
+
+		while (ros::ok()) {
+			ur_msgs::IOStates io_msg;
+			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
+			std::unique_lock<std::mutex> locker(msg_lock);
+			while (!robot_.sec_interface_->robot_state_->getNewDataAvailable()) {
+				msg_cond_.wait(locker);
+			}
+
+			for (unsigned int i = 0; i < 10; i++) {
+				ur_msgs::Digital digi;
+				digi.pin = i;
+				digi.state =
+						((robot_.sec_interface_->robot_state_->getDigitalInputBits()
+								& (1 << i)) >> i);
+				io_msg.digital_in_states.push_back(digi);
+				digi.state =
+						((robot_.sec_interface_->robot_state_->getDigitalOutputBits()
+								& (1 << i)) >> i);
+				io_msg.digital_out_states.push_back(digi);
+			}
+			ur_msgs::Analog ana;
+			ana.pin = 0;
+			ana.state = robot_.sec_interface_->robot_state_->getAnalogInput0();
+			io_msg.analog_in_states.push_back(ana);
+			ana.pin = 1;
+			ana.state = robot_.sec_interface_->robot_state_->getAnalogInput1();
+			io_msg.analog_in_states.push_back(ana);
+
+			ana.pin = 0;
+			ana.state = robot_.sec_interface_->robot_state_->getAnalogOutput0();
+			io_msg.analog_out_states.push_back(ana);
+			ana.pin = 1;
+			ana.state = robot_.sec_interface_->robot_state_->getAnalogOutput1();
+			io_msg.analog_out_states.push_back(ana);
+			io_pub.publish(io_msg);
+
+			robot_.sec_interface_->robot_state_->finishedReading();
 
 		}
 	}

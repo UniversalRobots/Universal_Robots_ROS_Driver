@@ -209,7 +209,7 @@ double RobotState::getVersion() {
 	double ver;
 	val_lock_.lock();
 	ver = version_msg_.major_version + 0.1 * version_msg_.minor_version
-	+ .0000001 * version_msg_.svn_revision;
+			+ .0000001 * version_msg_.svn_revision;
 	val_lock_.unlock();
 	return ver;
 
@@ -217,4 +217,24 @@ double RobotState::getVersion() {
 
 void RobotState::finishedReading() {
 	new_data_available_ = false;
+}
+
+int RobotState::getDigitalInputBits() {
+	return mb_data_.digitalInputBits;
+}
+int RobotState::getDigitalOutputBits() {
+	return mb_data_.digitalOutputBits;
+}
+double RobotState::getAnalogInput0() {
+	return mb_data_.analogInput0;
+}
+double RobotState::getAnalogInput1() {
+	return mb_data_.analogInput1;
+}
+double RobotState::getAnalogOutput0() {
+	return mb_data_.analogOutput0;
+
+}
+double RobotState::getAnalogOutput1() {
+	return mb_data_.analogOutput1;
 }
