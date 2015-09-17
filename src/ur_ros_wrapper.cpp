@@ -384,8 +384,10 @@ private:
 			while (!robot_.sec_interface_->robot_state_->getNewDataAvailable()) {
 				msg_cond_.wait(locker);
 			}
-
-			for (unsigned int i = 0; i < 18; i++) {
+			int i_max = 10;
+			if (robot_.sec_interface_->robot_state_->getVersion() > 3.0)
+				i_max = 18; // From version 3.0, there are up to 18 inputs and outputs
+			for (unsigned int i = 0; i < i_max; i++) {
 				ur_msgs::Digital digi;
 				digi.pin = i;
 				digi.state =
