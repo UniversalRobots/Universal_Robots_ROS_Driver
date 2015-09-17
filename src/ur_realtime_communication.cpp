@@ -74,9 +74,11 @@ void UrRealtimeCommunication::addCommandToQueue(std::string inp) {
 	if (inp.back() != '\n') {
 		inp.append("\n");
 	}
-	command_string_lock_.lock();
+	write(sockfd_, inp.c_str(), inp.length());
+	/*command_string_lock_.lock();
 	command_ += inp;
-	command_string_lock_.unlock();
+	command_string_lock_.unlock();*/
+
 }
 
 void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
@@ -106,18 +108,18 @@ void UrRealtimeCommunication::run() {
 		setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 				sizeof(int));
 		robot_state_->unpack(buf);
-		command_string_lock_.lock();
+		/*command_string_lock_.lock();
 		if (command_.length() != 0) {
 			write(sockfd_, command_.c_str(), command_.length());
 			command_ = "";
-		}
+		}*/
 		if (safety_count_ == safety_count_max_) {
 			setSpeed(0., 0., 0., 0., 0., 0.);
-			write(sockfd_, command_.c_str(), command_.length());
-			command_ = "";
+			//write(sockfd_, command_.c_str(), command_.length());
+			//command_ = "";
 		}
 		safety_count_ += 1;
-		command_string_lock_.unlock();
+		///command_string_lock_.unlock();
 
 	}
 	setSpeed(0., 0., 0., 0., 0., 0.);
