@@ -133,15 +133,6 @@ void UrCommunication::halt() {
 	comThread_.join();
 }
 
-void UrCommunication::addCommandToQueue(std::string inp) {
-	if (inp.back() != '\n') {
-		inp.append("\n");
-	}
-	command_string_lock_.lock();
-	command_ += inp;
-	command_string_lock_.unlock();
-}
-
 void UrCommunication::run() {
 	uint8_t buf[2048];
 	unsigned int bytes_read;
@@ -152,13 +143,6 @@ void UrCommunication::run() {
 		setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 				sizeof(int));
 		robot_state_->unpack(buf, bytes_read);
-		command_string_lock_.lock();
-		if (command_.length() != 0) {
-			write(sec_sockfd_, command_.c_str(), command_.length());
-			command_ = "";
-		}
-		command_string_lock_.unlock();
-
 	}
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));

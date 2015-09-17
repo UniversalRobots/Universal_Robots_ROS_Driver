@@ -71,14 +71,11 @@ void UrRealtimeCommunication::halt() {
 }
 
 void UrRealtimeCommunication::addCommandToQueue(std::string inp) {
+	int bytes_written;
 	if (inp.back() != '\n') {
 		inp.append("\n");
 	}
-	write(sockfd_, inp.c_str(), inp.length());
-	/*command_string_lock_.lock();
-	command_ += inp;
-	command_string_lock_.unlock();*/
-
+	bytes_written = write(sockfd_, inp.c_str(), inp.length());
 }
 
 void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
@@ -96,6 +93,7 @@ void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
 
 void UrRealtimeCommunication::run() {
 	uint8_t buf[2048];
+	int bytes_read;
 	bzero(buf, 2048);
 #ifdef ROS_BUILD
 	ROS_DEBUG("Realtime port: Got connection");
@@ -104,26 +102,16 @@ void UrRealtimeCommunication::run() {
 #endif
 	connected_ = true;
 	while (keepalive_) {
-		read(sockfd_, buf, 2048);
+		bytes_read = read(sockfd_, buf, 2048);
 		setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 				sizeof(int));
 		robot_state_->unpack(buf);
-		/*command_string_lock_.lock();
-		if (command_.length() != 0) {
-			write(sockfd_, command_.c_str(), command_.length());
-			command_ = "";
-		}*/
 		if (safety_count_ == safety_count_max_) {
 			setSpeed(0., 0., 0., 0., 0., 0.);
-			//write(sockfd_, command_.c_str(), command_.length());
-			//command_ = "";
 		}
 		safety_count_ += 1;
-		///command_string_lock_.unlock();
-
 	}
 	setSpeed(0., 0., 0., 0., 0., 0.);
-	write(sockfd_, command_.c_str(), command_.length());
 	close(sockfd_);
 }
 

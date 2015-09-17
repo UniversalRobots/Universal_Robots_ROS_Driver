@@ -133,7 +133,7 @@ public:
 	bool getNewDataAvailable();
 	void finishedReading();
 	std::vector<double> getVActual();
-	int unpack(uint8_t * buf, unsigned int buf_length);
+	void unpack(uint8_t * buf, unsigned int buf_length);
 	void unpackRobotMessage(uint8_t * buf, unsigned int offset, uint32_t len);
 	void unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
 			uint32_t len);

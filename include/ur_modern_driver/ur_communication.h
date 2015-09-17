@@ -42,8 +42,6 @@ private:
 	bool keepalive_;
 	std::thread comThread_;
 	int flag_;
-	std::recursive_mutex command_string_lock_;
-	std::string command_;
 	void run();
 
 public:
@@ -53,7 +51,6 @@ public:
 	UrCommunication(std::condition_variable& msg_cond, std::string host);
 	void start();
 	void halt();
-	void addCommandToQueue(std::string inp);
 
 };
 

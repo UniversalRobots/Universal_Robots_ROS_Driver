@@ -19,7 +19,7 @@ double RobotState::ntohd(uint64_t nf) {
 	memcpy(&x, &nf, sizeof(x));
 	return x;
 }
-int RobotState::unpack(uint8_t* buf, unsigned int buf_length) {
+void RobotState::unpack(uint8_t* buf, unsigned int buf_length) {
 	/* Returns missing bytes to unpack a message, or 0 if all data was parsed */
 	unsigned int offset = 0;
 	while (buf_length > offset) {
@@ -28,7 +28,7 @@ int RobotState::unpack(uint8_t* buf, unsigned int buf_length) {
 		memcpy(&len, &buf[offset], sizeof(len));
 		len = ntohl(len);
 		if (len + offset > buf_length) {
-			return (len + offset - buf_length);
+			return ;
 		}
 		memcpy(&message_type, &buf[offset + sizeof(len)], sizeof(message_type));
 		switch (message_type) {
@@ -46,7 +46,7 @@ int RobotState::unpack(uint8_t* buf, unsigned int buf_length) {
 		offset += len;
 
 	}
-	return 0;
+	return;
 }
 
 void RobotState::unpackRobotMessage(uint8_t * buf, unsigned int offset,
