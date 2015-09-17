@@ -88,12 +88,10 @@ public:
 			double min_payload = 0.;
 			double max_payload = 1.;
 			if (ros::param::get("~min_payload", min_payload)) {
-				ROS_DEBUG("Min payload set to: %f [kg]",
-						min_payload);
+				ROS_DEBUG("Min payload set to: %f [kg]", min_payload);
 			}
 			if (ros::param::get("~max_payload", max_payload)) {
-				ROS_DEBUG("Max payload set to: %f [kg]",
-						max_payload);
+				ROS_DEBUG("Max payload set to: %f [kg]", max_payload);
 			}
 			robot_.setMinPayload(min_payload);
 			robot_.setMaxPayload(max_payload);
@@ -317,12 +315,16 @@ private:
 	}
 
 	void speedInterface(const trajectory_msgs::JointTrajectory::Ptr& msg) {
-		double acc = *std::max_element(msg->points[0].accelerations.begin(),
-				msg->points[0].accelerations.end());
-		robot_.setSpeed(msg->points[0].velocities[0],
-				msg->points[0].velocities[1], msg->points[0].velocities[2],
-				msg->points[0].velocities[3], msg->points[0].velocities[4],
-				msg->points[0].velocities[5], acc);
+		if (msg->points[0].velocities.size() == 6) {
+			double acc = 100;
+			if (msg->points[0].accelerations.size() > 0)
+				acc = *std::max_element(msg->points[0].accelerations.begin(),
+						msg->points[0].accelerations.end());
+			robot_.setSpeed(msg->points[0].velocities[0],
+					msg->points[0].velocities[1], msg->points[0].velocities[2],
+					msg->points[0].velocities[3], msg->points[0].velocities[4],
+					msg->points[0].velocities[5], acc);
+		}
 
 	}
 	void urscriptInterface(const std_msgs::String::ConstPtr& msg) {
