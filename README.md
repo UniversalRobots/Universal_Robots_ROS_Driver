@@ -40,9 +40,13 @@ No script is sent to the robot. This means that the teach pendant can be used to
 ---
 Should be compatible with all robots and control boxes with the newest firmware.
 Tested with:
-*Simulated UR3 running 3.1.18024
-*Simulated UR5 running 3.0.1647
 *Real UR10 with CB2 running 1.8.14035
 *Real UR5 with CB2 running 1.8.14035
+
+*Simulated UR3 running 3.1.18024
+*Simulated UR5 running 3.0.16471
+*Simulated UR5 running 1.8.16941
+*Simulated UR5 running 1.7.10857
+*Simulated UR5 running 1.6.08725
 
  
