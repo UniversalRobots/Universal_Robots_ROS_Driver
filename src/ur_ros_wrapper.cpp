@@ -431,12 +431,17 @@ int main(int argc, char **argv) {
 	if (ros::param::get("use_sim_time", use_sim_time)) {
 		ROS_WARN("use_sim_time is set!!");
 	}
-	if (argc > 1) {
-		host = argv[1];
-	} else if (!(ros::param::get("~robot_ip", host))) {
-		ROS_FATAL(
-				"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
-		exit(1);
+	if (!(ros::param::get("~robot_ip_address", host))) {
+		if (argc > 1) {
+			ROS_WARN(
+					"Please set the parameter robot_ip_address instead of giving it as a command line argument. This method is DEPRECATED");
+			host = argv[1];
+		} else {
+			ROS_FATAL(
+					"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
+			exit(1);
+		}
+
 	}
 
 	RosWrapper interface(host);
