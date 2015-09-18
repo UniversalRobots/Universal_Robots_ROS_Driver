@@ -271,7 +271,8 @@ private:
 						traj.points[i].positions[mapping[j]]);
 				new_point.velocities.push_back(
 						traj.points[i].velocities[mapping[j]]);
-				new_point.accelerations.push_back(
+				if (traj.points[i].accelerations.size() != 0)
+					new_point.accelerations.push_back(
 						traj.points[i].accelerations[mapping[j]]);
 			}
 			new_point.time_from_start = traj.points[i].time_from_start;
