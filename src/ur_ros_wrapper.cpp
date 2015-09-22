@@ -209,11 +209,8 @@ private:
 
 		}
 		robot_.doTraj(timestamps, positions, velocities);
-
-		ros::Duration(timestamps.back()).sleep();
 		result_.error_code = result_.SUCCESSFUL;
 		as_.setSucceeded(result_);
-
 	}
 
 	void preemptCB() {
