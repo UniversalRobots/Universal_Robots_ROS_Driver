@@ -184,8 +184,8 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
 		bytes_written = write(new_sockfd, buf, 32);
 
-		// oversample with 2 * sample_time
-		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+		// oversample with 4 * sample_time
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
 		t = std::chrono::high_resolution_clock::now();
 	}
