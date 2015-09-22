@@ -184,10 +184,8 @@ private:
 
 		}
 		robot_.doTraj(timestamps, positions, velocities);
-
 		result_.error_code = result_.SUCCESSFUL;
 		as_.setSucceeded(result_);
-
 	}
 
 	void preemptCB() {
