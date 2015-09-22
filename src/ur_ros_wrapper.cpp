@@ -123,31 +123,6 @@ public:
 		mb_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishMbMsg, this));
 		ROS_DEBUG("The action server for this driver has been started");
-		/*double pi = 3.141592653589793;
-		std::vector<double> tmp, t;
-		std::vector<std::vector<double> > pos, vel;
-		tmp.push_back(-pi / 2);
-		tmp.push_back(-pi / 2);
-		tmp.push_back(-pi / 2);
-		tmp.push_back(0);
-		tmp.push_back(-pi / 2);
-		tmp.push_back(0);
-		pos.push_back(tmp);
-		tmp[5] = pi;
-		pos.push_back(tmp);
-		tmp[5] = 0;
-		pos.push_back(tmp);
-		for (int i = 0; i < 6; i++) {
-			tmp[i] = 0;
-		}
-		vel.push_back(tmp);
-		vel.push_back(tmp);
-		vel.push_back(tmp);
-		t.push_back(0.);
-		t.push_back(4.);
-		t.push_back(8.);
-		robot_.doTraj(t, pos, vel);*/
-
 	}
 
 	void halt() {
@@ -210,7 +185,6 @@ private:
 		}
 		robot_.doTraj(timestamps, positions, velocities);
 
-		ros::Duration(timestamps.back()).sleep();
 		result_.error_code = result_.SUCCESSFUL;
 		as_.setSucceeded(result_);
 
