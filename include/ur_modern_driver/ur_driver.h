@@ -19,6 +19,12 @@
 #include <vector>
 #include <math.h>
 #include <string>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#include <chrono>
+
 
 class UrDriver {
 private:
@@ -26,22 +32,35 @@ private:
 	double minimum_payload_;
 	double maximum_payload_;
 	std::vector<std::string> joint_names_;
+	std::string ip_addr_;
+	const int MULT_JOINTSTATE_ = 1000000;
+	const int MULT_TIME_ = 1000000;
+	const unsigned int REVERSE_PORT_;
+	int incoming_sockfd_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
 
-	UrDriver(std::condition_variable& rt_msg_cond, std::condition_variable& msg_cond, std::string host,
-			unsigned int safety_count_max = 12, double max_time_step = 0.08,
-			double min_payload = 0., double max_payload = 1.);
+	UrDriver(std::condition_variable& rt_msg_cond,
+			std::condition_variable& msg_cond, std::string host,
+			unsigned int reverse_port = 50007, unsigned int safety_count_max =
+					12, double max_time_step = 0.08, double min_payload = 0.,
+			double max_payload = 1.);
 	void start();
 	void halt();
 
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
 			double q5, double acc = 100.);
-	void addTraj(std::vector<double> inp_timestamps,
+	void addTraj(
+			std::vector<double> inp_timestamps, //DEPRECATED
 			std::vector<std::vector<double> > positions,
 			std::vector<std::vector<double> > velocities);
+	void doTraj(std::vector<double> inp_timestamps,
+			std::vector<std::vector<double> > inp_positions,
+			std::vector<std::vector<double> > inp_velocities);
 	void stopTraj();
+
+	void uploadProg();
 
 	std::vector<double> interp_cubic(double t, double T,
 			std::vector<double> p0_pos, std::vector<double> p1_pos,

@@ -95,7 +95,7 @@ public:
 			}
 			robot_.setMinPayload(min_payload);
 			robot_.setMaxPayload(max_payload);
-			ROS_INFO("Bounds for set_payload service calls: [%f, %f]",
+			ROS_DEBUG("Bounds for set_payload service calls: [%f, %f]",
 					min_payload, max_payload);
 		}
 
@@ -122,7 +122,31 @@ public:
 				boost::bind(&RosWrapper::publishRTMsg, this));
 		mb_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishMbMsg, this));
-		ROS_INFO("The action server for this driver has been started");
+		ROS_DEBUG("The action server for this driver has been started");
+		/*double pi = 3.141592653589793;
+		std::vector<double> tmp, t;
+		std::vector<std::vector<double> > pos, vel;
+		tmp.push_back(-pi / 2);
+		tmp.push_back(-pi / 2);
+		tmp.push_back(-pi / 2);
+		tmp.push_back(0);
+		tmp.push_back(-pi / 2);
+		tmp.push_back(0);
+		pos.push_back(tmp);
+		tmp[5] = pi;
+		pos.push_back(tmp);
+		tmp[5] = 0;
+		pos.push_back(tmp);
+		for (int i = 0; i < 6; i++) {
+			tmp[i] = 0;
+		}
+		vel.push_back(tmp);
+		vel.push_back(tmp);
+		vel.push_back(tmp);
+		t.push_back(0.);
+		t.push_back(4.);
+		t.push_back(8.);
+		robot_.doTraj(t, pos, vel); */
 
 	}
 
@@ -184,7 +208,7 @@ private:
 			velocities.push_back(goal_.trajectory.points[i].velocities);
 
 		}
-		robot_.addTraj(timestamps, positions, velocities);
+		robot_.doTraj(timestamps, positions, velocities);
 
 		ros::Duration(timestamps.back()).sleep();
 		result_.error_code = result_.SUCCESSFUL;

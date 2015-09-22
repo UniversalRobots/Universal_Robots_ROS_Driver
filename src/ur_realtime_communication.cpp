@@ -56,12 +56,26 @@ void UrRealtimeCommunication::start() {
 	printf("Realtime port: Connecting...\n");
 #endif
 	if (connect(sockfd_, (struct sockaddr *) &serv_addr_, sizeof(serv_addr_))
-			< 0)
+			< 0) {
 #ifdef ROS_BUILD
 		ROS_FATAL("Error connecting to RT port 30003");
 #else
 		printf("Error connecting to RT port 30003\n");
 #endif
+	}
+	sockaddr_in name;
+	socklen_t namelen = sizeof(name);
+	int err = getsockname(sockfd_, (sockaddr*) &name, &namelen);
+	if (err < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("Could not get local IP - errno: %d (%s)", errno, strerror(errno));
+#else
+		printf("Could not get local IP - errno: %d (%s)", errno, strerror(errno));
+#endif
+	}
+	char str[18];
+	inet_ntop(AF_INET, &name.sin_addr, str, 18);
+	local_ip_ = str;
 	comThread_ = std::thread(&UrRealtimeCommunication::run, this);
 }
 
@@ -119,3 +133,6 @@ void UrRealtimeCommunication::setSafetyCountMax(uint inp) {
 	safety_count_max_ = inp;
 }
 
+std::string UrRealtimeCommunication::getLocalIp() {
+	return local_ip_;
+}

@@ -11,15 +11,47 @@
 
 #include "ur_modern_driver/ur_driver.h"
 
-UrDriver::UrDriver(std::condition_variable& rt_msg_cond, std::condition_variable& msg_cond, std::string host,
-		unsigned int safety_count_max, double max_time_step, double min_payload,
-		double max_payload) :
-		maximum_time_step_(max_time_step), minimum_payload_(min_payload), maximum_payload_(
-				max_payload) {
+UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
+		std::condition_variable& msg_cond, std::string host,
+		unsigned int reverse_port, unsigned int safety_count_max,
+		double max_time_step, double min_payload, double max_payload) :
+		REVERSE_PORT_(reverse_port), maximum_time_step_(max_time_step), minimum_payload_(
+				min_payload), maximum_payload_(max_payload) {
+	char buffer[256];
+	struct sockaddr_in serv_addr;
+	int n, flag;
+	//char *ip_addr;
+
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
 			safety_count_max);
 	sec_interface_ = new UrCommunication(msg_cond, host);
 
+	incoming_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+	if (incoming_sockfd_ < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR opening socket for reverse communication");
+#else
+		printf("ERROR opening socket for reverse communication");
+#endif
+	}
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(REVERSE_PORT_);
+	flag = 1;
+	setsockopt(incoming_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag,
+			sizeof(int));
+	setsockopt(incoming_sockfd_, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
+	if (bind(incoming_sockfd_, (struct sockaddr *) &serv_addr,
+			sizeof(serv_addr)) < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR on binding socket for reverse communication");
+#else
+		printf("ERROR on binding socket for reverse communication");
+#endif
+	}
+	listen(incoming_sockfd_, 5);
 }
 
 std::vector<double> UrDriver::interp_cubic(double t, double T,
@@ -42,7 +74,8 @@ std::vector<double> UrDriver::interp_cubic(double t, double T,
 void UrDriver::addTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
-
+	/* DEPRECATED */
+	printf("!! addTraj is deprecated !!\n");
 	std::vector<double> timestamps;
 	std::vector<std::vector<double> > positions;
 	std::string command_string = "def traj():\n";
@@ -92,19 +125,194 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 
 }
 
+void UrDriver::doTraj(std::vector<double> inp_timestamps,
+		std::vector<std::vector<double> > inp_positions,
+		std::vector<std::vector<double> > inp_velocities) {
+	struct sockaddr_in cli_addr;
+	socklen_t clilen;
+	int new_sockfd;
+	std::chrono::high_resolution_clock::time_point t0, t;
+	std::vector<double> positions;
+	unsigned int j, bytes_written;
+	int tmp;
+	unsigned char buf[32];
+
+	UrDriver::uploadProg();
+
+	clilen = sizeof(cli_addr);
+	new_sockfd = accept(incoming_sockfd_, (struct sockaddr *) &cli_addr,
+			&clilen);
+	if (new_sockfd < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR on accepting reverse communication");
+#else
+		printf("ERROR on accepting reverse communication");
+#endif
+	}
+
+	t0 = std::chrono::high_resolution_clock::now();
+	t = t0;
+	j = 0;
+	while (inp_timestamps[inp_timestamps.size() - 1]
+			>= std::chrono::duration_cast<std::chrono::duration<double>>(t - t0).count()) {
+		while (inp_timestamps[j]
+				<= std::chrono::duration_cast<std::chrono::duration<double>>(
+						t - t0).count() && j < inp_timestamps.size() - 1) {
+			j += 1;
+		}
+		positions = UrDriver::interp_cubic(
+				std::chrono::duration_cast<std::chrono::duration<double>>(
+						t - t0).count()- inp_timestamps[j - 1],
+				inp_timestamps[j] - inp_timestamps[j - 1], inp_positions[j - 1],
+				inp_positions[j], inp_velocities[j - 1], inp_velocities[j]);
+		for (int i = 0; i < 6; i++) {
+			tmp = htonl((int) (positions[i] * MULT_JOINTSTATE_));
+			buf[i * 4] = tmp & 0xff;
+			buf[i * 4 + 1] = (tmp >> 8) & 0xff;
+			buf[i * 4 + 2] = (tmp >> 16) & 0xff;
+			buf[i * 4 + 3] = (tmp >> 24) & 0xff;
+		}
+		tmp = htonl((int) (0.008 * MULT_TIME_));
+		buf[6 * 4] = tmp & 0xff;
+		buf[6 * 4 + 1] = (tmp >> 8) & 0xff;
+		buf[6 * 4 + 2] = (tmp >> 16) & 0xff;
+		buf[6 * 4 + 3] = (tmp >> 24) & 0xff;
+		tmp = htonl((int) 1);
+		buf[7 * 4] = tmp & 0xff;
+		buf[7 * 4 + 1] = (tmp >> 8) & 0xff;
+		buf[7 * 4 + 2] = (tmp >> 16) & 0xff;
+		buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
+		bytes_written = write(new_sockfd, buf, 32);
+
+		// oversample with 2 * sample_time
+		std::this_thread::sleep_for(std::chrono::milliseconds(4));
+
+		t = std::chrono::high_resolution_clock::now();
+	}
+	//Signal robot to stop driverProg()
+	for (int i = 0; i < 6; i++) {
+		tmp = htonl(
+				(int) (inp_positions[inp_positions.size() - 1][i]
+						* MULT_JOINTSTATE_));
+		buf[i * 4] = tmp & 0xff;
+		buf[i * 4 + 1] = (tmp >> 8) & 0xff;
+		buf[i * 4 + 2] = (tmp >> 16) & 0xff;
+		buf[i * 4 + 3] = (tmp >> 24) & 0xff;
+	}
+	tmp = htonl((int) (0.008 * MULT_TIME_));
+	buf[6 * 4] = tmp & 0xff;
+	buf[6 * 4 + 1] = (tmp >> 8) & 0xff;
+	buf[6 * 4 + 2] = (tmp >> 16) & 0xff;
+	buf[6 * 4 + 3] = (tmp >> 24) & 0xff;
+	tmp = htonl((int) 0);
+	buf[7 * 4] = tmp & 0xff;
+	buf[7 * 4 + 1] = (tmp >> 8) & 0xff;
+	buf[7 * 4 + 2] = (tmp >> 16) & 0xff;
+	buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
+	bytes_written = write(new_sockfd, buf, 32);
+
+	close(new_sockfd);
+
+}
+
 void UrDriver::stopTraj() {
 	rt_interface_->addCommandToQueue("stopj(10)\n");
 }
 
+void UrDriver::uploadProg() {
+	std::string cmd_str;
+	char buf[128];
+	cmd_str = "def driverProg():\n";
+
+	sprintf(buf, "\tMULT_jointstate = %i\n", MULT_JOINTSTATE_);
+	cmd_str += buf;
+
+	sprintf(buf, "\tMULT_time = %i\n", MULT_TIME_);
+	cmd_str += buf;
+
+	cmd_str += "\tSERVO_IDLE = 0\n";
+	cmd_str += "\tSERVO_RUNNING = 1\n";
+	cmd_str += "\tcmd_servo_state = SERVO_IDLE\n";
+	cmd_str += "\tcmd_servo_id = 0  # 0 = idle, -1 = stop\n";
+	cmd_str += "\tcmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n";
+	cmd_str += "\tcmd_servo_dt = 0.0\n";
+	cmd_str += "\tdef set_servo_setpoint(q, dt):\n";
+	cmd_str += "\t\tenter_critical\n";
+	cmd_str += "\t\tcmd_servo_state = SERVO_RUNNING\n";
+	cmd_str += "\t\tcmd_servo_q = q\n";
+	cmd_str += "\t\tcmd_servo_dt = dt\n";
+	cmd_str += "\t\texit_critical\n";
+	cmd_str += "\tend\n";
+	cmd_str += "\tthread servoThread():\n";
+	cmd_str += "\t\tstate = SERVO_IDLE\n";
+	cmd_str += "\t\twhile True:\n";
+	cmd_str += "\t\t\tenter_critical\n";
+	cmd_str += "\t\t\tq = cmd_servo_q\n";
+	cmd_str += "\t\t\tdt = cmd_servo_dt\n";
+	cmd_str += "\t\t\tdo_brake = False\n";
+	cmd_str += "\t\t\tif (state == SERVO_RUNNING) and ";
+	cmd_str += "(cmd_servo_state == SERVO_IDLE):\n";
+	cmd_str += "\t\t\t\tdo_brake = True\n";
+	cmd_str += "\t\t\tend\n";
+	cmd_str += "\t\t\tstate = cmd_servo_state\n";
+	cmd_str += "\t\t\tcmd_servo_state = SERVO_IDLE\n";
+	cmd_str += "\t\t\texit_critical\n";
+	cmd_str += "\t\t\tif do_brake:\n";
+	cmd_str += "\t\t\t\tstopj(1.0)\n";
+	cmd_str += "\t\t\t\tsync()\n";
+	cmd_str += "\t\t\telif state == SERVO_RUNNING:\n";
+	cmd_str += "\t\t\t\tservoj(q, t=dt)\n";
+	cmd_str += "\t\t\telse:\n";
+	cmd_str += "\t\t\t\tsync()\n";
+	cmd_str += "\t\t\tend\n";
+	cmd_str += "\t\tend\n";
+	cmd_str += "\tend\n";
+
+	sprintf(buf, "\tsocket_open(\"%s\", %i)\n", ip_addr_.c_str(),
+			REVERSE_PORT_);
+	cmd_str += buf;
+
+	cmd_str += "\tthread_servo = run servoThread()\n";
+	cmd_str += "\tkeepalive = 1\n";
+	cmd_str += "\twhile keepalive > 0:\n";
+	cmd_str += "\t\tparams_mult = socket_read_binary_integer(6+1+1)\n";
+	cmd_str += "\t\tif params_mult[0] > 0:\n";
+	cmd_str += "\t\t\tq = [params_mult[1] / MULT_jointstate, ";
+	cmd_str += "params_mult[2] / MULT_jointstate, ";
+	cmd_str += "params_mult[3] / MULT_jointstate, ";
+	cmd_str += "params_mult[4] / MULT_jointstate, ";
+	cmd_str += "params_mult[5] / MULT_jointstate, ";
+	cmd_str += "params_mult[6] / MULT_jointstate]\n";
+	cmd_str += "\t\t\tt = params_mult[7] / MULT_time\n";
+	cmd_str += "\t\t\tkeepalive = params_mult[8]\n";
+	cmd_str += "\t\t\tset_servo_setpoint(q, t)\n";
+	cmd_str += "\t\tend\n";
+	cmd_str += "\tend\n";
+	cmd_str += "\tsleep(.1)\n";
+	cmd_str += "\tsocket_close()\n";
+	cmd_str += "end\n";
+
+	rt_interface_->addCommandToQueue(cmd_str);
+
+}
+
 void UrDriver::start() {
 	sec_interface_->start();
-	rt_interface_->robot_state_->setVersion(sec_interface_->robot_state_->getVersion());
+	rt_interface_->robot_state_->setVersion(
+			sec_interface_->robot_state_->getVersion());
 	rt_interface_->start();
+	ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
+#ifdef ROS_BUILD
+			ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+#else
+	printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+#endif
 }
 
 void UrDriver::halt() {
 	sec_interface_->halt();
 	rt_interface_->halt();
+	close(incoming_sockfd_);
 }
 
 void UrDriver::setSpeed(double q0, double q1, double q2, double q3, double q4,
@@ -174,9 +382,9 @@ bool UrDriver::setPayload(double m) {
 		char buf[256];
 		sprintf(buf, "sec setOut():\n\tset_payload(%1.3f)\nend\n", m);
 #ifdef ROS_BUILD
-	ROS_DEBUG("%s", buf);
+		ROS_DEBUG("%s", buf);
 #else
-	printf("%s", buf);
+		printf("%s", buf);
 #endif
 		rt_interface_->addCommandToQueue(buf);
 		return true;

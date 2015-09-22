@@ -28,6 +28,8 @@
 #include <netdb.h>
 #include <iostream>
 #include <unistd.h>
+#include <arpa/inet.h>
+#include <errno.h>
 
 #ifdef ROS_BUILD
 #include <ros/ros.h>
@@ -39,6 +41,7 @@ private:
 	int sockfd_;
 	struct sockaddr_in serv_addr_;
 	struct hostent *server_;
+	std::string local_ip_;
 	bool keepalive_;
 	std::thread comThread_;
 	int flag_;
@@ -46,6 +49,7 @@ private:
 	std::string command_;
 	unsigned int safety_count_;
 	void run();
+
 
 public:
 	bool connected_;
@@ -59,6 +63,7 @@ public:
 			double q5, double acc = 100.);
 	void addCommandToQueue(std::string inp);
 	void setSafetyCountMax(uint inp);
+	std::string getLocalIp();
 
 };
 
