@@ -146,7 +146,7 @@ public:
 		t.push_back(0.);
 		t.push_back(4.);
 		t.push_back(8.);
-		robot_.doTraj(t, pos, vel); */
+		robot_.doTraj(t, pos, vel);*/
 
 	}
 
@@ -295,7 +295,8 @@ private:
 						traj.points[i].positions[mapping[j]]);
 				new_point.velocities.push_back(
 						traj.points[i].velocities[mapping[j]]);
-				new_point.accelerations.push_back(
+				if (traj.points[i].accelerations.size() != 0)
+					new_point.accelerations.push_back(
 						traj.points[i].accelerations[mapping[j]]);
 			}
 			new_point.time_from_start = traj.points[i].time_from_start;
