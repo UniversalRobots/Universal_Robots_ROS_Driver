@@ -132,9 +132,9 @@ public:
 		ros_control_thread_ = new std::thread(
 				boost::bind(&RosWrapper::rosControlLoop, this));
 		/*rt_publish_thread_ = new std::thread(
-				boost::bind(&RosWrapper::publishRTMsg, this));
+				boost::bind(&RosWrapper::publishRTMsg, this)); */
 		mb_publish_thread_ = new std::thread(
-				boost::bind(&RosWrapper::publishMbMsg, this)); */
+				boost::bind(&RosWrapper::publishMbMsg, this));
 		ROS_DEBUG("The action server for this driver has been started");
 	}
 
