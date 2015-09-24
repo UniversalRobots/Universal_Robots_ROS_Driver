@@ -341,7 +341,7 @@ private:
 			geometry_msgs::WrenchStamped wrench_msg;
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
 			std::unique_lock<std::mutex> locker(msg_lock);
-			while (!robot_.rt_interface_->robot_state_->getNewDataAvailable()) {
+			while (!robot_.rt_interface_->robot_state_->getDataPublished()) {
 				rt_msg_cond_.wait(locker);
 			}
 			joint_msg.header.stamp = ros::Time::now();
@@ -365,7 +365,7 @@ private:
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
 
-			robot_.rt_interface_->robot_state_->finishedReading();
+			robot_.rt_interface_->robot_state_->setDataPublished();
 
 		}
 	}

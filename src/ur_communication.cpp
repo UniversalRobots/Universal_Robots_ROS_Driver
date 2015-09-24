@@ -79,10 +79,10 @@ void UrCommunication::start() {
 	if (connect(pri_sockfd_, (struct sockaddr *) &pri_serv_addr_,
 			sizeof(pri_serv_addr_)) < 0) {
 #ifdef ROS_BUILD
-		ROS_FATAL("Error connecting");
+		ROS_FATAL("Error connecting to get firmware version");
 		ros::shutdown();
 #else
-		printf("Error connecting\n");
+		printf("Error connecting to get firmware version\n");
 		exit(1);
 #endif
 	}

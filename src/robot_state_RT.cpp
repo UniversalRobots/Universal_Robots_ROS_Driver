@@ -41,23 +41,33 @@ RobotStateRT::RobotStateRT(std::condition_variable& msg_cond) {
 	v_robot_ = 0.0;
 	i_robot_ = 0.0;
 	v_actual_.assign(6, 0.0);
-	new_data_available_ = false;
+	data_published_ = false;
+	controller_updated_ = false;
 	pMsg_cond_ = &msg_cond;
 }
 
 RobotStateRT::~RobotStateRT() {
 	/* Make sure nobody is waiting after this thread is destroyed */
-	new_data_available_ = true;
+	data_published_ = true;
+	controller_updated_ = true;
 	pMsg_cond_->notify_all();
 }
 
-bool RobotStateRT::getNewDataAvailable() {
-	return new_data_available_;
+
+void RobotStateRT::setDataPublished() {
+	data_published_ = false;
+}
+bool RobotStateRT::getDataPublished() {
+	return data_published_;
 }
 
-void RobotStateRT::finishedReading() {
-	new_data_available_ = false;
+void RobotStateRT::setControllerUpdated() {
+	controller_updated_ = false;
 }
+bool RobotStateRT::getControllerUpdated() {
+	return controller_updated_;
+}
+
 
 double RobotStateRT::ntohd(uint64_t nf) {
 	double x;
@@ -394,7 +404,8 @@ void RobotStateRT::unpack(uint8_t * buf) {
 		v_actual_ = unpackVector(buf, offset, 6);
 	}
 	val_lock_.unlock();
-	new_data_available_ = true;
+	controller_updated_ = true;
+	data_published_ = true;
 	pMsg_cond_->notify_all();
 
 }

@@ -42,6 +42,7 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	flag_ = 1;
 	setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
+	fcntl(sockfd_, F_SETFL, O_NONBLOCK);
 	connected_ = false;
 	keepalive_ = false;
 	safety_count_ = safety_count_max + 1;
@@ -49,18 +50,30 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 }
 
 void UrRealtimeCommunication::start() {
+	fd_set writefds;
+	struct timeval timeout;
+
 	keepalive_ = true;
 #ifdef ROS_BUILD
 	ROS_DEBUG("Realtime port: Connecting...");
 #else
 	printf("Realtime port: Connecting...\n");
 #endif
-	if (connect(sockfd_, (struct sockaddr *) &serv_addr_, sizeof(serv_addr_))
-			< 0) {
+
+	connect(sockfd_, (struct sockaddr *) &serv_addr_, sizeof(serv_addr_));
+	FD_ZERO(&writefds);
+	FD_SET(sockfd_, &writefds);
+	timeout.tv_sec = 10;
+	timeout.tv_usec = 0;
+	select(sockfd_ + 1, NULL, &writefds, NULL, &timeout);
+	unsigned int flag_len;
+	getsockopt(sockfd_, SOL_SOCKET, SO_ERROR, &flag_, &flag_len);
+	if (flag_ < 0) {
 #ifdef ROS_BUILD
-		ROS_FATAL("Error connecting to RT port 30003");
+		ROS_FATAL("Error connecting to RT port 30003 - errno: %d (%s)", flag_, strerror(flag_));
 #else
-		printf("Error connecting to RT port 30003\n");
+		printf("Error connecting to RT port 30003 - errno: %d (%s)\n", flag_,
+				strerror(flag_));
 #endif
 	}
 	sockaddr_in name;
@@ -70,7 +83,8 @@ void UrRealtimeCommunication::start() {
 #ifdef ROS_BUILD
 		ROS_FATAL("Could not get local IP - errno: %d (%s)", errno, strerror(errno));
 #else
-		printf("Could not get local IP - errno: %d (%s)", errno, strerror(errno));
+		printf("Could not get local IP - errno: %d (%s)", errno,
+				strerror(errno));
 #endif
 	}
 	char str[18];
@@ -109,6 +123,10 @@ void UrRealtimeCommunication::run() {
 	uint8_t buf[2048];
 	int bytes_read;
 	bzero(buf, 2048);
+	struct timeval timeout;
+	fd_set readfds;
+	FD_ZERO(&readfds);
+	FD_SET(sockfd_, &readfds);
 #ifdef ROS_BUILD
 	ROS_DEBUG("Realtime port: Got connection");
 #else
@@ -116,14 +134,72 @@ void UrRealtimeCommunication::run() {
 #endif
 	connected_ = true;
 	while (keepalive_) {
-		bytes_read = read(sockfd_, buf, 2048);
-		setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
-				sizeof(int));
-		robot_state_->unpack(buf);
-		if (safety_count_ == safety_count_max_) {
-			setSpeed(0., 0., 0., 0., 0., 0.);
+		while (connected_ && keepalive_) {
+			timeout.tv_sec = 0; //do this each loop as selects modifies timeout
+			timeout.tv_usec = 500000; // timeout of 0.5 sec
+			select(sockfd_ + 1, &readfds, NULL, NULL, &timeout);
+			bytes_read = read(sockfd_, buf, 2048);
+			if (bytes_read > 0) {
+				setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+						sizeof(int));
+				robot_state_->unpack(buf);
+				if (safety_count_ == safety_count_max_) {
+					setSpeed(0., 0., 0., 0., 0., 0.);
+				}
+				safety_count_ += 1;
+			} else {
+				connected_ = false;
+				close(sockfd_);
+			}
 		}
-		safety_count_ += 1;
+		if (keepalive_) {
+			//reconnect
+#ifdef ROS_BUILD
+			ROS_WARN("Realtime port: No connection. Is controller crashed? Will try to reconnect in 10 seconds...");
+#else
+			printf(
+					"Realtime port: No connection. Is controller crashed? Will try to reconnect in 10 seconds...\n");
+#endif
+			sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
+			if (sockfd_ < 0) {
+#ifdef ROS_BUILD
+				ROS_FATAL("ERROR opening socket");
+				ros::shutdown();
+#else
+				printf("ERROR opening socket");
+				exit(1);
+#endif
+			}
+			flag_ = 1;
+			setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+					sizeof(int));
+			setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
+					sizeof(int));
+			fcntl(sockfd_, F_SETFL, O_NONBLOCK);
+			while (keepalive_ && !connected_) {
+				std::this_thread::sleep_for(std::chrono::seconds(10));
+				fd_set writefds;
+				keepalive_ = true;
+
+				connect(sockfd_, (struct sockaddr *) &serv_addr_,
+						sizeof(serv_addr_));
+				FD_ZERO(&writefds);
+				FD_SET(sockfd_, &writefds);
+				select(sockfd_ + 1, NULL, &writefds, NULL, NULL);
+				unsigned int flag_len;
+				getsockopt(sockfd_, SOL_SOCKET, SO_ERROR, &flag_, &flag_len);
+				if (flag_ < 0) {
+#ifdef ROS_BUILD
+					ROS_ERROR("Error re-connecting to RT port 30003. Is controller started? Will try to reconnect in 10 seconds...");
+#else
+					printf(
+							"Error re-connecting to RT port 30003. Is controller started? Will try to reconnect in 10 seconds...");
+#endif
+				} else {
+					connected_ = true;
+				}
+			}
+		}
 	}
 	setSpeed(0., 0., 0., 0., 0., 0.);
 	close(sockfd_);

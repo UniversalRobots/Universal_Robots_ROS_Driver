@@ -56,7 +56,8 @@ private:
 	std::mutex val_lock_; // Locks the variables while unpack parses data;
 
 	std::condition_variable* pMsg_cond_; //Signals that new vars are available
-	bool new_data_available_; //to avoid spurious wakes
+	bool data_published_; //to avoid spurious wakes
+	bool controller_updated_; //to avoid spurious wakes
 
 	std::vector<double> unpackVector(uint8_t * buf, int start_index,
 			int nr_of_vals);
@@ -94,11 +95,13 @@ public:
 	double getVMain();
 	double getVRobot();
 	double getIRobot();
-	bool getNewDataAvailable();
 
 	void setVersion(double ver);
 
-	void finishedReading();
+	void setDataPublished();
+	bool getDataPublished();
+	bool getControllerUpdated();
+	void setControllerUpdated();
 	std::vector<double> getVActual();
 	void unpack(uint8_t * buf);
 };
