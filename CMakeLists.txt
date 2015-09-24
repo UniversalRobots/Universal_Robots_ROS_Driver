@@ -5,6 +5,8 @@ add_definitions( -DROS_BUILD )
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  hardware_interface
+  controller_manager
   actionlib
   control_msgs
   geometry_msgs
@@ -107,8 +109,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES ur_modern_driver
-#  CATKIN_DEPENDS actionlib control_msgs geometry_msgs roscpp sensor_msgs trajectory_msgs ur_msgs
-#  DEPENDS system_lib
+  CATKIN_DEPENDS hardware_interface controller_manager actionlib control_msgs geometry_msgs roscpp sensor_msgs trajectory_msgs ur_msgs
+  DEPENDS ur_hardware_interface
 )
 
 ###########
@@ -135,9 +137,12 @@ include_directories(include
 )
 
 ## Declare a C++ library
-# add_library(ur_modern_driver
-#   src/${PROJECT_NAME}/ur_modern_driver.cpp
-# )
+
+# Hardware Interface
+add_library(ur_hardware_interface src/ur_hardware_interface.cpp)
+target_link_libraries(ur_hardware_interface
+  ${catkin_LIBRARIES}
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -160,7 +165,8 @@ add_executable(ur_driver ${${PROJECT_NAME}_SOURCES})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ur_driver
-   ${catkin_LIBRARIES}
+  ur_hardware_interface
+  ${catkin_LIBRARIES}
  )
 
 #############
