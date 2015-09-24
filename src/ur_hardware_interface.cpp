@@ -43,10 +43,9 @@
  *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
+ *********************************************************************
 
-/* Author: Dave Coleman
- Desc:   Example ros_control hardware interface that performs a perfect control loop for simulation
+  Author: Dave Coleman
  */
 
 #include <ur_modern_driver/ur_hardware_interface.h>
