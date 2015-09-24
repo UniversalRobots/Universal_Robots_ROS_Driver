@@ -91,9 +91,9 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 	}
 	//make sure we come to a smooth stop
 	/*while (timestamps.back() < inp_timestamps.back()) {
-		timestamps.push_back(timestamps.back() + 0.008);
-	}
-	timestamps.pop_back();*/
+	 timestamps.push_back(timestamps.back() + 0.008);
+	 }
+	 timestamps.pop_back();*/
 
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < timestamps.size(); i++) {
@@ -162,7 +162,7 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		}
 		positions = UrDriver::interp_cubic(
 				std::chrono::duration_cast<std::chrono::duration<double>>(
-						t - t0).count()- inp_timestamps[j - 1],
+						t - t0).count() - inp_timestamps[j - 1],
 				inp_timestamps[j] - inp_timestamps[j - 1], inp_positions[j - 1],
 				inp_positions[j], inp_velocities[j - 1], inp_velocities[j]);
 		for (int i = 0; i < 6; i++) {
@@ -297,16 +297,17 @@ void UrDriver::uploadProg() {
 }
 
 void UrDriver::start() {
-	sec_interface_->start();
-	rt_interface_->robot_state_->setVersion(
-			sec_interface_->robot_state_->getVersion());
-	rt_interface_->start();
-	ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
+	if (sec_interface_->start()) {
+		rt_interface_->robot_state_->setVersion(
+				sec_interface_->robot_state_->getVersion());
+		rt_interface_->start();
+		ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
 #ifdef ROS_BUILD
-			ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+		ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
 #else
-	printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+		printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
 #endif
+	}
 }
 
 void UrDriver::halt() {

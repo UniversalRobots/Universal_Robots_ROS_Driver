@@ -10,6 +10,7 @@
  */
 
 #include "ur_modern_driver/ur_driver.h"
+#include "ur_modern_driver/ur_hardware_interface.h"
 #include <string.h>
 #include <vector>
 #include <mutex>
@@ -17,6 +18,7 @@
 #include <thread>
 #include <algorithm>
 #include <cmath>
+#include <time.h>
 
 #include "ros/ros.h"
 #include <ros/console.h>
@@ -35,6 +37,7 @@
 #include "ur_msgs/Digital.h"
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
+#include <controller_manager/controller_manager.h>
 
 class RosWrapper {
 protected:
@@ -52,9 +55,12 @@ protected:
 	ros::ServiceServer payload_srv_;
 	std::thread* rt_publish_thread_;
 	std::thread* mb_publish_thread_;
+	std::thread* ros_control_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
+	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
+	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
 
 public:
 	RosWrapper(std::string host) :
@@ -75,6 +81,11 @@ public:
 		joint_names.push_back(joint_prefix + "wrist_2_joint");
 		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
+
+		hardware_interface_.reset(new ros_control_ur::UrHardwareInterface(nh_, &robot_));
+		controller_manager_.reset(
+				new controller_manager::ControllerManager(
+						hardware_interface_.get(), nh_));
 
 		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 		max_velocity_ = 10.;
@@ -102,13 +113,13 @@ public:
 		robot_.start();
 
 		//register the goal and feedback callbacks
-		as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
-		as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
+		//as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
+		//as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
 
-		as_.start();
+		//as_.start();
 
 		//subscribe to the data topic of interest
-		speed_sub_ = nh_.subscribe("joint_speed", 1,
+		speed_sub_ = nh_.subscribe("ur_driver/joint_speed", 1,
 				&RosWrapper::speedInterface, this);
 		urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1,
 				&RosWrapper::urscriptInterface, this);
@@ -118,8 +129,10 @@ public:
 		payload_srv_ = nh_.advertiseService("ur_driver/set_payload",
 				&RosWrapper::setPayload, this);
 
-		rt_publish_thread_ = new std::thread(
-				boost::bind(&RosWrapper::publishRTMsg, this));
+		ros_control_thread_ = new std::thread(
+				boost::bind(&RosWrapper::rosControlLoop, this));
+		/*rt_publish_thread_ = new std::thread(
+				boost::bind(&RosWrapper::publishRTMsg, this)); */
 		mb_publish_thread_ = new std::thread(
 				boost::bind(&RosWrapper::publishMbMsg, this));
 		ROS_DEBUG("The action server for this driver has been started");
@@ -269,7 +282,7 @@ private:
 						traj.points[i].velocities[mapping[j]]);
 				if (traj.points[i].accelerations.size() != 0)
 					new_point.accelerations.push_back(
-						traj.points[i].accelerations[mapping[j]]);
+							traj.points[i].accelerations[mapping[j]]);
 			}
 			new_point.time_from_start = traj.points[i].time_from_start;
 			new_traj.push_back(new_point);
@@ -330,11 +343,40 @@ private:
 
 	}
 
+	void rosControlLoop() {
+		ros::Duration elapsed_time;
+		struct timespec last_time, current_time;
+		static const double BILLION = 1000000000.0;
+
+		clock_gettime(CLOCK_MONOTONIC, &last_time);
+		while (ros::ok()) {
+			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
+			std::unique_lock<std::mutex> locker(msg_lock);
+			while (!robot_.rt_interface_->robot_state_->getControllerUpdated()) {
+				rt_msg_cond_.wait(locker);
+			}
+			clock_gettime(CLOCK_MONOTONIC, &current_time);
+			elapsed_time = ros::Duration(
+					current_time.tv_sec - last_time.tv_sec
+							+ (current_time.tv_nsec - last_time.tv_nsec)
+									/ BILLION);
+			last_time = current_time;
+			// Input
+			hardware_interface_->read();
+			robot_.rt_interface_->robot_state_->setControllerUpdated();
+			// Control
+			controller_manager_->update(ros::Time(current_time.tv_sec, current_time.tv_nsec), elapsed_time);
+
+			// Output
+			hardware_interface_->write();
+		}
+	}
+
 	void publishRTMsg() {
 		ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>(
-				"/joint_states", 1);
+				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
-				"/wrench", 1);
+				"wrench", 1);
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
 			joint_msg.name = robot_.getJointNames();
@@ -371,7 +413,7 @@ private:
 	}
 
 	void publishMbMsg() {
-		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>("/io_states",
+		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>("ur_driver/io_states",
 				1);
 
 		while (ros::ok()) {
@@ -443,7 +485,11 @@ int main(int argc, char **argv) {
 
 	RosWrapper interface(host);
 
-	ros::spin();
+	ros::AsyncSpinner spinner(3);
+	spinner.start();
+
+	ros::waitForShutdown();
+
 	interface.halt();
 
 	exit(0);

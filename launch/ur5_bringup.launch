@@ -12,7 +12,7 @@
   <arg name="robot_ip"/>
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
-  <arg name="max_payload"  default="10.0"/>
+  <arg name="max_payload"  default="5.0"/>
 
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur5_upload.launch">
