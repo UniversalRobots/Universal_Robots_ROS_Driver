@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
 
 #ifdef ROS_BUILD
 #include <ros/ros.h>
