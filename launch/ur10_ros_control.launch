@@ -4,11 +4,12 @@
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+  
   <arg name="robot_ip"/>
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="10.0"/>
-
+  <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur10_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
@@ -22,6 +23,7 @@
 	    <param name="min_payload" type="double" value="$(arg min_payload)"/>
 	    <param name="max_payload" type="double" value="$(arg max_payload)"/>
 	    <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
+	    <param name="use_ros_control" type="bool" value="True"/>
     </node>
 
     <!-- Load controller settings -->
@@ -29,7 +31,7 @@
 
     <!-- Load controller manager -->
     <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-	  output="screen" args="spawn joint_state_controller force_torque_sensor_controller position_trajectory_controller" />
+	  output="screen" args="spawn joint_state_controller force_torque_sensor_controller position_trajectory_controller" /> 
 
     <!-- Convert joint states to /tf tranforms -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

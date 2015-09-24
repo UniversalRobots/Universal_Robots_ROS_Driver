@@ -55,10 +55,11 @@ protected:
 	ros::ServiceServer payload_srv_;
 	std::thread* rt_publish_thread_;
 	std::thread* mb_publish_thread_;
-	std::thread* ros_control_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
+	bool use_ros_control_;
+	std::thread* ros_control_thread_;
 	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
 
@@ -82,12 +83,16 @@ public:
 		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
 
-		hardware_interface_.reset(
-				new ros_control_ur::UrHardwareInterface(nh_, &robot_));
-		controller_manager_.reset(
-				new controller_manager::ControllerManager(
-						hardware_interface_.get(), nh_));
+		use_ros_control_ = false;
+		ros::param::get("~use_ros_control", use_ros_control_);
 
+		if (use_ros_control_) {
+			hardware_interface_.reset(
+					new ros_control_ur::UrHardwareInterface(nh_, &robot_));
+			controller_manager_.reset(
+					new controller_manager::ControllerManager(
+							hardware_interface_.get(), nh_));
+		}
 		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 		max_velocity_ = 10.;
 		if (ros::param::get("~max_velocity", max_velocity_)) {
@@ -95,31 +100,43 @@ public:
 					max_velocity_);
 		}
 
-		{ //Bounds for SetPayload service
-		  //Using a very conservative value as it should be set through the parameter server
-			double min_payload = 0.;
-			double max_payload = 1.;
-			if (ros::param::get("~min_payload", min_payload)) {
-				ROS_DEBUG("Min payload set to: %f [kg]", min_payload);
-			}
-			if (ros::param::get("~max_payload", max_payload)) {
-				ROS_DEBUG("Max payload set to: %f [kg]", max_payload);
-			}
-			robot_.setMinPayload(min_payload);
-			robot_.setMaxPayload(max_payload);
-			ROS_DEBUG("Bounds for set_payload service calls: [%f, %f]",
-					min_payload, max_payload);
+		//Bounds for SetPayload service
+		//Using a very conservative value as it should be set through the parameter server
+		double min_payload = 0.;
+		double max_payload = 1.;
+		if (ros::param::get("~min_payload", min_payload)) {
+			ROS_DEBUG("Min payload set to: %f [kg]", min_payload);
 		}
+		if (ros::param::get("~max_payload", max_payload)) {
+			ROS_DEBUG("Max payload set to: %f [kg]", max_payload);
+		}
+		robot_.setMinPayload(min_payload);
+		robot_.setMaxPayload(max_payload);
+		ROS_DEBUG("Bounds for set_payload service calls: [%f, %f]", min_payload,
+				max_payload);
 
 		if (robot_.start()) {
+			if (use_ros_control_) {
+				ros_control_thread_ = new std::thread(
+						boost::bind(&RosWrapper::rosControlLoop, this));
+				ROS_DEBUG(
+						"The control thread for this driver has been started");
+			} else {
+				//register the goal and feedback callbacks
+				as_.registerGoalCallback(
+						boost::bind(&RosWrapper::goalCB, this));
+				as_.registerPreemptCallback(
+						boost::bind(&RosWrapper::preemptCB, this));
 
-			//register the goal and feedback callbacks
-			//as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
-			//as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
+				as_.start();
 
-			//as_.start();
-
-			//subscribe to the data topic of interest
+				//subscribe to the data topic of interest
+				rt_publish_thread_ = new std::thread(
+						boost::bind(&RosWrapper::publishRTMsg, this));
+				ROS_DEBUG("The action server for this driver has been started");
+			}
+			mb_publish_thread_ = new std::thread(
+					boost::bind(&RosWrapper::publishMbMsg, this));
 			speed_sub_ = nh_.subscribe("ur_driver/joint_speed", 1,
 					&RosWrapper::speedInterface, this);
 			urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1,
@@ -129,14 +146,6 @@ public:
 					&RosWrapper::setIO, this);
 			payload_srv_ = nh_.advertiseService("ur_driver/set_payload",
 					&RosWrapper::setPayload, this);
-
-			ros_control_thread_ = new std::thread(
-					boost::bind(&RosWrapper::rosControlLoop, this));
-			/*rt_publish_thread_ = new std::thread(
-			 boost::bind(&RosWrapper::publishRTMsg, this)); */
-			mb_publish_thread_ = new std::thread(
-					boost::bind(&RosWrapper::publishMbMsg, this));
-			ROS_DEBUG("The action server for this driver has been started");
 		}
 	}
 
