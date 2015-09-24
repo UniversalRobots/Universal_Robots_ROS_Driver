@@ -29,6 +29,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <chrono>
+#include <fcntl.h>
+#include <sys/types.h>
 
 #ifdef ROS_BUILD
 #include <ros/ros.h>
@@ -49,7 +51,7 @@ public:
 	RobotState* robot_state_;
 
 	UrCommunication(std::condition_variable& msg_cond, std::string host);
-	void start();
+	bool start();
 	void halt();
 
 };
