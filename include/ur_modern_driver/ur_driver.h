@@ -37,6 +37,7 @@ private:
 	const int MULT_TIME_ = 1000000;
 	const unsigned int REVERSE_PORT_;
 	int incoming_sockfd_;
+	int new_sockfd_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
@@ -58,9 +59,13 @@ public:
 	void doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
+	void servoj(std::vector<double> positions, double time, int keepalive);
+
 	void stopTraj();
 
 	void uploadProg();
+	void openServo();
+	void closeServo();
 
 	std::vector<double> interp_cubic(double t, double T,
 			std::vector<double> p0_pos, std::vector<double> p1_pos,

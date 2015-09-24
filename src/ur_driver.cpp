@@ -128,27 +128,12 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
-	struct sockaddr_in cli_addr;
-	socklen_t clilen;
-	int new_sockfd;
+
 	std::chrono::high_resolution_clock::time_point t0, t;
 	std::vector<double> positions;
-	unsigned int j, bytes_written;
-	int tmp;
-	unsigned char buf[32];
+	unsigned int j;
 
 	UrDriver::uploadProg();
-
-	clilen = sizeof(cli_addr);
-	new_sockfd = accept(incoming_sockfd_, (struct sockaddr *) &cli_addr,
-			&clilen);
-	if (new_sockfd < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR on accepting reverse communication");
-#else
-		printf("ERROR on accepting reverse communication");
-#endif
-	}
 
 	t0 = std::chrono::high_resolution_clock::now();
 	t = t0;
@@ -165,54 +150,42 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 						t - t0).count() - inp_timestamps[j - 1],
 				inp_timestamps[j] - inp_timestamps[j - 1], inp_positions[j - 1],
 				inp_positions[j], inp_velocities[j - 1], inp_velocities[j]);
-		for (int i = 0; i < 6; i++) {
-			tmp = htonl((int) (positions[i] * MULT_JOINTSTATE_));
-			buf[i * 4] = tmp & 0xff;
-			buf[i * 4 + 1] = (tmp >> 8) & 0xff;
-			buf[i * 4 + 2] = (tmp >> 16) & 0xff;
-			buf[i * 4 + 3] = (tmp >> 24) & 0xff;
-		}
-		tmp = htonl((int) (0.008 * MULT_TIME_));
-		buf[6 * 4] = tmp & 0xff;
-		buf[6 * 4 + 1] = (tmp >> 8) & 0xff;
-		buf[6 * 4 + 2] = (tmp >> 16) & 0xff;
-		buf[6 * 4 + 3] = (tmp >> 24) & 0xff;
-		tmp = htonl((int) 1);
-		buf[7 * 4] = tmp & 0xff;
-		buf[7 * 4 + 1] = (tmp >> 8) & 0xff;
-		buf[7 * 4 + 2] = (tmp >> 16) & 0xff;
-		buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
-		bytes_written = write(new_sockfd, buf, 32);
+
+		UrDriver::servoj(positions, 0.008, 1);
 
 		// oversample with 4 * sample_time
 		std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
+	UrDriver::servoj(positions, 0.008, 0);
+	UrDriver::closeServo();
+
+}
+
+void UrDriver::servoj(std::vector<double> positions, double time,
+		int keepalive) {
+	unsigned int bytes_written;
+	int tmp;
+	unsigned char buf[32];
 	for (int i = 0; i < 6; i++) {
-		tmp = htonl(
-				(int) (inp_positions[inp_positions.size() - 1][i]
-						* MULT_JOINTSTATE_));
+		tmp = htonl((int) (positions[i] * MULT_JOINTSTATE_));
 		buf[i * 4] = tmp & 0xff;
 		buf[i * 4 + 1] = (tmp >> 8) & 0xff;
 		buf[i * 4 + 2] = (tmp >> 16) & 0xff;
 		buf[i * 4 + 3] = (tmp >> 24) & 0xff;
 	}
-	tmp = htonl((int) (0.008 * MULT_TIME_));
+	tmp = htonl((int) (time * MULT_TIME_));
 	buf[6 * 4] = tmp & 0xff;
 	buf[6 * 4 + 1] = (tmp >> 8) & 0xff;
 	buf[6 * 4 + 2] = (tmp >> 16) & 0xff;
 	buf[6 * 4 + 3] = (tmp >> 24) & 0xff;
-	tmp = htonl((int) 0);
+	tmp = htonl((int) keepalive);
 	buf[7 * 4] = tmp & 0xff;
 	buf[7 * 4 + 1] = (tmp >> 8) & 0xff;
 	buf[7 * 4 + 2] = (tmp >> 16) & 0xff;
 	buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
-	bytes_written = write(new_sockfd, buf, 32);
-
-	close(new_sockfd);
-
+	bytes_written = write(new_sockfd_, buf, 32);
 }
 
 void UrDriver::stopTraj() {
@@ -294,6 +267,25 @@ void UrDriver::uploadProg() {
 
 	rt_interface_->addCommandToQueue(cmd_str);
 
+	UrDriver::openServo();
+}
+
+void UrDriver::openServo() {
+	struct sockaddr_in cli_addr;
+	socklen_t clilen;
+	clilen = sizeof(cli_addr);
+	new_sockfd_ = accept(incoming_sockfd_, (struct sockaddr *) &cli_addr,
+			&clilen);
+	if (new_sockfd_ < 0) {
+#ifdef ROS_BUILD
+		ROS_FATAL("ERROR on accepting reverse communication");
+#else
+		printf("ERROR on accepting reverse communication");
+#endif
+	}
+}
+void UrDriver::closeServo() {
+	close(new_sockfd_);
 }
 
 bool UrDriver::start() {
