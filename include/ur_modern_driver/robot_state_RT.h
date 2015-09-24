@@ -95,7 +95,6 @@ public:
 	double getVMain();
 	double getVRobot();
 	double getIRobot();
-	bool getNewDataAvailable();
 
 	void setVersion(double ver);
 
