@@ -296,18 +296,21 @@ void UrDriver::uploadProg() {
 
 }
 
-void UrDriver::start() {
-	if (sec_interface_->start()) {
-		rt_interface_->robot_state_->setVersion(
-				sec_interface_->robot_state_->getVersion());
-		rt_interface_->start();
-		ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
+bool UrDriver::start() {
+	if (!sec_interface_->start())
+		return false;
+	rt_interface_->robot_state_->setVersion(
+			sec_interface_->robot_state_->getVersion());
+	if (!rt_interface_->start())
+		return false;
+	ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
 #ifdef ROS_BUILD
-		ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+			ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
 #else
-		printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+	printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
 #endif
-	}
+	return true;
+
 }
 
 void UrDriver::halt() {

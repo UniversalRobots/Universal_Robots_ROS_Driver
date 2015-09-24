@@ -49,7 +49,7 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	safety_count_max_ = safety_count_max;
 }
 
-void UrRealtimeCommunication::start() {
+bool UrRealtimeCommunication::start() {
 	fd_set writefds;
 	struct timeval timeout;
 
@@ -71,10 +71,12 @@ void UrRealtimeCommunication::start() {
 	if (flag_ < 0) {
 #ifdef ROS_BUILD
 		ROS_FATAL("Error connecting to RT port 30003 - errno: %d (%s)", flag_, strerror(flag_));
+
 #else
 		printf("Error connecting to RT port 30003 - errno: %d (%s)\n", flag_,
 				strerror(flag_));
 #endif
+		return false;
 	}
 	sockaddr_in name;
 	socklen_t namelen = sizeof(name);
@@ -86,11 +88,14 @@ void UrRealtimeCommunication::start() {
 		printf("Could not get local IP - errno: %d (%s)", errno,
 				strerror(errno));
 #endif
+		close(sockfd_);
+		return false;
 	}
 	char str[18];
 	inet_ntop(AF_INET, &name.sin_addr, str, 18);
 	local_ip_ = str;
 	comThread_ = std::thread(&UrRealtimeCommunication::run, this);
+	return true;
 }
 
 void UrRealtimeCommunication::halt() {

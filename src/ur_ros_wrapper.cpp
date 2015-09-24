@@ -82,7 +82,8 @@ public:
 		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
 
-		hardware_interface_.reset(new ros_control_ur::UrHardwareInterface(nh_, &robot_));
+		hardware_interface_.reset(
+				new ros_control_ur::UrHardwareInterface(nh_, &robot_));
 		controller_manager_.reset(
 				new controller_manager::ControllerManager(
 						hardware_interface_.get(), nh_));
@@ -110,32 +111,33 @@ public:
 					min_payload, max_payload);
 		}
 
-		robot_.start();
+		if (robot_.start()) {
 
-		//register the goal and feedback callbacks
-		//as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
-		//as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
+			//register the goal and feedback callbacks
+			//as_.registerGoalCallback(boost::bind(&RosWrapper::goalCB, this));
+			//as_.registerPreemptCallback(boost::bind(&RosWrapper::preemptCB, this));
 
-		//as_.start();
+			//as_.start();
 
-		//subscribe to the data topic of interest
-		speed_sub_ = nh_.subscribe("ur_driver/joint_speed", 1,
-				&RosWrapper::speedInterface, this);
-		urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1,
-				&RosWrapper::urscriptInterface, this);
+			//subscribe to the data topic of interest
+			speed_sub_ = nh_.subscribe("ur_driver/joint_speed", 1,
+					&RosWrapper::speedInterface, this);
+			urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1,
+					&RosWrapper::urscriptInterface, this);
 
-		io_srv_ = nh_.advertiseService("ur_driver/set_io", &RosWrapper::setIO,
-				this);
-		payload_srv_ = nh_.advertiseService("ur_driver/set_payload",
-				&RosWrapper::setPayload, this);
+			io_srv_ = nh_.advertiseService("ur_driver/set_io",
+					&RosWrapper::setIO, this);
+			payload_srv_ = nh_.advertiseService("ur_driver/set_payload",
+					&RosWrapper::setPayload, this);
 
-		ros_control_thread_ = new std::thread(
-				boost::bind(&RosWrapper::rosControlLoop, this));
-		/*rt_publish_thread_ = new std::thread(
-				boost::bind(&RosWrapper::publishRTMsg, this)); */
-		mb_publish_thread_ = new std::thread(
-				boost::bind(&RosWrapper::publishMbMsg, this));
-		ROS_DEBUG("The action server for this driver has been started");
+			ros_control_thread_ = new std::thread(
+					boost::bind(&RosWrapper::rosControlLoop, this));
+			/*rt_publish_thread_ = new std::thread(
+			 boost::bind(&RosWrapper::publishRTMsg, this)); */
+			mb_publish_thread_ = new std::thread(
+					boost::bind(&RosWrapper::publishMbMsg, this));
+			ROS_DEBUG("The action server for this driver has been started");
+		}
 	}
 
 	void halt() {
@@ -365,7 +367,9 @@ private:
 			hardware_interface_->read();
 			robot_.rt_interface_->robot_state_->setControllerUpdated();
 			// Control
-			controller_manager_->update(ros::Time(current_time.tv_sec, current_time.tv_nsec), elapsed_time);
+			controller_manager_->update(
+					ros::Time(current_time.tv_sec, current_time.tv_nsec),
+					elapsed_time);
 
 			// Output
 			hardware_interface_->write();
@@ -413,8 +417,8 @@ private:
 	}
 
 	void publishMbMsg() {
-		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>("ur_driver/io_states",
-				1);
+		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>(
+				"ur_driver/io_states", 1);
 
 		while (ros::ok()) {
 			ur_msgs::IOStates io_msg;

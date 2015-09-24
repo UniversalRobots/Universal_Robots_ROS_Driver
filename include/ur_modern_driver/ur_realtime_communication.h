@@ -59,7 +59,7 @@ public:
 
 	UrRealtimeCommunication(std::condition_variable& msg_cond, std::string host,
 			unsigned int safety_count_max = 12);
-	void start();
+	bool start();
 	void halt();
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
 			double q5, double acc = 100.);

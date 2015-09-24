@@ -46,7 +46,7 @@ public:
 			unsigned int reverse_port = 50007, unsigned int safety_count_max =
 					12, double max_time_step = 0.08, double min_payload = 0.,
 			double max_payload = 1.);
-	void start();
+	bool start();
 	void halt();
 
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
