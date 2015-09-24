@@ -41,8 +41,6 @@ Besides this, the driver subscribes to two new topics:
 */joint\_speed : takes messages of type trajectory\_msgs/JointTrajectory, parses the first JointTracetoryPoint and sends the specified joint speeds and accelerations to the robot. This interface is intended for doing visual servoing and other kind of control that requires speed control rather than position control of the robot. Remember to set values for all 6 joints. Ignores the field joint\_names, so set the values in the correct order.
 
 
-This driver is written in c++, which should make it possible to integrate it with ros_control. If you feel like undertaking this task, please dive right in. I don't have the posibility to do this.
-
 No script is sent to the robot. This means that the teach pendant can be used to move the robot around while the driver is running.
 
 ---

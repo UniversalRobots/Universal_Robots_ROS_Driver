@@ -363,14 +363,12 @@ private:
 			last_time = current_time;
 			// Input
 			hardware_interface_->read();
-
+			robot_.rt_interface_->robot_state_->setControllerUpdated();
 			// Control
-			//controller_manager_->update(ros::Time::now(), elapsed_time);
 			controller_manager_->update(ros::Time(current_time.tv_sec, current_time.tv_nsec), elapsed_time);
 
 			// Output
 			hardware_interface_->write();
-			robot_.rt_interface_->robot_state_->setControllerUpdated();
 		}
 	}
 

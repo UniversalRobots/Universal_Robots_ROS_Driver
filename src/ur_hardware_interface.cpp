@@ -106,6 +106,7 @@ void UrHardwareInterface::init() {
 	registerInterface(&joint_state_interface_); // From RobotHW base class.
 	registerInterface(&velocity_joint_interface_); // From RobotHW base class.
 	registerInterface(&force_torque_interface_); // From RobotHW base class.
+	velocity_interface_running_ = false;
 }
 
 void UrHardwareInterface::read() {
@@ -127,7 +128,51 @@ void UrHardwareInterface::read() {
 }
 
 void UrHardwareInterface::write() {
-	robot_->setSpeed(joint_velocity_command_[0],joint_velocity_command_[1],joint_velocity_command_[2],joint_velocity_command_[3],joint_velocity_command_[4],joint_velocity_command_[5],100);
+	if (velocity_interface_running_) {
+		robot_->setSpeed(joint_velocity_command_[0], joint_velocity_command_[1],
+				joint_velocity_command_[2], joint_velocity_command_[3],
+				joint_velocity_command_[4], joint_velocity_command_[5], 100);
+	}
+}
+
+void UrHardwareInterface::doSwitch(
+		const std::list<hardware_interface::ControllerInfo>& start_list,
+		const std::list<hardware_interface::ControllerInfo>& stop_list) {
+	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+			start_list.begin(); controller_it != start_list.end();
+			++controller_it) {
+		if (controller_it->hardware_interface
+				== "hardware_interface::VelocityJointInterface") {
+			velocity_interface_running_ = true;
+			ROS_DEBUG("Starting velocity interface");
+		}
+	}
+	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+			stop_list.begin(); controller_it != stop_list.end();
+			++controller_it) {
+		if (controller_it->hardware_interface
+				== "hardware_interface::VelocityJointInterface") {
+			velocity_interface_running_ = false;
+			ROS_DEBUG("Stopping velocity interface");
+		}
+	}
+	/*std::string outp;
+	 outp = "doSwitch called - Start list:";
+	 for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+	 start_list.begin(); controller_it != start_list.end();
+	 ++controller_it) {
+	 outp += " " + controller_it->name + "(" + controller_it->hardware_interface + ")";
+	 }
+	 outp += " - Stop list:";
+	 for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+	 stop_list.begin(); controller_it != stop_list.end();
+	 ++controller_it) {
+	 outp += " " + controller_it->name + "(" + controller_it->hardware_interface + ")";
+
+	 }
+	 ROS_INFO(outp.c_str()); */
+
 }
 
 } // namespace
+

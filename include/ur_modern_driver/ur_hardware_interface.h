@@ -86,6 +86,8 @@ public:
 	/// \brief write the command to the robot hardware.
 	virtual void write();
 
+	void doSwitch(const std::list<hardware_interface::ControllerInfo>&, const std::list<hardware_interface::ControllerInfo>&);
+
 protected:
 
 	// Startup and shutdown of the internal node inside a roscpp program
@@ -95,7 +97,7 @@ protected:
 	hardware_interface::JointStateInterface joint_state_interface_;
 	hardware_interface::ForceTorqueSensorInterface force_torque_interface_;
 	hardware_interface::VelocityJointInterface velocity_joint_interface_;
-
+	bool velocity_interface_running_;
 	// Shared memory
 	std::vector<std::string> joint_names_;
 	std::vector<double> joint_position_;
