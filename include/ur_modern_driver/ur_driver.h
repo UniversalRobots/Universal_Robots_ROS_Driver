@@ -16,6 +16,7 @@
 #include <condition_variable>
 #include "ur_realtime_communication.h"
 #include "ur_communication.h"
+#include "do_output.h"
 #include <vector>
 #include <math.h>
 #include <string>
@@ -65,7 +66,7 @@ public:
 
 	void uploadProg();
 	void openServo();
-	void closeServo();
+	void closeServo(std::vector<double> positions);
 
 	std::vector<double> interp_cubic(double t, double T,
 			std::vector<double> p0_pos, std::vector<double> p1_pos,

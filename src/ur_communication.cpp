@@ -18,33 +18,15 @@ UrCommunication::UrCommunication(std::condition_variable& msg_cond,
 	bzero((char *) &sec_serv_addr_, sizeof(sec_serv_addr_));
 	pri_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (pri_sockfd_ < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR opening socket");
-		ros::shutdown();
-#else
-		printf("ERROR opening socket");
-		exit(1);
-#endif
+		print_fatal("ERROR opening socket pri_sockfd");
 	}
 	sec_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (sec_sockfd_ < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR opening socket");
-		ros::shutdown();
-#else
-		printf("ERROR opening socket");
-		exit(1);
-#endif
+		print_fatal("ERROR opening socket sec_sockfd");
 	}
 	server_ = gethostbyname(host.c_str());
 	if (server_ == NULL) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR, no such host");
-		ros::shutdown();
-#else
-		printf("ERROR, no such host\n");
-		exit(1);
-#endif
+		print_fatal("ERROR, unknown host");
 	}
 	pri_serv_addr_.sin_family = AF_INET;
 	sec_serv_addr_.sin_family = AF_INET;
@@ -72,46 +54,26 @@ bool UrCommunication::start() {
 	unsigned int bytes_read;
 	std::string cmd;
 	bzero(buf, 512);
-#ifdef ROS_BUILD
-	ROS_DEBUG("Acquire firmware version: Connecting...");
-#else
-	printf("Acquire firmware version: Connecting...\n");
-#endif
+	print_debug("Acquire firmware version: Connecting...");
 	if (connect(pri_sockfd_, (struct sockaddr *) &pri_serv_addr_,
 			sizeof(pri_serv_addr_)) < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("Error connecting to get firmware version");
-		ros::shutdown();
+		print_fatal("Error connecting to get firmware version");
 		return false;
-#else
-		printf("Error connecting to get firmware version\n");
-		return false;
-#endif
 	}
-#ifdef ROS_BUILD
-	ROS_DEBUG("Acquire firmware version: Got connection");
-#else
-	printf("Acquire firmware version: Got connection\n");
-#endif
+	print_debug("Acquire firmware version: Got connection");
 	bytes_read = read(pri_sockfd_, buf, 512);
 	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 			sizeof(int));
 	robot_state_->unpack(buf, bytes_read);
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
-#ifdef ROS_BUILD
-	ROS_DEBUG("Firmware version detected: %1.7f", robot_state_->getVersion());
-#else
-	printf("Firmware version detected: %f\n", robot_state_->getVersion());
-#endif
+	char tmp[64];
+	sprintf(tmp, "Firmware version detected: %.7f", robot_state_->getVersion());
+	print_debug(tmp);
 	close(pri_sockfd_);
 
-#ifdef ROS_BUILD
-	ROS_DEBUG("Switching to secondary interface for masterboard data: Connecting...");
-#else
-	printf(
-			"Switching to secondary interface for masterboard data: Connecting...\n"); // which generates less network traffic
-#endif
+	print_debug(
+			"Switching to secondary interface for masterboard data: Connecting...");
 
 	fd_set writefds;
 	struct timeval timeout;
@@ -126,20 +88,10 @@ bool UrCommunication::start() {
 	unsigned int flag_len;
 	getsockopt(sec_sockfd_, SOL_SOCKET, SO_ERROR, &flag_, &flag_len);
 	if (flag_ < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("Error connecting to secondary interface");
-		ros::shutdown();
+		print_fatal("Error connecting to secondary interface");
 		return false;
-#else
-		printf("Error connecting to secondary interface\n");
-		return false;
-#endif
 	}
-#ifdef ROS_BUILD
-	ROS_DEBUG("Secondary interface: Got connection");
-#else
-	printf("Secondary interface: Got connection\n");
-#endif
+	print_debug("Secondary interface: Got connection");
 	comThread_ = std::thread(&UrCommunication::run, this);
 	return true;
 }
@@ -170,26 +122,15 @@ void UrCommunication::run() {
 				robot_state_->unpack(buf, bytes_read);
 			} else {
 				connected_ = false;
-				close (sec_sockfd_);
+				close(sec_sockfd_);
 			}
 		}
 		if (keepalive_) {
 			//reconnect
-#ifdef ROS_BUILD
-			ROS_WARN("Secondary port: No connection. Is controller crashed? Will try to reconnect in 10 seconds...");
-#else
-			printf(
-					"Secondary port: No connection. Is controller crashed? Will try to reconnect in 10 seconds...\n");
-#endif
+			print_warning("Secondary port: No connection. Is controller crashed? Will try to reconnect in 10 seconds...");
 			sec_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
 			if (sec_sockfd_ < 0) {
-#ifdef ROS_BUILD
-				ROS_FATAL("ERROR opening secondary socket");
-				ros::shutdown();
-#else
-				printf("ERROR opening secondary socket");
-				exit(1);
-#endif
+				print_fatal("ERROR opening secondary socket");
 			}
 			flag_ = 1;
 			setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
@@ -211,12 +152,7 @@ void UrCommunication::run() {
 				getsockopt(sec_sockfd_, SOL_SOCKET, SO_ERROR, &flag_,
 						&flag_len);
 				if (flag_ < 0) {
-#ifdef ROS_BUILD
-					ROS_ERROR("Error re-connecting to port 30002. Is controller started? Will try to reconnect in 10 seconds...");
-#else
-					printf(
-							"Error re-connecting to port 30002. Is controller started? Will try to reconnect in 10 seconds...");
-#endif
+					print_error("Error re-connecting to port 30002. Is controller started? Will try to reconnect in 10 seconds...");
 				} else {
 					connected_ = true;
 				}

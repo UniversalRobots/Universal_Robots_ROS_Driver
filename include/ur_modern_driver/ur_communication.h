@@ -13,6 +13,7 @@
 #define UR_COMMUNICATION_H_
 
 #include "robot_state.h"
+#include "do_output.h"
 #include <vector>
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,9 +33,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 
-#ifdef ROS_BUILD
-#include <ros/ros.h>
-#endif
 
 class UrCommunication {
 private:

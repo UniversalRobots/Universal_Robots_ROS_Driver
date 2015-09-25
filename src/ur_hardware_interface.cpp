@@ -9,7 +9,7 @@
  * ----------------------------------------------------------------------------
  */
 
-/* Based on original source from University of Colorado, Boulder. License copied below. Feel free to offer Dave a beer as well if you meet him. */
+/* Based on original source from University of Colorado, Boulder. License copied below. Please offer Dave a beer as well if you meet him. */
 
 /*********************************************************************
  * Software License Agreement (BSD License)
@@ -45,7 +45,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************
 
-  Author: Dave Coleman
+ Author: Dave Coleman
  */
 
 #include <ur_modern_driver/ur_hardware_interface.h>
@@ -77,6 +77,7 @@ void UrHardwareInterface::init() {
 	joint_position_.resize(num_joints_);
 	joint_velocity_.resize(num_joints_);
 	joint_effort_.resize(num_joints_);
+	joint_position_command_.resize(num_joints_);
 	joint_velocity_command_.resize(num_joints_);
 
 	// Initialize controller
@@ -90,6 +91,12 @@ void UrHardwareInterface::init() {
 						&joint_position_[i], &joint_velocity_[i],
 						&joint_effort_[i]));
 
+		// Create position joint interface
+		position_joint_interface_.registerHandle(
+				hardware_interface::JointHandle(
+						joint_state_interface_.getHandle(joint_names_[i]),
+						&joint_position_command_[i]));
+
 		// Create velocity joint interface
 		velocity_joint_interface_.registerHandle(
 				hardware_interface::JointHandle(
@@ -97,15 +104,17 @@ void UrHardwareInterface::init() {
 						&joint_velocity_command_[i]));
 	}
 
-	// Create joint state interface
+	// Create force torque interface
 	force_torque_interface_.registerHandle(
 			hardware_interface::ForceTorqueSensorHandle("wrench", "",
 					robot_force_, robot_torque_));
 
 	registerInterface(&joint_state_interface_); // From RobotHW base class.
+	registerInterface(&position_joint_interface_); // From RobotHW base class.
 	registerInterface(&velocity_joint_interface_); // From RobotHW base class.
 	registerInterface(&force_torque_interface_); // From RobotHW base class.
 	velocity_interface_running_ = false;
+	position_interface_running_ = false;
 }
 
 void UrHardwareInterface::read() {
@@ -131,7 +140,79 @@ void UrHardwareInterface::write() {
 		robot_->setSpeed(joint_velocity_command_[0], joint_velocity_command_[1],
 				joint_velocity_command_[2], joint_velocity_command_[3],
 				joint_velocity_command_[4], joint_velocity_command_[5], 100);
+	} else if (position_interface_running_) {
+		robot_->servoj(joint_position_command_, 0.008, 1);
 	}
+}
+
+bool UrHardwareInterface::canSwitch(
+		const std::list<hardware_interface::ControllerInfo> &start_list,
+		const std::list<hardware_interface::ControllerInfo> &stop_list) const {
+	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+			start_list.begin(); controller_it != start_list.end();
+			++controller_it) {
+		if (controller_it->hardware_interface
+				== "hardware_interface::VelocityJointInterface") {
+			if (velocity_interface_running_) {
+				ROS_ERROR(
+						"%s: An interface of that type (%s) is already running",
+						controller_it->name.c_str(),
+						controller_it->hardware_interface.c_str());
+				return false;
+			}
+			if (position_interface_running_) {
+				bool error = true;
+				for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
+						stop_list.begin();
+						stop_controller_it != stop_list.end();
+						++stop_controller_it) {
+					if (stop_controller_it->hardware_interface
+							== "hardware_interface::PositionJointInterface") {
+						error = false;
+						break;
+					}
+				}
+				if (error) {
+					ROS_ERROR(
+							"%s (type %s) can not be run simultaneously with a PositionJointInterface",
+							controller_it->name.c_str(),
+							controller_it->hardware_interface.c_str());
+					return false;
+				}
+			}
+		} else if (controller_it->hardware_interface
+				== "hardware_interface::PositionJointInterface") {
+			if (position_interface_running_) {
+				ROS_ERROR(
+						"%s: An interface of that type (%s) is already running",
+						controller_it->name.c_str(),
+						controller_it->hardware_interface.c_str());
+				return false;
+			}
+			if (velocity_interface_running_) {
+				bool error = true;
+				for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
+						stop_list.begin();
+						stop_controller_it != stop_list.end();
+						++stop_controller_it) {
+					if (stop_controller_it->hardware_interface
+							== "hardware_interface::VelocityJointInterface") {
+						error = false;
+						break;
+					}
+				}
+				if (error) {
+					ROS_ERROR(
+							"%s (type %s) can not be run simultaneously with a VelocityJointInterface",
+							controller_it->name.c_str(),
+							controller_it->hardware_interface.c_str());
+					return false;
+				}
+			}
+		}
+	}
+// we can always stop a controller
+	return true;
 }
 
 void UrHardwareInterface::doSwitch(
@@ -145,6 +226,12 @@ void UrHardwareInterface::doSwitch(
 			velocity_interface_running_ = true;
 			ROS_DEBUG("Starting velocity interface");
 		}
+		if (controller_it->hardware_interface
+				== "hardware_interface::PositionJointInterface") {
+			position_interface_running_ = true;
+			robot_->uploadProg();
+			ROS_DEBUG("Starting position interface");
+		}
 	}
 	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
 			stop_list.begin(); controller_it != stop_list.end();
@@ -154,22 +241,14 @@ void UrHardwareInterface::doSwitch(
 			velocity_interface_running_ = false;
 			ROS_DEBUG("Stopping velocity interface");
 		}
+		if (controller_it->hardware_interface
+				== "hardware_interface::PositionJointInterface") {
+			position_interface_running_ = false;
+			std::vector<double> tmp;
+			robot_->closeServo(tmp);
+			ROS_DEBUG("Stopping position interface");
+		}
 	}
-	/*std::string outp;
-	 outp = "doSwitch called - Start list:";
-	 for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-	 start_list.begin(); controller_it != start_list.end();
-	 ++controller_it) {
-	 outp += " " + controller_it->name + "(" + controller_it->hardware_interface + ")";
-	 }
-	 outp += " - Stop list:";
-	 for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-	 stop_list.begin(); controller_it != stop_list.end();
-	 ++controller_it) {
-	 outp += " " + controller_it->name + "(" + controller_it->hardware_interface + ")";
-
-	 }
-	 ROS_INFO(outp.c_str()); */
 
 }
 

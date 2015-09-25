@@ -24,15 +24,12 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
 			safety_count_max);
+	new_sockfd_ = -1;
 	sec_interface_ = new UrCommunication(msg_cond, host);
 
 	incoming_sockfd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (incoming_sockfd_ < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR opening socket for reverse communication");
-#else
-		printf("ERROR opening socket for reverse communication");
-#endif
+		print_fatal("ERROR opening socket for reverse communication");
 	}
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 
@@ -45,11 +42,7 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 	setsockopt(incoming_sockfd_, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
 	if (bind(incoming_sockfd_, (struct sockaddr *) &serv_addr,
 			sizeof(serv_addr)) < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR on binding socket for reverse communication");
-#else
-		printf("ERROR on binding socket for reverse communication");
-#endif
+		print_fatal("ERROR on binding socket for reverse communication");
 	}
 	listen(incoming_sockfd_, 5);
 }
@@ -158,9 +151,7 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
-	UrDriver::servoj(positions, 0.008, 0);
-	UrDriver::closeServo();
-
+	UrDriver::closeServo(positions);
 }
 
 void UrDriver::servoj(std::vector<double> positions, double time,
@@ -277,14 +268,14 @@ void UrDriver::openServo() {
 	new_sockfd_ = accept(incoming_sockfd_, (struct sockaddr *) &cli_addr,
 			&clilen);
 	if (new_sockfd_ < 0) {
-#ifdef ROS_BUILD
-		ROS_FATAL("ERROR on accepting reverse communication");
-#else
-		printf("ERROR on accepting reverse communication");
-#endif
+		print_fatal("ERROR on accepting reverse communication");
 	}
 }
-void UrDriver::closeServo() {
+void UrDriver::closeServo(std::vector<double> positions) {
+	if (positions.size() != 6)
+		UrDriver::servoj(rt_interface_->robot_state_->getQActual(), 0.008, 0);
+	else
+		UrDriver::servoj(positions, 0.008, 0);
 	close(new_sockfd_);
 }
 
@@ -296,11 +287,9 @@ bool UrDriver::start() {
 	if (!rt_interface_->start())
 		return false;
 	ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
-#ifdef ROS_BUILD
-			ROS_DEBUG("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
-#else
-	printf("Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
-#endif
+	char buf[256];
+	sprintf(buf, "Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
+	print_debug(buf);
 	return true;
 
 }
@@ -327,62 +316,37 @@ void UrDriver::setJointNames(std::vector<std::string> jn) {
 void UrDriver::setToolVoltage(unsigned int v) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_tool_voltage(%d)\nend\n", v);
-#ifdef ROS_BUILD
-	ROS_DEBUG("%s", buf);
-#else
-	printf("%s", buf);
-#endif
-
 	rt_interface_->addCommandToQueue(buf);
+	print_debug(buf);
 }
 void UrDriver::setFlag(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_flag(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-#ifdef ROS_BUILD
-	ROS_DEBUG("%s", buf);
-#else
-	printf("%s", buf);
-#endif
-
 	rt_interface_->addCommandToQueue(buf);
-
+	print_debug(buf);
 }
 void UrDriver::setDigitalOut(unsigned int n, bool b) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
 			b ? "True" : "False");
-#ifdef ROS_BUILD
-	ROS_DEBUG("%s", buf);
-#else
-	printf("%s", buf);
-#endif
-
 	rt_interface_->addCommandToQueue(buf);
+	print_debug(buf);
 
 }
 void UrDriver::setAnalogOut(unsigned int n, double f) {
 	char buf[256];
 	sprintf(buf, "sec setOut():\n\tset_analog_out(%d, %1.4f)\nend\n", n, f);
-#ifdef ROS_BUILD
-	ROS_DEBUG("%s", buf);
-#else
-	printf("%s", buf);
-#endif
-
 	rt_interface_->addCommandToQueue(buf);
+	print_debug(buf);
 }
 
 bool UrDriver::setPayload(double m) {
 	if ((m < maximum_payload_) && (m > minimum_payload_)) {
 		char buf[256];
 		sprintf(buf, "sec setOut():\n\tset_payload(%1.3f)\nend\n", m);
-#ifdef ROS_BUILD
-		ROS_DEBUG("%s", buf);
-#else
-		printf("%s", buf);
-#endif
 		rt_interface_->addCommandToQueue(buf);
+		print_debug(buf);
 		return true;
 	} else
 		return false;

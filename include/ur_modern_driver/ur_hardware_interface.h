@@ -9,7 +9,7 @@
  * ----------------------------------------------------------------------------
  */
 
-/* Based on original source from University of Colorado, Boulder. License copied below. Feel free to offer Dave a beer as well if you meet him. */
+/* Based on original source from University of Colorado, Boulder. License copied below. Please offer Dave a beer as well if you meet him. */
 
 /*********************************************************************
  * Software License Agreement (BSD License)
@@ -58,6 +58,7 @@
 #include <controller_manager/controller_manager.h>
 #include <boost/scoped_ptr.hpp>
 #include <ros/ros.h>
+#include "do_output.h"
 #include "ur_driver.h"
 
 namespace ros_control_ur {
@@ -85,7 +86,11 @@ public:
 	/// \brief write the command to the robot hardware.
 	virtual void write();
 
-	void doSwitch(const std::list<hardware_interface::ControllerInfo>&, const std::list<hardware_interface::ControllerInfo>&);
+	bool canSwitch(
+			const std::list<hardware_interface::ControllerInfo> &start_list,
+			const std::list<hardware_interface::ControllerInfo> &stop_list) const;
+	void doSwitch(const std::list<hardware_interface::ControllerInfo>&start_list,
+			const std::list<hardware_interface::ControllerInfo>&stop_list);
 
 protected:
 
@@ -95,17 +100,20 @@ protected:
 	// Interfaces
 	hardware_interface::JointStateInterface joint_state_interface_;
 	hardware_interface::ForceTorqueSensorInterface force_torque_interface_;
+	hardware_interface::PositionJointInterface position_joint_interface_;
 	hardware_interface::VelocityJointInterface velocity_joint_interface_;
 	bool velocity_interface_running_;
+	bool position_interface_running_;
 	// Shared memory
 	std::vector<std::string> joint_names_;
 	std::vector<double> joint_position_;
 	std::vector<double> joint_velocity_;
 	std::vector<double> joint_effort_;
+	std::vector<double> joint_position_command_;
 	std::vector<double> joint_velocity_command_;
 	std::size_t num_joints_;
-	double robot_force_[3] = {0.,0.,0.};
-	double robot_torque_[3] = {0.,0.,0.};
+	double robot_force_[3] = { 0., 0., 0. };
+	double robot_torque_[3] = { 0., 0., 0. };
 
 	// Robot API
 	UrDriver* robot_;

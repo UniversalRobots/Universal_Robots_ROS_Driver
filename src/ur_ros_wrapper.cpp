@@ -11,6 +11,7 @@
 
 #include "ur_modern_driver/ur_driver.h"
 #include "ur_modern_driver/ur_hardware_interface.h"
+#include "ur_modern_driver/do_output.h"
 #include <string.h>
 #include <vector>
 #include <mutex>
@@ -71,9 +72,11 @@ public:
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
+		char buf[256];
 
 		if (ros::param::get("~prefix", joint_prefix)) {
-			ROS_INFO("Setting prefix to %s", joint_prefix.c_str());
+			sprintf(buf,"Setting prefix to %s", joint_prefix.c_str());
+			print_info(buf);
 		}
 		joint_names.push_back(joint_prefix + "shoulder_pan_joint");
 		joint_names.push_back(joint_prefix + "shoulder_lift_joint");
@@ -96,8 +99,9 @@ public:
 		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 		max_velocity_ = 10.;
 		if (ros::param::get("~max_velocity", max_velocity_)) {
-			ROS_DEBUG("Max velocity accepted by ur_driver: %f [rad/s]",
+			sprintf(buf, "Max velocity accepted by ur_driver: %f [rad/s]",
 					max_velocity_);
+			print_debug(buf);
 		}
 
 		//Bounds for SetPayload service
@@ -105,21 +109,24 @@ public:
 		double min_payload = 0.;
 		double max_payload = 1.;
 		if (ros::param::get("~min_payload", min_payload)) {
-			ROS_DEBUG("Min payload set to: %f [kg]", min_payload);
+			sprintf(buf, "Min payload set to: %f [kg]", min_payload);
+			print_debug(buf);
 		}
 		if (ros::param::get("~max_payload", max_payload)) {
-			ROS_DEBUG("Max payload set to: %f [kg]", max_payload);
+			sprintf(buf, "Max payload set to: %f [kg]", max_payload);
+			print_debug(buf);
 		}
 		robot_.setMinPayload(min_payload);
 		robot_.setMaxPayload(max_payload);
-		ROS_DEBUG("Bounds for set_payload service calls: [%f, %f]", min_payload,
-				max_payload);
+		sprintf(buf, "Bounds for set_payload service calls: [%f, %f]",
+				min_payload, max_payload);
+		print_debug(buf);
 
 		if (robot_.start()) {
 			if (use_ros_control_) {
 				ros_control_thread_ = new std::thread(
 						boost::bind(&RosWrapper::rosControlLoop, this));
-				ROS_DEBUG(
+				print_debug(
 						"The control thread for this driver has been started");
 			} else {
 				//register the goal and feedback callbacks
@@ -133,7 +140,7 @@ public:
 				//subscribe to the data topic of interest
 				rt_publish_thread_ = new std::thread(
 						boost::bind(&RosWrapper::publishRTMsg, this));
-				ROS_DEBUG("The action server for this driver has been started");
+				print_debug("The action server for this driver has been started");
 			}
 			mb_publish_thread_ = new std::thread(
 					boost::bind(&RosWrapper::publishMbMsg, this));
@@ -156,7 +163,7 @@ public:
 	}
 private:
 	void goalCB() {
-		ROS_INFO("on_goal");
+		print_info("on_goal");
 
 		actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::GoalConstPtr goal =
 				as_.acceptNewGoal();
@@ -172,21 +179,21 @@ private:
 					"Received a goal with incorrect joint names: "
 							+ outp_joint_names;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s", result_.error_string.c_str());
+			print_error(result_.error_string);
 		}
 
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s", result_.error_string.c_str());
+			print_error(result_.error_string);
 		}
 
 		if (!traj_is_finite()) {
 			result_.error_string = "Received a goal with infinites or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s", result_.error_string.c_str());
+			print_error(result_.error_string);
 		}
 
 		if (!has_limited_velocities()) {
@@ -194,7 +201,7 @@ private:
 			result_.error_string =
 					"Received a goal with velocities that are higher than %f", max_velocity_;
 			as_.setAborted(result_, result_.error_string);
-			ROS_ERROR("%s", result_.error_string.c_str());
+			print_error(result_.error_string);
 		}
 
 		reorder_traj_joints(goal_.trajectory);
@@ -213,7 +220,7 @@ private:
 	}
 
 	void preemptCB() {
-		ROS_INFO("on_cancel");
+		print_info("on_cancel");
 		// set the action state to preempted
 		robot_.stopTraj();
 		as_.setPreempted();
@@ -481,15 +488,15 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "ur_driver");
 	ros::NodeHandle nh;
 	if (ros::param::get("use_sim_time", use_sim_time)) {
-		ROS_WARN("use_sim_time is set!!");
+		print_warning("use_sim_time is set!!");
 	}
 	if (!(ros::param::get("~robot_ip_address", host))) {
 		if (argc > 1) {
-			ROS_WARN(
+			print_warning(
 					"Please set the parameter robot_ip_address instead of giving it as a command line argument. This method is DEPRECATED");
 			host = argv[1];
 		} else {
-			ROS_FATAL(
+			print_fatal(
 					"Could not get robot ip. Please supply it as command line parameter or on the parameter server as robot_ip");
 			exit(1);
 		}
