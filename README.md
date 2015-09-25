@@ -1,9 +1,10 @@
 # ur_moden_driver
 
-The new driver for the UR3/UR5/UR10 robot arms from universal robots. It is designed to replace the old driver transparently, while still improving on some issues as well as giving the posibility for use ros_control with new setups. 
+A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is designed to replace the old driver transparently, while solving some issues, improving useability as well as enabling compatability of ros_control. 
 
 ## Improvements
 
+* A script is only running on the robot while a trajectory is actually executing. This means that the teach pendant can be used to move the robot around while the driver is connected.
 
 * The driver exposes the same functionality as the previous ur\_driver:
 
@@ -11,9 +12,9 @@ The new driver for the UR3/UR5/UR10 robot arms from universal robots. It is desi
 
   * Publishes robot joint state on */joint\_states*
 
-  * Publishes TCP force on state on */wrench*
+  * Publishes TCP force on */wrench*
 
-  * Publishes IO states state on */ur\_driver/io\_states* (Note that the string */ur\_driver* has been prepended compared to the old driver)
+  * Publishes IO state on */ur\_driver/io\_states* (Note that the string */ur\_driver* has been prepended compared to the old driver)
 
   * Service call to set outputs and payload - Again,  the string */ur\_driver* has been prepended compared to the old driver (Note: I am not sure if setting the payload actually works, as the robot GUI does not update. This is also true for the old ur\_driver  )
 
@@ -24,21 +25,19 @@ The new driver for the UR3/UR5/UR10 robot arms from universal robots. It is desi
 
   * */joint\_speed* : Takes messages of type trajectory\_msgs/JointTrajectory. Parses the first JointTracetoryPoint and sends the specified joint speeds and accelerations to the robot. This interface is intended for doing visual servoing and other kind of control that requires speed control rather than position control of the robot. Remember to set values for all 6 joints. Ignores the field joint\_names, so set the values in the correct order.
 
-* A script is only running on the robot while a trajectory is executing. This means that the teach pendant can be used to move the robot around while the driver is connected.
-
 * Added support for ros_control. 
   * As ros_control wants to have control over the robot at all times, ros_control compatability is set via a parameter at launch-time. 
   * With ros_control active, the driver doesn't open the action_lib interface nor publish joint_states or wrench msgs. This is handled by ros_control instead.
-  * As ros_control continuesly controls the robot, using the teach pendant while a controller is running will cause the controller **on the robot** to crash, as it obviously can't handle conflicting control input from two sources. Thus be sure to stop the running controller **before** moving the robot via the teach pendant.
+  * As ros_control continuesly controls the robot, using the teach pendant while a controller is running will cause the controller **on the robot** to crash, as it obviously can't handle conflicting control input from two sources. Thus be sure to stop the running controller **before** moving the robot via the teach pendant:
     * A list of the loaded and running controllers can be found by a call to the controller_manager ```rosservice call /controller_manager/list_controllers {} ```
-    * The running position trajectory controller can then be stopped with a call to  ```rosservice call /universal_robot/controller_manager/switch_controller "start_controllers: - '' stop_controllers: - 'position_based_position_trajectory_controller' strictness: 1" ```
+    * The running position trajectory controller can be stopped with a call to  ```rosservice call /universal_robot/controller_manager/switch_controller "start_controllers: - '' stop_controllers: - 'position_based_position_trajectory_controller' strictness: 1" ``` (Remember you can use tab-completion for this)
    
 
 ## Installation
 
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
-Note that this package depends on ur_msgs, so it cannot directly be used with ROS versions prior to hydro
+Note that this package depends on ur_msgs, hardware_interface, and controller_manager so it cannot directly be used with ROS versions prior to hydro.
 
 ## Usage
 
@@ -48,6 +47,7 @@ If you want to test it in your current setup, just use the modified launch files
 
 ---
 If you would like to use the ros\_control-based approach, use the launch files urXX\_ros\_control.launch, where XX is '5' or '10' depending on your robot.
+
 The driver currently supports two position trajectory controllers; a position based and a velocity based. They are both loaded via the launch file, but only one of them can be running at the same time.
 You can switch controller by calling the appropriate service:
 ```
@@ -57,11 +57,11 @@ stop_controllers:
 - 'position_based_position_trajectory_controller'
 strictness: 1"
 ```
-Be sure to stop the currently running controller **in the same call** as you start a new one, otherwise it will fail.
+Be sure to stop the currently running controller **either before or in the same call** as you start a new one, otherwise it will fail.
 
-The position based controller *should* stay closer to the commanded path, while the velocity based react faster (trajectory execution start within 50-70 ms, while it is in the 150-180ms range for the position_based).
+The position based controller *should* stay closer to the commanded path, while the velocity based react faster (trajectory execution start within 50-70 ms, while it is in the 150-180ms range for the position_based. Usage without ros_control as well as the old driver is also in the 170ms range, as mentioned at my lightning talk @ ROSCon 2013).
 
-Note that the PID values are not tweaked as of this moment.
+**Note** that the PID values are not tweaked as of this moment.
 
 To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following 
 ```
