@@ -257,7 +257,6 @@ void UrDriver::uploadProg() {
 	cmd_str += "end\n";
 
 	rt_interface_->addCommandToQueue(cmd_str);
-
 	UrDriver::openServo();
 }
 

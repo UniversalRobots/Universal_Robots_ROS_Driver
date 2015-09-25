@@ -211,6 +211,7 @@ bool UrHardwareInterface::canSwitch(
 			}
 		}
 	}
+
 // we can always stop a controller
 	return true;
 }
@@ -218,21 +219,6 @@ bool UrHardwareInterface::canSwitch(
 void UrHardwareInterface::doSwitch(
 		const std::list<hardware_interface::ControllerInfo>& start_list,
 		const std::list<hardware_interface::ControllerInfo>& stop_list) {
-	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-			start_list.begin(); controller_it != start_list.end();
-			++controller_it) {
-		if (controller_it->hardware_interface
-				== "hardware_interface::VelocityJointInterface") {
-			velocity_interface_running_ = true;
-			ROS_DEBUG("Starting velocity interface");
-		}
-		if (controller_it->hardware_interface
-				== "hardware_interface::PositionJointInterface") {
-			position_interface_running_ = true;
-			robot_->uploadProg();
-			ROS_DEBUG("Starting position interface");
-		}
-	}
 	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
 			stop_list.begin(); controller_it != stop_list.end();
 			++controller_it) {
@@ -247,6 +233,21 @@ void UrHardwareInterface::doSwitch(
 			std::vector<double> tmp;
 			robot_->closeServo(tmp);
 			ROS_DEBUG("Stopping position interface");
+		}
+	}
+	for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
+			start_list.begin(); controller_it != start_list.end();
+			++controller_it) {
+		if (controller_it->hardware_interface
+				== "hardware_interface::VelocityJointInterface") {
+			velocity_interface_running_ = true;
+			ROS_DEBUG("Starting velocity interface");
+		}
+		if (controller_it->hardware_interface
+				== "hardware_interface::PositionJointInterface") {
+			position_interface_running_ = true;
+			robot_->uploadProg();
+			ROS_DEBUG("Starting position interface");
 		}
 	}
 
