@@ -13,10 +13,10 @@
 
 UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 		std::condition_variable& msg_cond, std::string host,
-		unsigned int reverse_port, unsigned int safety_count_max,
+		unsigned int reverse_port, double servoj_time, unsigned int safety_count_max,
 		double max_time_step, double min_payload, double max_payload) :
 		REVERSE_PORT_(reverse_port), maximum_time_step_(max_time_step), minimum_payload_(
-				min_payload), maximum_payload_(max_payload) {
+				min_payload), maximum_payload_(max_payload), servoj_time_(servoj_time) {
 	char buffer[256];
 	struct sockaddr_in serv_addr;
 	int n, flag;
@@ -63,11 +63,11 @@ std::vector<double> UrDriver::interp_cubic(double t, double T,
 	}
 	return positions;
 }
-
+ /*
 void UrDriver::addTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
-	/* DEPRECATED */
+	// DEPRECATED
 	printf("!! addTraj is deprecated !!\n");
 	std::vector<double> timestamps;
 	std::vector<std::vector<double> > positions;
@@ -82,11 +82,11 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 			timestamps.push_back(inp_timestamps[i - 1] + step_size * j);
 		}
 	}
-	//make sure we come to a smooth stop
-	/*while (timestamps.back() < inp_timestamps.back()) {
-	 timestamps.push_back(timestamps.back() + 0.008);
-	 }
-	 timestamps.pop_back();*/
+	// //make sure we come to a smooth stop
+	// while (timestamps.back() < inp_timestamps.back()) {
+	//   timestamps.push_back(timestamps.back() + 0.008);
+	// }
+	// timestamps.pop_back();
 
 	unsigned int j = 0;
 	for (unsigned int i = 0; i < timestamps.size(); i++) {
@@ -102,7 +102,7 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 
 	timestamps.push_back(inp_timestamps[inp_timestamps.size() - 1]);
 	positions.push_back(inp_positions[inp_positions.size() - 1]);
-	/* This is actually faster than using a stringstream :-o */
+	/// This is actually faster than using a stringstream :-o
 	for (unsigned int i = 1; i < timestamps.size(); i++) {
 		char buf[128];
 		sprintf(buf,
@@ -117,7 +117,7 @@ void UrDriver::addTraj(std::vector<double> inp_timestamps,
 	rt_interface_->addCommandToQueue(command_string);
 
 }
-
+*/
 void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
@@ -144,21 +144,24 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 				inp_timestamps[j] - inp_timestamps[j - 1], inp_positions[j - 1],
 				inp_positions[j], inp_velocities[j - 1], inp_velocities[j]);
 
-		UrDriver::servoj(positions, 0.008, 1);
+		UrDriver::servoj(positions);
 
 		// oversample with 4 * sample_time
-		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		std::this_thread::sleep_for(std::chrono::milliseconds((int) ((servoj_time_*1000)/4.)));
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
 	UrDriver::closeServo(positions);
 }
 
-void UrDriver::servoj(std::vector<double> positions, double time,
-		int keepalive) {
+void UrDriver::servoj(std::vector<double> positions,
+		int keepalive, double time) {
 	unsigned int bytes_written;
 	int tmp;
 	unsigned char buf[32];
+	if (time < 0.016) {
+		time = servoj_time_;
+	}
 	for (int i = 0; i < 6; i++) {
 		tmp = htonl((int) (positions[i] * MULT_JOINTSTATE_));
 		buf[i * 4] = tmp & 0xff;
@@ -272,9 +275,9 @@ void UrDriver::openServo() {
 }
 void UrDriver::closeServo(std::vector<double> positions) {
 	if (positions.size() != 6)
-		UrDriver::servoj(rt_interface_->robot_state_->getQActual(), 0.008, 0);
+		UrDriver::servoj(rt_interface_->robot_state_->getQActual(), 0);
 	else
-		UrDriver::servoj(positions, 0.008, 0);
+		UrDriver::servoj(positions, 0);
 	close(new_sockfd_);
 }
 
@@ -352,8 +355,20 @@ bool UrDriver::setPayload(double m) {
 }
 
 void UrDriver::setMinPayload(double m) {
-	minimum_payload_ = m;
+	if (m > 0) {
+		minimum_payload_ = m;
+	} else {
+		minimum_payload_ = 0;
+	}
+
 }
 void UrDriver::setMaxPayload(double m) {
 	maximum_payload_ = m;
+}
+void UrDriver::setServojTime(double t) {
+	if (t > 0.016) {
+		servoj_time_ = t;
+	} else {
+		servoj_time_ = 0.016;
+	}
 }

@@ -141,7 +141,7 @@ void UrHardwareInterface::write() {
 				joint_velocity_command_[2], joint_velocity_command_[3],
 				joint_velocity_command_[4], joint_velocity_command_[5], 100);
 	} else if (position_interface_running_) {
-		robot_->servoj(joint_position_command_, 0.008, 1);
+		robot_->servoj(joint_position_command_);
 	}
 }
 

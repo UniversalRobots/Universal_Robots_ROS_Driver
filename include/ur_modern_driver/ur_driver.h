@@ -39,13 +39,14 @@ private:
 	const unsigned int REVERSE_PORT_;
 	int incoming_sockfd_;
 	int new_sockfd_;
+	double servoj_time_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
 
 	UrDriver(std::condition_variable& rt_msg_cond,
 			std::condition_variable& msg_cond, std::string host,
-			unsigned int reverse_port = 50007, unsigned int safety_count_max =
+			unsigned int reverse_port = 50007, double servoj_time = 0.016, unsigned int safety_count_max =
 					12, double max_time_step = 0.08, double min_payload = 0.,
 			double max_payload = 1.);
 	bool start();
@@ -53,14 +54,14 @@ public:
 
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
 			double q5, double acc = 100.);
-	void addTraj(
+	/* void addTraj(
 			std::vector<double> inp_timestamps, //DEPRECATED
 			std::vector<std::vector<double> > positions,
-			std::vector<std::vector<double> > velocities);
+			std::vector<std::vector<double> > velocities); */
 	void doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
-	void servoj(std::vector<double> positions, double time, int keepalive);
+	void servoj(std::vector<double> positions, int keepalive = 1, double time = 0);
 
 	void stopTraj();
 
@@ -82,6 +83,7 @@ public:
 
 	void setMinPayload(double m);
 	void setMaxPayload(double m);
+	void setServojTime(double t);
 
 };
 

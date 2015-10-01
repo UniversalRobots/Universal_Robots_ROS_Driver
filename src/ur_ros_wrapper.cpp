@@ -75,7 +75,7 @@ public:
 		char buf[256];
 
 		if (ros::param::get("~prefix", joint_prefix)) {
-			sprintf(buf,"Setting prefix to %s", joint_prefix.c_str());
+			sprintf(buf, "Setting prefix to %s", joint_prefix.c_str());
 			print_info(buf);
 		}
 		joint_names.push_back(joint_prefix + "shoulder_pan_joint");
@@ -122,6 +122,13 @@ public:
 				min_payload, max_payload);
 		print_debug(buf);
 
+		double servoj_time = 0.016;
+		if (ros::param::get("~servoj_time", servoj_time)) {
+			sprintf(buf, "Servoj_time set to: %f [sec]", servoj_time);
+			print_debug(buf);
+		}
+		robot_.setServojTime(servoj_time);
+
 		if (robot_.start()) {
 			if (use_ros_control_) {
 				ros_control_thread_ = new std::thread(
@@ -140,7 +147,8 @@ public:
 				//subscribe to the data topic of interest
 				rt_publish_thread_ = new std::thread(
 						boost::bind(&RosWrapper::publishRTMsg, this));
-				print_debug("The action server for this driver has been started");
+				print_debug(
+						"The action server for this driver has been started");
 			}
 			mb_publish_thread_ = new std::thread(
 					boost::bind(&RosWrapper::publishMbMsg, this));
