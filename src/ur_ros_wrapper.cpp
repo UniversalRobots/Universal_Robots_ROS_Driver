@@ -211,7 +211,7 @@ private:
 		}
 
 		if (!traj_is_finite()) {
-			result_.error_string = "Received a goal with infinites or NaNs";
+			result_.error_string = "Received a goal with infinities or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
