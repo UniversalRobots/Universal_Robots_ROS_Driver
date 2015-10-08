@@ -38,8 +38,38 @@
 #include "ur_msgs/Digital.h"
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
-#include "std_msgs/Int32.h"
 #include <controller_manager/controller_manager.h>
+#include <diagnostic_updater/diagnostic_updater.h>
+#include <diagnostic_updater/publisher.h>
+
+enum RobotMode {
+    ROBOT_MODE_DISCONNECTED,
+    ROBOT_MODE_CONFIRM_SAFETY,
+    ROBOT_MODE_BOOTING,
+    ROBOT_MODE_POWER_OFF,
+    ROBOT_MODE_POWER_ON,
+    ROBOT_MODE_IDLE,
+    ROBOT_MODE_BACKDRIVE,
+    ROBOT_MODE_RUNNING,
+    ROBOT_MODE_UPDATING_FIRMWARE
+};
+
+enum SafetyMode {
+    SAFETY_MODE_NORMAL,
+    SAFETY_MODE_REDUCED,
+    SAFETY_MODE_PROTECTIVE_STOP,
+    SAFETY_MODE_RECOVERY,
+    SAFETY_MODE_SAFEGUARD_STOP,
+    SAFETY_MODE_SYSTEM_EMERGENCY_STOP,
+    SAFETY_MODE_ROBOT_EMERGENCY_STOP,
+    SAFETY_MODE_VIOLATION,
+    SAFETY_MODE_FAULT
+};
+
+struct DriverStatus{
+    RobotMode robot_mode;
+    SafetyMode safety_mode;
+};
 
 class RosWrapper {
 protected:
@@ -64,6 +94,8 @@ protected:
 	std::thread* ros_control_thread_;
 	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
+    diagnostic_updater::Updater updater_;
+    DriverStatus driver_status_;
 
 public:
 	RosWrapper(std::string host) :
@@ -74,6 +106,9 @@ public:
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
 		char buf[256];
+
+        updater_.setHardwareID("ur_driver");
+        updater_.add("Status updater", this, &RosWrapper::driverDiagnostic);
 
 		if (ros::param::get("~prefix", joint_prefix)) {
 			sprintf(buf, "Setting prefix to %s", joint_prefix.c_str());
@@ -171,6 +206,26 @@ public:
 
 	}
 private:
+    void driverDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat){
+
+        if (driver_status_.robot_mode == ROBOT_MODE_RUNNING &&
+                (driver_status_.safety_mode == SAFETY_MODE_NORMAL || driver_status_.safety_mode == SAFETY_MODE_REDUCED)){
+            //Robot is running and in normal safety mode
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Driver OK");
+        }
+        else if (driver_status_.robot_mode == ROBOT_MODE_RUNNING &&
+                 (driver_status_.safety_mode != SAFETY_MODE_NORMAL || driver_status_.safety_mode != SAFETY_MODE_REDUCED)){
+            //Robot is running and in some safety stop
+            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Driver WARNING");
+        }
+        else {
+            //Robot is not running
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Driver ERROR");
+        }
+        stat.add("Robot mode", driver_status_.robot_mode);
+        stat.add("Safety mode", driver_status_.safety_mode);
+    }
+
 	void goalCB() {
 		print_info("on_goal");
 
@@ -424,8 +479,6 @@ private:
 				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
 				"wrench", 1);
-        ros::Publisher robot_state_pub = nh_.advertise<std_msgs::Int32>(
-                "ur_driver/robot_state", 1);
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
 			joint_msg.name = robot_.getJointNames();
@@ -456,10 +509,15 @@ private:
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
 
-            //Publish robot state
-            std_msgs::Int32 robot_state_msg;
-            robot_state_msg.data = (int) robot_.rt_interface_->robot_state_->getRobotMode();
-            robot_state_pub.publish(robot_state_msg);
+//            //Publish robot state
+//            std_msgs::Int32 robot_state_msg;
+//            robot_state_msg.data = (int) robot_.rt_interface_->robot_state_->getRobotMode();
+//            robot_state_pub.publish(robot_state_msg);
+
+            //Update diagnostics
+            driver_status_.robot_mode = static_cast<RobotMode>( robot_.rt_interface_->robot_state_->getRobotMode() );
+            driver_status_.safety_mode = static_cast<SafetyMode>( robot_.rt_interface_->robot_state_->getSafety_mode() );
+            updater_.update();
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
 
