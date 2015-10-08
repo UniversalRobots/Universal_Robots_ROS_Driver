@@ -26,7 +26,8 @@
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
-#include "actionlib/server/simple_action_server.h"
+#include "actionlib/server/action_server.h"
+#include "actionlib/server/server_goal_handle.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
 #include "ur_msgs/SetIO.h"
 #include "ur_msgs/SetPayload.h"
@@ -46,8 +47,8 @@ protected:
 	std::condition_variable rt_msg_cond_;
 	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
-	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
-	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
+	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> as_;
+	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speed_sub_;
@@ -66,9 +67,11 @@ protected:
 
 public:
 	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(rt_msg_cond_,
-					msg_cond_, host), io_flag_delay_(0.05), joint_offsets_(6,
-					0.0) {
+			as_(nh_, "follow_joint_trajectory",
+					boost::bind(&RosWrapper::goalCB, this, _1),
+					boost::bind(&RosWrapper::cancelCB, this, _1), false), robot_(
+					rt_msg_cond_, msg_cond_, host), io_flag_delay_(0.05), joint_offsets_(
+					6, 0.0) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -95,6 +98,14 @@ public:
 			controller_manager_.reset(
 					new controller_manager::ControllerManager(
 							hardware_interface_.get(), nh_));
+			double max_vel_change = 0.12; // equivalent of an acceleration of 15 rad/sec^2
+			if (ros::param::get("~max_acceleration", max_vel_change)) {
+				max_vel_change = max_vel_change / 125;
+			}
+			sprintf(buf, "Max acceleration set to: %f [rad/sec²]",
+					max_vel_change * 125);
+			print_debug(buf);
+			hardware_interface_->setMaxVelChange(max_vel_change);
 		}
 		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 		max_velocity_ = 10.;
@@ -129,14 +140,6 @@ public:
 		}
 		robot_.setServojTime(servoj_time);
 
-		double max_vel_change = 0.12; // equivalent of an acceleration of 15 rad/sec^2
-		if (ros::param::get("~max_acceleration", max_vel_change)) {
-			max_vel_change = max_vel_change/125;
-		}
-		sprintf(buf, "Max acceleration set to: %f [rad/sec²]", max_vel_change*125);
-		print_debug(buf);
-		hardware_interface_->setMaxVelChange(max_vel_change);
-
 		if (robot_.start()) {
 			if (use_ros_control_) {
 				ros_control_thread_ = new std::thread(
@@ -144,12 +147,7 @@ public:
 				print_debug(
 						"The control thread for this driver has been started");
 			} else {
-				//register the goal and feedback callbacks
-				as_.registerGoalCallback(
-						boost::bind(&RosWrapper::goalCB, this));
-				as_.registerPreemptCallback(
-						boost::bind(&RosWrapper::preemptCB, this));
-
+				//start actionserver
 				as_.start();
 
 				//subscribe to the data topic of interest
@@ -178,12 +176,12 @@ public:
 
 	}
 private:
-	void goalCB() {
+	void goalCB(
+			actionlib::ServerGoalHandle<
+					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_goal");
 
-		actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::GoalConstPtr goal =
-				as_.acceptNewGoal();
-		goal_ = *goal; //make a copy that we can modify
+		goal_ = *gh.getGoal(); //make a copy that we can modify
 		if (!validateJointNames()) {
 			std::string outp_joint_names = "";
 			for (unsigned int i = 0; i < goal_.trajectory.joint_names.size();
@@ -194,28 +192,28 @@ private:
 			result_.error_string =
 					"Received a goal with incorrect joint names: "
 							+ outp_joint_names;
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
 
 		if (!has_positions()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without positions";
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
 
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
 
 		if (!traj_is_finite()) {
 			result_.error_string = "Received a goal with infinites or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
 
@@ -223,7 +221,7 @@ private:
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string =
 					"Received a goal with velocities that are higher than %f", max_velocity_;
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
 
@@ -237,16 +235,21 @@ private:
 			velocities.push_back(goal_.trajectory.points[i].velocities);
 
 		}
+		gh.setAccepted();
 		robot_.doTraj(timestamps, positions, velocities);
 		result_.error_code = result_.SUCCESSFUL;
-		as_.setSucceeded(result_);
+		gh.setSucceeded(result_);
 	}
 
-	void preemptCB() {
+	void cancelCB(
+			actionlib::ServerGoalHandle<
+					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_cancel");
 		// set the action state to preempted
 		robot_.stopTraj();
-		as_.setPreempted();
+		result_.error_code = result_.SUCCESSFUL;
+		result_.error_string = "Goal cancelled by client";
+		gh.setCanceled(result_);
 	}
 
 	bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& resp) {
