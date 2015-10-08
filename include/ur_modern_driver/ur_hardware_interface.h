@@ -58,6 +58,7 @@
 #include <controller_manager/controller_manager.h>
 #include <boost/scoped_ptr.hpp>
 #include <ros/ros.h>
+#include <math.h>
 #include "do_output.h"
 #include "ur_driver.h"
 
@@ -86,6 +87,8 @@ public:
 	/// \brief write the command to the robot hardware.
 	virtual void write();
 
+	void setMaxVelChange(double inp);
+
 	bool canSwitch(
 			const std::list<hardware_interface::ControllerInfo> &start_list,
 			const std::list<hardware_interface::ControllerInfo> &stop_list) const;
@@ -111,9 +114,12 @@ protected:
 	std::vector<double> joint_effort_;
 	std::vector<double> joint_position_command_;
 	std::vector<double> joint_velocity_command_;
-	std::size_t num_joints_;
+	std::vector<double> prev_joint_velocity_command_;
+		std::size_t num_joints_;
 	double robot_force_[3] = { 0., 0., 0. };
 	double robot_torque_[3] = { 0., 0., 0. };
+
+	double max_vel_change_;
 
 	// Robot API
 	UrDriver* robot_;

@@ -129,6 +129,14 @@ public:
 		}
 		robot_.setServojTime(servoj_time);
 
+		double max_vel_change = 0.12; // equivalent of an acceleration of 15 rad/sec^2
+		if (ros::param::get("~max_acceleration", max_vel_change)) {
+			max_vel_change = max_vel_change/125;
+		}
+		sprintf(buf, "Max acceleration set to: %f [rad/sec²]", max_vel_change*125);
+		print_debug(buf);
+		hardware_interface_->setMaxVelChange(max_vel_change);
+
 		if (robot_.start()) {
 			if (use_ros_control_) {
 				ros_control_thread_ = new std::thread(

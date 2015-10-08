@@ -28,9 +28,13 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 * Added support for ros_control. 
   * As ros_control wants to have control over the robot at all times, ros_control compatability is set via a parameter at launch-time. 
   * With ros_control active, the driver doesn't open the action_lib interface nor publish joint_states or wrench msgs. This is handled by ros_control instead.
+  * Currently two controllers are available, both controlling the joint position of the robot, useable for trajectroy execution
+    * The velocity based controller sends joint speed commands to the robot, using the speej command
+    * The position based controller send joint position commands to the robot, using the servoj command
+    * I have so far only used the velocity based controller, but which one is optimal depends on the application.
   * As ros_control continuesly controls the robot, using the teach pendant while a controller is running will cause the controller **on the robot** to crash, as it obviously can't handle conflicting control input from two sources. Thus be sure to stop the running controller **before** moving the robot via the teach pendant:
     * A list of the loaded and running controllers can be found by a call to the controller_manager ```rosservice call /controller_manager/list_controllers {} ```
-    * The running position trajectory controller can be stopped with a call to  ```rosservice call /universal_robot/controller_manager/switch_controller "start_controllers: - '' stop_controllers: - 'position_based_position_trajectory_controller' strictness: 1" ``` (Remember you can use tab-completion for this)
+    * The running position trajectory controller can be stopped with a call to  ```rosservice call /universal_robot/controller_manager/switch_controller "start_controllers: - '' stop_controllers: - 'pos_based_pos_traj_controller' strictness: 1" ``` (Remember you can use tab-completion for this)
    
 
 ## Installation
@@ -61,12 +65,12 @@ Be sure to stop the currently running controller **either before or in the same 
 
 The position based controller *should* stay closer to the commanded path, while the velocity based react faster (trajectory execution start within 50-70 ms, while it is in the 150-180ms range for the position_based. Usage without ros_control as well as the old driver is also in the 170ms range, as mentioned at my lightning talk @ ROSCon 2013).
 
-**Note** that the PID values are not tweaked as of this moment.
+**Note** that the PID values are not optimally tweaked as of this moment.
 
 To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following 
 ```
 controller_list:
- - name: velocity_based_position_trajectory_controller #or position_based_position_trajectory_controller
+ - name: vel_based_pos_traj_controller #or pos_based_pos_traj_controller
    action_ns: follow_joint_trajectory
    type: FollowJointTrajectory
    default: true
