@@ -40,6 +40,7 @@ private:
 	int incoming_sockfd_;
 	int new_sockfd_;
 	double servoj_time_;
+	bool executing_traj_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;

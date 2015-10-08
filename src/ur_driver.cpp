@@ -126,13 +126,14 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 	std::vector<double> positions;
 	unsigned int j;
 
+	executing_traj_ = true;
 	UrDriver::uploadProg();
 
 	t0 = std::chrono::high_resolution_clock::now();
 	t = t0;
 	j = 0;
-	while (inp_timestamps[inp_timestamps.size() - 1]
-			>= std::chrono::duration_cast<std::chrono::duration<double>>(t - t0).count()) {
+	while ((inp_timestamps[inp_timestamps.size() - 1]
+			>= std::chrono::duration_cast<std::chrono::duration<double>>(t - t0).count()) and executing_traj_) {
 		while (inp_timestamps[j]
 				<= std::chrono::duration_cast<std::chrono::duration<double>>(
 						t - t0).count() && j < inp_timestamps.size() - 1) {
@@ -151,6 +152,7 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
+	executing_traj_ = false;
 	UrDriver::closeServo(positions);
 }
 
@@ -183,6 +185,7 @@ void UrDriver::servoj(std::vector<double> positions,
 }
 
 void UrDriver::stopTraj() {
+	executing_traj_ = false;
 	rt_interface_->addCommandToQueue("stopj(10)\n");
 }
 
