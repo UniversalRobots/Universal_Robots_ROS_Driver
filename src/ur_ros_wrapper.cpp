@@ -190,6 +190,13 @@ private:
 			print_error(result_.error_string);
 		}
 
+		if (!has_positions()) {
+			result_.error_code = result_.INVALID_GOAL;
+			result_.error_string = "Received a goal without positions";
+			as_.setAborted(result_, result_.error_string);
+			print_error(result_.error_string);
+		}
+
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
@@ -320,6 +327,17 @@ private:
 		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
 			if (goal_.trajectory.points[i].positions.size()
 					!= goal_.trajectory.points[i].velocities.size())
+				return false;
+		}
+		return true;
+	}
+
+	bool has_positions() {
+		if (goal_.trajectory.points.size() == 0)
+			return false;
+		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+			if (goal_.trajectory.points[i].positions.size()
+					!= goal_.trajectory.joint_names.size())
 				return false;
 		}
 		return true;
