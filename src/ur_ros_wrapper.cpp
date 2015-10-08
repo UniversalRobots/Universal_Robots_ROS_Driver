@@ -509,11 +509,6 @@ private:
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
 
-//            //Publish robot state
-//            std_msgs::Int32 robot_state_msg;
-//            robot_state_msg.data = (int) robot_.rt_interface_->robot_state_->getRobotMode();
-//            robot_state_pub.publish(robot_state_msg);
-
             //Update diagnostics
             driver_status_.robot_mode = static_cast<RobotMode>( robot_.rt_interface_->robot_state_->getRobotMode() );
             driver_status_.safety_mode = static_cast<SafetyMode>( robot_.rt_interface_->robot_state_->getSafety_mode() );
