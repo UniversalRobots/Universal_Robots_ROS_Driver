@@ -38,6 +38,7 @@
 #include "ur_msgs/Digital.h"
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
+#include "std_msgs/Int32.h"
 #include <controller_manager/controller_manager.h>
 
 class RosWrapper {
@@ -54,8 +55,8 @@ protected:
 	ros::Subscriber urscript_sub_;
 	ros::ServiceServer io_srv_;
 	ros::ServiceServer payload_srv_;
-	std::thread* rt_publish_thread_;
-	std::thread* mb_publish_thread_;
+    std::thread* rt_publish_thread_;
+    std::thread* mb_publish_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
@@ -423,6 +424,8 @@ private:
 				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
 				"wrench", 1);
+        ros::Publisher robot_state_pub = nh_.advertise<std_msgs::Int32>(
+                "ur_driver/robot_state", 1);
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
 			joint_msg.name = robot_.getJointNames();
@@ -452,6 +455,11 @@ private:
 			wrench_msg.wrench.torque.y = tcp_force[4];
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
+
+            //Publish robot state
+            std_msgs::Int32 robot_state_msg;
+            robot_state_msg.data = (int) robot_.rt_interface_->robot_state_->getRobotMode();
+            robot_state_pub.publish(robot_state_msg);
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
 
