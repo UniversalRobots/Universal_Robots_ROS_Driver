@@ -152,7 +152,6 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
-	executing_traj_ = false;
 	UrDriver::closeServo(positions);
 }
 
@@ -281,6 +280,7 @@ void UrDriver::closeServo(std::vector<double> positions) {
 		UrDriver::servoj(rt_interface_->robot_state_->getQActual(), 0);
 	else
 		UrDriver::servoj(positions, 0);
+	executing_traj_ = false;
 	close(new_sockfd_);
 }
 
