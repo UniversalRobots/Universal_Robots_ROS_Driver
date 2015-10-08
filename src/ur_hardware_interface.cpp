@@ -57,6 +57,8 @@ UrHardwareInterface::UrHardwareInterface(ros::NodeHandle& nh, UrDriver* robot) :
 	// Initialize shared memory and interfaces here
 	init(); // this implementation loads from rosparam
 
+	max_vel_change_ = 0.12; // equivalent of an acceleration of 15 rad/sec^2
+
 	ROS_INFO_NAMED("ur_hardware_interface", "Loaded ur_hardware_interface.");
 }
 
@@ -79,6 +81,7 @@ void UrHardwareInterface::init() {
 	joint_effort_.resize(num_joints_);
 	joint_position_command_.resize(num_joints_);
 	joint_velocity_command_.resize(num_joints_);
+	prev_joint_velocity_command_.resize(num_joints_);
 
 	// Initialize controller
 	for (std::size_t i = 0; i < num_joints_; ++i) {
@@ -102,6 +105,7 @@ void UrHardwareInterface::init() {
 				hardware_interface::JointHandle(
 						joint_state_interface_.getHandle(joint_names_[i]),
 						&joint_velocity_command_[i]));
+		prev_joint_velocity_command_[i] = 0.;
 	}
 
 	// Create force torque interface
@@ -135,11 +139,30 @@ void UrHardwareInterface::read() {
 
 }
 
+void UrHardwareInterface::setMaxVelChange(double inp) {
+	max_vel_change_ = inp;
+}
+
 void UrHardwareInterface::write() {
 	if (velocity_interface_running_) {
-		robot_->setSpeed(joint_velocity_command_[0], joint_velocity_command_[1],
-				joint_velocity_command_[2], joint_velocity_command_[3],
-				joint_velocity_command_[4], joint_velocity_command_[5], 100);
+		std::vector<double> cmd;
+		//do some rate limiting
+		cmd.resize(joint_velocity_command_.size());
+		for (unsigned int i = 0; i < joint_velocity_command_.size(); i++) {
+			cmd[i] = joint_velocity_command_[i];
+			if (cmd[i] > prev_joint_velocity_command_[i] + max_vel_change_) {
+				cmd[i] = prev_joint_velocity_command_[i] + max_vel_change_;
+			} else if (cmd[i]
+					< prev_joint_velocity_command_[i] - max_vel_change_) {
+				cmd[i] = prev_joint_velocity_command_[i] - max_vel_change_;
+			}
+			if (cmd[i] > M_PI/2.)
+				cmd[i] = M_PI/2.;
+			else if (cmd[i] < -M_PI/2.)
+				cmd[i] = -M_PI/2.;
+			prev_joint_velocity_command_[i] = cmd[i];
+		}
+		robot_->setSpeed(cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5],  max_vel_change_*125);
 	} else if (position_interface_running_) {
 		robot_->servoj(joint_position_command_);
 	}
