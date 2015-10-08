@@ -122,7 +122,7 @@ public:
 				min_payload, max_payload);
 		print_debug(buf);
 
-		double servoj_time = 0.016;
+		double servoj_time = 0.008;
 		if (ros::param::get("~servoj_time", servoj_time)) {
 			sprintf(buf, "Servoj_time set to: %f [sec]", servoj_time);
 			print_debug(buf);

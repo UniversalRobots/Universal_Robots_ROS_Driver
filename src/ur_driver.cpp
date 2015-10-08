@@ -369,9 +369,9 @@ void UrDriver::setMaxPayload(double m) {
 	maximum_payload_ = m;
 }
 void UrDriver::setServojTime(double t) {
-	if (t > 0.016) {
+	if (t > 0.008) {
 		servoj_time_ = t;
 	} else {
-		servoj_time_ = 0.016;
+		servoj_time_ = 0.008;
 	}
 }
