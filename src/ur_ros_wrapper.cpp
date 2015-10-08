@@ -48,7 +48,7 @@ protected:
 	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
 	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> as_;
-	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
+	actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction>* goal_handle_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speed_sub_;
@@ -180,13 +180,13 @@ private:
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_goal");
-
-		goal_ = *gh.getGoal(); //make a copy that we can modify
+		goal_handle_ = &gh;
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal(); //make a copy that we can modify
 		if (!validateJointNames()) {
 			std::string outp_joint_names = "";
-			for (unsigned int i = 0; i < goal_.trajectory.joint_names.size();
+			for (unsigned int i = 0; i < goal.trajectory.joint_names.size();
 					i++) {
-				outp_joint_names += goal_.trajectory.joint_names[i] + " ";
+				outp_joint_names += goal.trajectory.joint_names[i] + " ";
 			}
 			result_.error_code = result_.INVALID_JOINTS;
 			result_.error_string =
@@ -225,14 +225,14 @@ private:
 			print_error(result_.error_string);
 		}
 
-		reorder_traj_joints(goal_.trajectory);
+		reorder_traj_joints(goal.trajectory);
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			timestamps.push_back(
-					goal_.trajectory.points[i].time_from_start.toSec());
-			positions.push_back(goal_.trajectory.points[i].positions);
-			velocities.push_back(goal_.trajectory.points[i].velocities);
+					goal.trajectory.points[i].time_from_start.toSec());
+			positions.push_back(goal.trajectory.points[i].positions);
+			velocities.push_back(goal.trajectory.points[i].velocities);
 
 		}
 		gh.setAccepted();
@@ -285,16 +285,17 @@ private:
 
 	bool validateJointNames() {
 		std::vector<std::string> actual_joint_names = robot_.getJointNames();
-		if (goal_.trajectory.joint_names.size() != actual_joint_names.size())
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		if (goal.trajectory.joint_names.size() != actual_joint_names.size())
 			return false;
 
-		for (unsigned int i = 0; i < goal_.trajectory.joint_names.size(); i++) {
+		for (unsigned int i = 0; i < goal.trajectory.joint_names.size(); i++) {
 			unsigned int j;
 			for (j = 0; j < actual_joint_names.size(); j++) {
-				if (goal_.trajectory.joint_names[i] == actual_joint_names[j])
+				if (goal.trajectory.joint_names[i] == actual_joint_names[j])
 					break;
 			}
-			if (goal_.trajectory.joint_names[i] == actual_joint_names[j]) {
+			if (goal.trajectory.joint_names[i] == actual_joint_names[j]) {
 				actual_joint_names.erase(actual_joint_names.begin() + j);
 			} else {
 				return false;
@@ -335,30 +336,33 @@ private:
 	}
 
 	bool has_velocities() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
-			if (goal_.trajectory.points[i].positions.size()
-					!= goal_.trajectory.points[i].velocities.size())
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
+			if (goal.trajectory.points[i].positions.size()
+					!= goal.trajectory.points[i].velocities.size())
 				return false;
 		}
 		return true;
 	}
 
 	bool has_positions() {
-		if (goal_.trajectory.points.size() == 0)
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		if (goal.trajectory.points.size() == 0)
 			return false;
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
-			if (goal_.trajectory.points[i].positions.size()
-					!= goal_.trajectory.joint_names.size())
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
+			if (goal.trajectory.points[i].positions.size()
+					!= goal.trajectory.joint_names.size())
 				return false;
 		}
 		return true;
 	}
 
 	bool has_limited_velocities() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
-					j < goal_.trajectory.points[i].velocities.size(); j++) {
-				if (fabs(goal_.trajectory.points[i].velocities[j])
+					j < goal.trajectory.points[i].velocities.size(); j++) {
+				if (fabs(goal.trajectory.points[i].velocities[j])
 						> max_velocity_)
 					return false;
 			}
@@ -367,12 +371,13 @@ private:
 	}
 
 	bool traj_is_finite() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
-					j < goal_.trajectory.points[i].velocities.size(); j++) {
-				if (!std::isfinite(goal_.trajectory.points[i].positions[j]))
+					j < goal.trajectory.points[i].velocities.size(); j++) {
+				if (!std::isfinite(goal.trajectory.points[i].positions[j]))
 					return false;
-				if (!std::isfinite(goal_.trajectory.points[i].velocities[j]))
+				if (!std::isfinite(goal.trajectory.points[i].velocities[j]))
 					return false;
 			}
 		}
