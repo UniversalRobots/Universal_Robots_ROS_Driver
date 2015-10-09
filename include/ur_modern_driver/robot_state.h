@@ -88,13 +88,28 @@ struct masterboard_data {
 	int euromapOutputBits;
 	float euromapVoltage;
 	float euromapCurrent;
+};
 
+struct robot_mode_data {
+	uint64_t timestamp;
+	bool isRobotConnected;
+	bool isRealRobotEnabled;
+	bool isPowerOnRobot;
+	bool isEmergencyStopped;
+	bool isProtectiveStopped;
+	bool isProgramRunning;
+	bool isProgramPaused;
+	unsigned char robotMode;
+	unsigned char controlMode;
+	double targetSpeedFraction;
+	double speedScaling;
 };
 
 class RobotState {
 private:
 	version_message version_msg_;
 	masterboard_data mb_data_;
+	robot_mode_data robot_mode_;
 
 	std::recursive_mutex val_lock_; // Locks the variables while unpack parses data;
 
@@ -119,6 +134,7 @@ public:
 	char getAnalogOutputDomain1();
 	double getAnalogOutput0();
 	double getAnalogOutput1();
+	std::vector<double> getVActual();
 	float getMasterBoardTemperature();
 	float getRobotVoltage48V();
 	float getRobotCurrent();
@@ -130,16 +146,27 @@ public:
 	int getEuromapOutputBits();
 	float getEuromapVoltage();
 	float getEuromapCurrent();
+
+	bool isRobotConnected();
+	bool isRealRobotEnabled();
+	bool isPowerOnRobot();
+	bool isEmergencyStopped();
+	bool isProtectiveStopped();
+	bool isProgramRunning();
+	bool isProgramPaused();
+
+	void setDisconnected();
+
 	bool getNewDataAvailable();
 	void finishedReading();
-	std::vector<double> getVActual();
+
 	void unpack(uint8_t * buf, unsigned int buf_length);
 	void unpackRobotMessage(uint8_t * buf, unsigned int offset, uint32_t len);
 	void unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
 			uint32_t len);
-
 	void unpackRobotState(uint8_t * buf, unsigned int offset, uint32_t len);
 	void unpackRobotStateMasterboard(uint8_t * buf, unsigned int offset);
+	void unpackRobotMode(uint8_t * buf, unsigned int offset);
 };
 
 #endif /* ROBOT_STATE_H_ */

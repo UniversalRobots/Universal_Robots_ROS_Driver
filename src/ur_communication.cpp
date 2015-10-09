@@ -122,6 +122,7 @@ void UrCommunication::run() {
 				robot_state_->unpack(buf, bytes_read);
 			} else {
 				connected_ = false;
+				robot_state_->setDisconnected();
 				close(sec_sockfd_);
 			}
 		}

@@ -12,6 +12,7 @@ RobotState::RobotState(std::condition_variable& msg_cond) {
 	version_msg_.minor_version = 0;
 	new_data_available_ = false;
 	pMsg_cond_ = &msg_cond;
+	RobotState::setDisconnected();
 }
 double RobotState::ntohd(uint64_t nf) {
 	double x;
@@ -28,7 +29,7 @@ void RobotState::unpack(uint8_t* buf, unsigned int buf_length) {
 		memcpy(&len, &buf[offset], sizeof(len));
 		len = ntohl(len);
 		if (len + offset > buf_length) {
-			return ;
+			return;
 		}
 		memcpy(&message_type, &buf[offset + sizeof(len)], sizeof(message_type));
 		switch (message_type) {
@@ -63,7 +64,7 @@ void RobotState::unpackRobotMessage(uint8_t * buf, unsigned int offset,
 	switch (robot_message_type) {
 	case robotMessageType::ROBOT_MESSAGE_VERSION:
 		val_lock_.lock();
-		version_msg_.timestamp = RobotState::ntohd(timestamp);
+		version_msg_.timestamp = timestamp;
 		version_msg_.source = source;
 		version_msg_.robot_message_type = robot_message_type;
 		RobotState::unpackRobotMessageVersion(buf, offset, len);
@@ -83,11 +84,18 @@ void RobotState::unpackRobotState(uint8_t * buf, unsigned int offset,
 		uint8_t package_type;
 		memcpy(&length, &buf[offset], sizeof(length));
 		length = ntohl(length);
-		memcpy(&package_type, &buf[offset+sizeof(length)], sizeof(package_type));
+		memcpy(&package_type, &buf[offset + sizeof(length)],
+				sizeof(package_type));
 		switch (package_type) {
+		case packageType::ROBOT_MODE_DATA:
+			val_lock_.lock();
+			RobotState::unpackRobotMode(buf, offset + 5);
+			val_lock_.unlock();
+			break;
+
 		case packageType::MASTERBOARD_DATA:
 			val_lock_.lock();
-			RobotState::unpackRobotStateMasterboard(buf, offset+5);
+			RobotState::unpackRobotStateMasterboard(buf, offset + 5);
 			val_lock_.unlock();
 			break;
 		default:
@@ -123,10 +131,73 @@ void RobotState::unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
 	version_msg_.build_date[len - offset] = '\0';
 }
 
+void RobotState::unpackRobotMode(uint8_t * buf, unsigned int offset) {
+	memcpy(&robot_mode_.timestamp, &buf[offset], sizeof(robot_mode_.timestamp));
+	offset += sizeof(robot_mode_.timestamp);
+	uint8_t tmp;
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isRobotConnected = true;
+	else
+		robot_mode_.isRobotConnected = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isRealRobotEnabled = true;
+	else
+		robot_mode_.isRealRobotEnabled = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	//printf("PowerOnRobot: %d\n", tmp);
+	if (tmp > 0)
+		robot_mode_.isPowerOnRobot = true;
+	else
+		robot_mode_.isPowerOnRobot = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isEmergencyStopped = true;
+	else
+		robot_mode_.isEmergencyStopped = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isProtectiveStopped = true;
+	else
+		robot_mode_.isProtectiveStopped = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isProgramRunning = true;
+	else
+		robot_mode_.isProgramRunning = false;
+	offset += sizeof(tmp);
+	memcpy(&tmp, &buf[offset], sizeof(tmp));
+	if (tmp > 0)
+		robot_mode_.isProgramPaused = true;
+	else
+		robot_mode_.isProgramPaused = false;
+	offset += sizeof(tmp);
+	memcpy(&robot_mode_.robotMode, &buf[offset], sizeof(robot_mode_.robotMode));
+	offset += sizeof(robot_mode_.robotMode);
+	uint64_t temp;
+	if (RobotState::getVersion() > 2.) {
+		memcpy(&robot_mode_.controlMode, &buf[offset],
+				sizeof(robot_mode_.controlMode));
+		offset += sizeof(robot_mode_.controlMode);
+		memcpy(&temp, &buf[offset], sizeof(temp));
+		offset += sizeof(temp);
+		robot_mode_.targetSpeedFraction = RobotState::ntohd(temp);
+	}
+	memcpy(&temp, &buf[offset], sizeof(temp));
+	offset += sizeof(temp);
+	robot_mode_.speedScaling = RobotState::ntohd(temp);
+}
+
 void RobotState::unpackRobotStateMasterboard(uint8_t * buf,
 		unsigned int offset) {
 	if (RobotState::getVersion() < 3.0) {
-				int16_t digital_input_bits, digital_output_bits;
+		int16_t digital_input_bits, digital_output_bits;
 		memcpy(&digital_input_bits, &buf[offset], sizeof(digital_input_bits));
 		offset += sizeof(digital_input_bits);
 		memcpy(&digital_output_bits, &buf[offset], sizeof(digital_output_bits));
@@ -262,4 +333,31 @@ double RobotState::getAnalogOutput0() {
 }
 double RobotState::getAnalogOutput1() {
 	return mb_data_.analogOutput1;
+}
+bool RobotState::isRobotConnected() {
+	return robot_mode_.isRobotConnected;
+}
+bool RobotState::isRealRobotEnabled() {
+	return robot_mode_.isRealRobotEnabled;
+}
+bool RobotState::isPowerOnRobot() {
+	return robot_mode_.isPowerOnRobot;
+}
+bool RobotState::isEmergencyStopped() {
+	return robot_mode_.isEmergencyStopped;
+}
+bool RobotState::isProtectiveStopped() {
+	return robot_mode_.isProtectiveStopped;
+}
+bool RobotState::isProgramRunning() {
+	return robot_mode_.isProgramRunning;
+}
+bool RobotState::isProgramPaused() {
+	return robot_mode_.isProgramPaused;
+}
+
+void RobotState::setDisconnected() {
+	robot_mode_.isRobotConnected = false;
+	robot_mode_.isRealRobotEnabled = false;
+	robot_mode_.isPowerOnRobot = false;
 }

@@ -181,6 +181,38 @@ private:
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_goal");
+		if (!robot_.sec_interface_->robot_state_->isPowerOnRobot()) {
+			result_.error_code = -100;
+			result_.error_string =
+					"Cannot accept new trajectories: Robot arm is not powered on";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+		if (!robot_.sec_interface_->robot_state_->isRealRobotEnabled()) {
+			result_.error_code = -100;
+			result_.error_string =
+					"Cannot accept new trajectories: Robot is not enabled";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+		if (robot_.sec_interface_->robot_state_->isEmergencyStopped()) {
+			result_.error_code = -100;
+			result_.error_string =
+					"Cannot accept new trajectories: Robot is emergency stopped";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+		if (robot_.sec_interface_->robot_state_->isProtectiveStopped()) {
+			result_.error_code = -100;
+			result_.error_string =
+					"Cannot accept new trajectories: Robot is protective stopped";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
 				*gh.getGoal(); //make a copy that we can modify
 		if (goal_handle_ != NULL) {
@@ -200,12 +232,14 @@ private:
 							+ outp_joint_names;
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 		if (!has_positions()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without positions";
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!has_velocities()) {
@@ -213,6 +247,7 @@ private:
 			result_.error_string = "Received a goal without velocities";
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!traj_is_finite()) {
@@ -220,6 +255,7 @@ private:
 			result_.error_code = result_.INVALID_GOAL;
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!has_limited_velocities()) {
@@ -228,6 +264,7 @@ private:
 					"Received a goal with velocities that are higher than %f", max_velocity_;
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		reorder_traj_joints(goal.trajectory);
@@ -235,10 +272,13 @@ private:
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
 		if (goal.trajectory.points[0].time_from_start.toSec() != 0.) {
-			print_warning("Trajectory's first point should be the current position, with time_from_start set to 0.0 - Inserting point in malformed trajectory");
+			print_warning(
+					"Trajectory's first point should be the current position, with time_from_start set to 0.0 - Inserting point in malformed trajectory");
 			timestamps.push_back(0.0);
-			positions.push_back(robot_.rt_interface_->robot_state_->getQActual());
-			velocities.push_back(robot_.rt_interface_->robot_state_->getQdActual());
+			positions.push_back(
+					robot_.rt_interface_->robot_state_->getQActual());
+			velocities.push_back(
+					robot_.rt_interface_->robot_state_->getQdActual());
 		}
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			timestamps.push_back(
@@ -260,10 +300,9 @@ private:
 	void cancelCB(
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
-		print_info("on_cancel");
 		// set the action state to preempted
+			print_info("on_cancel");
 		if (goal_handle_ != NULL) {
-			print_info("Stopping previous traj");
 			robot_.stopTraj();
 			result_.error_code = result_.SUCCESSFUL;
 			result_.error_string = "Goal cancelled by client";
@@ -500,6 +539,7 @@ private:
 	}
 
 	void publishMbMsg() {
+		bool warned = false;
 		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>(
 				"ur_driver/io_states", 1);
 
@@ -540,6 +580,27 @@ private:
 			ana.state = robot_.sec_interface_->robot_state_->getAnalogOutput1();
 			io_msg.analog_out_states.push_back(ana);
 			io_pub.publish(io_msg);
+
+			if (robot_.sec_interface_->robot_state_->isEmergencyStopped()
+					or robot_.sec_interface_->robot_state_->isProtectiveStopped()) {
+				if (robot_.sec_interface_->robot_state_->isEmergencyStopped()
+						and !warned) {
+					print_error("Emergency stop pressed!");
+				} else if (robot_.sec_interface_->robot_state_->isProtectiveStopped()
+						and !warned) {
+					print_error("Robot is protective stopped!");
+				}
+				if (goal_handle_ != NULL) {
+					print_error("Aborting trajectory");
+					robot_.stopTraj();
+					result_.error_code = result_.SUCCESSFUL;
+					result_.error_string = "Robot was halted";
+					goal_handle_->setAborted(result_, result_.error_string);
+					goal_handle_ = NULL;
+				}
+				warned = true;
+			} else
+				warned = false;
 
 			robot_.sec_interface_->robot_state_->finishedReading();
 
