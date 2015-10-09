@@ -19,6 +19,7 @@
 #include <thread>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 #include <time.h>
 
 #include "ros/ros.h"
@@ -48,7 +49,8 @@ protected:
 	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
 	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> as_;
-	actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction>* goal_handle_;
+	actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction> goal_handle_;
+	bool has_goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speed_sub_;
@@ -148,7 +150,7 @@ public:
 						"The control thread for this driver has been started");
 			} else {
 				//start actionserver
-				goal_handle_ = NULL;
+				has_goal_ = false;
 				as_.start();
 
 				//subscribe to the data topic of interest
@@ -177,12 +179,23 @@ public:
 
 	}
 private:
+	void trajThread(std::vector<double> timestamps,
+			std::vector<std::vector<double> > positions,
+			std::vector<std::vector<double> > velocities) {
+
+		robot_.doTraj(timestamps, positions, velocities);
+		if (has_goal_) {
+			result_.error_code = result_.SUCCESSFUL;
+			goal_handle_.setSucceeded(result_);
+			has_goal_ = false;
+		}
+	}
 	void goalCB(
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_goal");
 		if (!robot_.sec_interface_->robot_state_->isPowerOnRobot()) {
-			result_.error_code = -100;
+			result_.error_code = -100; //nothing is defined for this...?
 			result_.error_string =
 					"Cannot accept new trajectories: Robot arm is not powered on";
 			gh.setRejected(result_, result_.error_string);
@@ -190,7 +203,7 @@ private:
 			return;
 		}
 		if (!robot_.sec_interface_->robot_state_->isRealRobotEnabled()) {
-			result_.error_code = -100;
+			result_.error_code = -100; //nothing is defined for this...?
 			result_.error_string =
 					"Cannot accept new trajectories: Robot is not enabled";
 			gh.setRejected(result_, result_.error_string);
@@ -198,7 +211,7 @@ private:
 			return;
 		}
 		if (robot_.sec_interface_->robot_state_->isEmergencyStopped()) {
-			result_.error_code = -100;
+			result_.error_code = -100; //nothing is defined for this...?
 			result_.error_string =
 					"Cannot accept new trajectories: Robot is emergency stopped";
 			gh.setRejected(result_, result_.error_string);
@@ -206,7 +219,7 @@ private:
 			return;
 		}
 		if (robot_.sec_interface_->robot_state_->isProtectiveStopped()) {
-			result_.error_code = -100;
+			result_.error_code = -100; //nothing is defined for this...?
 			result_.error_string =
 					"Cannot accept new trajectories: Robot is protective stopped";
 			gh.setRejected(result_, result_.error_string);
@@ -215,11 +228,17 @@ private:
 		}
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
 				*gh.getGoal(); //make a copy that we can modify
-		if (goal_handle_ != NULL) {
-			RosWrapper::cancelCB(*goal_handle_);
+		if (has_goal_) {
+			print_warning(
+					"Received new goal while still executing previous trajectory. Canceling previous trajectory");
+			has_goal_ = false;
+			robot_.stopTraj();
+			result_.error_code = -100; //nothing is defined for this...?
+			result_.error_string = "Received another trajectory";
+			goal_handle_.setAborted(result_, result_.error_string);
+			std::this_thread::sleep_for(std::chrono::milliseconds(250));
 		}
-		goal_handle_ = &gh;
-
+		goal_handle_ = gh;
 		if (!validateJointNames()) {
 			std::string outp_joint_names = "";
 			for (unsigned int i = 0; i < goal.trajectory.joint_names.size();
@@ -288,26 +307,25 @@ private:
 
 		}
 
-		goal_handle_->setAccepted();
-		robot_.doTraj(timestamps, positions, velocities);
-		if (goal_handle_ != NULL) {
-			result_.error_code = result_.SUCCESSFUL;
-			goal_handle_->setSucceeded(result_);
-			goal_handle_ = NULL;
-		}
+		goal_handle_.setAccepted();
+		has_goal_ = true;
+		std::thread(&RosWrapper::trajThread, this, timestamps, positions,
+				velocities).detach();
 	}
 
 	void cancelCB(
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		// set the action state to preempted
-			print_info("on_cancel");
-		if (goal_handle_ != NULL) {
-			robot_.stopTraj();
-			result_.error_code = result_.SUCCESSFUL;
-			result_.error_string = "Goal cancelled by client";
-			goal_handle_ = NULL;
+		print_info("on_cancel");
+		if (has_goal_) {
+			if (gh == goal_handle_) {
+				robot_.stopTraj();
+				has_goal_ = false;
+			}
 		}
+		result_.error_code = -100; //nothing is defined for this...?
+		result_.error_string = "Goal cancelled by client";
 		gh.setCanceled(result_);
 	}
 
@@ -345,7 +363,7 @@ private:
 	bool validateJointNames() {
 		std::vector<std::string> actual_joint_names = robot_.getJointNames();
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
-				*goal_handle_->getGoal();
+				*goal_handle_.getGoal();
 		if (goal.trajectory.joint_names.size() != actual_joint_names.size())
 			return false;
 
@@ -397,7 +415,7 @@ private:
 
 	bool has_velocities() {
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
-				*goal_handle_->getGoal();
+				*goal_handle_.getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			if (goal.trajectory.points[i].positions.size()
 					!= goal.trajectory.points[i].velocities.size())
@@ -408,7 +426,7 @@ private:
 
 	bool has_positions() {
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
-				*goal_handle_->getGoal();
+				*goal_handle_.getGoal();
 		if (goal.trajectory.points.size() == 0)
 			return false;
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
@@ -421,7 +439,7 @@ private:
 
 	bool has_limited_velocities() {
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
-				*goal_handle_->getGoal();
+				*goal_handle_.getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
 					j < goal.trajectory.points[i].velocities.size(); j++) {
@@ -435,7 +453,7 @@ private:
 
 	bool traj_is_finite() {
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
-				*goal_handle_->getGoal();
+				*goal_handle_.getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
 					j < goal.trajectory.points[i].velocities.size(); j++) {
@@ -590,13 +608,13 @@ private:
 						and !warned) {
 					print_error("Robot is protective stopped!");
 				}
-				if (goal_handle_ != NULL) {
+				if (has_goal_) {
 					print_error("Aborting trajectory");
 					robot_.stopTraj();
 					result_.error_code = result_.SUCCESSFUL;
 					result_.error_string = "Robot was halted";
-					goal_handle_->setAborted(result_, result_.error_string);
-					goal_handle_ = NULL;
+					goal_handle_.setAborted(result_, result_.error_string);
+					has_goal_ = false;
 				}
 				warned = true;
 			} else
