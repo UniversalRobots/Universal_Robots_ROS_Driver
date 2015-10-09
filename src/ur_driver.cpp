@@ -13,15 +13,17 @@
 
 UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 		std::condition_variable& msg_cond, std::string host,
-		unsigned int reverse_port, double servoj_time, unsigned int safety_count_max,
-		double max_time_step, double min_payload, double max_payload) :
+		unsigned int reverse_port, double servoj_time,
+		unsigned int safety_count_max, double max_time_step, double min_payload,
+		double max_payload) :
 		REVERSE_PORT_(reverse_port), maximum_time_step_(max_time_step), minimum_payload_(
-				min_payload), maximum_payload_(max_payload), servoj_time_(servoj_time) {
+				min_payload), maximum_payload_(max_payload), servoj_time_(
+				servoj_time) {
 	char buffer[256];
 	struct sockaddr_in serv_addr;
 	int n, flag;
 	//char *ip_addr;
-
+	executing_traj_ = false;
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
 			safety_count_max);
 	new_sockfd_ = -1;
@@ -63,77 +65,76 @@ std::vector<double> UrDriver::interp_cubic(double t, double T,
 	}
 	return positions;
 }
- /*
-void UrDriver::addTraj(std::vector<double> inp_timestamps,
-		std::vector<std::vector<double> > inp_positions,
-		std::vector<std::vector<double> > inp_velocities) {
-	// DEPRECATED
-	printf("!! addTraj is deprecated !!\n");
-	std::vector<double> timestamps;
-	std::vector<std::vector<double> > positions;
-	std::string command_string = "def traj():\n";
+/*
+ void UrDriver::addTraj(std::vector<double> inp_timestamps,
+ std::vector<std::vector<double> > inp_positions,
+ std::vector<std::vector<double> > inp_velocities) {
+ // DEPRECATED
+ printf("!! addTraj is deprecated !!\n");
+ std::vector<double> timestamps;
+ std::vector<std::vector<double> > positions;
+ std::string command_string = "def traj():\n";
 
-	for (unsigned int i = 1; i < inp_timestamps.size(); i++) {
-		timestamps.push_back(inp_timestamps[i - 1]);
-		double dt = inp_timestamps[i] - inp_timestamps[i - 1];
-		unsigned int steps = (unsigned int) ceil(dt / maximum_time_step_);
-		double step_size = dt / steps;
-		for (unsigned int j = 1; j < steps; j++) {
-			timestamps.push_back(inp_timestamps[i - 1] + step_size * j);
-		}
-	}
-	// //make sure we come to a smooth stop
-	// while (timestamps.back() < inp_timestamps.back()) {
-	//   timestamps.push_back(timestamps.back() + 0.008);
-	// }
-	// timestamps.pop_back();
+ for (unsigned int i = 1; i < inp_timestamps.size(); i++) {
+ timestamps.push_back(inp_timestamps[i - 1]);
+ double dt = inp_timestamps[i] - inp_timestamps[i - 1];
+ unsigned int steps = (unsigned int) ceil(dt / maximum_time_step_);
+ double step_size = dt / steps;
+ for (unsigned int j = 1; j < steps; j++) {
+ timestamps.push_back(inp_timestamps[i - 1] + step_size * j);
+ }
+ }
+ // //make sure we come to a smooth stop
+ // while (timestamps.back() < inp_timestamps.back()) {
+ //   timestamps.push_back(timestamps.back() + 0.008);
+ // }
+ // timestamps.pop_back();
 
-	unsigned int j = 0;
-	for (unsigned int i = 0; i < timestamps.size(); i++) {
-		while (inp_timestamps[j] <= timestamps[i]) {
-			j += 1;
-		}
-		positions.push_back(
-				UrDriver::interp_cubic(timestamps[i] - inp_timestamps[j - 1],
-						inp_timestamps[j] - inp_timestamps[j - 1],
-						inp_positions[j - 1], inp_positions[j],
-						inp_velocities[j - 1], inp_velocities[j]));
-	}
+ unsigned int j = 0;
+ for (unsigned int i = 0; i < timestamps.size(); i++) {
+ while (inp_timestamps[j] <= timestamps[i]) {
+ j += 1;
+ }
+ positions.push_back(
+ UrDriver::interp_cubic(timestamps[i] - inp_timestamps[j - 1],
+ inp_timestamps[j] - inp_timestamps[j - 1],
+ inp_positions[j - 1], inp_positions[j],
+ inp_velocities[j - 1], inp_velocities[j]));
+ }
 
-	timestamps.push_back(inp_timestamps[inp_timestamps.size() - 1]);
-	positions.push_back(inp_positions[inp_positions.size() - 1]);
-	/// This is actually faster than using a stringstream :-o
-	for (unsigned int i = 1; i < timestamps.size(); i++) {
-		char buf[128];
-		sprintf(buf,
-				"\tservoj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], t=%1.5f)\n",
-				positions[i][0], positions[i][1], positions[i][2],
-				positions[i][3], positions[i][4], positions[i][5],
-				timestamps[i] - timestamps[i - 1]);
-		command_string += buf;
-	}
-	command_string += "end\n";
-	//printf("%s", command_string.c_str());
-	rt_interface_->addCommandToQueue(command_string);
+ timestamps.push_back(inp_timestamps[inp_timestamps.size() - 1]);
+ positions.push_back(inp_positions[inp_positions.size() - 1]);
+ /// This is actually faster than using a stringstream :-o
+ for (unsigned int i = 1; i < timestamps.size(); i++) {
+ char buf[128];
+ sprintf(buf,
+ "\tservoj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], t=%1.5f)\n",
+ positions[i][0], positions[i][1], positions[i][2],
+ positions[i][3], positions[i][4], positions[i][5],
+ timestamps[i] - timestamps[i - 1]);
+ command_string += buf;
+ }
+ command_string += "end\n";
+ //printf("%s", command_string.c_str());
+ rt_interface_->addCommandToQueue(command_string);
 
-}
-*/
+ }
+ */
 void UrDriver::doTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
-
 	std::chrono::high_resolution_clock::time_point t0, t;
 	std::vector<double> positions;
 	unsigned int j;
 
 	executing_traj_ = true;
 	UrDriver::uploadProg();
-
 	t0 = std::chrono::high_resolution_clock::now();
 	t = t0;
 	j = 0;
 	while ((inp_timestamps[inp_timestamps.size() - 1]
-			>= std::chrono::duration_cast<std::chrono::duration<double>>(t - t0).count()) and executing_traj_) {
+			>= std::chrono::duration_cast<std::chrono::duration<double>>(t - t0).count())
+			and executing_traj_) {
 		while (inp_timestamps[j]
 				<= std::chrono::duration_cast<std::chrono::duration<double>>(
 						t - t0).count() && j < inp_timestamps.size() - 1) {
@@ -144,19 +145,19 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 						t - t0).count() - inp_timestamps[j - 1],
 				inp_timestamps[j] - inp_timestamps[j - 1], inp_positions[j - 1],
 				inp_positions[j], inp_velocities[j - 1], inp_velocities[j]);
-
 		UrDriver::servoj(positions);
 
 		// oversample with 4 * sample_time
-		std::this_thread::sleep_for(std::chrono::milliseconds((int) ((servoj_time_*1000)/4.)));
+		std::this_thread::sleep_for(
+				std::chrono::milliseconds((int) ((servoj_time_ * 1000) / 4.)));
 		t = std::chrono::high_resolution_clock::now();
 	}
 	//Signal robot to stop driverProg()
 	UrDriver::closeServo(positions);
 }
 
-void UrDriver::servoj(std::vector<double> positions,
-		int keepalive, double time) {
+void UrDriver::servoj(std::vector<double> positions, int keepalive,
+		double time) {
 	unsigned int bytes_written;
 	int tmp;
 	unsigned char buf[32];

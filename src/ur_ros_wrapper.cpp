@@ -148,6 +148,7 @@ public:
 						"The control thread for this driver has been started");
 			} else {
 				//start actionserver
+				goal_handle_ = NULL;
 				as_.start();
 
 				//subscribe to the data topic of interest
@@ -180,8 +181,13 @@ private:
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_goal");
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*gh.getGoal(); //make a copy that we can modify
+		if (goal_handle_ != NULL) {
+			RosWrapper::cancelCB(*goal_handle_);
+		}
 		goal_handle_ = &gh;
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal(); //make a copy that we can modify
+
 		if (!validateJointNames()) {
 			std::string outp_joint_names = "";
 			for (unsigned int i = 0; i < goal.trajectory.joint_names.size();
@@ -195,7 +201,6 @@ private:
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 		}
-
 		if (!has_positions()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without positions";
@@ -226,8 +231,15 @@ private:
 		}
 
 		reorder_traj_joints(goal.trajectory);
+
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
+		if (goal.trajectory.points[0].time_from_start.toSec() != 0.) {
+			print_warning("Trajectory's first point should be the current position, with time_from_start set to 0.0 - Inserting point in malformed trajectory");
+			timestamps.push_back(0.0);
+			positions.push_back(robot_.rt_interface_->robot_state_->getQActual());
+			velocities.push_back(robot_.rt_interface_->robot_state_->getQdActual());
+		}
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			timestamps.push_back(
 					goal.trajectory.points[i].time_from_start.toSec());
@@ -235,10 +247,14 @@ private:
 			velocities.push_back(goal.trajectory.points[i].velocities);
 
 		}
-		gh.setAccepted();
+
+		goal_handle_->setAccepted();
 		robot_.doTraj(timestamps, positions, velocities);
-		result_.error_code = result_.SUCCESSFUL;
-		gh.setSucceeded(result_);
+		if (goal_handle_ != NULL) {
+			result_.error_code = result_.SUCCESSFUL;
+			goal_handle_->setSucceeded(result_);
+			goal_handle_ = NULL;
+		}
 	}
 
 	void cancelCB(
@@ -246,9 +262,13 @@ private:
 					control_msgs::FollowJointTrajectoryAction> gh) {
 		print_info("on_cancel");
 		// set the action state to preempted
-		robot_.stopTraj();
-		result_.error_code = result_.SUCCESSFUL;
-		result_.error_string = "Goal cancelled by client";
+		if (goal_handle_ != NULL) {
+			print_info("Stopping previous traj");
+			robot_.stopTraj();
+			result_.error_code = result_.SUCCESSFUL;
+			result_.error_string = "Goal cancelled by client";
+			goal_handle_ = NULL;
+		}
 		gh.setCanceled(result_);
 	}
 
@@ -285,7 +305,8 @@ private:
 
 	bool validateJointNames() {
 		std::vector<std::string> actual_joint_names = robot_.getJointNames();
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_->getGoal();
 		if (goal.trajectory.joint_names.size() != actual_joint_names.size())
 			return false;
 
@@ -336,7 +357,8 @@ private:
 	}
 
 	bool has_velocities() {
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_->getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			if (goal.trajectory.points[i].positions.size()
 					!= goal.trajectory.points[i].velocities.size())
@@ -346,7 +368,8 @@ private:
 	}
 
 	bool has_positions() {
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_->getGoal();
 		if (goal.trajectory.points.size() == 0)
 			return false;
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
@@ -358,7 +381,8 @@ private:
 	}
 
 	bool has_limited_velocities() {
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_->getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
 					j < goal.trajectory.points[i].velocities.size(); j++) {
@@ -371,7 +395,8 @@ private:
 	}
 
 	bool traj_is_finite() {
-		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal = *goal_handle_->getGoal();
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_->getGoal();
 		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
 					j < goal.trajectory.points[i].velocities.size(); j++) {
