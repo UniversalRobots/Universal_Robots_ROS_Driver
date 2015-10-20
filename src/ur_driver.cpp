@@ -160,7 +160,7 @@ void UrDriver::servoj(std::vector<double> positions, int keepalive,
 		double time) {
 	unsigned int bytes_written;
 	int tmp;
-	unsigned char buf[32];
+	unsigned char buf[28];
 	if (time < 0.016) {
 		time = servoj_time_;
 	}
@@ -171,17 +171,12 @@ void UrDriver::servoj(std::vector<double> positions, int keepalive,
 		buf[i * 4 + 2] = (tmp >> 16) & 0xff;
 		buf[i * 4 + 3] = (tmp >> 24) & 0xff;
 	}
-	tmp = htonl((int) (time * MULT_TIME_));
+	tmp = htonl((int) keepalive);
 	buf[6 * 4] = tmp & 0xff;
 	buf[6 * 4 + 1] = (tmp >> 8) & 0xff;
 	buf[6 * 4 + 2] = (tmp >> 16) & 0xff;
 	buf[6 * 4 + 3] = (tmp >> 24) & 0xff;
-	tmp = htonl((int) keepalive);
-	buf[7 * 4] = tmp & 0xff;
-	buf[7 * 4 + 1] = (tmp >> 8) & 0xff;
-	buf[7 * 4 + 2] = (tmp >> 16) & 0xff;
-	buf[7 * 4 + 3] = (tmp >> 24) & 0xff;
-	bytes_written = write(new_sockfd_, buf, 32);
+	bytes_written = write(new_sockfd_, buf, 28);
 }
 
 void UrDriver::stopTraj() {
@@ -197,20 +192,14 @@ void UrDriver::uploadProg() {
 	sprintf(buf, "\tMULT_jointstate = %i\n", MULT_JOINTSTATE_);
 	cmd_str += buf;
 
-	sprintf(buf, "\tMULT_time = %i\n", MULT_TIME_);
-	cmd_str += buf;
-
 	cmd_str += "\tSERVO_IDLE = 0\n";
 	cmd_str += "\tSERVO_RUNNING = 1\n";
 	cmd_str += "\tcmd_servo_state = SERVO_IDLE\n";
-	cmd_str += "\tcmd_servo_id = 0  # 0 = idle, -1 = stop\n";
 	cmd_str += "\tcmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]\n";
-	cmd_str += "\tcmd_servo_dt = 0.0\n";
-	cmd_str += "\tdef set_servo_setpoint(q, dt):\n";
+	cmd_str += "\tdef set_servo_setpoint(q):\n";
 	cmd_str += "\t\tenter_critical\n";
 	cmd_str += "\t\tcmd_servo_state = SERVO_RUNNING\n";
 	cmd_str += "\t\tcmd_servo_q = q\n";
-	cmd_str += "\t\tcmd_servo_dt = dt\n";
 	cmd_str += "\t\texit_critical\n";
 	cmd_str += "\tend\n";
 	cmd_str += "\tthread servoThread():\n";
@@ -218,7 +207,6 @@ void UrDriver::uploadProg() {
 	cmd_str += "\t\twhile True:\n";
 	cmd_str += "\t\t\tenter_critical\n";
 	cmd_str += "\t\t\tq = cmd_servo_q\n";
-	cmd_str += "\t\t\tdt = cmd_servo_dt\n";
 	cmd_str += "\t\t\tdo_brake = False\n";
 	cmd_str += "\t\t\tif (state == SERVO_RUNNING) and ";
 	cmd_str += "(cmd_servo_state == SERVO_IDLE):\n";
@@ -231,7 +219,10 @@ void UrDriver::uploadProg() {
 	cmd_str += "\t\t\t\tstopj(1.0)\n";
 	cmd_str += "\t\t\t\tsync()\n";
 	cmd_str += "\t\t\telif state == SERVO_RUNNING:\n";
-	cmd_str += "\t\t\t\tservoj(q, t=dt)\n";
+
+	sprintf(buf, "\t\t\t\tservoj(q, t=%.4f)\n", servoj_time_);
+	cmd_str += buf;
+
 	cmd_str += "\t\t\telse:\n";
 	cmd_str += "\t\t\t\tsync()\n";
 	cmd_str += "\t\t\tend\n";
@@ -245,7 +236,7 @@ void UrDriver::uploadProg() {
 	cmd_str += "\tthread_servo = run servoThread()\n";
 	cmd_str += "\tkeepalive = 1\n";
 	cmd_str += "\twhile keepalive > 0:\n";
-	cmd_str += "\t\tparams_mult = socket_read_binary_integer(6+1+1)\n";
+	cmd_str += "\t\tparams_mult = socket_read_binary_integer(6+1)\n";
 	cmd_str += "\t\tif params_mult[0] > 0:\n";
 	cmd_str += "\t\t\tq = [params_mult[1] / MULT_jointstate, ";
 	cmd_str += "params_mult[2] / MULT_jointstate, ";
@@ -253,9 +244,8 @@ void UrDriver::uploadProg() {
 	cmd_str += "params_mult[4] / MULT_jointstate, ";
 	cmd_str += "params_mult[5] / MULT_jointstate, ";
 	cmd_str += "params_mult[6] / MULT_jointstate]\n";
-	cmd_str += "\t\t\tt = params_mult[7] / MULT_time\n";
-	cmd_str += "\t\t\tkeepalive = params_mult[8]\n";
-	cmd_str += "\t\t\tset_servo_setpoint(q, t)\n";
+	cmd_str += "\t\t\tkeepalive = params_mult[7]\n";
+	cmd_str += "\t\t\tset_servo_setpoint(q)\n";
 	cmd_str += "\t\tend\n";
 	cmd_str += "\tend\n";
 	cmd_str += "\tsleep(.1)\n";
