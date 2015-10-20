@@ -54,6 +54,38 @@ enum robot_message_type {
 }
 typedef robot_message_types::robot_message_type robotMessageType;
 
+namespace robot_state_type_v18 {
+enum robot_state_type {
+	ROBOT_RUNNING_MODE = 0,
+	ROBOT_FREEDRIVE_MODE = 1,
+	ROBOT_READY_MODE = 2,
+	ROBOT_INITIALIZING_MODE = 3,
+	ROBOT_SECURITY_STOPPED_MODE = 4,
+	ROBOT_EMERGENCY_STOPPED_MODE = 5,
+	ROBOT_FATAL_ERROR_MODE = 6,
+	ROBOT_NO_POWER_MODE = 7,
+	ROBOT_NOT_CONNECTED_MODE = 8,
+	ROBOT_SHUTDOWN_MODE = 9,
+	ROBOT_SAFEGUARD_STOP_MODE = 10
+};
+}
+typedef robot_state_type_v18::robot_state_type robotStateTypeV18;
+namespace robot_state_type_v30 {
+enum robot_state_type {
+	ROBOT_MODE_DISCONNECTED = 0,
+	ROBOT_MODE_CONFIRM_SAFETY = 1,
+	ROBOT_MODE_BOOTING = 2,
+	ROBOT_MODE_POWER_OFF = 3,
+	ROBOT_MODE_POWER_ON = 4,
+	ROBOT_MODE_IDLE = 5,
+	ROBOT_MODE_BACKDRIVE = 6,
+	ROBOT_MODE_RUNNING = 7,
+	ROBOT_MODE_UPDATING_FIRMWARE = 8
+};
+}
+
+typedef robot_state_type_v30::robot_state_type robotStateTypeV30;
+
 struct version_message {
 	uint64_t timestamp;
 	int8_t source;
@@ -115,6 +147,7 @@ private:
 
 	std::condition_variable* pMsg_cond_; //Signals that new vars are available
 	bool new_data_available_; //to avoid spurious wakes
+	unsigned char robot_mode_running_;
 
 	double ntohd(uint64_t nf);
 
@@ -154,6 +187,8 @@ public:
 	bool isProtectiveStopped();
 	bool isProgramRunning();
 	bool isProgramPaused();
+	unsigned char getRobotMode();
+	bool isReady();
 
 	void setDisconnected();
 

@@ -13,6 +13,7 @@ RobotState::RobotState(std::condition_variable& msg_cond) {
 	new_data_available_ = false;
 	pMsg_cond_ = &msg_cond;
 	RobotState::setDisconnected();
+	robot_mode_running_ = robotStateTypeV30::ROBOT_MODE_RUNNING;
 }
 double RobotState::ntohd(uint64_t nf) {
 	double x;
@@ -129,6 +130,9 @@ void RobotState::unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
 	version_msg_.svn_revision = ntohl(version_msg_.svn_revision);
 	memcpy(&version_msg_.build_date, &buf[offset], sizeof(char) * len - offset);
 	version_msg_.build_date[len - offset] = '\0';
+	if (version_msg_.major_version < 2) {
+		robot_mode_running_ = robotStateTypeV18::ROBOT_RUNNING_MODE;
+	}
 }
 
 void RobotState::unpackRobotMode(uint8_t * buf, unsigned int offset) {
@@ -354,6 +358,15 @@ bool RobotState::isProgramRunning() {
 }
 bool RobotState::isProgramPaused() {
 	return robot_mode_.isProgramPaused;
+}
+unsigned char RobotState::getRobotMode() {
+	return robot_mode_.robotMode;
+}
+bool RobotState::isReady() {
+	if (robot_mode_.robotMode == robot_mode_running_) {
+		return true;
+	}
+	return false;
 }
 
 void RobotState::setDisconnected() {

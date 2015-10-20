@@ -193,19 +193,26 @@ private:
 	void goalCB(
 			actionlib::ServerGoalHandle<
 					control_msgs::FollowJointTrajectoryAction> gh) {
+		std::string buf;
 		print_info("on_goal");
-		if (!robot_.sec_interface_->robot_state_->isPowerOnRobot()) {
+		if (!robot_.sec_interface_->robot_state_->isReady()) {
 			result_.error_code = -100; //nothing is defined for this...?
-			result_.error_string =
-					"Cannot accept new trajectories: Robot arm is not powered on";
-			gh.setRejected(result_, result_.error_string);
-			print_error(result_.error_string);
-			return;
-		}
-		if (!robot_.sec_interface_->robot_state_->isRealRobotEnabled()) {
-			result_.error_code = -100; //nothing is defined for this...?
-			result_.error_string =
-					"Cannot accept new trajectories: Robot is not enabled";
+
+			if (!robot_.sec_interface_->robot_state_->isPowerOnRobot()) {
+				result_.error_string =
+						"Cannot accept new trajectories: Robot arm is not powered on";
+				gh.setRejected(result_, result_.error_string);
+				print_error(result_.error_string);
+				return;
+			}
+			if (!robot_.sec_interface_->robot_state_->isRealRobotEnabled()) {
+				result_.error_string =
+						"Cannot accept new trajectories: Robot is not enabled";
+				gh.setRejected(result_, result_.error_string);
+				print_error(result_.error_string);
+				return;
+			}
+			result_.error_string = "Cannot accept new trajectories. (Debug: Robot mode is " + std::to_string(robot_.sec_interface_->robot_state_->getRobotMode()) + ")";
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 			return;
@@ -226,6 +233,7 @@ private:
 			print_error(result_.error_string);
 			return;
 		}
+
 		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
 				*gh.getGoal(); //make a copy that we can modify
 		if (has_goal_) {
@@ -280,7 +288,7 @@ private:
 		if (!has_limited_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string =
-					"Received a goal with velocities that are higher than %f", max_velocity_;
+					"Received a goal with velocities that are higher than " + std::to_string(max_velocity_);
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 			return;
