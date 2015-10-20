@@ -163,6 +163,7 @@ void UrCommunication::run() {
 					print_error("Error re-connecting to port 30002. Is controller started? Will try to reconnect in 10 seconds...");
 				} else {
 					connected_ = true;
+					print_info("Secondary port: Reconnected");
 				}
 			}
 		}

@@ -162,6 +162,7 @@ void UrRealtimeCommunication::run() {
 					print_error("Error re-connecting to RT port 30003. Is controller started? Will try to reconnect in 10 seconds...");
 				} else {
 					connected_ = true;
+					print_info("Realtime port: Reconnected");
 				}
 			}
 		}
