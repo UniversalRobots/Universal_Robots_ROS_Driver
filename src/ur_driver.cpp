@@ -29,7 +29,8 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 	char buffer[256];
 	struct sockaddr_in serv_addr;
 	int n, flag;
-	//char *ip_addr;
+
+	reverse_connected_ = false;
 	executing_traj_ = false;
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
 			safety_count_max);
@@ -127,15 +128,17 @@ std::vector<double> UrDriver::interp_cubic(double t, double T,
 
  }
  */
-void UrDriver::doTraj(std::vector<double> inp_timestamps,
+bool UrDriver::doTraj(std::vector<double> inp_timestamps,
 		std::vector<std::vector<double> > inp_positions,
 		std::vector<std::vector<double> > inp_velocities) {
 	std::chrono::high_resolution_clock::time_point t0, t;
 	std::vector<double> positions;
 	unsigned int j;
 
+	if (!UrDriver::uploadProg()) {
+		return false;
+	}
 	executing_traj_ = true;
-	UrDriver::uploadProg();
 	t0 = std::chrono::high_resolution_clock::now();
 	t = t0;
 	j = 0;
@@ -159,12 +162,18 @@ void UrDriver::doTraj(std::vector<double> inp_timestamps,
 				std::chrono::milliseconds((int) ((servoj_time_ * 1000) / 4.)));
 		t = std::chrono::high_resolution_clock::now();
 	}
+	executing_traj_ = false;
 	//Signal robot to stop driverProg()
 	UrDriver::closeServo(positions);
+	return true;
 }
 
 void UrDriver::servoj(std::vector<double> positions, int keepalive,
 		double time) {
+	if (!reverse_connected_) {
+		print_error("UrDriver::servoj called without a reverse connection present. Keepalive: " + std::to_string(keepalive));
+		return;
+	}
 	unsigned int bytes_written;
 	int tmp;
 	unsigned char buf[28];
@@ -191,7 +200,7 @@ void UrDriver::stopTraj() {
 	rt_interface_->addCommandToQueue("stopj(10)\n");
 }
 
-void UrDriver::uploadProg() {
+bool UrDriver::uploadProg() {
 	std::string cmd_str;
 	char buf[128];
 	cmd_str = "def driverProg():\n";
@@ -255,15 +264,16 @@ void UrDriver::uploadProg() {
 	cmd_str += "\t\t\tset_servo_setpoint(q)\n";
 	cmd_str += "\t\tend\n";
 	cmd_str += "\tend\n";
+	cmd_str += "\tstopj(10)\n";
 	cmd_str += "\tsleep(.1)\n";
 	cmd_str += "\tsocket_close()\n";
 	cmd_str += "end\n";
 
 	rt_interface_->addCommandToQueue(cmd_str);
-	UrDriver::openServo();
+	return UrDriver::openServo();
 }
 
-void UrDriver::openServo() {
+bool UrDriver::openServo() {
 	struct sockaddr_in cli_addr;
 	socklen_t clilen;
 	clilen = sizeof(cli_addr);
@@ -271,14 +281,18 @@ void UrDriver::openServo() {
 			&clilen);
 	if (new_sockfd_ < 0) {
 		print_fatal("ERROR on accepting reverse communication");
+		return false;
 	}
+	reverse_connected_ = true;
+	return true;
 }
 void UrDriver::closeServo(std::vector<double> positions) {
 	if (positions.size() != 6)
 		UrDriver::servoj(rt_interface_->robot_state_->getQActual(), 0);
 	else
 		UrDriver::servoj(positions, 0);
-	executing_traj_ = false;
+
+	reverse_connected_ = false;
 	close(new_sockfd_);
 }
 

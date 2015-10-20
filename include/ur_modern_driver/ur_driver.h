@@ -46,6 +46,7 @@ private:
 	const unsigned int REVERSE_PORT_;
 	int incoming_sockfd_;
 	int new_sockfd_;
+	bool reverse_connected_;
 	double servoj_time_;
 	bool executing_traj_;
 public:
@@ -66,15 +67,15 @@ public:
 			std::vector<double> inp_timestamps, //DEPRECATED
 			std::vector<std::vector<double> > positions,
 			std::vector<std::vector<double> > velocities); */
-	void doTraj(std::vector<double> inp_timestamps,
+	bool doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
 	void servoj(std::vector<double> positions, int keepalive = 1, double time = 0);
 
 	void stopTraj();
 
-	void uploadProg();
-	void openServo();
+	bool uploadProg();
+	bool openServo();
 	void closeServo(std::vector<double> positions);
 
 	std::vector<double> interp_cubic(double t, double T,
