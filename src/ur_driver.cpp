@@ -291,6 +291,9 @@ bool UrDriver::start() {
 }
 
 void UrDriver::halt() {
+	if (executing_traj_) {
+		UrDriver::stopTraj();
+	}
 	sec_interface_->halt();
 	rt_interface_->halt();
 	close(incoming_sockfd_);
