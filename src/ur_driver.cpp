@@ -168,18 +168,16 @@ bool UrDriver::doTraj(std::vector<double> inp_timestamps,
 	return true;
 }
 
-void UrDriver::servoj(std::vector<double> positions, int keepalive,
-		double time) {
+void UrDriver::servoj(std::vector<double> positions, int keepalive) {
 	if (!reverse_connected_) {
-		print_error("UrDriver::servoj called without a reverse connection present. Keepalive: " + std::to_string(keepalive));
+		print_error(
+				"UrDriver::servoj called without a reverse connection present. Keepalive: "
+						+ std::to_string(keepalive));
 		return;
 	}
 	unsigned int bytes_written;
 	int tmp;
 	unsigned char buf[28];
-	if (time < 0.016) {
-		time = servoj_time_;
-	}
 	for (int i = 0; i < 6; i++) {
 		tmp = htonl((int) (positions[i] * MULT_JOINTSTATE_));
 		buf[i * 4] = tmp & 0xff;
@@ -303,10 +301,10 @@ bool UrDriver::start() {
 			sec_interface_->robot_state_->getVersion());
 	if (!rt_interface_->start())
 		return false;
-	ip_addr_ = rt_interface_->getLocalIp(); //inet_ntoa(serv_addr.sin_addr);
-	char buf[256];
-	sprintf(buf, "Listening on %s:%u\n", ip_addr_.c_str(), REVERSE_PORT_);
-	print_debug(buf);
+	ip_addr_ = rt_interface_->getLocalIp();
+	print_debug(
+			"Listening on " + ip_addr_ + ":" + std::to_string(REVERSE_PORT_)
+					+ "\n");
 	return true;
 
 }

@@ -70,7 +70,7 @@ public:
 	bool doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
-	void servoj(std::vector<double> positions, int keepalive = 1, double time = 0);
+	void servoj(std::vector<double> positions, int keepalive = 1);
 
 	void stopTraj();
 
