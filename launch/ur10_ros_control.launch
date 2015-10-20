@@ -25,7 +25,7 @@
   </node>
 
   <!-- Load controller settings -->
-  <rosparam file="$(find ur_modern_driver)/config/ur5_controllers.yaml" command="load"/>
+  <rosparam file="$(find ur_modern_driver)/config/ur10_controllers.yaml" command="load"/>
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"

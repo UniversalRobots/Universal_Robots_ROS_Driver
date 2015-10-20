@@ -83,12 +83,12 @@ vel_based_pos_traj_controller:
    action_monitor_rate: 10
    gains:
        #!!These values are useable, but maybe not optimal
-      shoulder_pan_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
-      shoulder_lift_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
-      elbow_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
-      wrist_1_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
-      wrist_2_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
-      wrist_3_joint: {p: 20.0,  i: 0.0, d: 0.7, i_clamp: 1}
+      shoulder_pan_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
+      shoulder_lift_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
+      elbow_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
+      wrist_1_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
+      wrist_2_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
+      wrist_3_joint: {p: 20.0,  i: 0.0, d: 0.1, i_clamp: 1}
 
 
    # state_publish_rate:  50 # Defaults to 50
