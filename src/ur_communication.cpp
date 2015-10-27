@@ -44,9 +44,13 @@ UrCommunication::UrCommunication(std::condition_variable& msg_cond,
 	flag_ = 1;
 	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 			sizeof(int));
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
+			sizeof(int));
 	setsockopt(pri_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 			sizeof(int));
 	setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+			sizeof(int));
+	setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 			sizeof(int));
 	setsockopt(sec_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 			sizeof(int));
@@ -69,7 +73,7 @@ bool UrCommunication::start() {
 	}
 	print_debug("Acquire firmware version: Got connection");
 	bytes_read = read(pri_sockfd_, buf, 512);
-	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 			sizeof(int));
 	robot_state_->unpack(buf, bytes_read);
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
@@ -124,7 +128,7 @@ void UrCommunication::run() {
 			select(sec_sockfd_ + 1, &readfds, NULL, NULL, &timeout);
 			bytes_read = read(sec_sockfd_, buf, 2048); // usually only up to 1295 bytes
 			if (bytes_read > 0) {
-				setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY,
+				setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK,
 						(char *) &flag_, sizeof(int));
 				robot_state_->unpack(buf, bytes_read);
 			} else {
@@ -142,6 +146,8 @@ void UrCommunication::run() {
 			}
 			flag_ = 1;
 			setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+					sizeof(int));
+			setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 					sizeof(int));
 			setsockopt(sec_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 					sizeof(int));

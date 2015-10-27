@@ -36,6 +36,7 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	serv_addr_.sin_port = htons(30003);
 	flag_ = 1;
 	setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
+	setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, sizeof(int));
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
 	fcntl(sockfd_, F_SETFL, O_NONBLOCK);
 	connected_ = false;
@@ -121,7 +122,7 @@ void UrRealtimeCommunication::run() {
 			select(sockfd_ + 1, &readfds, NULL, NULL, &timeout);
 			bytes_read = read(sockfd_, buf, 2048);
 			if (bytes_read > 0) {
-				setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+				setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, 
 						sizeof(int));
 				robot_state_->unpack(buf);
 				if (safety_count_ == safety_count_max_) {
@@ -143,6 +144,9 @@ void UrRealtimeCommunication::run() {
 			flag_ = 1;
 			setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 					sizeof(int));
+			setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, 
+					sizeof(int));
+	
 			setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 					sizeof(int));
 			fcntl(sockfd_, F_SETFL, O_NONBLOCK);
