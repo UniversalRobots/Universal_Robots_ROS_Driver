@@ -156,7 +156,6 @@ void UrRealtimeCommunication::run() {
 			while (keepalive_ && !connected_) {
 				std::this_thread::sleep_for(std::chrono::seconds(10));
 				fd_set writefds;
-				keepalive_ = true;
 
 				connect(sockfd_, (struct sockaddr *) &serv_addr_,
 						sizeof(serv_addr_));

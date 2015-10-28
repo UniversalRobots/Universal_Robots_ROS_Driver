@@ -63,10 +63,7 @@ public:
 
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
 			double q5, double acc = 100.);
-	/* void addTraj(
-			std::vector<double> inp_timestamps, //DEPRECATED
-			std::vector<std::vector<double> > positions,
-			std::vector<std::vector<double> > velocities); */
+
 	bool doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
