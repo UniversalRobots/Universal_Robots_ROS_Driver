@@ -89,7 +89,10 @@ void UrRealtimeCommunication::addCommandToQueue(std::string inp) {
 	if (inp.back() != '\n') {
 		inp.append("\n");
 	}
-	bytes_written = write(sockfd_, inp.c_str(), inp.length());
+	if (connected_)
+		bytes_written = write(sockfd_, inp.c_str(), inp.length());
+	else
+		print_error("Could not send command \"" +inp + "\". The robot is not connected! Command is discarded" );
 }
 
 void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
