@@ -1,12 +1,19 @@
 /*
  * ur_communication.cpp
  *
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <thomas.timm.dk@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Thomas Timm Andersen
- * ----------------------------------------------------------------------------
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "ur_modern_driver/ur_communication.h"
@@ -37,9 +44,13 @@ UrCommunication::UrCommunication(std::condition_variable& msg_cond,
 	flag_ = 1;
 	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 			sizeof(int));
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
+			sizeof(int));
 	setsockopt(pri_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 			sizeof(int));
 	setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+			sizeof(int));
+	setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 			sizeof(int));
 	setsockopt(sec_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 			sizeof(int));
@@ -62,7 +73,7 @@ bool UrCommunication::start() {
 	}
 	print_debug("Acquire firmware version: Got connection");
 	bytes_read = read(pri_sockfd_, buf, 512);
-	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+	setsockopt(pri_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 			sizeof(int));
 	robot_state_->unpack(buf, bytes_read);
 	//wait for some traffic so the UR socket doesn't die in version 3.1.
@@ -117,11 +128,12 @@ void UrCommunication::run() {
 			select(sec_sockfd_ + 1, &readfds, NULL, NULL, &timeout);
 			bytes_read = read(sec_sockfd_, buf, 2048); // usually only up to 1295 bytes
 			if (bytes_read > 0) {
-				setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY,
+				setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK,
 						(char *) &flag_, sizeof(int));
 				robot_state_->unpack(buf, bytes_read);
 			} else {
 				connected_ = false;
+				robot_state_->setDisconnected();
 				close(sec_sockfd_);
 			}
 		}
@@ -134,6 +146,8 @@ void UrCommunication::run() {
 			}
 			flag_ = 1;
 			setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+					sizeof(int));
+			setsockopt(sec_sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_,
 					sizeof(int));
 			setsockopt(sec_sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 					sizeof(int));
@@ -155,6 +169,7 @@ void UrCommunication::run() {
 					print_error("Error re-connecting to port 30002. Is controller started? Will try to reconnect in 10 seconds...");
 				} else {
 					connected_ = true;
+					print_info("Secondary port: Reconnected");
 				}
 			}
 		}

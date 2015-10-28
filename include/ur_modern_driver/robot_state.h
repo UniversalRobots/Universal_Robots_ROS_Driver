@@ -1,8 +1,19 @@
 /*
  * robot_state.h
  *
- *  Created on: Sep 10, 2015
- *      Author: ttan
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef ROBOT_STATE_H_
@@ -54,6 +65,38 @@ enum robot_message_type {
 }
 typedef robot_message_types::robot_message_type robotMessageType;
 
+namespace robot_state_type_v18 {
+enum robot_state_type {
+	ROBOT_RUNNING_MODE = 0,
+	ROBOT_FREEDRIVE_MODE = 1,
+	ROBOT_READY_MODE = 2,
+	ROBOT_INITIALIZING_MODE = 3,
+	ROBOT_SECURITY_STOPPED_MODE = 4,
+	ROBOT_EMERGENCY_STOPPED_MODE = 5,
+	ROBOT_FATAL_ERROR_MODE = 6,
+	ROBOT_NO_POWER_MODE = 7,
+	ROBOT_NOT_CONNECTED_MODE = 8,
+	ROBOT_SHUTDOWN_MODE = 9,
+	ROBOT_SAFEGUARD_STOP_MODE = 10
+};
+}
+typedef robot_state_type_v18::robot_state_type robotStateTypeV18;
+namespace robot_state_type_v30 {
+enum robot_state_type {
+	ROBOT_MODE_DISCONNECTED = 0,
+	ROBOT_MODE_CONFIRM_SAFETY = 1,
+	ROBOT_MODE_BOOTING = 2,
+	ROBOT_MODE_POWER_OFF = 3,
+	ROBOT_MODE_POWER_ON = 4,
+	ROBOT_MODE_IDLE = 5,
+	ROBOT_MODE_BACKDRIVE = 6,
+	ROBOT_MODE_RUNNING = 7,
+	ROBOT_MODE_UPDATING_FIRMWARE = 8
+};
+}
+
+typedef robot_state_type_v30::robot_state_type robotStateTypeV30;
+
 struct version_message {
 	uint64_t timestamp;
 	int8_t source;
@@ -88,18 +131,34 @@ struct masterboard_data {
 	int euromapOutputBits;
 	float euromapVoltage;
 	float euromapCurrent;
+};
 
+struct robot_mode_data {
+	uint64_t timestamp;
+	bool isRobotConnected;
+	bool isRealRobotEnabled;
+	bool isPowerOnRobot;
+	bool isEmergencyStopped;
+	bool isProtectiveStopped;
+	bool isProgramRunning;
+	bool isProgramPaused;
+	unsigned char robotMode;
+	unsigned char controlMode;
+	double targetSpeedFraction;
+	double speedScaling;
 };
 
 class RobotState {
 private:
 	version_message version_msg_;
 	masterboard_data mb_data_;
+	robot_mode_data robot_mode_;
 
 	std::recursive_mutex val_lock_; // Locks the variables while unpack parses data;
 
 	std::condition_variable* pMsg_cond_; //Signals that new vars are available
 	bool new_data_available_; //to avoid spurious wakes
+	unsigned char robot_mode_running_;
 
 	double ntohd(uint64_t nf);
 
@@ -119,6 +178,7 @@ public:
 	char getAnalogOutputDomain1();
 	double getAnalogOutput0();
 	double getAnalogOutput1();
+	std::vector<double> getVActual();
 	float getMasterBoardTemperature();
 	float getRobotVoltage48V();
 	float getRobotCurrent();
@@ -130,16 +190,29 @@ public:
 	int getEuromapOutputBits();
 	float getEuromapVoltage();
 	float getEuromapCurrent();
+
+	bool isRobotConnected();
+	bool isRealRobotEnabled();
+	bool isPowerOnRobot();
+	bool isEmergencyStopped();
+	bool isProtectiveStopped();
+	bool isProgramRunning();
+	bool isProgramPaused();
+	unsigned char getRobotMode();
+	bool isReady();
+
+	void setDisconnected();
+
 	bool getNewDataAvailable();
 	void finishedReading();
-	std::vector<double> getVActual();
+
 	void unpack(uint8_t * buf, unsigned int buf_length);
 	void unpackRobotMessage(uint8_t * buf, unsigned int offset, uint32_t len);
 	void unpackRobotMessageVersion(uint8_t * buf, unsigned int offset,
 			uint32_t len);
-
 	void unpackRobotState(uint8_t * buf, unsigned int offset, uint32_t len);
 	void unpackRobotStateMasterboard(uint8_t * buf, unsigned int offset);
+	void unpackRobotMode(uint8_t * buf, unsigned int offset);
 };
 
 #endif /* ROBOT_STATE_H_ */
