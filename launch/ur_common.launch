@@ -8,9 +8,10 @@
 -->
 <launch>
   <!-- robot_ip: IP-address of the robot's socket-messaging server -->
-  <arg name="robot_ip"/>
-  <arg name="min_payload"/>
-  <arg name="max_payload"/>
+  <arg name="robot_ip" />
+  <arg name="min_payload" />
+  <arg name="max_payload" />
+  <arg name="servoj_time" default="0.008" />
   
     
   <!-- The max_velocity parameter is only used for debugging in the ur_driver. It's not related to actual velocity limits -->
@@ -21,9 +22,10 @@
   <!-- driver -->
   <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen">
   <!-- copy the specified IP address to be consistant with ROS-Industrial spec. -->
-    <param name="robot_ip_address" type="str" value="$(arg robot_ip)"/>
-    <param name="min_payload" type="double" value="$(arg min_payload)"/>
-    <param name="max_payload" type="double" value="$(arg max_payload)"/>
-    <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
+    <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
+    <param name="min_payload" type="double" value="$(arg min_payload)" />
+    <param name="max_payload" type="double" value="$(arg max_payload)" />
+    <param name="max_velocity" type="double" value="$(arg max_velocity)" />
+    <param name="servoj_time" type="double" value="$(arg servoj_time)" />
   </node>
 </launch>
