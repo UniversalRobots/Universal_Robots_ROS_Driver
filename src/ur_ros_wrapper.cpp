@@ -75,11 +75,11 @@ protected:
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
 
 public:
-	RosWrapper(std::string host) :
+	RosWrapper(std::string host, int reverse_port) :
 			as_(nh_, "follow_joint_trajectory",
 					boost::bind(&RosWrapper::goalCB, this, _1),
 					boost::bind(&RosWrapper::cancelCB, this, _1), false), robot_(
-					rt_msg_cond_, msg_cond_, host), io_flag_delay_(0.05), joint_offsets_(
+					rt_msg_cond_, msg_cond_, host, reverse_port), io_flag_delay_(0.05), joint_offsets_(
 					6, 0.0) {
 
 		std::string joint_prefix = "";
@@ -219,7 +219,11 @@ private:
 				print_error(result_.error_string);
 				return;
 			}
-			result_.error_string = "Cannot accept new trajectories. (Debug: Robot mode is " + std::to_string(robot_.sec_interface_->robot_state_->getRobotMode()) + ")";
+			result_.error_string =
+					"Cannot accept new trajectories. (Debug: Robot mode is "
+							+ std::to_string(
+									robot_.sec_interface_->robot_state_->getRobotMode())
+							+ ")";
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 			return;
@@ -295,7 +299,8 @@ private:
 		if (!has_limited_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string =
-					"Received a goal with velocities that are higher than " + std::to_string(max_velocity_);
+					"Received a goal with velocities that are higher than "
+							+ std::to_string(max_velocity_);
 			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
 			return;
@@ -645,6 +650,7 @@ private:
 int main(int argc, char **argv) {
 	bool use_sim_time = false;
 	std::string host;
+	int reverse_port = 50001;
 
 	ros::init(argc, argv, "ur_driver");
 	ros::NodeHandle nh;
@@ -663,8 +669,15 @@ int main(int argc, char **argv) {
 		}
 
 	}
+	if ((ros::param::get("~reverse_port", reverse_port))) {
+		if((reverse_port <= 0) or (reverse_port >= 65535)) {
+			print_warning("Reverse port value is not valid (Use number between 1 and 65534. Using default value of 50001");
+			reverse_port = 50001;
+		}
+	} else
+		reverse_port = 50001;
 
-	RosWrapper interface(host);
+	RosWrapper interface(host, reverse_port);
 
 	ros::AsyncSpinner spinner(3);
 	spinner.start();
