@@ -180,7 +180,10 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\t\t\t\tsync()\n";
 	cmd_str += "\t\t\telif state == SERVO_RUNNING:\n";
 
-	sprintf(buf, "\t\t\t\tservoj(q, t=%.4f)\n", servoj_time_);
+	if (sec_interface_->robot_state_->getVersion() >= 3.1)
+		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f, lookahead_time=0.03)\n", servoj_time_);
+	else
+		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f)\n", servoj_time_);
 	cmd_str += buf;
 
 	cmd_str += "\t\t\telse:\n";
@@ -208,7 +211,6 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\t\t\tset_servo_setpoint(q)\n";
 	cmd_str += "\t\tend\n";
 	cmd_str += "\tend\n";
-	cmd_str += "\tstopj(10)\n";
 	cmd_str += "\tsleep(.1)\n";
 	cmd_str += "\tsocket_close()\n";
 	cmd_str += "end\n";
