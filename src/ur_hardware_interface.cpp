@@ -163,10 +163,6 @@ void UrHardwareInterface::write() {
 					< prev_joint_velocity_command_[i] - max_vel_change_) {
 				cmd[i] = prev_joint_velocity_command_[i] - max_vel_change_;
 			}
-			if (cmd[i] > M_PI/2.)
-				cmd[i] = M_PI/2.;
-			else if (cmd[i] < -M_PI/2.)
-				cmd[i] = -M_PI/2.;
 			prev_joint_velocity_command_[i] = cmd[i];
 		}
 		robot_->setSpeed(cmd[0], cmd[1], cmd[2], cmd[3], cmd[4], cmd[5],  max_vel_change_*125);
