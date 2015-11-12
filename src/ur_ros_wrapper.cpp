@@ -39,37 +39,6 @@
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
 #include <controller_manager/controller_manager.h>
-#include <diagnostic_updater/diagnostic_updater.h>
-#include <diagnostic_updater/publisher.h>
-
-enum RobotMode {
-    ROBOT_MODE_DISCONNECTED,
-    ROBOT_MODE_CONFIRM_SAFETY,
-    ROBOT_MODE_BOOTING,
-    ROBOT_MODE_POWER_OFF,
-    ROBOT_MODE_POWER_ON,
-    ROBOT_MODE_IDLE,
-    ROBOT_MODE_BACKDRIVE,
-    ROBOT_MODE_RUNNING,
-    ROBOT_MODE_UPDATING_FIRMWARE
-};
-
-enum SafetyMode {
-    SAFETY_MODE_NORMAL,
-    SAFETY_MODE_REDUCED,
-    SAFETY_MODE_PROTECTIVE_STOP,
-    SAFETY_MODE_RECOVERY,
-    SAFETY_MODE_SAFEGUARD_STOP,
-    SAFETY_MODE_SYSTEM_EMERGENCY_STOP,
-    SAFETY_MODE_ROBOT_EMERGENCY_STOP,
-    SAFETY_MODE_VIOLATION,
-    SAFETY_MODE_FAULT
-};
-
-struct DriverStatus{
-    RobotMode robot_mode;
-    SafetyMode safety_mode;
-};
 
 class RosWrapper {
 protected:
@@ -85,8 +54,8 @@ protected:
 	ros::Subscriber urscript_sub_;
 	ros::ServiceServer io_srv_;
 	ros::ServiceServer payload_srv_;
-    std::thread* rt_publish_thread_;
-    std::thread* mb_publish_thread_;
+	std::thread* rt_publish_thread_;
+	std::thread* mb_publish_thread_;
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
@@ -94,8 +63,6 @@ protected:
 	std::thread* ros_control_thread_;
 	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
-    diagnostic_updater::Updater updater_;
-    DriverStatus driver_status_;
 
 public:
 	RosWrapper(std::string host) :
@@ -106,9 +73,6 @@ public:
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
 		char buf[256];
-
-        updater_.setHardwareID("ur_driver");
-        updater_.add("Status updater", this, &RosWrapper::driverDiagnostic);
 
 		if (ros::param::get("~prefix", joint_prefix)) {
 			sprintf(buf, "Setting prefix to %s", joint_prefix.c_str());
@@ -206,26 +170,6 @@ public:
 
 	}
 private:
-    void driverDiagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat){
-
-        if (driver_status_.robot_mode == ROBOT_MODE_RUNNING &&
-                (driver_status_.safety_mode == SAFETY_MODE_NORMAL || driver_status_.safety_mode == SAFETY_MODE_REDUCED)){
-            //Robot is running and in normal safety mode
-            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Driver OK");
-        }
-        else if (driver_status_.robot_mode == ROBOT_MODE_RUNNING &&
-                 (driver_status_.safety_mode != SAFETY_MODE_NORMAL || driver_status_.safety_mode != SAFETY_MODE_REDUCED)){
-            //Robot is running and in some safety stop
-            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Driver WARNING");
-        }
-        else {
-            //Robot is not running
-            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Driver ERROR");
-        }
-        stat.add("Robot mode", driver_status_.robot_mode);
-        stat.add("Safety mode", driver_status_.safety_mode);
-    }
-
 	void goalCB() {
 		print_info("on_goal");
 
@@ -508,11 +452,6 @@ private:
 			wrench_msg.wrench.torque.y = tcp_force[4];
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
-
-            //Update diagnostics
-            driver_status_.robot_mode = static_cast<RobotMode>( robot_.rt_interface_->robot_state_->getRobotMode() );
-            driver_status_.safety_mode = static_cast<SafetyMode>( robot_.rt_interface_->robot_state_->getSafety_mode() );
-            updater_.update();
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
 
