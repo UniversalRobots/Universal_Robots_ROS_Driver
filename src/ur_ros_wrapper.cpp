@@ -1,12 +1,19 @@
 /*
  * ur_driver.cpp
  *
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <thomas.timm.dk@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Thomas Timm Andersen
- * ----------------------------------------------------------------------------
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "ur_modern_driver/ur_driver.h"
@@ -19,6 +26,7 @@
 #include <thread>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 #include <time.h>
 
 #include "ros/ros.h"
@@ -26,7 +34,8 @@
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
-#include "actionlib/server/simple_action_server.h"
+#include "actionlib/server/action_server.h"
+#include "actionlib/server/server_goal_handle.h"
 #include "trajectory_msgs/JointTrajectoryPoint.h"
 #include "ur_msgs/SetIO.h"
 #include "ur_msgs/SetPayload.h"
@@ -46,8 +55,9 @@ protected:
 	std::condition_variable rt_msg_cond_;
 	std::condition_variable msg_cond_;
 	ros::NodeHandle nh_;
-	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction> as_;
-	actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal_;
+	actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> as_;
+	actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction> goal_handle_;
+	bool has_goal_;
 	control_msgs::FollowJointTrajectoryFeedback feedback_;
 	control_msgs::FollowJointTrajectoryResult result_;
 	ros::Subscriber speed_sub_;
@@ -65,10 +75,12 @@ protected:
 	boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
 
 public:
-	RosWrapper(std::string host) :
-			as_(nh_, "follow_joint_trajectory", false), robot_(rt_msg_cond_,
-					msg_cond_, host), io_flag_delay_(0.05), joint_offsets_(6,
-					0.0) {
+	RosWrapper(std::string host, int reverse_port) :
+			as_(nh_, "follow_joint_trajectory",
+					boost::bind(&RosWrapper::goalCB, this, _1),
+					boost::bind(&RosWrapper::cancelCB, this, _1), false), robot_(
+					rt_msg_cond_, msg_cond_, host, reverse_port), io_flag_delay_(0.05), joint_offsets_(
+					6, 0.0) {
 
 		std::string joint_prefix = "";
 		std::vector<std::string> joint_names;
@@ -95,6 +107,14 @@ public:
 			controller_manager_.reset(
 					new controller_manager::ControllerManager(
 							hardware_interface_.get(), nh_));
+			double max_vel_change = 0.12; // equivalent of an acceleration of 15 rad/sec^2
+			if (ros::param::get("~max_acceleration", max_vel_change)) {
+				max_vel_change = max_vel_change / 125;
+			}
+			sprintf(buf, "Max acceleration set to: %f [rad/sec²]",
+					max_vel_change * 125);
+			print_debug(buf);
+			hardware_interface_->setMaxVelChange(max_vel_change);
 		}
 		//Using a very high value in order to not limit execution of trajectories being sent from MoveIt!
 		max_velocity_ = 10.;
@@ -122,7 +142,7 @@ public:
 				min_payload, max_payload);
 		print_debug(buf);
 
-		double servoj_time = 0.016;
+		double servoj_time = 0.008;
 		if (ros::param::get("~servoj_time", servoj_time)) {
 			sprintf(buf, "Servoj_time set to: %f [sec]", servoj_time);
 			print_debug(buf);
@@ -136,12 +156,8 @@ public:
 				print_debug(
 						"The control thread for this driver has been started");
 			} else {
-				//register the goal and feedback callbacks
-				as_.registerGoalCallback(
-						boost::bind(&RosWrapper::goalCB, this));
-				as_.registerPreemptCallback(
-						boost::bind(&RosWrapper::preemptCB, this));
-
+				//start actionserver
+				has_goal_ = false;
 				as_.start();
 
 				//subscribe to the data topic of interest
@@ -170,75 +186,167 @@ public:
 
 	}
 private:
-	void goalCB() {
-		print_info("on_goal");
+	void trajThread(std::vector<double> timestamps,
+			std::vector<std::vector<double> > positions,
+			std::vector<std::vector<double> > velocities) {
 
-		actionlib::SimpleActionServer<control_msgs::FollowJointTrajectoryAction>::GoalConstPtr goal =
-				as_.acceptNewGoal();
-		goal_ = *goal; //make a copy that we can modify
+		robot_.doTraj(timestamps, positions, velocities);
+		if (has_goal_) {
+			result_.error_code = result_.SUCCESSFUL;
+			goal_handle_.setSucceeded(result_);
+			has_goal_ = false;
+		}
+	}
+	void goalCB(
+			actionlib::ServerGoalHandle<
+					control_msgs::FollowJointTrajectoryAction> gh) {
+		std::string buf;
+		print_info("on_goal");
+		if (!robot_.sec_interface_->robot_state_->isReady()) {
+			result_.error_code = -100; //nothing is defined for this...?
+
+			if (!robot_.sec_interface_->robot_state_->isPowerOnRobot()) {
+				result_.error_string =
+						"Cannot accept new trajectories: Robot arm is not powered on";
+				gh.setRejected(result_, result_.error_string);
+				print_error(result_.error_string);
+				return;
+			}
+			if (!robot_.sec_interface_->robot_state_->isRealRobotEnabled()) {
+				result_.error_string =
+						"Cannot accept new trajectories: Robot is not enabled";
+				gh.setRejected(result_, result_.error_string);
+				print_error(result_.error_string);
+				return;
+			}
+			result_.error_string =
+					"Cannot accept new trajectories. (Debug: Robot mode is "
+							+ std::to_string(
+									robot_.sec_interface_->robot_state_->getRobotMode())
+							+ ")";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+		if (robot_.sec_interface_->robot_state_->isEmergencyStopped()) {
+			result_.error_code = -100; //nothing is defined for this...?
+			result_.error_string =
+					"Cannot accept new trajectories: Robot is emergency stopped";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+		if (robot_.sec_interface_->robot_state_->isProtectiveStopped()) {
+			result_.error_code = -100; //nothing is defined for this...?
+			result_.error_string =
+					"Cannot accept new trajectories: Robot is protective stopped";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
+
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*gh.getGoal(); //make a copy that we can modify
+		if (has_goal_) {
+			print_warning(
+					"Received new goal while still executing previous trajectory. Canceling previous trajectory");
+			has_goal_ = false;
+			robot_.stopTraj();
+			result_.error_code = -100; //nothing is defined for this...?
+			result_.error_string = "Received another trajectory";
+			goal_handle_.setAborted(result_, result_.error_string);
+			std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		}
+		goal_handle_ = gh;
 		if (!validateJointNames()) {
 			std::string outp_joint_names = "";
-			for (unsigned int i = 0; i < goal_.trajectory.joint_names.size();
+			for (unsigned int i = 0; i < goal.trajectory.joint_names.size();
 					i++) {
-				outp_joint_names += goal_.trajectory.joint_names[i] + " ";
+				outp_joint_names += goal.trajectory.joint_names[i] + " ";
 			}
 			result_.error_code = result_.INVALID_JOINTS;
 			result_.error_string =
 					"Received a goal with incorrect joint names: "
 							+ outp_joint_names;
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
-
 		if (!has_positions()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without positions";
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!traj_is_finite()) {
-			result_.error_string = "Received a goal with infinites or NaNs";
+			result_.error_string = "Received a goal with infinities or NaNs";
 			result_.error_code = result_.INVALID_GOAL;
-			as_.setAborted(result_, result_.error_string);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
 		if (!has_limited_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string =
-					"Received a goal with velocities that are higher than %f", max_velocity_;
-			as_.setAborted(result_, result_.error_string);
+					"Received a goal with velocities that are higher than "
+							+ std::to_string(max_velocity_);
+			gh.setRejected(result_, result_.error_string);
 			print_error(result_.error_string);
+			return;
 		}
 
-		reorder_traj_joints(goal_.trajectory);
+		reorder_traj_joints(goal.trajectory);
+
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		if (goal.trajectory.points[0].time_from_start.toSec() != 0.) {
+			print_warning(
+					"Trajectory's first point should be the current position, with time_from_start set to 0.0 - Inserting point in malformed trajectory");
+			timestamps.push_back(0.0);
+			positions.push_back(
+					robot_.rt_interface_->robot_state_->getQActual());
+			velocities.push_back(
+					robot_.rt_interface_->robot_state_->getQdActual());
+		}
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			timestamps.push_back(
-					goal_.trajectory.points[i].time_from_start.toSec());
-			positions.push_back(goal_.trajectory.points[i].positions);
-			velocities.push_back(goal_.trajectory.points[i].velocities);
+					goal.trajectory.points[i].time_from_start.toSec());
+			positions.push_back(goal.trajectory.points[i].positions);
+			velocities.push_back(goal.trajectory.points[i].velocities);
 
 		}
-		robot_.doTraj(timestamps, positions, velocities);
-		result_.error_code = result_.SUCCESSFUL;
-		as_.setSucceeded(result_);
+
+		goal_handle_.setAccepted();
+		has_goal_ = true;
+		std::thread(&RosWrapper::trajThread, this, timestamps, positions,
+				velocities).detach();
 	}
 
-	void preemptCB() {
-		print_info("on_cancel");
+	void cancelCB(
+			actionlib::ServerGoalHandle<
+					control_msgs::FollowJointTrajectoryAction> gh) {
 		// set the action state to preempted
-		robot_.stopTraj();
-		as_.setPreempted();
+		print_info("on_cancel");
+		if (has_goal_) {
+			if (gh == goal_handle_) {
+				robot_.stopTraj();
+				has_goal_ = false;
+			}
+		}
+		result_.error_code = -100; //nothing is defined for this...?
+		result_.error_string = "Goal cancelled by client";
+		gh.setCanceled(result_);
 	}
 
 	bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& resp) {
@@ -274,16 +382,18 @@ private:
 
 	bool validateJointNames() {
 		std::vector<std::string> actual_joint_names = robot_.getJointNames();
-		if (goal_.trajectory.joint_names.size() != actual_joint_names.size())
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_.getGoal();
+		if (goal.trajectory.joint_names.size() != actual_joint_names.size())
 			return false;
 
-		for (unsigned int i = 0; i < goal_.trajectory.joint_names.size(); i++) {
+		for (unsigned int i = 0; i < goal.trajectory.joint_names.size(); i++) {
 			unsigned int j;
 			for (j = 0; j < actual_joint_names.size(); j++) {
-				if (goal_.trajectory.joint_names[i] == actual_joint_names[j])
+				if (goal.trajectory.joint_names[i] == actual_joint_names[j])
 					break;
 			}
-			if (goal_.trajectory.joint_names[i] == actual_joint_names[j]) {
+			if (goal.trajectory.joint_names[i] == actual_joint_names[j]) {
 				actual_joint_names.erase(actual_joint_names.begin() + j);
 			} else {
 				return false;
@@ -324,30 +434,36 @@ private:
 	}
 
 	bool has_velocities() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
-			if (goal_.trajectory.points[i].positions.size()
-					!= goal_.trajectory.points[i].velocities.size())
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_.getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
+			if (goal.trajectory.points[i].positions.size()
+					!= goal.trajectory.points[i].velocities.size())
 				return false;
 		}
 		return true;
 	}
 
 	bool has_positions() {
-		if (goal_.trajectory.points.size() == 0)
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_.getGoal();
+		if (goal.trajectory.points.size() == 0)
 			return false;
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
-			if (goal_.trajectory.points[i].positions.size()
-					!= goal_.trajectory.joint_names.size())
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
+			if (goal.trajectory.points[i].positions.size()
+					!= goal.trajectory.joint_names.size())
 				return false;
 		}
 		return true;
 	}
 
 	bool has_limited_velocities() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_.getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
-					j < goal_.trajectory.points[i].velocities.size(); j++) {
-				if (fabs(goal_.trajectory.points[i].velocities[j])
+					j < goal.trajectory.points[i].velocities.size(); j++) {
+				if (fabs(goal.trajectory.points[i].velocities[j])
 						> max_velocity_)
 					return false;
 			}
@@ -356,12 +472,14 @@ private:
 	}
 
 	bool traj_is_finite() {
-		for (unsigned int i = 0; i < goal_.trajectory.points.size(); i++) {
+		actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::Goal goal =
+				*goal_handle_.getGoal();
+		for (unsigned int i = 0; i < goal.trajectory.points.size(); i++) {
 			for (unsigned int j = 0;
-					j < goal_.trajectory.points[i].velocities.size(); j++) {
-				if (!std::isfinite(goal_.trajectory.points[i].positions[j]))
+					j < goal.trajectory.points[i].velocities.size(); j++) {
+				if (!std::isfinite(goal.trajectory.points[i].positions[j]))
 					return false;
-				if (!std::isfinite(goal_.trajectory.points[i].velocities[j]))
+				if (!std::isfinite(goal.trajectory.points[i].velocities[j]))
 					return false;
 			}
 		}
@@ -459,6 +577,7 @@ private:
 	}
 
 	void publishMbMsg() {
+		bool warned = false;
 		ros::Publisher io_pub = nh_.advertise<ur_msgs::IOStates>(
 				"ur_driver/io_states", 1);
 
@@ -500,6 +619,27 @@ private:
 			io_msg.analog_out_states.push_back(ana);
 			io_pub.publish(io_msg);
 
+			if (robot_.sec_interface_->robot_state_->isEmergencyStopped()
+					or robot_.sec_interface_->robot_state_->isProtectiveStopped()) {
+				if (robot_.sec_interface_->robot_state_->isEmergencyStopped()
+						and !warned) {
+					print_error("Emergency stop pressed!");
+				} else if (robot_.sec_interface_->robot_state_->isProtectiveStopped()
+						and !warned) {
+					print_error("Robot is protective stopped!");
+				}
+				if (has_goal_) {
+					print_error("Aborting trajectory");
+					robot_.stopTraj();
+					result_.error_code = result_.SUCCESSFUL;
+					result_.error_string = "Robot was halted";
+					goal_handle_.setAborted(result_, result_.error_string);
+					has_goal_ = false;
+				}
+				warned = true;
+			} else
+				warned = false;
+
 			robot_.sec_interface_->robot_state_->finishedReading();
 
 		}
@@ -510,6 +650,7 @@ private:
 int main(int argc, char **argv) {
 	bool use_sim_time = false;
 	std::string host;
+	int reverse_port = 50001;
 
 	ros::init(argc, argv, "ur_driver");
 	ros::NodeHandle nh;
@@ -528,8 +669,15 @@ int main(int argc, char **argv) {
 		}
 
 	}
+	if ((ros::param::get("~reverse_port", reverse_port))) {
+		if((reverse_port <= 0) or (reverse_port >= 65535)) {
+			print_warning("Reverse port value is not valid (Use number between 1 and 65534. Using default value of 50001");
+			reverse_port = 50001;
+		}
+	} else
+		reverse_port = 50001;
 
-	RosWrapper interface(host);
+	RosWrapper interface(host, reverse_port);
 
 	ros::AsyncSpinner spinner(3);
 	spinner.start();

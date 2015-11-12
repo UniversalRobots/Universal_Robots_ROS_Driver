@@ -1,12 +1,19 @@
 /*
  * ur_driver
  *
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <thomas.timm.dk@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Thomas Timm Andersen
- * ----------------------------------------------------------------------------
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef UR_DRIVER_H_
@@ -39,7 +46,9 @@ private:
 	const unsigned int REVERSE_PORT_;
 	int incoming_sockfd_;
 	int new_sockfd_;
+	bool reverse_connected_;
 	double servoj_time_;
+	bool executing_traj_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
@@ -54,19 +63,16 @@ public:
 
 	void setSpeed(double q0, double q1, double q2, double q3, double q4,
 			double q5, double acc = 100.);
-	/* void addTraj(
-			std::vector<double> inp_timestamps, //DEPRECATED
-			std::vector<std::vector<double> > positions,
-			std::vector<std::vector<double> > velocities); */
-	void doTraj(std::vector<double> inp_timestamps,
+
+	bool doTraj(std::vector<double> inp_timestamps,
 			std::vector<std::vector<double> > inp_positions,
 			std::vector<std::vector<double> > inp_velocities);
-	void servoj(std::vector<double> positions, int keepalive = 1, double time = 0);
+	void servoj(std::vector<double> positions, int keepalive = 1);
 
 	void stopTraj();
 
-	void uploadProg();
-	void openServo();
+	bool uploadProg();
+	bool openServo();
 	void closeServo(std::vector<double> positions);
 
 	std::vector<double> interp_cubic(double t, double T,

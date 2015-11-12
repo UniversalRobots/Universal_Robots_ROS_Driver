@@ -1,12 +1,19 @@
 /*
  * ur_realtime_communication.cpp
  *
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <thomas.timm.dk@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Thomas Timm Andersen
- * ----------------------------------------------------------------------------
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "ur_modern_driver/ur_realtime_communication.h"
@@ -29,6 +36,7 @@ UrRealtimeCommunication::UrRealtimeCommunication(
 	serv_addr_.sin_port = htons(30003);
 	flag_ = 1;
 	setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_, sizeof(int));
+	setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, sizeof(int));
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_, sizeof(int));
 	fcntl(sockfd_, F_SETFL, O_NONBLOCK);
 	connected_ = false;
@@ -81,7 +89,10 @@ void UrRealtimeCommunication::addCommandToQueue(std::string inp) {
 	if (inp.back() != '\n') {
 		inp.append("\n");
 	}
-	bytes_written = write(sockfd_, inp.c_str(), inp.length());
+	if (connected_)
+		bytes_written = write(sockfd_, inp.c_str(), inp.length());
+	else
+		print_error("Could not send command \"" +inp + "\". The robot is not connected! Command is discarded" );
 }
 
 void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
@@ -114,7 +125,7 @@ void UrRealtimeCommunication::run() {
 			select(sockfd_ + 1, &readfds, NULL, NULL, &timeout);
 			bytes_read = read(sockfd_, buf, 2048);
 			if (bytes_read > 0) {
-				setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
+				setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, 
 						sizeof(int));
 				robot_state_->unpack(buf);
 				if (safety_count_ == safety_count_max_) {
@@ -136,13 +147,15 @@ void UrRealtimeCommunication::run() {
 			flag_ = 1;
 			setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY, (char *) &flag_,
 					sizeof(int));
+			setsockopt(sockfd_, IPPROTO_TCP, TCP_QUICKACK, (char *) &flag_, 
+					sizeof(int));
+	
 			setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, (char *) &flag_,
 					sizeof(int));
 			fcntl(sockfd_, F_SETFL, O_NONBLOCK);
 			while (keepalive_ && !connected_) {
 				std::this_thread::sleep_for(std::chrono::seconds(10));
 				fd_set writefds;
-				keepalive_ = true;
 
 				connect(sockfd_, (struct sockaddr *) &serv_addr_,
 						sizeof(serv_addr_));
@@ -155,6 +168,7 @@ void UrRealtimeCommunication::run() {
 					print_error("Error re-connecting to RT port 30003. Is controller started? Will try to reconnect in 10 seconds...");
 				} else {
 					connected_ = true;
+					print_info("Realtime port: Reconnected");
 				}
 			}
 		}

@@ -1,15 +1,22 @@
 /*
  * ur_hardware_control_loop.cpp
  *
- * ----------------------------------------------------------------------------
- * "THE BEER-WARE LICENSE" (Revision 42):
- * <thomas.timm.dk@gmail.com> wrote this file.  As long as you retain this notice you
- * can do whatever you want with this stuff. If we meet some day, and you think
- * this stuff is worth it, you can buy me a beer in return.   Thomas Timm Andersen
- * ----------------------------------------------------------------------------
+ * Copyright 2015 Thomas Timm Andersen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-/* Based on original source from University of Colorado, Boulder. License copied below. Please offer Dave a beer as well if you meet him. */
+/* Based on original source from University of Colorado, Boulder. License copied below. */
 
 /*********************************************************************
  * Software License Agreement (BSD License)
@@ -58,6 +65,7 @@
 #include <controller_manager/controller_manager.h>
 #include <boost/scoped_ptr.hpp>
 #include <ros/ros.h>
+#include <math.h>
 #include "do_output.h"
 #include "ur_driver.h"
 
@@ -86,6 +94,8 @@ public:
 	/// \brief write the command to the robot hardware.
 	virtual void write();
 
+	void setMaxVelChange(double inp);
+
 	bool canSwitch(
 			const std::list<hardware_interface::ControllerInfo> &start_list,
 			const std::list<hardware_interface::ControllerInfo> &stop_list) const;
@@ -111,9 +121,12 @@ protected:
 	std::vector<double> joint_effort_;
 	std::vector<double> joint_position_command_;
 	std::vector<double> joint_velocity_command_;
-	std::size_t num_joints_;
+	std::vector<double> prev_joint_velocity_command_;
+		std::size_t num_joints_;
 	double robot_force_[3] = { 0., 0., 0. };
 	double robot_torque_[3] = { 0., 0., 0. };
+
+	double max_vel_change_;
 
 	// Robot API
 	UrDriver* robot_;
