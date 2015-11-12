@@ -33,6 +33,7 @@
 #include <ros/console.h>
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
+#include "geometry_msgs/PoseStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "actionlib/server/action_server.h"
 #include "actionlib/server/server_goal_handle.h"
@@ -48,6 +49,10 @@
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
 #include <controller_manager/controller_manager.h>
+
+/// TF
+#include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 
 class RosWrapper {
 protected:
@@ -541,10 +546,13 @@ private:
 				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
 				"wrench", 1);
+        ros::Publisher tool_pose_pub = nh_.advertise<geometry_msgs::PoseStamped>("tool_pose", 1);
+        static tf::TransformBroadcaster br;
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
 			joint_msg.name = robot_.getJointNames();
 			geometry_msgs::WrenchStamped wrench_msg;
+            geometry_msgs::PoseStamped tool_pose_msg;
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
 			std::unique_lock<std::mutex> locker(msg_lock);
 			while (!robot_.rt_interface_->robot_state_->getDataPublished()) {
@@ -570,6 +578,36 @@ private:
 			wrench_msg.wrench.torque.y = tcp_force[4];
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
+
+            // Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+            std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
+            tool_pose_msg.pose.position.x = tool_vector_actual[0];
+            tool_pose_msg.pose.position.y = tool_vector_actual[1];
+            tool_pose_msg.pose.position.z = tool_vector_actual[2];
+
+            tf::Quaternion quat;
+//            quat.setEuler(tool_vector_actual[4], tool_vector_actual[3], tool_vector_actual[5]);
+            double rx = tool_vector_actual[3];
+            double ry = tool_vector_actual[4];
+            double rz = tool_vector_actual[5];
+            double angle = std::sqrt(rx*rx + ry*ry + rz*rz);
+            rx = rx/angle;
+            ry = ry/angle;
+            rz = rz/angle;
+            quat.setRotation(tf::Vector3(rx, ry, rz), angle);
+//            quat.setRotation(tf::Vector3(1,0,0), tool_vector_actual[3]);
+//            quat.setRotation(tf::Vector3(0,1,0), tool_vector_actual[4]);
+//            quat.setRotation(tf::Vector3(0,0,1), tool_vector_actual[5]);
+//            quat.setRPY(tool_vector_actual[3], tool_vector_actual[4], tool_vector_actual[5]);
+            tf::quaternionTFToMsg(quat, tool_pose_msg.pose.orientation);
+
+            tool_pose_pub.publish(tool_pose_msg);
+
+            tf::Transform transform;
+            transform.setOrigin(tf::Vector3(tool_vector_actual[0], tool_vector_actual[1], tool_vector_actual[2]));
+            transform.setRotation(quat);
+
+            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "philips/ur_base_link", "philips/ur_ee_link_calibrated"));
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
 
