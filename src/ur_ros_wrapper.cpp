@@ -74,6 +74,8 @@ protected:
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
+    std::string base_frame_;
+    std::string tool_frame_;
 	bool use_ros_control_;
 	std::thread* ros_control_thread_;
 	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
@@ -153,6 +155,18 @@ public:
 			print_debug(buf);
 		}
 		robot_.setServojTime(servoj_time);
+
+        //Base and tool frames
+        base_frame_ = "base";
+        tool_frame_ = "tool0_controller";
+        if (ros::param::get("~base_frame", base_frame_)) {
+            sprintf(buf, "Base frame set to: %s", base_frame_.c_str());
+            print_debug(buf);
+        }
+        if (ros::param::get("~tool_frame", tool_frame_)) {
+            sprintf(buf, "Tool frame set to: %s", tool_frame_.c_str());
+            print_debug(buf);
+        }
 
 		if (robot_.start()) {
 			if (use_ros_control_) {
@@ -546,7 +560,7 @@ private:
 				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
 				"wrench", 1);
-        ros::Publisher tool_pose_pub = nh_.advertise<geometry_msgs::PoseStamped>("tool_pose", 1);
+        ros::Publisher tool_vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("tool_velocity", 1);
         static tf::TransformBroadcaster br;
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
@@ -581,36 +595,36 @@ private:
 
             // Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
             std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
-            tool_pose_msg.pose.position.x = tool_vector_actual[0];
-            tool_pose_msg.pose.position.y = tool_vector_actual[1];
-            tool_pose_msg.pose.position.z = tool_vector_actual[2];
 
+            //Create quaternion
             tf::Quaternion quat;
-//            quat.setEuler(tool_vector_actual[4], tool_vector_actual[3], tool_vector_actual[5]);
             double rx = tool_vector_actual[3];
             double ry = tool_vector_actual[4];
             double rz = tool_vector_actual[5];
-            double angle = std::sqrt(rx*rx + ry*ry + rz*rz);
-            rx = rx/angle;
-            ry = ry/angle;
-            rz = rz/angle;
-            quat.setRotation(tf::Vector3(rx, ry, rz), angle);
-//            quat.setRotation(tf::Vector3(1,0,0), tool_vector_actual[3]);
-//            quat.setRotation(tf::Vector3(0,1,0), tool_vector_actual[4]);
-//            quat.setRotation(tf::Vector3(0,0,1), tool_vector_actual[5]);
-//            quat.setRPY(tool_vector_actual[3], tool_vector_actual[4], tool_vector_actual[5]);
-            tf::quaternionTFToMsg(quat, tool_pose_msg.pose.orientation);
+            double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
+            quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
 
-            tool_pose_pub.publish(tool_pose_msg);
-
+            //Create and broadcast transform
             tf::Transform transform;
             transform.setOrigin(tf::Vector3(tool_vector_actual[0], tool_vector_actual[1], tool_vector_actual[2]));
             transform.setRotation(quat);
+            br.sendTransform(tf::StampedTransform(transform, joint_msg.header.stamp, base_frame_, tool_frame_));
 
-            br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "philips/ur_base_link", "philips/ur_ee_link_calibrated"));
+            //Publish tool velocity
+            std::vector<double> tcp_speed =
+                    robot_.rt_interface_->robot_state_->getTcpSpeedActual();
+            geometry_msgs::TwistStamped tool_twist;
+            tool_twist.header.frame_id = tool_frame_;
+            tool_twist.header.stamp = joint_msg.header.stamp;
+            tool_twist.twist.linear.x = tcp_speed[0];
+            tool_twist.twist.linear.y = tcp_speed[1];
+            tool_twist.twist.linear.z = tcp_speed[2];
+            tool_twist.twist.angular.x = tcp_speed[3];
+            tool_twist.twist.angular.y = tcp_speed[4];
+            tool_twist.twist.angular.z = tcp_speed[5];
+            tool_vel_pub.publish(tool_twist);
 
 			robot_.rt_interface_->robot_state_->setDataPublished();
-
 		}
 	}
 
