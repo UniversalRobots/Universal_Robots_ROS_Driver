@@ -104,3 +104,16 @@ Should be compatible with all robots and control boxes with the newest firmware.
 *Simulated UR5 running 1.6.08725
 
  
+#Credits
+Please cite the following report if using this driver
+
+@techreport{andersen2015optimizing, 
+  title = {Optimizing the Universal Robots ROS driver.}, 
+  institution = {Technical University of Denmark, Department of Electrical Engineering}, 
+  author = {Andersen, Thomas Timm}, 
+  year = {2015}, 
+  url = {http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html} 
+  }
+
+
+The report can be downloaded from http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html
