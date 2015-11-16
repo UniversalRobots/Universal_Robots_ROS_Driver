@@ -213,6 +213,7 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\tend\n";
 	cmd_str += "\tsleep(.1)\n";
 	cmd_str += "\tsocket_close()\n";
+	cmd_str += "\tkill thread_servo\n";
 	cmd_str += "end\n";
 
 	rt_interface_->addCommandToQueue(cmd_str);
