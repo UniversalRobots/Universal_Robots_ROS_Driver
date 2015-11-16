@@ -602,7 +602,11 @@ private:
             double ry = tool_vector_actual[4];
             double rz = tool_vector_actual[5];
             double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
-            quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
+            if (angle < 1e-16) {
+                quat.setValue(0, 0, 0, 1);
+            } else {
+                quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
+            }
 
             //Create and broadcast transform
             tf::Transform transform;
