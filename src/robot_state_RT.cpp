@@ -132,7 +132,7 @@ std::vector<double> RobotStateRT::getQTarget() {
 std::vector<double> RobotStateRT::getQdTarget() {
 	std::vector<double> ret;
 	val_lock_.lock();
-	ret = q_target_;
+	ret = qd_target_;
 	val_lock_.unlock();
 	return ret;
 }
