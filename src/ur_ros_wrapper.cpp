@@ -33,6 +33,7 @@
 #include <ros/console.h>
 #include "sensor_msgs/JointState.h"
 #include "geometry_msgs/WrenchStamped.h"
+#include "geometry_msgs/PoseStamped.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "actionlib/server/action_server.h"
 #include "actionlib/server/server_goal_handle.h"
@@ -48,6 +49,10 @@
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
 #include <controller_manager/controller_manager.h>
+
+/// TF
+#include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 
 class RosWrapper {
 protected:
@@ -69,6 +74,8 @@ protected:
 	double io_flag_delay_;
 	double max_velocity_;
 	std::vector<double> joint_offsets_;
+    std::string base_frame_;
+    std::string tool_frame_;
 	bool use_ros_control_;
 	std::thread* ros_control_thread_;
 	boost::shared_ptr<ros_control_ur::UrHardwareInterface> hardware_interface_;
@@ -148,6 +155,18 @@ public:
 			print_debug(buf);
 		}
 		robot_.setServojTime(servoj_time);
+
+        //Base and tool frames
+        base_frame_ = "base";
+        tool_frame_ = "tool0_controller";
+        if (ros::param::get("~base_frame", base_frame_)) {
+            sprintf(buf, "Base frame set to: %s", base_frame_.c_str());
+            print_debug(buf);
+        }
+        if (ros::param::get("~tool_frame", tool_frame_)) {
+            sprintf(buf, "Tool frame set to: %s", tool_frame_.c_str());
+            print_debug(buf);
+        }
 
 		if (robot_.start()) {
 			if (use_ros_control_) {
@@ -541,10 +560,13 @@ private:
 				"joint_states", 1);
 		ros::Publisher wrench_pub = nh_.advertise<geometry_msgs::WrenchStamped>(
 				"wrench", 1);
+        ros::Publisher tool_vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("tool_velocity", 1);
+        static tf::TransformBroadcaster br;
 		while (ros::ok()) {
 			sensor_msgs::JointState joint_msg;
 			joint_msg.name = robot_.getJointNames();
 			geometry_msgs::WrenchStamped wrench_msg;
+            geometry_msgs::PoseStamped tool_pose_msg;
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
 			std::unique_lock<std::mutex> locker(msg_lock);
 			while (!robot_.rt_interface_->robot_state_->getDataPublished()) {
@@ -571,8 +593,42 @@ private:
 			wrench_msg.wrench.torque.z = tcp_force[5];
 			wrench_pub.publish(wrench_msg);
 
-			robot_.rt_interface_->robot_state_->setDataPublished();
+            // Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+            std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
 
+            //Create quaternion
+            tf::Quaternion quat;
+            double rx = tool_vector_actual[3];
+            double ry = tool_vector_actual[4];
+            double rz = tool_vector_actual[5];
+            double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
+            if (angle < 1e-16) {
+                quat.setValue(0, 0, 0, 1);
+            } else {
+                quat.setRotation(tf::Vector3(rx/angle, ry/angle, rz/angle), angle);
+            }
+
+            //Create and broadcast transform
+            tf::Transform transform;
+            transform.setOrigin(tf::Vector3(tool_vector_actual[0], tool_vector_actual[1], tool_vector_actual[2]));
+            transform.setRotation(quat);
+            br.sendTransform(tf::StampedTransform(transform, joint_msg.header.stamp, base_frame_, tool_frame_));
+
+            //Publish tool velocity
+            std::vector<double> tcp_speed =
+                    robot_.rt_interface_->robot_state_->getTcpSpeedActual();
+            geometry_msgs::TwistStamped tool_twist;
+            tool_twist.header.frame_id = base_frame_;
+            tool_twist.header.stamp = joint_msg.header.stamp;
+            tool_twist.twist.linear.x = tcp_speed[0];
+            tool_twist.twist.linear.y = tcp_speed[1];
+            tool_twist.twist.linear.z = tcp_speed[2];
+            tool_twist.twist.angular.x = tcp_speed[3];
+            tool_twist.twist.angular.y = tcp_speed[4];
+            tool_twist.twist.angular.z = tcp_speed[5];
+            tool_vel_pub.publish(tool_twist);
+
+			robot_.rt_interface_->robot_state_->setDataPublished();
 		}
 	}
 
