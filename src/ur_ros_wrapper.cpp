@@ -618,7 +618,7 @@ private:
             std::vector<double> tcp_speed =
                     robot_.rt_interface_->robot_state_->getTcpSpeedActual();
             geometry_msgs::TwistStamped tool_twist;
-            tool_twist.header.frame_id = tool_frame_;
+            tool_twist.header.frame_id = base_frame_;
             tool_twist.header.stamp = joint_msg.header.stamp;
             tool_twist.twist.linear.x = tcp_speed[0];
             tool_twist.twist.linear.y = tcp_speed[1];
