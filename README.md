@@ -83,6 +83,29 @@ controller_list:
       - wrist_3_joint
 ```
 
+## Using the tool0_controller frame
+
+Each robot from UR is calibrated individually, so there is a small error (in the order of millimeters) between the end-effector reported by the URDF models in https://github.com/ros-industrial/universal_robot/tree/indigo-devel/ur_description and
+the end-effector as reported by the controller itself.
+
+This driver broadcasts a transformation between the base link and the end-effector as reported by the UR. The default frame names are: *base* and *tool0_controller*. 
+
+To use the *tool0_controller* frame in a URDF, there needs to be a link with that name connected to *base*. For example:
+
+```
+<!-- Connect tool0_controller to base using floating joint -->
+<link name="tool0_controller"/>
+<joint name="base-tool0_controller_floating_joint" type="floating">
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <parent link=base"/>
+  <child link="tool0_controller"/>
+</joint>
+```
+
+Now, the actual transform between *base* and *tool0_controller* will not be published by the *robot_state_publisher* but will be taken from this driver via */tf*.
+
+NOTE: You need an up-to-date version of *robot_state_publisher* that is able to deal with floating joints, see: https://github.com/ros/robot_state_publisher/pull/32
+
 ## Compatability
 Should be compatible with all robots and control boxes with the newest firmware.
 
