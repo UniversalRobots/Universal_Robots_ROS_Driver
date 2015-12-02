@@ -327,6 +327,14 @@ void RobotStateRT::unpack(uint8_t * buf) {
 		val_lock_.unlock();
 		return;
 	}
+	
+	if (version_ > 1.8 & version_ < 1.9 & len != 812) {
+		// In 1.8.14035, every 17th and 18th package is 560 and 9 bytes long/malformed.
+		//printf("Len: %i\n", len);
+		val_lock_.unlock();
+		return;
+	}
+	
 	memcpy(&unpack_to, &buf[offset], sizeof(unpack_to));
 	time_ = RobotStateRT::ntohd(unpack_to);
 	offset += sizeof(double);
