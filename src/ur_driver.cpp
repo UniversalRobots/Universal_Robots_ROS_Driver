@@ -30,6 +30,7 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 	struct sockaddr_in serv_addr;
 	int n, flag;
 
+	firmware_version_ = 0;
 	reverse_connected_ = false;
 	executing_traj_ = false;
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
