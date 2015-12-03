@@ -49,6 +49,7 @@ private:
 	bool reverse_connected_;
 	double servoj_time_;
 	bool executing_traj_;
+	double firmware_version_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
