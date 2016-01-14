@@ -298,7 +298,7 @@ private:
 			print_error(result_.error_string);
 			return;
 		}
-
+        
 		if (!has_velocities()) {
 			result_.error_code = result_.INVALID_GOAL;
 			result_.error_string = "Received a goal without velocities";
@@ -326,6 +326,14 @@ private:
 		}
 
 		reorder_traj_joints(goal.trajectory);
+		
+		if (!start_positions_match(goal.trajectory, 0.01)) {
+			result_.error_code = result_.INVALID_GOAL;
+			result_.error_string = "Goal start doesn't match current pose";
+			gh.setRejected(result_, result_.error_string);
+			print_error(result_.error_string);
+			return;
+		}
 
 		std::vector<double> timestamps;
 		std::vector<std::vector<double> > positions, velocities;
@@ -472,6 +480,19 @@ private:
 			if (goal.trajectory.points[i].positions.size()
 					!= goal.trajectory.joint_names.size())
 				return false;
+		}
+		return true;
+	}
+
+	bool start_positions_match(const trajectory_msgs::JointTrajectory &traj, double eps)
+	{
+		for (unsigned int i = 0; i < traj.points[0].positions.size(); i++)
+		{
+			std::vector<double> qActual = robot_.rt_interface_->robot_state_->getQActual();
+			if( fabs(traj.points[0].positions[i] - qActual[i]) > eps )
+			{
+				return false;
+			}
 		}
 		return true;
 	}
