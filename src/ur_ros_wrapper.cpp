@@ -157,9 +157,10 @@ public:
 		robot_.setServojTime(servoj_time);
 
         //Base and tool frames
-        base_frame_ = "base";
-        tool_frame_ = "tool0_controller";
+        base_frame_ = joint_prefix + "base_link";
+        tool_frame_ =  joint_prefix + "tool0_controller";
         if (ros::param::get("~base_frame", base_frame_)) {
+            base_frame_ = base_frame_;
             sprintf(buf, "Base frame set to: %s", base_frame_.c_str());
             print_debug(buf);
         }

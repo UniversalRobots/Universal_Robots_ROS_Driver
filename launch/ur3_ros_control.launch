@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <launch>
 
   <!-- GDB functionality -->
@@ -9,10 +10,12 @@
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="3.0"/>
+  <arg name="prefix" default="" />  
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur3_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
+    <arg name="prefix" value="$(arg prefix)" />
   </include>
 
 
@@ -23,6 +26,7 @@
     <param name="max_payload" type="double" value="$(arg max_payload)"/>
     <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
     <param name="use_ros_control" type="bool" value="True"/>
+    <arg name="prefix" value="$(arg prefix)" />
   </node>
 
   <!-- Load controller settings -->
