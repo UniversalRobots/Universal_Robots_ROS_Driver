@@ -11,6 +11,7 @@
   <arg name="robot_ip" />
   <arg name="min_payload" />
   <arg name="max_payload" />
+  <arg name="prefix" default="" />
   <arg name="servoj_time" default="0.008" />
   <arg name="base_frame"  default="base"/>
   <arg name="tool_frame"  default="tool0_controller"/>
@@ -23,6 +24,7 @@
   <!-- driver -->
   <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen">
   <!-- copy the specified IP address to be consistant with ROS-Industrial spec. -->
+    <param name="prefix" type="str" value="$(arg prefix)" />
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
     <param name="min_payload" type="double" value="$(arg min_payload)" />
     <param name="max_payload" type="double" value="$(arg max_payload)" />

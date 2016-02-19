@@ -111,6 +111,12 @@ def main():
         client.wait_for_server()
         print "Connected to server"
         rospy.Subscriber("joint_states", JointState, joint_subscriber)
+        parameters = rospy.get_param(None)
+        index = str(parameters).find('prefix')
+        if (index > 0):
+            prefix = str(parameters)[index+len("prefix': '"):(index+len("prefix': '")+str(parameters)[index+len("prefix': '"):-1].find("'"))]
+            for i, name in enumerate(JOINT_NAMES):
+                JOINT_NAMES[i] = prefix + name
         print "This program makes the robot move between the following three poses:"
         print str([Q1[i]*180./pi for i in xrange(0,6)])
         print str([Q2[i]*180./pi for i in xrange(0,6)])
