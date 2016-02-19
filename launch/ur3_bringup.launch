@@ -17,7 +17,6 @@
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur3_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
-    <arg name="prefix" value="$(arg prefix)" />
   </include>
 
   <!-- ur common -->

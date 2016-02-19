@@ -15,7 +15,6 @@
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur10_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
-    <arg name="prefix" value="$(arg prefix)" />
   </include>
 
 
