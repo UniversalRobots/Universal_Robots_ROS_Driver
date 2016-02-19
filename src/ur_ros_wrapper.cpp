@@ -94,15 +94,17 @@ public:
 		char buf[256];
 
 		if (ros::param::get("~prefix", joint_prefix)) {
-			sprintf(buf, "Setting prefix to %s", joint_prefix.c_str());
-			print_info(buf);
+		    if (joint_prefix.length() > 0) {
+    			sprintf(buf, "Setting prefix to %s", joint_prefix.c_str());
+	    		print_info(buf);
+	    	}
+			joint_names.push_back(joint_prefix + "shoulder_pan_joint");
+			joint_names.push_back(joint_prefix + "shoulder_lift_joint");
+			joint_names.push_back(joint_prefix + "elbow_joint");
+			joint_names.push_back(joint_prefix + "wrist_1_joint");
+			joint_names.push_back(joint_prefix + "wrist_2_joint");
+			joint_names.push_back(joint_prefix + "wrist_3_joint");
 		}
-		joint_names.push_back(joint_prefix + "shoulder_pan_joint");
-		joint_names.push_back(joint_prefix + "shoulder_lift_joint");
-		joint_names.push_back(joint_prefix + "elbow_joint");
-		joint_names.push_back(joint_prefix + "wrist_1_joint");
-		joint_names.push_back(joint_prefix + "wrist_2_joint");
-		joint_names.push_back(joint_prefix + "wrist_3_joint");
 		robot_.setJointNames(joint_names);
 
 		use_ros_control_ = false;
