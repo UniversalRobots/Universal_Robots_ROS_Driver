@@ -364,8 +364,8 @@ void RobotStateRT::unpack(uint8_t * buf) {
 	offset += sizeof(double) * 6;
 	i_actual_ = unpackVector(buf, offset, 6);
 	offset += sizeof(double) * 6;
-	if (version_ <= 1.8) {
-		if (version_ != 1.6)
+	if (version_ <= 1.9) {
+		if (version_ > 1.6)
 			tool_accelerometer_values_ = unpackVector(buf, offset, 3);
 		offset += sizeof(double) * (3 + 15);
 		tcp_force_ = unpackVector(buf, offset, 6);
