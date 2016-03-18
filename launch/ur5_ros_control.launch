@@ -1,21 +1,23 @@
+<?xml version="1.0"?>
 <launch>
 
   <!-- GDB functionality -->
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
-  
+
   <arg name="robot_ip"/>
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
-  <arg name="max_payload"  default="5.0"/>
+  <arg name="max_payload"  default="3.0"/>
+  <arg name="prefix" default="" />  
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur5_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
   </include>
 
-  
+
   <!-- Load hardware interface -->
   <node name="ur_hardware_interface" pkg="ur_modern_driver" type="ur_driver" output="screen" launch-prefix="$(arg launch_prefix)">
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)"/>
@@ -23,6 +25,7 @@
     <param name="max_payload" type="double" value="$(arg max_payload)"/>
     <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
     <param name="use_ros_control" type="bool" value="True"/>
+    <arg name="prefix" value="$(arg prefix)" />
   </node>
 
   <!-- Load controller settings -->

@@ -30,6 +30,7 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 	struct sockaddr_in serv_addr;
 	int n, flag;
 
+	firmware_version_ = 0;
 	reverse_connected_ = false;
 	executing_traj_ = false;
 	rt_interface_ = new UrRealtimeCommunication(rt_msg_cond, host,
@@ -181,7 +182,8 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\t\t\telif state == SERVO_RUNNING:\n";
 
 	if (sec_interface_->robot_state_->getVersion() >= 3.1)
-		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f, lookahead_time=0.03)\n", servoj_time_);
+		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f, lookahead_time=0.03)\n",
+				servoj_time_);
 	else
 		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f)\n", servoj_time_);
 	cmd_str += buf;
@@ -213,6 +215,7 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\tend\n";
 	cmd_str += "\tsleep(.1)\n";
 	cmd_str += "\tsocket_close()\n";
+	cmd_str += "\tkill thread_servo\n";
 	cmd_str += "end\n";
 
 	rt_interface_->addCommandToQueue(cmd_str);
@@ -245,8 +248,8 @@ void UrDriver::closeServo(std::vector<double> positions) {
 bool UrDriver::start() {
 	if (!sec_interface_->start())
 		return false;
-	rt_interface_->robot_state_->setVersion(
-			sec_interface_->robot_state_->getVersion());
+	firmware_version_ = sec_interface_->robot_state_->getVersion();
+	rt_interface_->robot_state_->setVersion(firmware_version_);
 	if (!rt_interface_->start())
 		return false;
 	ip_addr_ = rt_interface_->getLocalIp();
@@ -294,15 +297,34 @@ void UrDriver::setFlag(unsigned int n, bool b) {
 }
 void UrDriver::setDigitalOut(unsigned int n, bool b) {
 	char buf[256];
-	sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
-			b ? "True" : "False");
+	if (firmware_version_ < 2) {
+		sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
+				b ? "True" : "False");
+	} else if (n > 9) {
+		sprintf(buf,
+				"sec setOut():\n\tset_configurable_digital_out(%d, %s)\nend\n",
+				n - 10, b ? "True" : "False");
+	} else if (n > 7) {
+		sprintf(buf, "sec setOut():\n\tset_tool_digital_out(%d, %s)\nend\n",
+				n - 8, b ? "True" : "False");
+
+	} else {
+		sprintf(buf, "sec setOut():\n\tset_standard_digital_out(%d, %s)\nend\n",
+				n, b ? "True" : "False");
+
+	}
 	rt_interface_->addCommandToQueue(buf);
 	print_debug(buf);
 
 }
 void UrDriver::setAnalogOut(unsigned int n, double f) {
 	char buf[256];
-	sprintf(buf, "sec setOut():\n\tset_analog_out(%d, %1.4f)\nend\n", n, f);
+	if (firmware_version_ < 2) {
+		sprintf(buf, "sec setOut():\n\tset_analog_out(%d, %1.4f)\nend\n", n, f);
+	} else {
+		sprintf(buf, "sec setOut():\n\tset_standard_analog_out(%d, %1.4f)\nend\n", n, f);
+	}
+
 	rt_interface_->addCommandToQueue(buf);
 	print_debug(buf);
 }

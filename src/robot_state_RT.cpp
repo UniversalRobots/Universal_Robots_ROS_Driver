@@ -60,7 +60,6 @@ RobotStateRT::~RobotStateRT() {
 	pMsg_cond_->notify_all();
 }
 
-
 void RobotStateRT::setDataPublished() {
 	data_published_ = false;
 }
@@ -74,7 +73,6 @@ void RobotStateRT::setControllerUpdated() {
 bool RobotStateRT::getControllerUpdated() {
 	return controller_updated_;
 }
-
 
 double RobotStateRT::ntohd(uint64_t nf) {
 	double x;
@@ -132,7 +130,7 @@ std::vector<double> RobotStateRT::getQTarget() {
 std::vector<double> RobotStateRT::getQdTarget() {
 	std::vector<double> ret;
 	val_lock_.lock();
-	ret = q_target_;
+	ret = qd_target_;
 	val_lock_.unlock();
 	return ret;
 }
@@ -321,12 +319,32 @@ void RobotStateRT::unpack(uint8_t * buf) {
 
 	offset += sizeof(len);
 	len = ntohl(len);
-	if (version_ > 3. & version_ < 3.1 & len != 1044) {
-		//In 3.0, every 4th? package is malformed...?
-		//printf("Len: %i\n", len);
+
+	//Check the correct message length is received
+	bool len_good = true;
+	if (version_ >= 1.6 && version_ < 1.7) { //v1.6
+		if (len != 756)
+			len_good = false;
+	} else if (version_ >= 1.7 && version_ < 1.8) { //v1.7
+		if (len != 764)
+			len_good = false;
+	} else if (version_ >= 1.8 && version_ < 1.9) { //v1.8
+		if (len != 812)
+			len_good = false;
+	} else if (version_ >= 3.0 && version_ < 3.2) { //v3.0 & v3.1
+		if (len != 1044)
+			len_good = false;
+	} else if (version_ >= 3.2 && version_ < 3.3) { //v3.2
+		if (len != 1060)
+			len_good = false;
+	}
+
+	if (!len_good) {
+		printf("Wrong length of message on RT interface: %i\n", len);
 		val_lock_.unlock();
 		return;
 	}
+
 	memcpy(&unpack_to, &buf[offset], sizeof(unpack_to));
 	time_ = RobotStateRT::ntohd(unpack_to);
 	offset += sizeof(double);
@@ -346,8 +364,8 @@ void RobotStateRT::unpack(uint8_t * buf) {
 	offset += sizeof(double) * 6;
 	i_actual_ = unpackVector(buf, offset, 6);
 	offset += sizeof(double) * 6;
-	if (version_ <= 1.8) {
-		if (version_ != 1.6)
+	if (version_ <= 1.9) {
+		if (version_ > 1.6)
 			tool_accelerometer_values_ = unpackVector(buf, offset, 3);
 		offset += sizeof(double) * (3 + 15);
 		tcp_force_ = unpackVector(buf, offset, 6);
