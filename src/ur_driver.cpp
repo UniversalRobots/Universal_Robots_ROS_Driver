@@ -300,12 +300,12 @@ void UrDriver::setDigitalOut(unsigned int n, bool b) {
 	if (firmware_version_ < 2) {
 		sprintf(buf, "sec setOut():\n\tset_digital_out(%d, %s)\nend\n", n,
 				b ? "True" : "False");
-	} else if (n > 9) {
-		sprintf(buf,
-				"sec setOut():\n\tset_configurable_digital_out(%d, %s)\nend\n",
-				n - 10, b ? "True" : "False");
+    } else if (n > 15) {
+        sprintf(buf,
+                "sec setOut():\n\tset_tool_digital_out(%d, %s)\nend\n",
+                n - 16, b ? "True" : "False");
 	} else if (n > 7) {
-		sprintf(buf, "sec setOut():\n\tset_tool_digital_out(%d, %s)\nend\n",
+        sprintf(buf, "sec setOut():\n\tset_configurable_digital_out(%d, %s)\nend\n",
 				n - 8, b ? "True" : "False");
 
 	} else {
