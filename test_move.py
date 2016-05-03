@@ -102,8 +102,15 @@ def move_interrupt():
             JointTrajectoryPoint(positions=Q3, velocities=[0]*6, time_from_start=rospy.Duration(4.0))]
     
         client.send_goal(g)
-        time.sleep(2.0)
+        time.sleep(3.0)
         print "Interrupting"
+        joint_states = rospy.wait_for_message("joint_states", JointState)
+        joints_pos = joint_states.position
+        g.trajectory.points = [
+            JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
+            JointTrajectoryPoint(positions=Q1, velocities=[0]*6, time_from_start=rospy.Duration(2.0)),
+            JointTrajectoryPoint(positions=Q2, velocities=[0]*6, time_from_start=rospy.Duration(3.0)),
+            JointTrajectoryPoint(positions=Q3, velocities=[0]*6, time_from_start=rospy.Duration(4.0))]
         client.send_goal(g)
         client.wait_for_result()
     except KeyboardInterrupt:

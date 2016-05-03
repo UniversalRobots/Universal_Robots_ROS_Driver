@@ -560,19 +560,15 @@ private:
 			while (!robot_.rt_interface_->robot_state_->getControllerUpdated()) {
 				rt_msg_cond_.wait(locker);
 			}
-			clock_gettime(CLOCK_MONOTONIC, &current_time);
-			elapsed_time = ros::Duration(
-					current_time.tv_sec - last_time.tv_sec
-							+ (current_time.tv_nsec - last_time.tv_nsec)
-									/ BILLION);
-			last_time = current_time;
 			// Input
 			hardware_interface_->read();
 			robot_.rt_interface_->robot_state_->setControllerUpdated();
+
 			// Control
-			controller_manager_->update(
-					ros::Time(current_time.tv_sec, current_time.tv_nsec),
-					elapsed_time);
+			clock_gettime(CLOCK_MONOTONIC, &current_time);
+			elapsed_time = ros::Duration(current_time.tv_sec - last_time.tv_sec + (current_time.tv_nsec - last_time.tv_nsec)/ BILLION);
+			controller_manager_->update(ros::Time::now(), elapsed_time);
+			last_time = current_time;
 
 			// Output
 			hardware_interface_->write();
