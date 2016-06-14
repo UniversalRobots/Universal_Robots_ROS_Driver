@@ -162,7 +162,6 @@ public:
         base_frame_ = joint_prefix + "base_link";
         tool_frame_ =  joint_prefix + "tool0_controller";
         if (ros::param::get("~base_frame", base_frame_)) {
-            base_frame_ = base_frame_;
             sprintf(buf, "Base frame set to: %s", base_frame_.c_str());
             print_debug(buf);
         }
