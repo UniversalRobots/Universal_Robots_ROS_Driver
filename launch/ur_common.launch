@@ -13,7 +13,7 @@
   <arg name="max_payload" />
   <arg name="prefix" default="" />
   <arg name="servoj_time" default="0.008" />
-  <arg name="base_frame" default="$(arg prefix)base_link" />
+  <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
     
   <!-- The max_velocity parameter is only used for debugging in the ur_driver. It's not related to actual velocity limits -->
