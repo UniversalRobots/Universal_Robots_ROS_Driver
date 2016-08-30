@@ -22,10 +22,10 @@ UrDriver::UrDriver(std::condition_variable& rt_msg_cond,
 		std::condition_variable& msg_cond, std::string host,
 		unsigned int reverse_port, double servoj_time,
 		unsigned int safety_count_max, double max_time_step, double min_payload,
-		double max_payload) :
+		double max_payload, double servoj_lookahead_time, double servoj_gain) :
 		REVERSE_PORT_(reverse_port), maximum_time_step_(max_time_step), minimum_payload_(
 				min_payload), maximum_payload_(max_payload), servoj_time_(
-				servoj_time) {
+				servoj_time), servoj_lookahead_time_(servoj_lookahead_time), servoj_gain_(servoj_gain) {
 	char buffer[256];
 	struct sockaddr_in serv_addr;
 	int n, flag;
@@ -182,8 +182,8 @@ bool UrDriver::uploadProg() {
 	cmd_str += "\t\t\telif state == SERVO_RUNNING:\n";
 
 	if (sec_interface_->robot_state_->getVersion() >= 3.1)
-		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f, lookahead_time=0.03)\n",
-				servoj_time_);
+		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f, lookahead_time=%.4f, gain=%.0f)\n",
+				servoj_time_, servoj_lookahead_time_, servoj_gain_);
 	else
 		sprintf(buf, "\t\t\t\tservoj(q, t=%.4f)\n", servoj_time_);
 	cmd_str += buf;
@@ -357,4 +357,26 @@ void UrDriver::setServojTime(double t) {
 	} else {
 		servoj_time_ = 0.008;
 	}
+}
+void UrDriver::setServojLookahead(double t){
+	if (t > 0.03) {
+		if (t < 0.2) {
+			servoj_lookahead_time_ = t;
+		} else {
+			servoj_lookahead_time_ = 0.2;
+		}
+	} else {
+		servoj_lookahead_time_ = 0.03;
+	}
+}
+void UrDriver::setServojGain(double g){
+	if (g > 100) {
+			if (g < 2000) {
+				servoj_gain_ = g;
+			} else {
+				servoj_gain_ = 2000;
+			}
+		} else {
+			servoj_gain_ = 100;
+		}
 }

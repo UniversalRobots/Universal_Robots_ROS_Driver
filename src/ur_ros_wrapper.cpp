@@ -86,7 +86,7 @@ public:
 			as_(nh_, "follow_joint_trajectory",
 					boost::bind(&RosWrapper::goalCB, this, _1),
 					boost::bind(&RosWrapper::cancelCB, this, _1), false), robot_(
-					rt_msg_cond_, msg_cond_, host, reverse_port), io_flag_delay_(0.05), joint_offsets_(
+					rt_msg_cond_, msg_cond_, host, reverse_port, 0.03, 300), io_flag_delay_(0.05), joint_offsets_(
 					6, 0.0) {
 
 		std::string joint_prefix = "";
@@ -157,6 +157,20 @@ public:
 			print_debug(buf);
 		}
 		robot_.setServojTime(servoj_time);
+
+		double servoj_lookahead_time = 0.03;
+		if (ros::param::get("~servoj_lookahead_time", servoj_lookahead_time)) {
+			sprintf(buf, "Servoj_lookahead_time set to: %f [sec]", servoj_lookahead_time);
+			print_debug(buf);
+		}
+		robot_.setServojLookahead(servoj_lookahead_time);
+
+		double servoj_gain = 300.;
+		if (ros::param::get("~servoj_gain", servoj_gain)) {
+			sprintf(buf, "Servoj_gain set to: %f [sec]", servoj_gain);
+			print_debug(buf);
+		}
+		robot_.setServojGain(servoj_gain);
 
         //Base and tool frames
         base_frame_ = joint_prefix + "base_link";

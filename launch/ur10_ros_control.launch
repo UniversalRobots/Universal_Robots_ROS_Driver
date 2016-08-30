@@ -19,12 +19,13 @@
 
 
   <!-- Load hardware interface -->
-  <node name="ur_hardware_interface" pkg="ur_modern_driver" type="ur_driver" output="screen" launch-prefix="$(arg launch_prefix)">
+  <node name="ur_hardware_interface" pkg="ur_modern_driver" type="ur_driver" output="log" launch-prefix="$(arg launch_prefix)">
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)"/>
     <param name="min_payload" type="double" value="$(arg min_payload)"/>
     <param name="max_payload" type="double" value="$(arg max_payload)"/>
     <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
     <param name="use_ros_control" type="bool" value="True"/>
+    <param name="servoj_gain" type="double" value="750" />
     <arg name="prefix" value="$(arg prefix)" />
   </node>
 

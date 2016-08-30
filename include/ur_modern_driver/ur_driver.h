@@ -50,6 +50,8 @@ private:
 	double servoj_time_;
 	bool executing_traj_;
 	double firmware_version_;
+	double servoj_lookahead_time_;
+	double servoj_gain_;
 public:
 	UrRealtimeCommunication* rt_interface_;
 	UrCommunication* sec_interface_;
@@ -58,7 +60,7 @@ public:
 			std::condition_variable& msg_cond, std::string host,
 			unsigned int reverse_port = 50007, double servoj_time = 0.016, unsigned int safety_count_max =
 					12, double max_time_step = 0.08, double min_payload = 0.,
-			double max_payload = 1.);
+			double max_payload = 1., double servoj_lookahead_time=0.03, double servoj_gain=300.);
 	bool start();
 	void halt();
 
@@ -91,6 +93,8 @@ public:
 	void setMinPayload(double m);
 	void setMaxPayload(double m);
 	void setServojTime(double t);
+	void setServojLookahead(double t);
+	void setServojGain(double g);
 
 };
 
