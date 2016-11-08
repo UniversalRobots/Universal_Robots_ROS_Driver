@@ -12,6 +12,8 @@
   <arg name="max_payload"  default="3.0"/>
   <arg name="prefix" default="" />  
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
+  <arg name="base_frame" default="$(arg prefix)base" />
+  <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur3_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
@@ -26,7 +28,9 @@
     <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
     <param name="use_ros_control" type="bool" value="True"/>
     <param name="servoj_gain" type="double" value="750" />
-    <arg name="prefix" value="$(arg prefix)" />
+    <param name="prefix" value="$(arg prefix)" />
+    <param name="base_frame" type="str" value="$(arg base_frame)"/>
+    <param name="tool_frame" type="str" value="$(arg tool_frame)"/>
   </node>
 
   <!-- Load controller settings -->

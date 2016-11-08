@@ -49,6 +49,7 @@
 #include "ur_msgs/Analog.h"
 #include "std_msgs/String.h"
 #include <controller_manager/controller_manager.h>
+#include <realtime_tools/realtime_publisher.h>
 
 /// TF
 #include <tf/tf.h>
@@ -566,6 +567,16 @@ private:
 		struct timespec last_time, current_time;
 		static const double BILLION = 1000000000.0;
 
+		realtime_tools::RealtimePublisher<tf::tfMessage> tf_pub( nh_, "/tf", 1 );
+		geometry_msgs::TransformStamped tool_transform;
+		tool_transform.header.frame_id = base_frame_;
+		tool_transform.child_frame_id = tool_frame_;
+		tf_pub.msg_.transforms.push_back( tool_transform );
+
+		realtime_tools::RealtimePublisher<geometry_msgs::TwistStamped> tool_vel_pub( nh_, "tool_velocity", 1 );
+		tool_vel_pub.msg_.header.frame_id = base_frame_;
+
+
 		clock_gettime(CLOCK_MONOTONIC, &last_time);
 		while (ros::ok()) {
 			std::mutex msg_lock; // The values are locked for reading in the class, so just use a dummy mutex
@@ -580,11 +591,60 @@ private:
 			// Control
 			clock_gettime(CLOCK_MONOTONIC, &current_time);
 			elapsed_time = ros::Duration(current_time.tv_sec - last_time.tv_sec + (current_time.tv_nsec - last_time.tv_nsec)/ BILLION);
-			controller_manager_->update(ros::Time::now(), elapsed_time);
+			ros::Time ros_time = ros::Time::now();
+			controller_manager_->update(ros_time, elapsed_time);
 			last_time = current_time;
 
 			// Output
 			hardware_interface_->write();
+
+			// Tool vector: Actual Cartesian coordinates of the tool: (x,y,z,rx,ry,rz), where rx, ry and rz is a rotation vector representation of the tool orientation
+			std::vector<double> tool_vector_actual = robot_.rt_interface_->robot_state_->getToolVectorActual();
+
+			// Compute rotation angle
+			double rx = tool_vector_actual[3];
+			double ry = tool_vector_actual[4];
+			double rz = tool_vector_actual[5];
+			double angle = std::sqrt(std::pow(rx,2) + std::pow(ry,2) + std::pow(rz,2));
+
+			// Broadcast transform
+			if( tf_pub.trylock() )
+			{			
+				tf_pub.msg_.transforms[0].header.stamp = ros_time;
+				if (angle < 1e-16) {
+					tf_pub.msg_.transforms[0].transform.rotation.x = 0;
+					tf_pub.msg_.transforms[0].transform.rotation.y = 0;
+					tf_pub.msg_.transforms[0].transform.rotation.z = 0;
+					tf_pub.msg_.transforms[0].transform.rotation.w = 1;
+				} else {
+					tf_pub.msg_.transforms[0].transform.rotation.x = (rx/angle) * std::sin(angle*0.5);
+					tf_pub.msg_.transforms[0].transform.rotation.y = (ry/angle) * std::sin(angle*0.5);
+					tf_pub.msg_.transforms[0].transform.rotation.z = (rz/angle) * std::sin(angle*0.5);
+					tf_pub.msg_.transforms[0].transform.rotation.w = std::cos(angle*0.5);
+				}
+				tf_pub.msg_.transforms[0].transform.translation.x = tool_vector_actual[0];
+				tf_pub.msg_.transforms[0].transform.translation.y = tool_vector_actual[1];
+				tf_pub.msg_.transforms[0].transform.translation.z = tool_vector_actual[2];
+
+				tf_pub.unlockAndPublish();
+			}
+
+			//Publish tool velocity
+			std::vector<double> tcp_speed = robot_.rt_interface_->robot_state_->getTcpSpeedActual();
+
+			if( tool_vel_pub.trylock() )
+			{			
+				tool_vel_pub.msg_.header.stamp = ros_time;
+				tool_vel_pub.msg_.twist.linear.x = tcp_speed[0];
+				tool_vel_pub.msg_.twist.linear.y = tcp_speed[1];
+				tool_vel_pub.msg_.twist.linear.z = tcp_speed[2];
+				tool_vel_pub.msg_.twist.angular.x = tcp_speed[3];
+				tool_vel_pub.msg_.twist.angular.y = tcp_speed[4];
+				tool_vel_pub.msg_.twist.angular.z = tcp_speed[5];
+
+				tool_vel_pub.unlockAndPublish();
+			}
+
 		}
 	}
 
