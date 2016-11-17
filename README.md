@@ -52,8 +52,7 @@ If you want to test it in your current setup, just use the modified launch files
 ---
 If you would like to use the ros\_control-based approach, use the launch files urXX\_ros\_control.launch, where XX is '5' or '10' depending on your robot.
 
-The driver currently supports two position trajectory controllers; a position based and a velocity based. They are both loaded via the launch file, but only one of them can be running at the same time.
-You can switch controller by calling the appropriate service:
+The driver currently supports two position trajectory controllers; a position based and a velocity based. They are both loaded via the launch file, but only one of them can be running at the same time. By default the velocity based controller is started. You can switch controller by calling the appropriate service:
 ```
 rosservice call /universal_robot/controller_manager/switch_controller "start_controllers:
 - 'velocity_based_position_trajectory_controller'
@@ -70,7 +69,7 @@ The position based controller *should* stay closer to the commanded path, while 
 To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following 
 ```
 controller_list:
- - name: vel_based_pos_traj_controller #or pos_based_pos_traj_controller
+ - name: /velocity_based_position_trajectory_controller #or /position_based_position_trajectory_controller
    action_ns: follow_joint_trajectory
    type: FollowJointTrajectory
    default: true
