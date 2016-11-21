@@ -24,7 +24,7 @@ force_torque_sensor_controller:
 
 # Joint Trajectory Controller - position based -------------------------------
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
-pos_based_pos_traj_controller:
+position_based_position_trajectory_controller:
    type: position_controllers/JointTrajectoryController
    joints:
      - shoulder_pan_joint
@@ -52,7 +52,7 @@ pos_based_pos_traj_controller:
    
 # Joint Trajectory Controller - velocity based -------------------------------
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
-vel_based_pos_traj_controller:
+velocity_based_position_trajectory_controller:
    type: velocity_controllers/JointTrajectoryController
    joints:
      - shoulder_pan_joint
