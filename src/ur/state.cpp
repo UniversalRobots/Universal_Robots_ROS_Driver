@@ -6,13 +6,13 @@ bool RobotState::parse_with(BinParser &bp) {
     //continue as long as there are bytes to read
     while(bp.check_size(sizeof(uint8_t))) {
         if(!bp.check_size(sizeof(uint32_t))){
-            LOG_ERROR("Failed to read sub-package length, there's likely a parsing error\n");
+            LOG_ERROR("Failed to read sub-package length, there's likely a parsing error");
             return false;    
         }
 
         uint32_t sub_size = bp.peek<uint32_t>();
         if(!bp.check_size(static_cast<size_t>(sub_size))) {
-            LOG_WARN("Invalid sub-package size of %" PRIu32 " received!\n", sub_size);
+            LOG_WARN("Invalid sub-package size of %" PRIu32 " received!", sub_size);
             return false;
         }
         
@@ -48,7 +48,7 @@ bool RobotState_V1_6__7::parse_package(BinParser &bp) {
             //TODO
             break;
         default:
-            LOG_ERROR("Invalid package type parsed: %" PRIu8 "\n", type);
+            LOG_ERROR("Invalid package type parsed: %" PRIu8 "", type);
             return false;
     }
 

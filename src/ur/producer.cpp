@@ -29,7 +29,7 @@ std::unique_ptr<Packet> URProducer::try_get() {
         ssize_t len = _stream.receive(pos, size);
         
         if(len < 1) {
-            LOG_DEBUG("Read nothing from stream\n");
+            LOG_DEBUG("Read nothing from stream");
             return std::unique_ptr<Packet>(nullptr);
         }
 
@@ -40,13 +40,13 @@ std::unique_ptr<Packet> URProducer::try_get() {
             packet_size = bp.peek<int32_t>();
             //TODO: check other wrong packet sizes?
             if(packet_size > sizeof(buf)) {
-                LOG_ERROR("A packet with 'len' larger than buffer was received, discarding...\n");
+                LOG_ERROR("A packet with 'len' (%d) larger than buffer was received, discarding...", packet_size);
                 return std::unique_ptr<Packet>(nullptr);
             }
         }
 
         if(total < packet_size){
-            LOG_DEBUG("Partial packet recieved\n");
+            LOG_DEBUG("Partial packet recieved");
             continue;
         }
         return std::move(_parser.parse(bp));

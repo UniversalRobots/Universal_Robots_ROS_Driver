@@ -9,7 +9,7 @@ bool URStream::connect() {
     if(_initialized)
         return false;
 
-    LOG_INFO("Connecting to UR @ %s:%d\n", _host.c_str(), _port);
+    LOG_INFO("Connecting to UR @ %s:%d", _host.c_str(), _port);
 
     //gethostbyname() is deprecated so use getadderinfo() as described in:
     //http://www.beej.us/guide/bgnet/output/html/multipage/syscalls.html#getaddrinfo
@@ -23,7 +23,7 @@ bool URStream::connect() {
     hints.ai_flags = AI_PASSIVE;
 
     if(getaddrinfo(_host.c_str(), service.c_str(), &hints, &result) != 0) {
-        LOG_ERROR("Failed to get host name\n");   
+        LOG_ERROR("Failed to get host name");   
         return false;
     }
     
@@ -45,13 +45,13 @@ bool URStream::connect() {
         int flag = 1;
         setsockopt(_socket_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
         _initialized = true;
-        LOG_INFO("Connection successfully established\n");
+        LOG_INFO("Connection successfully established");
         break;
     }
 
     freeaddrinfo(result);
     if(!_initialized) 
-        LOG_ERROR("Connection failed\n");
+        LOG_ERROR("Connection failed");
 
     return _initialized;
 }
