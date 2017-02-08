@@ -1,9 +1,10 @@
 #pragma once
 
 #include <inttypes.h>
+#include <endian.h>
 #include <cstddef>
 #include <cstring>
-#include <string>
+#include <string>       
 #include "ur_modern_driver/types.h"
 
 class BinParser {
@@ -28,9 +29,41 @@ public:
         _parent._buf_pos = _buf_pos;
     }    
 
+
+    //Decode from network encoding (big endian) to host encoding
+    template<typename T>
+    T decode(T val) {
+        return val;
+    }
+    uint16_t decode(uint16_t val) {
+        return be16toh(val);
+    }
+    uint32_t decode(uint32_t val) {
+        return be32toh(val);
+    }
+    uint64_t decode(uint64_t val) {
+        return be64toh(val);
+    }
+    int16_t decode(int16_t val) {
+        return be16toh(val);
+    }
+    int32_t decode(int32_t val) {
+        return be32toh(val);
+    }
+    int64_t decode(int64_t val) {
+        return be64toh(val);
+    }
+    float decode(float val) {
+        return be32toh(val);
+    }
+    double decode(double val) {
+        return be64toh(val);
+    }
+    
+
     template<typename T>
     T peek() {
-        return *(reinterpret_cast<T*>(_buf_pos));
+        return decode(*(reinterpret_cast<T*>(_buf_pos)));
     }
 
     template<typename T>
@@ -74,8 +107,9 @@ public:
 
     template<typename T, size_t N>
     void parse(T (&array)[N]) {
-        std::memcpy(array, _buf_pos, sizeof(T)*N);
-        _buf_pos += (sizeof(T)*N);
+        for(size_t i = 0; i < N; i++) {
+            parse(array[i]);
+        }
     }
 
     void skip(size_t bytes) {
