@@ -40,8 +40,8 @@ bool MasterBoardData_V1_X::parse_with(BinParser &bp) {
     return true;
 }
 
-bool MasterBoardData_V3_X::parse_with(BinParser &bp) {
-    if(!bp.check_size<MasterBoardData_V3_X>())
+bool MasterBoardData_V3_0__1::parse_with(BinParser &bp) {
+    if(!bp.check_size<MasterBoardData_V3_0__1>())
         return false;
 
     bp.parse(digital_input_bits);
@@ -54,12 +54,28 @@ bool MasterBoardData_V3_X::parse_with(BinParser &bp) {
     bp.parse(euromap67_interface_installed);
 
     if(euromap67_interface_installed) {
-        if(!bp.check_size(MasterBoardData_V3_X::EURO_SIZE))
+        if(!bp.check_size(MasterBoardData_V3_0__1::EURO_SIZE))
             return false;
             
         bp.parse(euromap_voltage);
         bp.parse(euromap_current);
     }
+
+    bp.consume(sizeof(uint32_t));
+
+    return true;
+}
+
+
+
+bool MasterBoardData_V3_2::parse_with(BinParser &bp) {
+    if(!bp.check_size<MasterBoardData_V3_2>())
+        return false;
+
+    MasterBoardData_V3_0__1::parse_with(bp);
+
+    bp.parse(operational_mode_selector_input);
+    bp.parse(three_position_enabling_device_input);
 
     return true;
 }

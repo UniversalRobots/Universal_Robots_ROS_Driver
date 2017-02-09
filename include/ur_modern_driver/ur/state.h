@@ -37,7 +37,7 @@ protected:
 
 class RobotState_V1_6__7 : public RobotState {
 protected:
-    virtual bool parse_package(BinParser &bp) = 0;
+    bool parse_package(BinParser &bp);
 public:
     RobotModeData_V1_X robot_mode;
     //JointData
@@ -48,9 +48,44 @@ public:
 
 class RobotState_V1_8 : public RobotState_V1_6__7 {
 protected:
-    virtual bool parse_package(BinParser &bp) = 0;
+    bool parse_package(BinParser &bp);
 public:
     
+    //KinematicsInfo
+    //ConfigurationData
+    //ForceModeData
+    //AdditionalInfo
+    //CalibrationData
+};
+
+
+class RobotState_V3_0__1 : public RobotState {
+protected:
+    bool parse_package(BinParser &bp);
+public:
+    RobotModeData_V3_0__1 robot_mode;
+    //JointData
+    //ToolData
+    MasterBoardData_V3_0__1 master_board;
+    //CartesianInfo
+
+    //KinematicsInfo
+    //ConfigurationData
+    //ForceModeData
+    //AdditionalInfo
+    //CalibrationData
+};
+
+class RobotState_V3_2 : public RobotState {
+protected:
+    bool parse_package(BinParser &bp);
+public:
+    RobotModeData_V3_2 robot_mode;
+    //JointData
+    //ToolData
+    MasterBoardData_V3_2 master_board;
+    //CartesianInfo
+
     //KinematicsInfo
     //ConfigurationData
     //ForceModeData

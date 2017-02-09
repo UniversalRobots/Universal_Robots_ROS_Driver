@@ -21,6 +21,10 @@ public:
         _port(port),
         _initialized(false),
         _stopping(false) {}
+    
+    ~URStream() {
+        disconnect();
+    }
 
     bool connect();
     void disconnect();

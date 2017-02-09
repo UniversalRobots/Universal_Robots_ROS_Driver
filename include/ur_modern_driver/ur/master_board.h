@@ -60,7 +60,7 @@ public:
         + sizeof(int16_t) * 2;
 };
 
-class MasterBoardData_V3_X : public SharedMasterBoardData {
+class MasterBoardData_V3_0__1 : public SharedMasterBoardData {
 public:
     virtual bool parse_with(BinParser &bp);
 
@@ -77,8 +77,20 @@ public:
 
     static const size_t SIZE = SharedMasterBoardData::SIZE
         + sizeof(int32_t) * 2
-        + sizeof(uint8_t) * 2;
+        + sizeof(uint8_t) * 2
+        + sizeof(uint32_t); //UR internal field we skip
 
     static const size_t EURO_SIZE = SharedMasterBoardData::EURO_SIZE
         + sizeof(float) * 2;
+};
+
+class MasterBoardData_V3_2 : public MasterBoardData_V3_0__1 {
+public:
+    virtual bool parse_with(BinParser &bp);
+
+    uint8_t operational_mode_selector_input;
+    uint8_t three_position_enabling_device_input;
+
+    static const size_t SIZE = MasterBoardData_V3_0__1::SIZE
+        + sizeof(uint8_t) * 2;
 };

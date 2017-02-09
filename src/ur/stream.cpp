@@ -1,6 +1,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <netinet/tcp.h>
+#include <endian.h>
 
 #include "ur_modern_driver/ur/stream.h"
 #include "ur_modern_driver/log.h"
@@ -78,8 +79,8 @@ ssize_t URStream::send(uint8_t *buf, size_t buf_len) {
     //handle partial sends
     while(total < buf_len) {
         ssize_t sent = ::send(_socket_fd, buf+total, remaining, 0);
-        if(sent == -1) 
-            return _stopping ? 0 : -1;
+        if(sent <= 0) 
+            return _stopping ? 0 : sent;
         total += sent;
         remaining -= sent;
     }
@@ -88,6 +89,32 @@ ssize_t URStream::send(uint8_t *buf, size_t buf_len) {
 }
 
 ssize_t URStream::receive(uint8_t *buf, size_t buf_len) {
-    //TODO: handle reconnect?
-    return recv(_socket_fd, buf, buf_len, 0);
+    if(!_initialized)
+        return -1;
+    if(_stopping)
+        return 0;
+
+    size_t remainder = sizeof(int32_t);
+    uint8_t *buf_pos = buf;
+    bool initial = true;
+
+    do {
+        ssize_t read = recv(_socket_fd, buf_pos, remainder, 0);
+        if(read <= 0) //failed reading from socket
+            return _stopping ? 0 : read; 
+        
+        if(initial) {
+            remainder = be32toh(*(reinterpret_cast<int32_t*>(buf)));
+            if(remainder >= (buf_len - sizeof(int32_t))) {
+                LOG_ERROR("Packet size %d is larger than buffer %d, discarding.", remainder, buf_len);
+                return -1;
+            }
+            initial = false;
+        }
+
+        buf_pos += read;
+        remainder -= read;        
+    } while(remainder > 0);
+
+    return buf_pos - buf;
 }
