@@ -4,8 +4,10 @@
 #include <endian.h>
 #include <cstddef>
 #include <cstring>
-#include <string>       
+#include <string>
+#include <assert.h>
 #include "ur_modern_driver/types.h"
+#include "ur_modern_driver/log.h"
 
 class BinParser {
 private:
@@ -16,14 +18,16 @@ public:
     BinParser(uint8_t *buffer, size_t buf_len) :
         _buf_pos(buffer),
         _buf_end(buffer+buf_len),
-        _parent(*this)
-        { }
+        _parent(*this) { 
+            assert(_buf_pos <= _buf_end);
+        }
     
     BinParser(BinParser &parent, size_t sub_len) :
         _buf_pos(parent._buf_pos),
         _buf_end(parent._buf_pos+sub_len),
-        _parent(parent) 
-        { }
+        _parent(parent) { 
+            assert(_buf_pos <= _buf_end);
+        }
 
     ~BinParser() {
         _parent._buf_pos = _buf_pos;
@@ -63,6 +67,7 @@ public:
 
     template<typename T>
     T peek() {
+        assert(_buf_pos <= _buf_end);
         return decode(*(reinterpret_cast<T*>(_buf_pos)));
     }
 
@@ -93,8 +98,12 @@ public:
         parse(val.rotation);
     }
 
+    void parse_remainder(std::string &val) {
+        parse(val, size_t(_buf_end - _buf_pos));
+    }
+
     void parse(std::string &val, size_t len) {
-        val = val.assign(reinterpret_cast<char*>(_buf_pos), len);
+        val.assign(reinterpret_cast<char*>(_buf_pos), len);
         _buf_pos += len;
     }
 
@@ -112,7 +121,10 @@ public:
         }
     }
 
-    void skip(size_t bytes) {
+    void consume() {
+        _buf_pos = _buf_end;
+    }
+    void consume(size_t bytes) {
         _buf_pos += bytes;
     }
 
@@ -122,5 +134,13 @@ public:
     template<typename T>
     bool check_size(void) {
         return check_size(T::SIZE);
+    }
+
+    bool empty() {
+        return _buf_pos == _buf_end;
+    }
+
+    void debug() {
+        LOG_DEBUG("BinParser: %zx - %zx (%zu bytes)", _buf_pos, _buf_end, _buf_end - _buf_pos);
     }
 };
