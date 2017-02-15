@@ -141,6 +141,6 @@ public:
     }
 
     void debug() {
-        LOG_DEBUG("BinParser: %zx - %zx (%zu bytes)", _buf_pos, _buf_end, _buf_end - _buf_pos);
+        LOG_DEBUG("BinParser: %p - %p (%zu bytes)", _buf_pos, _buf_end, _buf_end - _buf_pos);
     }
 };
