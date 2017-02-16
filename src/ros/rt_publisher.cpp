@@ -1,17 +1,18 @@
 #include "ur_modern_driver/ros/rt_publisher.h"
 
-bool RTPublisher::publish_joints(RTShared &packet, ros::Time &t) {
-	sensor_msgs::JointState joint_msg;
+bool RTPublisher::publish_joints(RTShared& packet, ros::Time& t)
+{
+    sensor_msgs::JointState joint_msg;
     joint_msg.header.stamp = t;
     joint_msg.name = _joint_names;
 
-    for(auto const& q : packet.q_actual) {
+    for (auto const& q : packet.q_actual) {
         joint_msg.position.push_back(q);
     }
-    for(auto const& qd : packet.qd_actual) {
+    for (auto const& qd : packet.qd_actual) {
         joint_msg.velocity.push_back(qd);
     }
-    for(auto const& i : packet.i_actual) {
+    for (auto const& i : packet.i_actual) {
         joint_msg.effort.push_back(i);
     }
 
@@ -20,7 +21,8 @@ bool RTPublisher::publish_joints(RTShared &packet, ros::Time &t) {
     return true;
 }
 
-bool RTPublisher::publish_wrench(RTShared &packet, ros::Time &t) {
+bool RTPublisher::publish_wrench(RTShared& packet, ros::Time& t)
+{
     geometry_msgs::WrenchStamped wrench_msg;
     wrench_msg.header.stamp = t;
 
@@ -36,7 +38,8 @@ bool RTPublisher::publish_wrench(RTShared &packet, ros::Time &t) {
     return true;
 }
 
-bool RTPublisher::publish_tool(RTShared &packet, ros::Time &t) {
+bool RTPublisher::publish_tool(RTShared& packet, ros::Time& t)
+{
     geometry_msgs::TwistStamped tool_twist;
 
     tool_twist.header.stamp = t;
@@ -55,20 +58,25 @@ bool RTPublisher::publish_tool(RTShared &packet, ros::Time &t) {
     return true;
 }
 
-bool RTPublisher::publish(RTShared &packet) {
+bool RTPublisher::publish(RTShared& packet)
+{
     ros::Time time = ros::Time::now();
     return publish_joints(packet, time) && publish_wrench(packet, time) && publish_tool(packet, time);
 }
 
-bool RTPublisher::consume(RTState_V1_6__7 &state) {
+bool RTPublisher::consume(RTState_V1_6__7& state)
+{
     return publish(state);
 }
-bool RTPublisher::consume(RTState_V1_8 &state) {
+bool RTPublisher::consume(RTState_V1_8& state)
+{
     return publish(state);
 }
-bool RTPublisher::consume(RTState_V3_0__1 &state) {
+bool RTPublisher::consume(RTState_V3_0__1& state)
+{
     return publish(state);
 }
-bool RTPublisher::consume(RTState_V3_2__3 &state) {
+bool RTPublisher::consume(RTState_V3_2__3& state)
+{
     return publish(state);
 }

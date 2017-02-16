@@ -1,8 +1,8 @@
 #include "ur_modern_driver/ur/robot_mode.h"
 #include "ur_modern_driver/ur/consumer.h"
 
-
-bool SharedRobotModeData::parse_with(BinParser &bp) {
+bool SharedRobotModeData::parse_with(BinParser& bp)
+{
     bp.parse(timestamp);
     bp.parse(physical_robot_connected);
     bp.parse(real_robot_enabled);
@@ -11,9 +11,9 @@ bool SharedRobotModeData::parse_with(BinParser &bp) {
     return true;
 }
 
-
-bool RobotModeData_V1_X::parse_with(BinParser &bp) {
-    if(!bp.check_size<RobotModeData_V1_X>())
+bool RobotModeData_V1_X::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RobotModeData_V1_X>())
         return false;
 
     SharedRobotModeData::parse_with(bp);
@@ -27,13 +27,13 @@ bool RobotModeData_V1_X::parse_with(BinParser &bp) {
     return true;
 }
 
-
-bool RobotModeData_V3_0__1::parse_with(BinParser &bp) {
-    if(!bp.check_size<RobotModeData_V3_0__1>())
+bool RobotModeData_V3_0__1::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RobotModeData_V3_0__1>())
         return false;
 
     SharedRobotModeData::parse_with(bp);
-    
+
     bp.parse(protective_stopped);
     bp.parse(program_running);
     bp.parse(program_paused);
@@ -45,8 +45,9 @@ bool RobotModeData_V3_0__1::parse_with(BinParser &bp) {
     return true;
 }
 
-bool RobotModeData_V3_2::parse_with(BinParser &bp) {
-    if(!bp.check_size<RobotModeData_V3_2>())
+bool RobotModeData_V3_2::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RobotModeData_V3_2>())
         return false;
 
     RobotModeData_V3_0__1::parse_with(bp);
@@ -56,15 +57,15 @@ bool RobotModeData_V3_2::parse_with(BinParser &bp) {
     return true;
 }
 
-
-
-
-bool RobotModeData_V1_X::consume_with(URStatePacketConsumer &consumer) {
+bool RobotModeData_V1_X::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool RobotModeData_V3_0__1::consume_with(URStatePacketConsumer &consumer) {
+bool RobotModeData_V3_0__1::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool RobotModeData_V3_2::consume_with(URStatePacketConsumer &consumer) {
+bool RobotModeData_V3_2::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }

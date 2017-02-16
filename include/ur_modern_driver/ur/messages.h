@@ -1,30 +1,33 @@
 #pragma once
 
+#include "ur_modern_driver/bin_parser.h"
+#include "ur_modern_driver/pipeline.h"
 #include <cstddef>
 #include <inttypes.h>
-#include "ur_modern_driver/pipeline.h"
-#include "ur_modern_driver/bin_parser.h"
-
 
 enum class robot_message_type : uint8_t {
-	ROBOT_MESSAGE_TEXT = 0,
-	ROBOT_MESSAGE_PROGRAM_LABEL = 1,
-	PROGRAM_STATE_MESSAGE_VARIABLE_UPDATE = 2,
-	ROBOT_MESSAGE_VERSION = 3,
-	ROBOT_MESSAGE_SAFETY_MODE = 5,
-	ROBOT_MESSAGE_ERROR_CODE = 6,
-	ROBOT_MESSAGE_KEY = 7,
-	ROBOT_MESSAGE_REQUEST_VALUE = 9,
-	ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
+    ROBOT_MESSAGE_TEXT = 0,
+    ROBOT_MESSAGE_PROGRAM_LABEL = 1,
+    PROGRAM_STATE_MESSAGE_VARIABLE_UPDATE = 2,
+    ROBOT_MESSAGE_VERSION = 3,
+    ROBOT_MESSAGE_SAFETY_MODE = 5,
+    ROBOT_MESSAGE_ERROR_CODE = 6,
+    ROBOT_MESSAGE_KEY = 7,
+    ROBOT_MESSAGE_REQUEST_VALUE = 9,
+    ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
 };
 
 class URMessagePacketConsumer;
 
 class MessagePacket {
 public:
-    MessagePacket(uint64_t timestamp, uint8_t source) : timestamp(timestamp), source(source) { }
-    virtual bool parse_with(BinParser &bp) = 0;
-    virtual bool consume_with(URMessagePacketConsumer &consumer) = 0;
+    MessagePacket(uint64_t timestamp, uint8_t source)
+        : timestamp(timestamp)
+        , source(source)
+    {
+    }
+    virtual bool parse_with(BinParser& bp) = 0;
+    virtual bool consume_with(URMessagePacketConsumer& consumer) = 0;
 
     uint64_t timestamp;
     uint8_t source;
@@ -32,10 +35,13 @@ public:
 
 class VersionMessage : public MessagePacket {
 public:
-    VersionMessage(uint64_t timestamp, uint8_t source) : MessagePacket(timestamp, source) { }
-    
-    virtual bool parse_with(BinParser &bp);
-    virtual bool consume_with(URMessagePacketConsumer &consumer);
+    VersionMessage(uint64_t timestamp, uint8_t source)
+        : MessagePacket(timestamp, source)
+    {
+    }
+
+    virtual bool parse_with(BinParser& bp);
+    virtual bool consume_with(URMessagePacketConsumer& consumer);
 
     std::string project_name;
     uint8_t major_version;

@@ -1,23 +1,23 @@
 #pragma once
 
-#include <cstddef>
-#include <inttypes.h>
-#include "ur_modern_driver/types.h"
 #include "ur_modern_driver/bin_parser.h"
 #include "ur_modern_driver/pipeline.h"
+#include "ur_modern_driver/types.h"
+#include <cstddef>
+#include <inttypes.h>
 
 class URRTPacketConsumer;
 
 class RTPacket {
 public:
-    virtual bool parse_with(BinParser &bp) = 0;
-    virtual bool consume_with(URRTPacketConsumer &consumer) = 0;
+    virtual bool parse_with(BinParser& bp) = 0;
+    virtual bool consume_with(URRTPacketConsumer& consumer) = 0;
 };
 
 class RTShared {
 protected:
-    bool parse_shared1(BinParser &bp);
-    bool parse_shared2(BinParser &bp);
+    bool parse_shared1(BinParser& bp);
+    bool parse_shared2(BinParser& bp);
 
 public:
     double time;
@@ -43,18 +43,16 @@ public:
     double controller_time;
     double robot_mode;
 
-
-    static const size_t SIZE = sizeof(double) * 3 
+    static const size_t SIZE = sizeof(double) * 3
         + sizeof(double[6]) * 10
         + sizeof(cartesian_coord_t) * 2
         + sizeof(uint64_t);
-
 };
 
 class RTState_V1_6__7 : public RTShared, public RTPacket {
 public:
-    bool parse_with(BinParser &bp);
-    virtual bool consume_with(URRTPacketConsumer &consumer);
+    bool parse_with(BinParser& bp);
+    virtual bool consume_with(URRTPacketConsumer& consumer);
 
     double3_t tool_accelerometer_values;
 
@@ -66,8 +64,8 @@ public:
 
 class RTState_V1_8 : public RTState_V1_6__7 {
 public:
-    bool parse_with(BinParser &bp);
-    virtual bool consume_with(URRTPacketConsumer &consumer);
+    bool parse_with(BinParser& bp);
+    virtual bool consume_with(URRTPacketConsumer& consumer);
 
     double joint_modes[6];
 
@@ -79,13 +77,12 @@ public:
 
 class RTState_V3_0__1 : public RTShared, public RTPacket {
 public:
-    bool parse_with(BinParser &bp);
-    virtual bool consume_with(URRTPacketConsumer &consumer);
+    bool parse_with(BinParser& bp);
+    virtual bool consume_with(URRTPacketConsumer& consumer);
 
     double i_control[6];
     cartesian_coord_t tool_vector_target;
     cartesian_coord_t tcp_speed_target;
-
 
     double joint_modes[6];
     double safety_mode;
@@ -97,8 +94,7 @@ public:
     double i_robot;
     double v_actual[6];
 
-
-    static const size_t SIZE = RTShared::SIZE 
+    static const size_t SIZE = RTShared::SIZE
         + sizeof(double[6]) * 3
         + sizeof(double3_t)
         + sizeof(cartesian_coord_t) * 2
@@ -109,15 +105,15 @@ public:
 
 class RTState_V3_2__3 : public RTState_V3_0__1 {
 public:
-    bool parse_with(BinParser &bp);
-    virtual bool consume_with(URRTPacketConsumer &consumer);
+    bool parse_with(BinParser& bp);
+    virtual bool consume_with(URRTPacketConsumer& consumer);
 
     uint64_t digital_outputs;
     double program_state;
 
-    static const size_t SIZE = RTState_V3_0__1::SIZE 
+    static const size_t SIZE = RTState_V3_0__1::SIZE
         + sizeof(uint64_t)
         + sizeof(double);
 
-    static_assert(RTState_V3_2__3::SIZE == 936, "RTState_V3_2__3 has mismatched size!");  
+    static_assert(RTState_V3_2__3::SIZE == 936, "RTState_V3_2__3 has mismatched size!");
 };

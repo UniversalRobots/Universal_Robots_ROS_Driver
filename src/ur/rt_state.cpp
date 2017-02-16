@@ -1,8 +1,8 @@
 #include "ur_modern_driver/ur/rt_state.h"
 #include "ur_modern_driver/ur/consumer.h"
 
-
-bool RTShared::parse_shared1(BinParser &bp) {
+bool RTShared::parse_shared1(BinParser& bp)
+{
     bp.parse(time);
     bp.parse(q_target);
     bp.parse(qd_target);
@@ -15,7 +15,8 @@ bool RTShared::parse_shared1(BinParser &bp) {
     return true;
 }
 
-bool RTShared::parse_shared2(BinParser &bp) {
+bool RTShared::parse_shared2(BinParser& bp)
+{
     bp.parse(digital_input);
     bp.parse(motor_temperatures);
     bp.parse(controller_time);
@@ -23,13 +24,13 @@ bool RTShared::parse_shared2(BinParser &bp) {
     return true;
 }
 
-
-bool RTState_V1_6__7::parse_with(BinParser &bp) {
-    if(!bp.check_size<RTState_V1_6__7>())
+bool RTState_V1_6__7::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RTState_V1_6__7>())
         return false;
 
     parse_shared1(bp);
-    
+
     bp.parse(tool_accelerometer_values);
     bp.parse(tcp_force);
     bp.parse(tool_vector_actual);
@@ -40,8 +41,9 @@ bool RTState_V1_6__7::parse_with(BinParser &bp) {
     return true;
 }
 
-bool RTState_V1_8::parse_with(BinParser &bp) {
-    if(!bp.check_size<RTState_V1_8>())
+bool RTState_V1_8::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RTState_V1_8>())
         return false;
 
     RTState_V1_6__7::parse_with(bp);
@@ -51,8 +53,9 @@ bool RTState_V1_8::parse_with(BinParser &bp) {
     return true;
 }
 
-bool RTState_V3_0__1::parse_with(BinParser &bp) {
-    if(!bp.check_size<RTState_V3_0__1>())
+bool RTState_V3_0__1::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RTState_V3_0__1>())
         return false;
 
     parse_shared1(bp);
@@ -74,7 +77,7 @@ bool RTState_V3_0__1::parse_with(BinParser &bp) {
     bp.parse(speed_scaling);
     bp.parse(linear_momentum_norm);
     bp.consume(sizeof(double)); //skip undocumented
-    bp.consume(sizeof(double)); //skip undocumented    
+    bp.consume(sizeof(double)); //skip undocumented
     bp.parse(v_main);
     bp.parse(v_robot);
     bp.parse(i_robot);
@@ -83,8 +86,9 @@ bool RTState_V3_0__1::parse_with(BinParser &bp) {
     return true;
 }
 
-bool RTState_V3_2__3::parse_with(BinParser &bp) {
-    if(!bp.check_size<RTState_V3_2__3>())
+bool RTState_V3_2__3::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<RTState_V3_2__3>())
         return false;
 
     RTState_V3_0__1::parse_with(bp);
@@ -95,15 +99,19 @@ bool RTState_V3_2__3::parse_with(BinParser &bp) {
     return true;
 }
 
-bool RTState_V1_6__7::consume_with(URRTPacketConsumer &consumer) {
+bool RTState_V1_6__7::consume_with(URRTPacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool RTState_V1_8::consume_with(URRTPacketConsumer &consumer) {
+bool RTState_V1_8::consume_with(URRTPacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool RTState_V3_0__1::consume_with(URRTPacketConsumer &consumer) {
+bool RTState_V3_0__1::consume_with(URRTPacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool RTState_V3_2__3::consume_with(URRTPacketConsumer &consumer) {
+bool RTState_V3_2__3::consume_with(URRTPacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }

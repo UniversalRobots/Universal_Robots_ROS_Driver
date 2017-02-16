@@ -1,13 +1,14 @@
 #include <cstring>
-#include <unistd.h>
-#include <netinet/tcp.h>
 #include <endian.h>
+#include <netinet/tcp.h>
+#include <unistd.h>
 
-#include "ur_modern_driver/ur/stream.h"
 #include "ur_modern_driver/log.h"
+#include "ur_modern_driver/ur/stream.h"
 
-bool URStream::connect() {
-    if(_initialized)
+bool URStream::connect()
+{
+    if (_initialized)
         return false;
 
     LOG_INFO("Connecting to UR @ %s:%d", _host.c_str(), _port);
@@ -23,20 +24,20 @@ bool URStream::connect() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if(getaddrinfo(_host.c_str(), service.c_str(), &hints, &result) != 0) {
-        LOG_ERROR("Failed to get host name");   
+    if (getaddrinfo(_host.c_str(), service.c_str(), &hints, &result) != 0) {
+        LOG_ERROR("Failed to get host name");
         return false;
     }
-    
+
     //loop through the list of addresses untill we find one that's connectable
-    for(struct addrinfo *p = result; p != nullptr; p = p->ai_next) {
+    for (struct addrinfo* p = result; p != nullptr; p = p->ai_next) {
         _socket_fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 
-        if(_socket_fd == -1) //socket error?
+        if (_socket_fd == -1) //socket error?
             continue;
 
-        if(::connect(_socket_fd, p->ai_addr, p->ai_addrlen) != 0) {
-            if(_stopping)
+        if (::connect(_socket_fd, p->ai_addr, p->ai_addrlen) != 0) {
+            if (_stopping)
                 break;
             else
                 continue; //try next addrinfo if connect fails
@@ -51,14 +52,15 @@ bool URStream::connect() {
     }
 
     freeaddrinfo(result);
-    if(!_initialized) 
+    if (!_initialized)
         LOG_ERROR("Connection failed");
 
     return _initialized;
 }
 
-void URStream::disconnect() {
-    if(!_initialized || _stopping)
+void URStream::disconnect()
+{
+    if (!_initialized || _stopping)
         return;
 
     _stopping = true;
@@ -66,10 +68,11 @@ void URStream::disconnect() {
     _initialized = false;
 }
 
-ssize_t URStream::send(uint8_t *buf, size_t buf_len) {
-    if(!_initialized)
+ssize_t URStream::send(uint8_t* buf, size_t buf_len)
+{
+    if (!_initialized)
         return -1;
-    if(_stopping)
+    if (_stopping)
         return 0;
 
     size_t total = 0;
@@ -77,9 +80,9 @@ ssize_t URStream::send(uint8_t *buf, size_t buf_len) {
 
     //TODO: handle reconnect?
     //handle partial sends
-    while(total < buf_len) {
-        ssize_t sent = ::send(_socket_fd, buf+total, remaining, 0);
-        if(sent <= 0) 
+    while (total < buf_len) {
+        ssize_t sent = ::send(_socket_fd, buf + total, remaining, 0);
+        if (sent <= 0)
             return _stopping ? 0 : sent;
         total += sent;
         remaining -= sent;
@@ -88,24 +91,25 @@ ssize_t URStream::send(uint8_t *buf, size_t buf_len) {
     return total;
 }
 
-ssize_t URStream::receive(uint8_t *buf, size_t buf_len) {
-    if(!_initialized)
+ssize_t URStream::receive(uint8_t* buf, size_t buf_len)
+{
+    if (!_initialized)
         return -1;
-    if(_stopping)
+    if (_stopping)
         return 0;
 
     size_t remainder = sizeof(int32_t);
-    uint8_t *buf_pos = buf;
+    uint8_t* buf_pos = buf;
     bool initial = true;
 
     do {
         ssize_t read = recv(_socket_fd, buf_pos, remainder, 0);
-        if(read <= 0) //failed reading from socket
-            return _stopping ? 0 : read; 
-        
-        if(initial) {
+        if (read <= 0) //failed reading from socket
+            return _stopping ? 0 : read;
+
+        if (initial) {
             remainder = be32toh(*(reinterpret_cast<int32_t*>(buf)));
-            if(remainder >= (buf_len - sizeof(int32_t))) {
+            if (remainder >= (buf_len - sizeof(int32_t))) {
                 LOG_ERROR("Packet size %d is larger than buffer %d, discarding.", remainder, buf_len);
                 return -1;
             }
@@ -113,8 +117,8 @@ ssize_t URStream::receive(uint8_t *buf, size_t buf_len) {
         }
 
         buf_pos += read;
-        remainder -= read;        
-    } while(remainder > 0);
+        remainder -= read;
+    } while (remainder > 0);
 
     return buf_pos - buf;
 }

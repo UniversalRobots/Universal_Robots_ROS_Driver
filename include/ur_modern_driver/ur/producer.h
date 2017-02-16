@@ -1,30 +1,36 @@
 #pragma once
 #include "ur_modern_driver/pipeline.h"
-#include "ur_modern_driver/ur/stream.h"
 #include "ur_modern_driver/ur/parser.h"
+#include "ur_modern_driver/ur/stream.h"
 
 template <typename T>
 class URProducer : public IProducer<T> {
 private:
-    URStream &_stream;
-    URParser<T> &_parser;
+    URStream& _stream;
+    URParser<T>& _parser;
 
 public:
-    URProducer(URStream &stream, URParser<T> &parser) 
-        : _stream(stream), 
-        _parser(parser) { }
-    
-    void setup_producer() {
+    URProducer(URStream& stream, URParser<T>& parser)
+        : _stream(stream)
+        , _parser(parser)
+    {
+    }
+
+    void setup_producer()
+    {
         _stream.connect();
     }
-    void teardown_producer() {
+    void teardown_producer()
+    {
         _stream.disconnect();
     }
-    void stop_producer() {
+    void stop_producer()
+    {
         _stream.disconnect();
     }
-    
-    bool try_get(std::vector<unique_ptr<T>> &products) {
+
+    bool try_get(std::vector<unique_ptr<T> >& products)
+    {
         //4KB should be enough to hold any packet received from UR
         uint8_t buf[4096];
 
@@ -33,7 +39,7 @@ public:
 
         //LOG_DEBUG("Read %d bytes from stream", len);
 
-        if(len < 1) {
+        if (len < 1) {
             LOG_WARN("Read nothing from stream");
             return false;
         }

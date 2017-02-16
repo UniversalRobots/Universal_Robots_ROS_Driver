@@ -1,14 +1,14 @@
 #pragma once
 
+#include "ur_modern_driver/bin_parser.h"
+#include "ur_modern_driver/types.h"
+#include "ur_modern_driver/ur/state.h"
 #include <cstddef>
 #include <inttypes.h>
-#include "ur_modern_driver/types.h"
-#include "ur_modern_driver/bin_parser.h"
-#include "ur_modern_driver/ur/state.h"
 
 class SharedRobotModeData {
 public:
-    virtual bool parse_with(BinParser &bp);
+    virtual bool parse_with(BinParser& bp);
 
     uint64_t timestamp;
     bool physical_robot_connected;
@@ -23,31 +23,30 @@ public:
 
 enum class robot_mode_V1_X : uint8_t {
     ROBOT_RUNNING_MODE = 0,
-	ROBOT_FREEDRIVE_MODE = 1,
-	ROBOT_READY_MODE = 2,
-	ROBOT_INITIALIZING_MODE = 3,
-	ROBOT_SECURITY_STOPPED_MODE = 4,
-	ROBOT_EMERGENCY_STOPPED_MODE = 5,
-	ROBOT_FATAL_ERROR_MODE = 6,
-	ROBOT_NO_POWER_MODE = 7,
-	ROBOT_NOT_CONNECTED_MODE = 8,
-	ROBOT_SHUTDOWN_MODE = 9,
-	ROBOT_SAFEGUARD_STOP_MODE = 10
+    ROBOT_FREEDRIVE_MODE = 1,
+    ROBOT_READY_MODE = 2,
+    ROBOT_INITIALIZING_MODE = 3,
+    ROBOT_SECURITY_STOPPED_MODE = 4,
+    ROBOT_EMERGENCY_STOPPED_MODE = 5,
+    ROBOT_FATAL_ERROR_MODE = 6,
+    ROBOT_NO_POWER_MODE = 7,
+    ROBOT_NOT_CONNECTED_MODE = 8,
+    ROBOT_SHUTDOWN_MODE = 9,
+    ROBOT_SAFEGUARD_STOP_MODE = 10
 };
 
 class RobotModeData_V1_X : public SharedRobotModeData, public StatePacket {
 public:
-    virtual bool parse_with(BinParser &bp);
-    virtual bool consume_with(URStatePacketConsumer &consumer);
-
+    virtual bool parse_with(BinParser& bp);
+    virtual bool consume_with(URStatePacketConsumer& consumer);
 
     bool security_stopped;
     robot_mode_V1_X robot_mode;
     double speed_fraction;
 
-    static const size_t SIZE = SharedRobotModeData::SIZE 
+    static const size_t SIZE = SharedRobotModeData::SIZE
         + sizeof(uint8_t)
-        + sizeof(robot_mode_V1_X) 
+        + sizeof(robot_mode_V1_X)
         + sizeof(double);
 
     static_assert(RobotModeData_V1_X::SIZE == 24, "RobotModeData_V1_X has missmatched size");
@@ -55,14 +54,14 @@ public:
 
 enum class robot_mode_V3_X : uint8_t {
     DISCONNECTED = 0,
-	CONFIRM_SAFETY = 1,
-	BOOTING = 2,
-	POWER_OFF = 3,
-	POWER_ON = 4,
-	IDLE = 5,
-	BACKDRIVE = 6,
-	RUNNING = 7,
-	UPDATING_FIRMWARE = 8
+    CONFIRM_SAFETY = 1,
+    BOOTING = 2,
+    POWER_OFF = 3,
+    POWER_ON = 4,
+    IDLE = 5,
+    BACKDRIVE = 6,
+    RUNNING = 7,
+    UPDATING_FIRMWARE = 8
 };
 
 enum class robot_control_mode_V3_X : uint8_t {
@@ -74,9 +73,8 @@ enum class robot_control_mode_V3_X : uint8_t {
 
 class RobotModeData_V3_0__1 : public SharedRobotModeData, public StatePacket {
 public:
-    virtual bool parse_with(BinParser &bp);
-    virtual bool consume_with(URStatePacketConsumer &consumer);
-
+    virtual bool parse_with(BinParser& bp);
+    virtual bool consume_with(URStatePacketConsumer& consumer);
 
     bool protective_stopped;
 
@@ -85,10 +83,10 @@ public:
 
     double target_speed_fraction;
     double speed_scaling;
-    
-    static const size_t SIZE = SharedRobotModeData::SIZE 
-        + sizeof(uint8_t) 
-        + sizeof(robot_mode_V3_X) 
+
+    static const size_t SIZE = SharedRobotModeData::SIZE
+        + sizeof(uint8_t)
+        + sizeof(robot_mode_V3_X)
         + sizeof(robot_control_mode_V3_X)
         + sizeof(double)
         + sizeof(double);
@@ -98,14 +96,13 @@ public:
 
 class RobotModeData_V3_2 : public RobotModeData_V3_0__1 {
 public:
-    virtual bool parse_with(BinParser &bp);
-    virtual bool consume_with(URStatePacketConsumer &consumer);
-
+    virtual bool parse_with(BinParser& bp);
+    virtual bool consume_with(URStatePacketConsumer& consumer);
 
     double target_speed_fraction_limit;
 
     static const size_t SIZE = RobotModeData_V3_0__1::SIZE
         + sizeof(double);
 
-    static_assert(RobotModeData_V3_2::SIZE == 41, "RobotModeData_V3_2 has missmatched size");        
+    static_assert(RobotModeData_V3_2::SIZE == 41, "RobotModeData_V3_2 has missmatched size");
 };

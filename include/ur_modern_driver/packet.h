@@ -3,5 +3,5 @@
 
 class Packet {
 public:
-    virtual bool parse_with(BinParser &bp) = 0;
+    virtual bool parse_with(BinParser& bp) = 0;
 };

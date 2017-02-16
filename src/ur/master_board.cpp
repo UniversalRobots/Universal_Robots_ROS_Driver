@@ -1,11 +1,12 @@
 #include "ur_modern_driver/ur/master_board.h"
 #include "ur_modern_driver/ur/consumer.h"
 
-bool SharedMasterBoardData::parse_with(BinParser &bp) {
+bool SharedMasterBoardData::parse_with(BinParser& bp)
+{
     bp.parse(analog_input_range0);
     bp.parse(analog_input_range1);
     bp.parse(analog_input0);
-    bp.parse(analog_input1);    
+    bp.parse(analog_input1);
     bp.parse(analog_output_domain0);
     bp.parse(analog_output_domain1);
     bp.parse(analog_output0);
@@ -17,8 +18,9 @@ bool SharedMasterBoardData::parse_with(BinParser &bp) {
     return true;
 }
 
-bool MasterBoardData_V1_X::parse_with(BinParser &bp) {
-    if(!bp.check_size<MasterBoardData_V1_X>())
+bool MasterBoardData_V1_X::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<MasterBoardData_V1_X>())
         return false;
 
     bp.parse(digital_input_bits);
@@ -30,8 +32,8 @@ bool MasterBoardData_V1_X::parse_with(BinParser &bp) {
     bp.parse(master_on_off_state);
     bp.parse(euromap67_interface_installed);
 
-    if(euromap67_interface_installed) {
-        if(!bp.check_size(MasterBoardData_V1_X::EURO_SIZE))
+    if (euromap67_interface_installed) {
+        if (!bp.check_size(MasterBoardData_V1_X::EURO_SIZE))
             return false;
 
         bp.parse(euromap_voltage);
@@ -41,23 +43,24 @@ bool MasterBoardData_V1_X::parse_with(BinParser &bp) {
     return true;
 }
 
-bool MasterBoardData_V3_0__1::parse_with(BinParser &bp) {
-    if(!bp.check_size<MasterBoardData_V3_0__1>())
+bool MasterBoardData_V3_0__1::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<MasterBoardData_V3_0__1>())
         return false;
 
     bp.parse(digital_input_bits);
     bp.parse(digital_output_bits);
-    
+
     SharedMasterBoardData::parse_with(bp);
 
     bp.parse(safety_mode);
     bp.parse(in_reduced_mode);
     bp.parse(euromap67_interface_installed);
 
-    if(euromap67_interface_installed) {
-        if(!bp.check_size(MasterBoardData_V3_0__1::EURO_SIZE))
+    if (euromap67_interface_installed) {
+        if (!bp.check_size(MasterBoardData_V3_0__1::EURO_SIZE))
             return false;
-            
+
         bp.parse(euromap_voltage);
         bp.parse(euromap_current);
     }
@@ -67,10 +70,9 @@ bool MasterBoardData_V3_0__1::parse_with(BinParser &bp) {
     return true;
 }
 
-
-
-bool MasterBoardData_V3_2::parse_with(BinParser &bp) {
-    if(!bp.check_size<MasterBoardData_V3_2>())
+bool MasterBoardData_V3_2::parse_with(BinParser& bp)
+{
+    if (!bp.check_size<MasterBoardData_V3_2>())
         return false;
 
     MasterBoardData_V3_0__1::parse_with(bp);
@@ -81,16 +83,15 @@ bool MasterBoardData_V3_2::parse_with(BinParser &bp) {
     return true;
 }
 
-
-
-
-
-bool MasterBoardData_V1_X::consume_with(URStatePacketConsumer &consumer) {
+bool MasterBoardData_V1_X::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool MasterBoardData_V3_0__1::consume_with(URStatePacketConsumer &consumer) {
+bool MasterBoardData_V3_0__1::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }
-bool MasterBoardData_V3_2::consume_with(URStatePacketConsumer &consumer) {
+bool MasterBoardData_V3_2::consume_with(URStatePacketConsumer& consumer)
+{
     return consumer.consume(*this);
 }

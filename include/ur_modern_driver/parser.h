@@ -4,5 +4,5 @@
 
 class Parser {
 public:
-    virtual std::unique_ptr<Packet> parse(BinParser &bp) = 0;
+    virtual std::unique_ptr<Packet> parse(BinParser& bp) = 0;
 };

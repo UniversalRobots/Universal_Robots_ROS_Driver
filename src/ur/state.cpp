@@ -1,7 +1,5 @@
-#include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/state.h"
-
-
+#include "ur_modern_driver/log.h"
 
 //StatePacket::~StatePacket() { }
 
