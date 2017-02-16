@@ -16,18 +16,9 @@ public:
     {
     }
 
-    void setup_producer()
-    {
-        _stream.connect();
-    }
-    void teardown_producer()
-    {
-        _stream.disconnect();
-    }
-    void stop_producer()
-    {
-        _stream.disconnect();
-    }
+    void setup_producer() { _stream.connect(); }
+    void teardown_producer() { _stream.disconnect(); }
+    void stop_producer() { _stream.disconnect(); }
 
     bool try_get(std::vector<unique_ptr<T> >& products)
     {
@@ -39,8 +30,11 @@ public:
 
         //LOG_DEBUG("Read %d bytes from stream", len);
 
-        if (len < 1) {
+        if (len == 0) {
             LOG_WARN("Read nothing from stream");
+            return false;
+        } else if (len < 0) {
+            LOG_WARN("Stream closed");
             return false;
         }
 
