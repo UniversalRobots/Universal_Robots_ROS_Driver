@@ -47,7 +47,6 @@ bool parse_args(ProgArgs& args)
 
 int main(int argc, char** argv)
 {
-
     ros::init(argc, argv, "ur_driver");
 
     ProgArgs args;
@@ -56,28 +55,11 @@ int main(int argc, char** argv)
     }
 
     URFactory factory(args.host);
-
     auto parser = factory.get_rt_parser();
 
     URStream s2(args.host, 30003);
     URProducer<RTPacket> p2(s2, *parser);
-
-    /*
-	p2.setup_producer();
-	
-	while(true) {
-		std::vector<unique_ptr<IConsumable<URRTPacketConsumer>>> products;
-		p2.try_get(products);
-		for(auto const& p : products) {
-			LOG_INFO("Got packet! %x", p.get());
-		}
-		products.clear();
-	}
-
-	p2.teardown_producer();
-	*/
-
-    RTPublisher pub(args.prefix, args.base_frame);
+    RTPublisher pub(args.prefix, args.base_frame, args.tool_frame);
 
     Pipeline<RTPacket> pl(p2, pub);
 
