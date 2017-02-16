@@ -63,6 +63,8 @@ void URStream::disconnect()
     if (!_initialized || _stopping)
         return;
 
+    LOG_INFO("Disconnecting from %s:%d", _host.c_str(), _port);
+
     _stopping = true;
     close(_socket_fd);
     _initialized = false;
