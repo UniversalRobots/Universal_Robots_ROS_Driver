@@ -33,6 +33,9 @@ public:
     //gap here depending on version
 
     double tcp_force[6];
+
+    //does not contain "_actual" postfix in V11_X but
+    //they're the same fields so share anyway
     cartesian_coord_t tool_vector_actual;
     cartesian_coord_t tcp_speed_actual;
 
