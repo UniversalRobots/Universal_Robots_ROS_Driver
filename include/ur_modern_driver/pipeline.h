@@ -49,7 +49,7 @@ private:
 
             for (auto& p : products) {
                 if (!_queue.try_enqueue(std::move(p))) {
-                    LOG_WARN("Pipeline owerflowed!");
+                    LOG_ERROR("Pipeline owerflowed!");
                 }
             }
 
@@ -57,6 +57,7 @@ private:
         }
         _producer.teardown_producer();
         //todo cleanup
+        LOG_DEBUG("Pipline producer ended");
     }
 
     void run_consumer()
@@ -64,12 +65,18 @@ private:
         _consumer.setup_consumer();
         unique_ptr<T> product;
         while (_running) {
-            _queue.wait_dequeue(product);
+            // 16000us timeout was chosen because we should
+            // roughly recieve messages at 125hz which is every
+            // 8ms == 8000us and double it for some error margin
+            if (!_queue.wait_dequeue_timed(product, 16000)) {
+                continue;
+            }
             if (!_consumer.consume(std::move(product)))
                 break;
         }
         _consumer.teardown_consumer();
         //todo cleanup
+        LOG_DEBUG("Pipline consumer ended");
     }
 
 public:
@@ -95,6 +102,8 @@ public:
     {
         if (!_running)
             return;
+
+        LOG_DEBUG("Stopping pipeline");
 
         _consumer.stop_consumer();
         _producer.stop_producer();
