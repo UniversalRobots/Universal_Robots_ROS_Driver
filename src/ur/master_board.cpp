@@ -1,4 +1,5 @@
 #include "ur_modern_driver/ur/master_board.h"
+#include "ur_modern_driver/ur/consumer.h"
 
 bool SharedMasterBoardData::parse_with(BinParser &bp) {
     bp.parse(analog_input_range0);
@@ -80,3 +81,16 @@ bool MasterBoardData_V3_2::parse_with(BinParser &bp) {
     return true;
 }
 
+
+
+
+
+bool MasterBoardData_V1_X::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
+}
+bool MasterBoardData_V3_0__1::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
+}
+bool MasterBoardData_V3_2::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
+}

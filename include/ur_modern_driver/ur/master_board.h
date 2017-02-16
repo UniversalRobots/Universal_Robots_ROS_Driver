@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include "ur_modern_driver/types.h"
 #include "ur_modern_driver/bin_parser.h"
+#include "ur_modern_driver/ur/state.h"
 
 
 class SharedMasterBoardData {
@@ -37,9 +38,10 @@ public:
     static const size_t EURO_SIZE = sizeof(int32_t) * 2;
 };
 
-class MasterBoardData_V1_X : public SharedMasterBoardData {
+class MasterBoardData_V1_X : public SharedMasterBoardData, public StatePacket {
 public:
     virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
 
     int16_t digital_input_bits;
     int16_t digital_output_bits;
@@ -60,9 +62,10 @@ public:
         + sizeof(int16_t) * 2;
 };
 
-class MasterBoardData_V3_0__1 : public SharedMasterBoardData {
+class MasterBoardData_V3_0__1 : public SharedMasterBoardData, public StatePacket {
 public:
     virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
 
     int32_t digital_input_bits;
     int32_t digital_output_bits;
@@ -87,6 +90,7 @@ public:
 class MasterBoardData_V3_2 : public MasterBoardData_V3_0__1 {
 public:
     virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
 
     uint8_t operational_mode_selector_input;
     uint8_t three_position_enabling_device_input;

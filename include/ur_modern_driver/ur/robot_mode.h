@@ -4,10 +4,11 @@
 #include <inttypes.h>
 #include "ur_modern_driver/types.h"
 #include "ur_modern_driver/bin_parser.h"
+#include "ur_modern_driver/ur/state.h"
 
 class SharedRobotModeData {
 public:
-    bool parse_with(BinParser &bp);
+    virtual bool parse_with(BinParser &bp);
 
     uint64_t timestamp;
     bool physical_robot_connected;
@@ -34,9 +35,11 @@ enum class robot_mode_V1_X : uint8_t {
 	ROBOT_SAFEGUARD_STOP_MODE = 10
 };
 
-class RobotModeData_V1_X : public SharedRobotModeData {
+class RobotModeData_V1_X : public SharedRobotModeData, public StatePacket {
 public:
-    bool parse_with(BinParser &bp);
+    virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
+
 
     bool security_stopped;
     robot_mode_V1_X robot_mode;
@@ -69,9 +72,11 @@ enum class robot_control_mode_V3_X : uint8_t {
     TORQUE = 3
 };
 
-class RobotModeData_V3_0__1 : public SharedRobotModeData {
+class RobotModeData_V3_0__1 : public SharedRobotModeData, public StatePacket {
 public:
-    bool parse_with(BinParser &bp);
+    virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
+
 
     bool protective_stopped;
 
@@ -93,7 +98,9 @@ public:
 
 class RobotModeData_V3_2 : public RobotModeData_V3_0__1 {
 public:
-    bool parse_with(BinParser &bp);
+    virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URStatePacketConsumer &consumer);
+
 
     double target_speed_fraction_limit;
 

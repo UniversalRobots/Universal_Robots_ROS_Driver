@@ -1,4 +1,5 @@
 #include "ur_modern_driver/ur/robot_mode.h"
+#include "ur_modern_driver/ur/consumer.h"
 
 
 bool SharedRobotModeData::parse_with(BinParser &bp) {
@@ -53,4 +54,17 @@ bool RobotModeData_V3_2::parse_with(BinParser &bp) {
     bp.parse(target_speed_fraction_limit);
 
     return true;
+}
+
+
+
+
+bool RobotModeData_V1_X::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
+}
+bool RobotModeData_V3_0__1::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
+}
+bool RobotModeData_V3_2::consume_with(URStatePacketConsumer &consumer) {
+    return consumer.consume(*this);
 }

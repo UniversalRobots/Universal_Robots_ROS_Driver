@@ -2,6 +2,8 @@
 
 #include <thread>
 #include <atomic>
+#include <vector>
+#include "ur_modern_driver/log.h"
 #include "ur_modern_driver/queue/readerwriterqueue.h"
 
 using namespace moodycamel; 
@@ -9,22 +11,25 @@ using namespace std;
 
 
 template <typename T>
-class IProducer {
+class IConsumer {
 public:
-    virtual void setup_producer() = 0;
-    virtual void teardown_producer() = 0;
-    virtual void stop_producer() = 0;
-    virtual unique_ptr<T> try_get() = 0;
+    virtual void setup_consumer() { }
+    virtual void teardown_consumer() { }
+    virtual void stop_consumer() { }
+
+    virtual bool consume(unique_ptr<T> product) = 0;
 };
 
 template <typename T>
-class IConsumer {
+class IProducer {
 public:
-    virtual void setup_consumer() = 0;
-    virtual void teardown_consumer() = 0;
-    virtual void stop_consumer() = 0;
-    virtual bool push(unique_ptr<T> product) = 0;
+    virtual void setup_producer() { }
+    virtual void teardown_producer() { }
+    virtual void stop_producer() { }
+
+    virtual bool try_get(std::vector<unique_ptr<T>> &products) = 0;
 };
+
 
 template <typename T>
 class Pipeline {
@@ -37,15 +42,19 @@ private:
 
     void run_producer() {
         _producer.setup_producer();
+        std::vector<unique_ptr<T>> products;
         while(_running) {
-            unique_ptr<T> product(_producer.try_get());
-            
-            if(product == nullptr)
+            if(!_producer.try_get(products)) {
                 break;
-
-            if(!_queue.try_enqueue(std::move(product))) {
-                //log dropped product
             }
+            
+            for(auto &p : products) {
+                if(!_queue.try_enqueue(std::move(p))) {
+                    LOG_WARN("Pipeline owerflowed!");
+                }
+            }
+
+            products.clear();
         }
         _producer.teardown_producer();
         //todo cleanup
@@ -53,10 +62,10 @@ private:
 
     void run_consumer() {
         _consumer.setup_consumer();
+        unique_ptr<T> product;
         while(_running) {
-            unique_ptr<T> product;
             _queue.wait_dequeue(product);
-            if(!_consumer.push(std::move(product))) 
+            if(!_consumer.consume(std::move(product))) 
                 break;
         }
         _consumer.teardown_consumer();
@@ -85,6 +94,8 @@ public:
         
         _consumer.stop_consumer();
         _producer.stop_producer();
+
+        _running = false;
 
         _pThread.join();
         _cThread.join();

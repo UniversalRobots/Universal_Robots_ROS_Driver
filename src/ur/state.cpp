@@ -2,6 +2,10 @@
 #include "ur_modern_driver/ur/state.h"
 
 
+
+//StatePacket::~StatePacket() { }
+
+/*
 bool RobotState::parse_with(BinParser &bp) {
     //continue as long as there are bytes to read
     while(!bp.empty()) {
@@ -110,3 +114,4 @@ bool RobotState_V3_0__1::parse_package(BinParser &bp) {
 bool RobotState_V3_2::parse_package(BinParser &bp) {
     return parse_advanced(bp, *this);
 }
+*/

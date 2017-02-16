@@ -1,7 +1,10 @@
 #pragma once
+
 #include <cstddef>
 #include <inttypes.h>
-#include "ur_modern_driver/packet.h"
+#include "ur_modern_driver/pipeline.h"
+#include "ur_modern_driver/bin_parser.h"
+
 
 enum class robot_message_type : uint8_t {
 	ROBOT_MESSAGE_TEXT = 0,
@@ -15,17 +18,24 @@ enum class robot_message_type : uint8_t {
 	ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
 };
 
-class MessageBase : public Packet {
+class URMessagePacketConsumer;
+
+class MessagePacket {
 public:
+    MessagePacket(uint64_t timestamp, uint8_t source) : timestamp(timestamp), source(source) { }
     virtual bool parse_with(BinParser &bp) = 0;
+    virtual bool consume_with(URMessagePacketConsumer &consumer) = 0;
 
     uint64_t timestamp;
     uint8_t source;
 };
 
-class VersionMessage : public MessageBase {
+class VersionMessage : public MessagePacket {
 public:
-    bool parse_with(BinParser &bp);
+    VersionMessage(uint64_t timestamp, uint8_t source) : MessagePacket(timestamp, source) { }
+    
+    virtual bool parse_with(BinParser &bp);
+    virtual bool consume_with(URMessagePacketConsumer &consumer);
 
     std::string project_name;
     uint8_t major_version;
