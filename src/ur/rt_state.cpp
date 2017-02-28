@@ -20,6 +20,7 @@ bool RTShared::parse_shared2(BinParser& bp)
     bp.parse(digital_input);
     bp.parse(motor_temperatures);
     bp.parse(controller_time);
+    bp.consume(sizeof(double)); //Unused "Test value" field
     bp.parse(robot_mode);
     return true;
 }
