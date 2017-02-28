@@ -112,7 +112,7 @@ ssize_t URStream::receive(uint8_t* buf, size_t buf_len)
         if (initial) {
             remainder = be32toh(*(reinterpret_cast<int32_t*>(buf)));
             if (remainder >= (buf_len - sizeof(int32_t))) {
-                LOG_ERROR("Packet size %d is larger than buffer %d, discarding.", remainder, buf_len);
+                LOG_ERROR("Packet size %zd is larger than buffer %zu, discarding.", remainder, buf_len);
                 return -1;
             }
             initial = false;
