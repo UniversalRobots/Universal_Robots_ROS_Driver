@@ -66,20 +66,14 @@ public:
     {
         return be64toh(val);
     }
-    float decode(float val)
-    {
-        return be32toh(val);
-    }
-    double decode(double val)
-    {
-        return be64toh(val);
-    }
 
     template <typename T>
     T peek()
     {
         assert(_buf_pos <= _buf_end);
-        return decode(*(reinterpret_cast<T*>(_buf_pos)));
+        T val;
+        std::memcpy(&val, _buf_pos, sizeof(T));
+        return decode(val);
     }
 
     template <typename T>
@@ -87,6 +81,19 @@ public:
     {
         val = peek<T>();
         _buf_pos += sizeof(T);
+    }
+
+    void parse(double& val)
+    {
+        uint64_t inner;
+        parse<uint64_t>(inner);
+        std::memcpy(&val, &inner, sizeof(double));
+    }
+    void parse(float& val)
+    {
+        uint32_t inner;
+        parse<uint32_t>(inner);
+        std::memcpy(&val, &inner, sizeof(float));
     }
 
     // UR uses 1 byte for boolean values but sizeof(bool) is implementation
