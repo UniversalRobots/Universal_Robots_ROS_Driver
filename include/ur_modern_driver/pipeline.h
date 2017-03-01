@@ -49,15 +49,15 @@ private:
 
             for (auto& p : products) {
                 if (!_queue.try_enqueue(std::move(p))) {
-                    LOG_ERROR("Pipeline owerflowed!");
+                    LOG_ERROR("Pipeline producer owerflowed!");
                 }
             }
 
             products.clear();
         }
         _producer.teardown_producer();
-        //todo cleanup
         LOG_DEBUG("Pipline producer ended");
+        _consumer.stop_consumer();
     }
 
     void run_consumer()
@@ -75,8 +75,8 @@ private:
                 break;
         }
         _consumer.teardown_consumer();
-        //todo cleanup
         LOG_DEBUG("Pipline consumer ended");
+        _producer.stop_producer();
     }
 
 public:
