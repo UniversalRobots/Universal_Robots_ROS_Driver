@@ -16,8 +16,8 @@ public:
 
 class RTShared {
 protected:
-    bool parse_shared1(BinParser& bp);
-    bool parse_shared2(BinParser& bp);
+    void parse_shared1(BinParser& bp);
+    void parse_shared2(BinParser& bp);
 
 public:
     double time;
@@ -34,14 +34,14 @@ public:
 
     double tcp_force[6];
 
-    //does not contain "_actual" postfix in V11_X but
+    //does not contain "_actual" postfix in V1_X but
     //they're the same fields so share anyway
     cartesian_coord_t tool_vector_actual;
     cartesian_coord_t tcp_speed_actual;
 
     //gap here depending on version
 
-    uint64_t digital_input;
+    uint64_t digital_inputs;
     double motor_temperatures[6];
     double controller_time;
     double robot_mode;

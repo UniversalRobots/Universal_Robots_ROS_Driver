@@ -1,7 +1,7 @@
 #include "ur_modern_driver/ur/rt_state.h"
 #include "ur_modern_driver/ur/consumer.h"
 
-bool RTShared::parse_shared1(BinParser& bp)
+void RTShared::parse_shared1(BinParser& bp)
 {
     bp.parse(time);
     bp.parse(q_target);
@@ -12,17 +12,15 @@ bool RTShared::parse_shared1(BinParser& bp)
     bp.parse(q_actual);
     bp.parse(qd_actual);
     bp.parse(i_actual);
-    return true;
 }
 
-bool RTShared::parse_shared2(BinParser& bp)
+void RTShared::parse_shared2(BinParser& bp)
 {
-    bp.parse(digital_input);
+    bp.parse(digital_inputs);
     bp.parse(motor_temperatures);
     bp.parse(controller_time);
     bp.consume(sizeof(double)); //Unused "Test value" field
     bp.parse(robot_mode);
-    return true;
 }
 
 bool RTState_V1_6__7::parse_with(BinParser& bp)
@@ -33,6 +31,7 @@ bool RTState_V1_6__7::parse_with(BinParser& bp)
     parse_shared1(bp);
 
     bp.parse(tool_accelerometer_values);
+    bp.consume(sizeof(double)*15);
     bp.parse(tcp_force);
     bp.parse(tool_vector_actual);
     bp.parse(tcp_speed_actual);
