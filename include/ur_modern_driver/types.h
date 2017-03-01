@@ -2,11 +2,21 @@
 
 #include <inttypes.h>
 
-typedef struct {
+struct double3_t {
     double x, y, z;
-} double3_t;
+};
 
-typedef struct {
+struct cartesian_coord_t {
     double3_t position;
     double3_t rotation;
-} cartesian_coord_t;
+};
+
+inline bool operator==(const double3_t& lhs, const double3_t& rhs)
+{
+    return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
+}
+
+inline bool operator==(const cartesian_coord_t& lhs, const cartesian_coord_t& rhs)
+{
+    return lhs.position == rhs.position && lhs.rotation == rhs.rotation;
+}
