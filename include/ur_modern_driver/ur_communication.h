@@ -19,13 +19,7 @@
 #ifndef UR_COMMUNICATION_H_
 #define UR_COMMUNICATION_H_
 
-#include "do_output.h"
-#include "robot_state.h"
-#include <chrono>
-#include <condition_variable>
 #include <fcntl.h>
-#include <iostream>
-#include <mutex>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -36,27 +30,34 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/types.h>
-#include <thread>
 #include <unistd.h>
+#include <chrono>
+#include <condition_variable>
+#include <iostream>
+#include <mutex>
+#include <thread>
 #include <vector>
+#include "do_output.h"
+#include "robot_state.h"
 
-class UrCommunication {
+class UrCommunication
+{
 private:
-    int pri_sockfd_, sec_sockfd_;
-    struct sockaddr_in pri_serv_addr_, sec_serv_addr_;
-    struct hostent* server_;
-    bool keepalive_;
-    std::thread comThread_;
-    int flag_;
-    void run();
+  int pri_sockfd_, sec_sockfd_;
+  struct sockaddr_in pri_serv_addr_, sec_serv_addr_;
+  struct hostent* server_;
+  bool keepalive_;
+  std::thread comThread_;
+  int flag_;
+  void run();
 
 public:
-    bool connected_;
-    RobotState* robot_state_;
+  bool connected_;
+  RobotState* robot_state_;
 
-    UrCommunication(std::condition_variable& msg_cond, std::string host);
-    bool start();
-    void halt();
+  UrCommunication(std::condition_variable& msg_cond, std::string host);
+  bool start();
+  void halt();
 };
 
 #endif /* UR_COMMUNICATION_H_ */

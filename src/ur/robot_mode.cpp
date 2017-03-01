@@ -1,71 +1,71 @@
 #include "ur_modern_driver/ur/robot_mode.h"
 #include "ur_modern_driver/ur/consumer.h"
 
-bool SharedRobotModeData::parse_with(BinParser& bp)
+bool SharedRobotModeData::parseWith(BinParser& bp)
 {
-    bp.parse(timestamp);
-    bp.parse(physical_robot_connected);
-    bp.parse(real_robot_enabled);
-    bp.parse(robot_power_on);
-    bp.parse(emergency_stopped);
-    return true;
+  bp.parse(timestamp);
+  bp.parse(physical_robot_connected);
+  bp.parse(real_robot_enabled);
+  bp.parse(robot_power_on);
+  bp.parse(emergency_stopped);
+  return true;
 }
 
-bool RobotModeData_V1_X::parse_with(BinParser& bp)
+bool RobotModeData_V1_X::parseWith(BinParser& bp)
 {
-    if (!bp.check_size<RobotModeData_V1_X>())
-        return false;
+  if (!bp.checkSize<RobotModeData_V1_X>())
+    return false;
 
-    SharedRobotModeData::parse_with(bp);
+  SharedRobotModeData::parseWith(bp);
 
-    bp.parse(security_stopped);
-    bp.parse(program_running);
-    bp.parse(program_paused);
-    bp.parse(robot_mode);
-    bp.parse(speed_fraction);
+  bp.parse(security_stopped);
+  bp.parse(program_running);
+  bp.parse(program_paused);
+  bp.parse(robot_mode);
+  bp.parse(speed_fraction);
 
-    return true;
+  return true;
 }
 
-bool RobotModeData_V3_0__1::parse_with(BinParser& bp)
+bool RobotModeData_V3_0__1::parseWith(BinParser& bp)
 {
-    if (!bp.check_size<RobotModeData_V3_0__1>())
-        return false;
+  if (!bp.checkSize<RobotModeData_V3_0__1>())
+    return false;
 
-    SharedRobotModeData::parse_with(bp);
+  SharedRobotModeData::parseWith(bp);
 
-    bp.parse(protective_stopped);
-    bp.parse(program_running);
-    bp.parse(program_paused);
-    bp.parse(robot_mode);
-    bp.parse(control_mode);
-    bp.parse(target_speed_fraction);
-    bp.parse(speed_scaling);
+  bp.parse(protective_stopped);
+  bp.parse(program_running);
+  bp.parse(program_paused);
+  bp.parse(robot_mode);
+  bp.parse(control_mode);
+  bp.parse(target_speed_fraction);
+  bp.parse(speed_scaling);
 
-    return true;
+  return true;
 }
 
-bool RobotModeData_V3_2::parse_with(BinParser& bp)
+bool RobotModeData_V3_2::parseWith(BinParser& bp)
 {
-    if (!bp.check_size<RobotModeData_V3_2>())
-        return false;
+  if (!bp.checkSize<RobotModeData_V3_2>())
+    return false;
 
-    RobotModeData_V3_0__1::parse_with(bp);
+  RobotModeData_V3_0__1::parseWith(bp);
 
-    bp.parse(target_speed_fraction_limit);
+  bp.parse(target_speed_fraction_limit);
 
-    return true;
+  return true;
 }
 
-bool RobotModeData_V1_X::consume_with(URStatePacketConsumer& consumer)
+bool RobotModeData_V1_X::consumeWith(URStatePacketConsumer& consumer)
 {
-    return consumer.consume(*this);
+  return consumer.consume(*this);
 }
-bool RobotModeData_V3_0__1::consume_with(URStatePacketConsumer& consumer)
+bool RobotModeData_V3_0__1::consumeWith(URStatePacketConsumer& consumer)
 {
-    return consumer.consume(*this);
+  return consumer.consume(*this);
 }
-bool RobotModeData_V3_2::consume_with(URStatePacketConsumer& consumer)
+bool RobotModeData_V3_2::consumeWith(URStatePacketConsumer& consumer)
 {
-    return consumer.consume(*this);
+  return consumer.consume(*this);
 }

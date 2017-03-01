@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include "ur_modern_driver/ur/consumer.h"
 #include "ur_modern_driver/ur/messages_parser.h"
 #include "ur_modern_driver/ur/parser.h"
@@ -7,83 +8,97 @@
 #include "ur_modern_driver/ur/rt_parser.h"
 #include "ur_modern_driver/ur/state_parser.h"
 #include "ur_modern_driver/ur/stream.h"
-#include <cstdlib>
 
-class URFactory : private URMessagePacketConsumer {
+class URFactory : private URMessagePacketConsumer
+{
 private:
-    URStream _stream;
-    URMessageParser _parser;
+  URStream stream_;
+  URMessageParser parser_;
 
-    uint8_t _major_version;
-    uint8_t _minor_version;
+  uint8_t major_version_;
+  uint8_t minor_version_;
 
-    bool consume(VersionMessage& vm)
-    {
-        LOG_INFO("Got VersionMessage:");
-        LOG_INFO("project name: %s", vm.project_name.c_str());
-        LOG_INFO("version: %u.%u.%d", vm.major_version, vm.minor_version, vm.svn_version);
-        LOG_INFO("build date: %s", vm.build_date.c_str());
+  bool consume(VersionMessage& vm)
+  {
+    LOG_INFO("Got VersionMessage:");
+    LOG_INFO("project name: %s", vm.project_name.c_str());
+    LOG_INFO("version: %u.%u.%d", vm.major_version, vm.minor_version, vm.svn_version);
+    LOG_INFO("build date: %s", vm.build_date.c_str());
 
-        _major_version = vm.major_version;
-        _minor_version = vm.minor_version;
+    major_version_ = vm.major_version;
+    minor_version_ = vm.minor_version;
 
-        return true;
-    }
+    return true;
+  }
 
-    void setup_consumer() {}
-    void teardown_consumer() {}
-    void stop_consumer() {}
+  void setupConsumer()
+  {
+  }
+  void teardownConsumer()
+  {
+  }
+  void stopConsumer()
+  {
+  }
 
 public:
-    URFactory(std::string& host)
-        : _stream(host, 30001)
+  URFactory(std::string& host) : stream_(host, 30001)
+  {
+    URProducer<MessagePacket> prod(stream_, parser_);
+    std::vector<unique_ptr<MessagePacket>> results;
+
+    prod.setupProducer();
+
+    if (!prod.tryGet(results) || results.size() == 0)
     {
-        URProducer<MessagePacket> p(_stream, _parser);
-        std::vector<unique_ptr<MessagePacket> > results;
-
-        p.setup_producer();
-
-        if (!p.try_get(results) || results.size() == 0) {
-            LOG_FATAL("No version message received, init failed!");
-            std::exit(EXIT_FAILURE);
-        }
-
-        for (auto const& p : results) {
-            p->consume_with(*this);
-        }
-
-        if (_major_version == 0 && _minor_version == 0) {
-            LOG_FATAL("No version message received, init failed!");
-            std::exit(EXIT_FAILURE);
-        }
-
-        p.teardown_producer();
+      LOG_FATAL("No version message received, init failed!");
+      std::exit(EXIT_FAILURE);
     }
 
-    std::unique_ptr<URParser<StatePacket> > get_state_parser()
+    for (auto const& p : results)
     {
-        if (_major_version == 1) {
-            return std::unique_ptr<URParser<StatePacket> >(new URStateParser_V1_X);
-        } else {
-            if (_minor_version < 3)
-                return std::unique_ptr<URParser<StatePacket> >(new URStateParser_V3_0__1);
-            else
-                return std::unique_ptr<URParser<StatePacket> >(new URStateParser_V3_2);
-        }
+      p->consumeWith(*this);
     }
 
-    std::unique_ptr<URParser<RTPacket> > get_rt_parser()
+    if (major_version_ == 0 && minor_version_ == 0)
     {
-        if (_major_version == 1) {
-            if (_minor_version < 8)
-                return std::unique_ptr<URParser<RTPacket> >(new URRTStateParser_V1_6__7);
-            else
-                return std::unique_ptr<URParser<RTPacket> >(new URRTStateParser_V1_8);
-        } else {
-            if (_minor_version < 3)
-                return std::unique_ptr<URParser<RTPacket> >(new URRTStateParser_V3_0__1);
-            else
-                return std::unique_ptr<URParser<RTPacket> >(new URRTStateParser_V3_2__3);
-        }
+      LOG_FATAL("No version message received, init failed!");
+      std::exit(EXIT_FAILURE);
     }
+
+    prod.teardownProducer();
+  }
+
+  std::unique_ptr<URParser<StatePacket>> getStateParser()
+  {
+    if (major_version_ == 1)
+    {
+      return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V1_X);
+    }
+    else
+    {
+      if (minor_version_ < 3)
+        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_0__1);
+      else
+        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_2);
+    }
+  }
+
+  std::unique_ptr<URParser<RTPacket>> getRTParser()
+  {
+    if (major_version_ == 1)
+    {
+      if (minor_version_ < 8)
+        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V1_6__7);
+      else
+        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V1_8);
+    }
+    else
+    {
+      if (minor_version_ < 3)
+        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V3_0__1);
+      else
+        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V3_2__3);
+    }
+  }
 };

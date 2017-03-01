@@ -4,41 +4,52 @@
 #include "ur_modern_driver/ur/stream.h"
 
 template <typename T>
-class URProducer : public IProducer<T> {
+class URProducer : public IProducer<T>
+{
 private:
-    URStream& _stream;
-    URParser<T>& _parser;
+  URStream& stream_;
+  URParser<T>& parser_;
 
 public:
-    URProducer(URStream& stream, URParser<T>& parser)
-        : _stream(stream)
-        , _parser(parser)
+  URProducer(URStream& stream, URParser<T>& parser) : stream_(stream), parser_(parser)
+  {
+  }
+
+  void setupProducer()
+  {
+    stream_.connect();
+  }
+  void teardownProducer()
+  {
+    stream_.disconnect();
+  }
+  void stopProducer()
+  {
+    stream_.disconnect();
+  }
+
+  bool tryGet(std::vector<unique_ptr<T>>& products)
+  {
+    // 4KB should be enough to hold any packet received from UR
+    uint8_t buf[4096];
+
+    // blocking call
+    ssize_t len = stream_.receive(buf, sizeof(buf));
+
+    // LOG_DEBUG("Read %d bytes from stream", len);
+
+    if (len == 0)
     {
+      LOG_WARN("Read nothing from stream");
+      return false;
+    }
+    else if (len < 0)
+    {
+      LOG_WARN("Stream closed");
+      return false;
     }
 
-    void setup_producer() { _stream.connect(); }
-    void teardown_producer() { _stream.disconnect(); }
-    void stop_producer() { _stream.disconnect(); }
-
-    bool try_get(std::vector<unique_ptr<T> >& products)
-    {
-        //4KB should be enough to hold any packet received from UR
-        uint8_t buf[4096];
-
-        //blocking call
-        ssize_t len = _stream.receive(buf, sizeof(buf));
-
-        //LOG_DEBUG("Read %d bytes from stream", len);
-
-        if (len == 0) {
-            LOG_WARN("Read nothing from stream");
-            return false;
-        } else if (len < 0) {
-            LOG_WARN("Stream closed");
-            return false;
-        }
-
-        BinParser bp(buf, static_cast<size_t>(len));
-        return _parser.parse(bp, products);
-    }
+    BinParser bp(buf, static_cast<size_t>(len));
+    return parser_.parse(bp, products);
+  }
 };

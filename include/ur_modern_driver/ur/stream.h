@@ -1,37 +1,34 @@
 #pragma once
-#include <atomic>
 #include <netdb.h>
-#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <atomic>
+#include <string>
 
 /// Encapsulates a TCP socket
-class URStream {
+class URStream
+{
 private:
-    int _socket_fd = -1;
-    std::string _host;
-    int _port;
+  int socket_fd_ = -1;
+  std::string host_;
+  int port_;
 
-    std::atomic<bool> _initialized;
-    std::atomic<bool> _stopping;
+  std::atomic<bool> initialized_;
+  std::atomic<bool> stopping_;
 
 public:
-    URStream(std::string& host, int port)
-        : _host(host)
-        , _port(port)
-        , _initialized(false)
-        , _stopping(false)
-    {
-    }
+  URStream(std::string& host, int port) : host_(host), port_(port), initialized_(false), stopping_(false)
+  {
+  }
 
-    ~URStream()
-    {
-        disconnect();
-    }
+  ~URStream()
+  {
+    disconnect();
+  }
 
-    bool connect();
-    void disconnect();
+  bool connect();
+  void disconnect();
 
-    ssize_t send(uint8_t* buf, size_t buf_len);
-    ssize_t receive(uint8_t* buf, size_t buf_len);
+  ssize_t send(uint8_t* buf, size_t buf_len);
+  ssize_t receive(uint8_t* buf, size_t buf_len);
 };
