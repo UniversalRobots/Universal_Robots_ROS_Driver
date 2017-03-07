@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(ur_modern_driver)
+
+
 add_definitions( -DROS_BUILD )
+
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -130,6 +134,8 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra ${CMAKE_CXX_FLAGS}")
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
@@ -152,18 +158,26 @@ target_link_libraries(ur_hardware_interface
 
 ## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
-    src/ur_ros_wrapper.cpp
+    src/ros/rt_publisher.cpp
+    src/ur/stream.cpp
+    src/ur/robot_mode.cpp
+    src/ur/master_board.cpp
+    src/ur/rt_state.cpp
+    src/ur/messages.cpp
+    #src/ros_main.cpp
+    #src/ur_ros_wrapper.cpp
     src/ur_driver.cpp
     src/ur_realtime_communication.cpp
     src/ur_communication.cpp
     src/robot_state.cpp
     src/robot_state_RT.cpp
     src/do_output.cpp)
-add_executable(ur_driver ${${PROJECT_NAME}_SOURCES})
+
+add_executable(ur_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
- add_dependencies(ur_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(ur_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ur_driver
@@ -200,11 +214,12 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ur_modern_driver.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+set(${PROJECT_NAME}_TEST_SOURCES
+    tests/ur/rt_state.cpp
+    tests/ur/robot_mode.cpp)
+
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(ur_modern_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
+  target_link_libraries(ur_modern_driver_test ur_hardware_interface ${catkin_LIBRARIES})
+endif()
