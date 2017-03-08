@@ -23,18 +23,18 @@ protected:
 
 public:
   double time;
-  double q_target[6];
-  double qd_target[6];
-  double qdd_target[6];
-  double i_target[6];
-  double m_target[6];
-  double q_actual[6];
-  double qd_actual[6];
-  double i_actual[6];
+  std::array<double, 6> q_target;
+  std::array<double, 6> qd_target;
+  std::array<double, 6> qdd_target;
+  std::array<double, 6> i_target;
+  std::array<double, 6> m_target;
+  std::array<double, 6> q_actual;
+  std::array<double, 6> qd_actual;
+  std::array<double, 6> i_actual;
 
   // gap here depending on version
 
-  double tcp_force[6];
+  std::array<double, 6> tcp_force;
 
   // does not contain "_actual" postfix in V1_X but
   // they're the same fields so share anyway
@@ -44,7 +44,7 @@ public:
   // gap here depending on version
 
   uint64_t digital_inputs;
-  double motor_temperatures[6];
+  std::array<double, 6> motor_temperatures;
   double controller_time;
   double robot_mode;
 
@@ -71,7 +71,7 @@ public:
   bool parseWith(BinParser& bp);
   virtual bool consumeWith(URRTPacketConsumer& consumer);
 
-  double joint_modes[6];
+  std::array<double, 6> joint_modes;
 
   static const size_t SIZE = RTState_V1_6__7::SIZE + sizeof(double[6]);
 
@@ -84,11 +84,11 @@ public:
   bool parseWith(BinParser& bp);
   virtual bool consumeWith(URRTPacketConsumer& consumer);
 
-  double i_control[6];
+  std::array<double, 6> i_control;
   cartesian_coord_t tool_vector_target;
   cartesian_coord_t tcp_speed_target;
 
-  double joint_modes[6];
+  std::array<double, 6> joint_modes;
   double safety_mode;
   double3_t tool_accelerometer_values;
   double speed_scaling;
@@ -96,7 +96,7 @@ public:
   double v_main;
   double v_robot;
   double i_robot;
-  double v_actual[6];
+  std::array<double, 6> v_actual;
 
   static const size_t SIZE =
       RTShared::SIZE + sizeof(double[6]) * 3 + sizeof(double3_t) + sizeof(cartesian_coord_t) * 2 + sizeof(double) * 6;
