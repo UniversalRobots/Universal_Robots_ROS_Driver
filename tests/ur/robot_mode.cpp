@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
 #include "ur_modern_driver/ur/robot_mode.h"
+#include <gtest/gtest.h>
 #include "ur_modern_driver/bin_parser.h"
 #include "ur_modern_driver/log.h"
-#include "ur_modern_driver/types.h"
-#include "ur_modern_driver/test/utils.h"
 #include "ur_modern_driver/test/random_data.h"
+#include "ur_modern_driver/test/utils.h"
+#include "ur_modern_driver/types.h"
 
 TEST(RobotModeData_V1_X, testRandomDataParsing)
 {
@@ -26,7 +26,6 @@ TEST(RobotModeData_V1_X, testRandomDataParsing)
 
   ASSERT_TRUE(bp.empty()) << "Did not consume all data";
 }
-
 
 TEST(RobotModeData_V3_0__1, testRandomDataParsing)
 {
@@ -50,7 +49,6 @@ TEST(RobotModeData_V3_0__1, testRandomDataParsing)
 
   ASSERT_TRUE(bp.empty()) << "Did not consume all data";
 }
-
 
 TEST(RobotModeData_V3_2, testRandomDataParsing)
 {
@@ -76,8 +74,6 @@ TEST(RobotModeData_V3_2, testRandomDataParsing)
   ASSERT_TRUE(bp.empty()) << "Did not consume all data";
 }
 
-
-
 TEST(RobotModeData_V1_X, testTooSmallBuffer)
 {
   RandomDataTest rdt(10);
@@ -86,7 +82,6 @@ TEST(RobotModeData_V1_X, testTooSmallBuffer)
   EXPECT_FALSE(state.parseWith(bp)) << "parse() should fail when buffer not big enough";
 }
 
-
 TEST(RobotModeData_V3_0__1, testTooSmallBuffer)
 {
   RandomDataTest rdt(10);
@@ -94,7 +89,6 @@ TEST(RobotModeData_V3_0__1, testTooSmallBuffer)
   RobotModeData_V3_0__1 state;
   EXPECT_FALSE(state.parseWith(bp)) << "parse() should fail when buffer not big enough";
 }
-
 
 TEST(RobotModeData_V3_2, testTooSmallBuffer)
 {

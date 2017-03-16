@@ -136,7 +136,7 @@ public:
   }
 
   template <typename T, size_t N>
-  void parse(std::array<T, N> &array)
+  void parse(std::array<T, N>& array)
   {
     for (size_t i = 0; i < N; i++)
     {
