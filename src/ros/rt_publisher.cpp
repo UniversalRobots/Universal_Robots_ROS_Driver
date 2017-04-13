@@ -4,20 +4,11 @@ bool RTPublisher::publishJoints(RTShared& packet, Time& t)
 {
   sensor_msgs::JointState joint_msg;
   joint_msg.header.stamp = t;
-  joint_msg.name = joint_names_;
 
-  for (auto const& q : packet.q_actual)
-  {
-    joint_msg.position.push_back(q);
-  }
-  for (auto const& qd : packet.qd_actual)
-  {
-    joint_msg.velocity.push_back(qd);
-  }
-  for (auto const& i : packet.i_actual)
-  {
-    joint_msg.effort.push_back(i);
-  }
+  joint_msg.name.assign(joint_names_.begin(), joint_names_.end());
+  joint_msg.position.assign(packet.q_actual.begin(), packet.q_actual.end());
+  joint_msg.velocity.assign(packet.qd_actual.begin(), packet.qd_actual.end());
+  joint_msg.effort.assign(packet.i_actual.begin(), packet.i_actual.end());
 
   joint_pub_.publish(joint_msg);
 
