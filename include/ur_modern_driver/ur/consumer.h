@@ -10,7 +10,7 @@
 class URRTPacketConsumer : public IConsumer<RTPacket>
 {
 public:
-  virtual bool consume(unique_ptr<RTPacket> packet)
+  virtual bool consume(shared_ptr<RTPacket> packet)
   {
     return packet->consumeWith(*this);
   }
@@ -24,7 +24,7 @@ public:
 class URStatePacketConsumer : public IConsumer<StatePacket>
 {
 public:
-  virtual bool consume(unique_ptr<StatePacket> packet)
+  virtual bool consume(shared_ptr<StatePacket> packet)
   {
     return packet->consumeWith(*this);
   }
@@ -41,7 +41,7 @@ public:
 class URMessagePacketConsumer : public IConsumer<MessagePacket>
 {
 public:
-  virtual bool consume(unique_ptr<MessagePacket> packet)
+  virtual bool consume(shared_ptr<MessagePacket> packet)
   {
     return packet->consumeWith(*this);
   }

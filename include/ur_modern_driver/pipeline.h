@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <thread>
 #include <vector>
 #include "ur_modern_driver/log.h"
@@ -23,7 +24,52 @@ public:
   {
   }
 
-  virtual bool consume(unique_ptr<T> product) = 0;
+  virtual bool consume(shared_ptr<T> product) = 0;
+};
+
+template <typename T>
+class MultiConsumer : public IConsumer<T>
+{
+private:
+  std::vector<IConsumer<T>*> consumers_;
+
+public:
+  MultiConsumer(std::vector<IConsumer<T>*> consumers) : consumers_(consumers)
+  {
+  }
+
+  virtual void setupConsumer()
+  {
+    for(auto &con : consumers_)
+    {
+      con->setupConsumer();
+    }
+  }
+  virtual void teardownConsumer()
+  {
+    for(auto &con : consumers_)
+    {
+      con->teardownConsumer();
+    }
+  }
+  virtual void stopConsumer()
+  {
+    for(auto &con : consumers_)
+    {
+      con->stopConsumer();
+    }
+  }
+
+  bool consume(shared_ptr<T> product)
+  {
+    bool res = true;
+    for(auto &con : consumers_)
+    {
+      if(!con->consume(product))
+        res = false;
+    }
+    return res;
+  }
 };
 
 template <typename T>
@@ -87,8 +133,8 @@ private:
     {
       // 16000us timeout was chosen because we should
       // roughly recieve messages at 125hz which is every
-      // 8ms == 8000us and double it for some error margin
-      if (!queue_.wait_dequeue_timed(product, 16000))
+      // 8ms so double it for some error margin
+      if (!queue_.wait_dequeue_timed(product, std::chrono::milliseconds(16)))
       {
         continue;
       }

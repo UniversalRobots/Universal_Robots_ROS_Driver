@@ -32,6 +32,8 @@ class URStatePacketConsumer;
 class StatePacket
 {
 public:
+  StatePacket() {}
+  virtual ~StatePacket() {}
   virtual bool parseWith(BinParser& bp) = 0;
   virtual bool consumeWith(URStatePacketConsumer& consumer) = 0;
 };
