@@ -9,6 +9,8 @@
 #include "ur_modern_driver/ur/state_parser.h"
 #include "ur_modern_driver/ur/stream.h"
 
+static const int UR_PRIMARY_PORT = 30001;
+
 class URFactory : private URMessagePacketConsumer
 {
 private:
@@ -42,7 +44,7 @@ private:
   }
 
 public:
-  URFactory(std::string& host) : stream_(host, 30001)
+  URFactory(std::string& host) : stream_(host, UR_PRIMARY_PORT)
   {
     URProducer<MessagePacket> prod(stream_, parser_);
     std::vector<unique_ptr<MessagePacket>> results;
