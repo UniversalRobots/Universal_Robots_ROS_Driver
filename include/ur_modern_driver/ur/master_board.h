@@ -2,6 +2,7 @@
 
 #include <inttypes.h>
 #include <cstddef>
+#include <bitset>
 #include "ur_modern_driver/bin_parser.h"
 #include "ur_modern_driver/types.h"
 #include "ur_modern_driver/ur/state.h"
@@ -41,8 +42,9 @@ public:
   virtual bool parseWith(BinParser& bp);
   virtual bool consumeWith(URStatePacketConsumer& consumer);
 
-  int16_t digital_input_bits;
-  int16_t digital_output_bits;
+  
+  std::bitset<10> digital_input_bits;
+  std::bitset<10> digital_output_bits;
 
   uint8_t master_safety_state;
   bool master_on_off_state;
@@ -62,8 +64,8 @@ public:
   virtual bool parseWith(BinParser& bp);
   virtual bool consumeWith(URStatePacketConsumer& consumer);
 
-  int32_t digital_input_bits;
-  int32_t digital_output_bits;
+  std::bitset<18> digital_input_bits;
+  std::bitset<18> digital_output_bits;
 
   uint8_t safety_mode;
   bool in_reduced_mode;

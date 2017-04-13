@@ -23,8 +23,8 @@ bool MasterBoardData_V1_X::parseWith(BinParser& bp)
   if (!bp.checkSize<MasterBoardData_V1_X>())
     return false;
 
-  bp.parse(digital_input_bits);
-  bp.parse(digital_output_bits);
+  bp.parse<uint16_t, 10>(digital_input_bits);
+  bp.parse<uint16_t, 10>(digital_output_bits);
 
   SharedMasterBoardData::parseWith(bp);
 
@@ -49,8 +49,8 @@ bool MasterBoardData_V3_0__1::parseWith(BinParser& bp)
   if (!bp.checkSize<MasterBoardData_V3_0__1>())
     return false;
 
-  bp.parse(digital_input_bits);
-  bp.parse(digital_output_bits);
+  bp.parse<uint32_t, 18>(digital_input_bits);
+  bp.parse<uint32_t, 18>(digital_output_bits);
 
   SharedMasterBoardData::parseWith(bp);
 
@@ -59,7 +59,7 @@ bool MasterBoardData_V3_0__1::parseWith(BinParser& bp)
   bp.parse(euromap67_interface_installed);
 
   if (euromap67_interface_installed)
-  {
+  {  
     if (!bp.checkSize(MasterBoardData_V3_0__1::EURO_SIZE))
       return false;
 

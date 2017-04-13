@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <array>
+#include <bitset>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/types.h"
 
@@ -142,6 +144,14 @@ public:
     {
       parse(array[i]);
     }
+  }
+
+  template <typename T, size_t N>
+  void parse(std::bitset<N>& set)
+  {
+    T val;
+    parse(val);
+    set = std::bitset<N>(val);
   }
 
   void consume()
