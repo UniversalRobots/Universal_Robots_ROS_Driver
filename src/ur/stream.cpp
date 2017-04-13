@@ -73,12 +73,21 @@ void URStream::disconnect()
   initialized_ = false;
 }
 
-ssize_t URStream::send(uint8_t* buf, size_t buf_len)
+void URStream::reconnect()
+{
+  disconnect();
+  stopping_ = false;
+  connect();
+}
+
+ssize_t URStream::send(const uint8_t* buf, size_t buf_len)
 {
   if (!initialized_)
     return -1;
   if (stopping_)
     return 0;
+
+  std::lock_guard<std::mutex> lock(send_mutex_);
 
   size_t total = 0;
   size_t remaining = buf_len;
@@ -103,6 +112,8 @@ ssize_t URStream::receive(uint8_t* buf, size_t buf_len)
     return -1;
   if (stopping_)
     return 0;
+
+  std::lock_guard<std::mutex> lock(receive_mutex_);    
 
   size_t remainder = sizeof(int32_t);
   uint8_t* buf_pos = buf;

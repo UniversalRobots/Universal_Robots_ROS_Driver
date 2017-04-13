@@ -2,6 +2,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <mutex>
 #include <atomic>
 #include <string>
 
@@ -15,6 +16,7 @@ private:
 
   std::atomic<bool> initialized_;
   std::atomic<bool> stopping_;
+  std::mutex send_mutex_, receive_mutex_;
 
 public:
   URStream(std::string& host, int port) : host_(host), port_(port), initialized_(false), stopping_(false)
@@ -28,7 +30,8 @@ public:
 
   bool connect();
   void disconnect();
+  void reconnect();
 
-  ssize_t send(uint8_t* buf, size_t buf_len);
+  ssize_t send(const uint8_t* buf, size_t buf_len);
   ssize_t receive(uint8_t* buf, size_t buf_len);
 };
