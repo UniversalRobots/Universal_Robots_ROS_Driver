@@ -48,10 +48,11 @@ public:
 class WrenchInterface : public hardware_interface::ForceTorqueSensorInterface
 {
   std::array<double, 6> tcp_;
+
 public:
-  WrenchInterface() 
+  WrenchInterface()
   {
-    registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", "", tcp_.begin(), tcp_.begin()+3));
+    registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", "", tcp_.begin(), tcp_.begin() + 3));
   }
 
   void update(RTShared& packet)
@@ -65,7 +66,7 @@ class VelocityInterface : public HardwareInterface, public hardware_interface::V
 private:
   URCommander& commander_;
   std::array<double, 6> velocity_cmd_, prev_velocity_cmd_;
-  double max_vel_change_;
+  double max_vel_change_ = 0.12 / 125;
 
 public:
   VelocityInterface(URCommander& commander, JointStateInterface& js_interface, std::vector<std::string>& joint_names)
@@ -88,9 +89,11 @@ public:
       prev_velocity_cmd_[i] = std::max(lo, std::min(velocity_cmd_[i], hi));
     }
 
-    //times 125???
+    // times 125???
     commander_.speedj(prev_velocity_cmd_, max_vel_change_ * 125);
   }
+
+  typedef hardware_interface::VelocityJointInterface parent_type;
 };
 
 static const std::string POSITION_PROGRAM = R"(
@@ -165,4 +168,6 @@ public:
   virtual void write()
   {
   }
+
+  typedef hardware_interface::PositionJointInterface parent_type;
 };

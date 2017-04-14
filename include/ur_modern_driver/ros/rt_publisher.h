@@ -31,6 +31,7 @@ private:
   std::vector<std::string> joint_names_;
   std::string base_frame_;
   std::string tool_frame_;
+  bool temp_only_;
 
   bool publishJoints(RTShared& packet, Time& t);
   bool publishWrench(RTShared& packet, Time& t);
@@ -41,13 +42,14 @@ private:
   bool publish(RTShared& packet);
 
 public:
-  RTPublisher(std::string& joint_prefix, std::string& base_frame, std::string& tool_frame)
+  RTPublisher(std::string& joint_prefix, std::string& base_frame, std::string& tool_frame, bool temp_only = false)
     : joint_pub_(nh_.advertise<sensor_msgs::JointState>("joint_states", 1))
     , wrench_pub_(nh_.advertise<geometry_msgs::WrenchStamped>("wrench", 1))
     , tool_vel_pub_(nh_.advertise<geometry_msgs::TwistStamped>("tool_velocity", 1))
     , joint_temperature_pub_(nh_.advertise<sensor_msgs::Temperature>("joint_temperature", 1))
     , base_frame_(base_frame)
     , tool_frame_(tool_frame)
+    , temp_only_(temp_only)
   {
     for (auto const& j : JOINTS)
     {

@@ -6,10 +6,10 @@
 
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/pipeline.h"
-#include "ur_modern_driver/ros/rt_publisher.h"
-#include "ur_modern_driver/ros/mb_publisher.h"
 #include "ur_modern_driver/ros/io_service.h"
+#include "ur_modern_driver/ros/mb_publisher.h"
 #include "ur_modern_driver/ros/ros_controller.h"
+#include "ur_modern_driver/ros/rt_publisher.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
 #include "ur_modern_driver/ur/messages.h"
@@ -58,7 +58,7 @@ bool parse_args(ProgArgs& args)
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
   ros::param::param(TOOL_FRAME_ARG, args.tool_frame, args.prefix + "tool0_controller");
-  ros::param::get(JOINT_NAMES_PARAM, args.joint_names);  
+  ros::param::get(JOINT_NAMES_PARAM, args.joint_names);
   return true;
 }
 
@@ -75,32 +75,29 @@ int main(int argc, char** argv)
   }
 
   URFactory factory(args.host);
-  //RT packets
+  // RT packets
   auto rt_parser = factory.getRTParser();
   URStream rt_stream(args.host, UR_RT_PORT);
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
-  RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame);
-  EventCounter rt_ec;
-
+  RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
   URCommander rt_commander(rt_stream);
-  vector<IConsumer<RTPacket>*> rt_vec;
+  vector<IConsumer<RTPacket>*> rt_vec{ &rt_pub };
 
-  if(args.use_ros_control)
+  if (args.use_ros_control)
   {
+    LOG_INFO("ROS control enabled");
     rt_vec.push_back(new ROSController(rt_commander, args.joint_names));
   }
-
-  //rt_vec.push_back(&rt_pub);
 
   MultiConsumer<RTPacket> rt_cons(rt_vec);
   Pipeline<RTPacket> rt_pl(rt_prod, rt_cons);
 
-  //Message packets
+  // Message packets
   auto state_parser = factory.getStateParser();
   URStream state_stream(args.host, UR_SECONDARY_PORT);
   URProducer<StatePacket> state_prod(state_stream, *state_parser);
   MBPublisher state_pub;
-  vector<IConsumer<StatePacket>*> state_vec{&state_pub};
+  vector<IConsumer<StatePacket>*> state_vec{ &state_pub };
   MultiConsumer<StatePacket> state_cons(state_vec);
   Pipeline<StatePacket> state_pl(state_prod, state_cons);
 

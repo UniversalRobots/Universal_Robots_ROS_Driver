@@ -91,8 +91,14 @@ bool RTPublisher::publishTemperature(RTShared& packet, Time& t)
 bool RTPublisher::publish(RTShared& packet)
 {
   Time time = Time::now();
-  return publishJoints(packet, time) && publishWrench(packet, time) && publishTool(packet, time) &&
-         publishTransform(packet, time) && publishTemperature(packet, time);
+  bool res = true;
+  if (!temp_only_)
+  {
+    res = publishJoints(packet, time) && publishWrench(packet, time) && publishTool(packet, time) &&
+          publishTransform(packet, time);
+  }
+
+  return res && publishTemperature(packet, time);
 }
 
 bool RTPublisher::consume(RTState_V1_6__7& state)

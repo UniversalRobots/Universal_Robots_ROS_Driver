@@ -1,6 +1,7 @@
 #pragma once
 #include <controller_manager/controller_manager.h>
 #include <hardware_interface/force_torque_sensor_interface.h>
+#include <hardware_interface/internal/demangle_symbol.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -16,9 +17,16 @@ private:
   WrenchInterface wrench_interface_;
   PositionInterface position_interface_;
   VelocityInterface velocity_interface_;
-  hardware_interface::ForceTorqueSensorInterface force_torque_interface_;
+
   HardwareInterface* active_interface_;
-  std::vector<void*> available_interfaces_;
+  std::map<std::string, HardwareInterface*> available_interfaces_;
+
+  template <typename T>
+  void registerHardwareInterface(T* interface)
+  {
+    registerInterface<typename T::parent_type>(interface);
+    available_interfaces_[hardware_interface::internal::demangledTypeName<typename T::parent_type>()] = interface;
+  }
 
 public:
   RobotHardware(URCommander& commander, std::vector<std::string>& joint_names)
@@ -26,17 +34,16 @@ public:
     , wrench_interface_()
     , position_interface_(commander, joint_interface_, joint_names)
     , velocity_interface_(commander, joint_interface_, joint_names)
-    , available_interfaces_{&position_interface_, &velocity_interface_}
   {
     registerInterface<hardware_interface::JointStateInterface>(&joint_interface_);
     registerInterface<hardware_interface::ForceTorqueSensorInterface>(&wrench_interface_);
-    registerInterface<hardware_interface::PositionJointInterface>(&position_interface_);
-    registerInterface<hardware_interface::VelocityJointInterface>(&velocity_interface_);
+
+    registerHardwareInterface(&position_interface_);
+    registerHardwareInterface(&velocity_interface_);
   }
 
-  //bool canSwitch(const std::list<ControllerInfo>& start_list, const std::list<ControllerInfo>& stop_list) const;
+  // bool canSwitch(const std::list<ControllerInfo>& start_list, const std::list<ControllerInfo>& stop_list) const;
   void doSwitch(const std::list<ControllerInfo>& start_list, const std::list<ControllerInfo>& stop_list);
-
 
   /// \brief Read the state from the robot hardware.
   virtual void read(RTShared& packet);
