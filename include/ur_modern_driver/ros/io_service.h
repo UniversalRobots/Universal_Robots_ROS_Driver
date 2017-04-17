@@ -35,18 +35,18 @@ private:
         res = commander_.setToolVoltage(static_cast<uint8_t>(req.state));
       break;
       case ur_msgs::SetIO::Request::FUN_SET_FLAG:
-        res = commander_.setFlag(flag);
+        res = commander_.setFlag(req.pin, flag);
       break;
     }
 
-    return resp.success = res;
+    return (resp.success = res);
   }
 
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& resp)
   {
     LOG_INFO("setPayload called");
     //TODO check min and max payload?
-    return resp.success = commander_.setPayload(req.payload);
+    return (resp.success = commander_.setPayload(req.payload));
   }
 
 

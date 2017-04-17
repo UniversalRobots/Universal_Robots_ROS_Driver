@@ -18,7 +18,7 @@ TEST(RobotModeData_V1_X, testRandomDataParsing)
   ASSERT_EQ(rdt.getNext<bool>(), state.real_robot_enabled);
   ASSERT_EQ(rdt.getNext<bool>(), state.robot_power_on);
   ASSERT_EQ(rdt.getNext<bool>(), state.emergency_stopped);
-  ASSERT_EQ(rdt.getNext<bool>(), state.security_stopped);
+  ASSERT_EQ(rdt.getNext<bool>(), state.protective_stopped);
   ASSERT_EQ(rdt.getNext<bool>(), state.program_running);
   ASSERT_EQ(rdt.getNext<bool>(), state.program_paused);
   ASSERT_EQ(rdt.getNext<robot_mode_V1_X>(), state.robot_mode);

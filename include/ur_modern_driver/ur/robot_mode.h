@@ -16,6 +16,7 @@ public:
   bool real_robot_enabled;
   bool robot_power_on;
   bool emergency_stopped;
+  bool protective_stopped; //AKA security_stopped
   bool program_running;
   bool program_paused;
 
@@ -43,7 +44,6 @@ public:
   virtual bool parseWith(BinParser& bp);
   virtual bool consumeWith(URStatePacketConsumer& consumer);
 
-  bool security_stopped;
   robot_mode_V1_X robot_mode;
   double speed_fraction;
 
@@ -79,7 +79,6 @@ public:
   virtual bool parseWith(BinParser& bp);
   virtual bool consumeWith(URStatePacketConsumer& consumer);
 
-  bool protective_stopped;
 
   robot_mode_V3_X robot_mode;
   robot_control_mode_V3_X control_mode;

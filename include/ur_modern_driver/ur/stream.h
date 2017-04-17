@@ -19,13 +19,36 @@ private:
   std::mutex send_mutex_, receive_mutex_;
 
 public:
+  URStream() 
+  {
+  }
+
   URStream(std::string& host, int port) : host_(host), port_(port), initialized_(false), stopping_(false)
   {
+  }
+
+  URStream(int socket_fd) : socket_fd_(socket_fd), initialized_(true), stopping_(false)
+  {
+    
+  }
+
+  URStream(URStream&& other) noexcept : socket_fd_(other.socket_fd_), host_(other.host_), initialized_(other.initialized_.load()), stopping_(other.stopping_.load())
+  {
+    
   }
 
   ~URStream()
   {
     disconnect();
+  }
+
+  URStream& operator=(URStream&& other)
+  {
+    socket_fd_ = std::move(other.socket_fd_);
+    host_ = std::move(other.host_); 
+    initialized_ = std::move(other.initialized_.load());
+    stopping_ = std::move(other.stopping_.load());
+    return *this;
   }
 
   bool connect();

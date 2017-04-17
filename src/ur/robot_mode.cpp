@@ -8,6 +8,9 @@ bool SharedRobotModeData::parseWith(BinParser& bp)
   bp.parse(real_robot_enabled);
   bp.parse(robot_power_on);
   bp.parse(emergency_stopped);
+  bp.parse(protective_stopped);
+  bp.parse(program_running);
+  bp.parse(program_paused);
   return true;
 }
 
@@ -18,9 +21,6 @@ bool RobotModeData_V1_X::parseWith(BinParser& bp)
 
   SharedRobotModeData::parseWith(bp);
 
-  bp.parse(security_stopped);
-  bp.parse(program_running);
-  bp.parse(program_paused);
   bp.parse(robot_mode);
   bp.parse(speed_fraction);
 
@@ -34,9 +34,6 @@ bool RobotModeData_V3_0__1::parseWith(BinParser& bp)
 
   SharedRobotModeData::parseWith(bp);
 
-  bp.parse(protective_stopped);
-  bp.parse(program_running);
-  bp.parse(program_paused);
   bp.parse(robot_mode);
   bp.parse(control_mode);
   bp.parse(target_speed_fraction);

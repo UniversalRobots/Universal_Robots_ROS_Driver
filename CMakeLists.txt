@@ -158,10 +158,15 @@ target_link_libraries(ur_hardware_interface
 
 ## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
-    src/ros/rt_publisher.cpp
+    src/ros/action_server.cpp
+    src/ros/controller.cpp
+    src/ros/hardware_interface.cpp
     src/ros/mb_publisher.cpp
-    src/ros/robot_hardware.cpp
+    src/ros/rt_publisher.cpp
+    src/ros/service_stopper.cpp
+    src/ros/trajectory_follower.cpp
     src/ur/stream.cpp
+    src/ur/server.cpp
     src/ur/commander.cpp
     src/ur/robot_mode.cpp
     src/ur/master_board.cpp

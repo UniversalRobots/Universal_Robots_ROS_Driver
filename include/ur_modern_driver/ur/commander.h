@@ -17,11 +17,12 @@ public:
   {
   }
 
+  virtual bool uploadProg(std::string &s);
   virtual bool speedj(std::array<double, 6> &speeds, double acceleration);
   virtual bool stopj(double a = 10.0);
   virtual bool setDigitalOut(uint8_t pin, bool value);
   virtual bool setAnalogOut(uint8_t pin, double value);
   virtual bool setToolVoltage(uint8_t voltage);
-  virtual bool setFlag(bool value);
+  virtual bool setFlag(uint8_t pin, bool value);
   virtual bool setPayload(double value);
 };

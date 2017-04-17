@@ -29,11 +29,11 @@ private:
   }
 
 public:
-  RobotHardware(URCommander& commander, std::vector<std::string>& joint_names)
+  RobotHardware(URCommander& commander, std::vector<std::string>& joint_names, double max_vel_change)
     : joint_interface_(joint_names)
     , wrench_interface_()
     , position_interface_(commander, joint_interface_, joint_names)
-    , velocity_interface_(commander, joint_interface_, joint_names)
+    , velocity_interface_(commander, joint_interface_, joint_names, max_vel_change)
   {
     registerInterface<hardware_interface::JointStateInterface>(&joint_interface_);
     registerInterface<hardware_interface::ForceTorqueSensorInterface>(&wrench_interface_);

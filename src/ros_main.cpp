@@ -8,8 +8,9 @@
 #include "ur_modern_driver/pipeline.h"
 #include "ur_modern_driver/ros/io_service.h"
 #include "ur_modern_driver/ros/mb_publisher.h"
-#include "ur_modern_driver/ros/ros_controller.h"
+#include "ur_modern_driver/ros/controller.h"
 #include "ur_modern_driver/ros/rt_publisher.h"
+#include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
 #include "ur_modern_driver/ur/messages.h"
@@ -20,8 +21,8 @@
 
 static const std::string IP_ADDR_ARG("~robot_ip_address");
 static const std::string REVERSE_PORT_ARG("~reverse_port");
-static const std::string SIM_TIME_ARG("~use_sim_time");
 static const std::string ROS_CONTROL_ARG("~use_ros_control");
+static const std::string MAX_VEL_CHANGE_ARG("~max_vel_change");
 static const std::string PREFIX_ARG("~prefix");
 static const std::string BASE_FRAME_ARG("~base_frame");
 static const std::string TOOL_FRAME_ARG("~tool_frame");
@@ -40,12 +41,12 @@ public:
   std::vector<std::string> joint_names;
   double max_acceleration;
   double max_velocity;
+  double max_vel_change;
   int32_t reverse_port;
-  bool use_sim_time;
   bool use_ros_control;
 };
 
-bool parse_args(ProgArgs& args)
+bool parse_args(ProgArgs &args)
 {
   if (!ros::param::get(IP_ADDR_ARG, args.host))
   {
@@ -53,7 +54,7 @@ bool parse_args(ProgArgs& args)
     return false;
   }
   ros::param::param(REVERSE_PORT_ARG, args.reverse_port, int32_t(50001));
-  ros::param::param(SIM_TIME_ARG, args.use_sim_time, false);
+  ros::param::param(MAX_VEL_CHANGE_ARG, args.max_vel_change, 15.0); // rad/s
   ros::param::param(ROS_CONTROL_ARG, args.use_ros_control, false);
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
@@ -64,7 +65,7 @@ bool parse_args(ProgArgs& args)
 
 #include "ur_modern_driver/event_counter.h"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
   ros::init(argc, argv, "ur_driver");
 
@@ -75,18 +76,24 @@ int main(int argc, char** argv)
   }
 
   URFactory factory(args.host);
+
+  vector<Service*> services;
+
   // RT packets
   auto rt_parser = factory.getRTParser();
   URStream rt_stream(args.host, UR_RT_PORT);
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
   RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
   URCommander rt_commander(rt_stream);
-  vector<IConsumer<RTPacket>*> rt_vec{ &rt_pub };
+  vector<IConsumer<RTPacket> *> rt_vec{&rt_pub};
 
+  ROSController *controller(nullptr);
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    rt_vec.push_back(new ROSController(rt_commander, args.joint_names));
+    controller = new ROSController(rt_commander, args.joint_names, args.max_vel_change);
+    rt_vec.push_back(controller);
+    services.push_back(controller);
   }
 
   MultiConsumer<RTPacket> rt_cons(rt_vec);
@@ -97,7 +104,10 @@ int main(int argc, char** argv)
   URStream state_stream(args.host, UR_SECONDARY_PORT);
   URProducer<StatePacket> state_prod(state_stream, *state_parser);
   MBPublisher state_pub;
-  vector<IConsumer<StatePacket>*> state_vec{ &state_pub };
+  
+  ServiceStopper service_stopper(services);
+
+  vector<IConsumer<StatePacket> *> state_vec{&state_pub, &service_stopper};
   MultiConsumer<StatePacket> state_cons(state_vec);
   Pipeline<StatePacket> state_pl(state_prod, state_cons);
 
@@ -107,12 +117,19 @@ int main(int argc, char** argv)
   state_pl.run();
 
   URCommander state_commander(state_stream);
-  IOService service(state_commander);
+  IOService io_service(state_commander);
 
   ros::spin();
 
+  LOG_INFO("ROS stopping, shutting down pipelines");
+
   rt_pl.stop();
   state_pl.stop();
+  
+  if(controller)
+    delete controller;
+
+  LOG_INFO("Pipelines shutdown complete");
 
   return EXIT_SUCCESS;
 }

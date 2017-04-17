@@ -9,6 +9,10 @@ bool URCommander::write(std::string& s)
     return res > 0 && static_cast<size_t>(res) == len;
 }
 
+bool URCommander::uploadProg(std::string &s)
+{
+  return write(s);
+}
 
 bool URCommander::speedj(std::array<double, 6> &speeds, double acceleration)
 {
@@ -52,11 +56,17 @@ bool URCommander::setToolVoltage(uint8_t voltage)
 }
 
 
-bool URCommander::setFlag(bool value)
+bool URCommander::setFlag(uint8_t pin, bool value)
 {
-
+    std::ostringstream out;
+    out << "set_flag(" << (int)pin << "," << (value ? "True" : "False") << ")\n";
+    std::string s(out.str());
+    return write(s);
 }
 bool URCommander::setPayload(double value)
 {
-
+    std::ostringstream out;
+    out << "set_payload(" << std::fixed << std::setprecision(4) << value << ")\n";
+    std::string s(out.str());
+    return write(s);
 }
