@@ -98,7 +98,12 @@ void UrRealtimeCommunication::addCommandToQueue(std::string inp) {
 void UrRealtimeCommunication::setSpeed(double q0, double q1, double q2,
 		double q3, double q4, double q5, double acc) {
 	char cmd[1024];
-	if( robot_state_->getVersion() >= 3.1 ) {
+	if( robot_state_->getVersion() >= 3.3 ) {
+		sprintf(cmd,
+				"speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f, 0.008)\n",
+				q0, q1, q2, q3, q4, q5, acc);
+	}
+	else if( robot_state_->getVersion() >= 3.1 ) {
 		sprintf(cmd,
 				"speedj([%1.5f, %1.5f, %1.5f, %1.5f, %1.5f, %1.5f], %f)\n",
 				q0, q1, q2, q3, q4, q5, acc);
