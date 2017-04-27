@@ -6,10 +6,12 @@
 
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/pipeline.h"
+#include "ur_modern_driver/ros/action_server.h"
+#include "ur_modern_driver/ros/controller.h"
 #include "ur_modern_driver/ros/io_service.h"
 #include "ur_modern_driver/ros/mb_publisher.h"
-#include "ur_modern_driver/ros/controller.h"
 #include "ur_modern_driver/ros/rt_publisher.h"
+#include "ur_modern_driver/ros/trajectory_follower.h"
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
@@ -63,7 +65,7 @@ bool parse_args(ProgArgs &args)
   return true;
 }
 
-#include "ur_modern_driver/event_counter.h"
+#include "ur_modern_driver/ur/server.h"
 
 int main(int argc, char **argv)
 {
@@ -75,6 +77,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+
   URFactory factory(args.host);
 
   vector<Service*> services;
@@ -84,16 +87,26 @@ int main(int argc, char **argv)
   URStream rt_stream(args.host, UR_RT_PORT);
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
   RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
-  URCommander rt_commander(rt_stream);
+  auto rt_commander = factory.getCommander(rt_stream);
   vector<IConsumer<RTPacket> *> rt_vec{&rt_pub};
 
+  TrajectoryFollower traj_follower(*rt_commander, args.reverse_port, factory.isVersion3());
+
   ROSController *controller(nullptr);
+  ActionServer *action_server(nullptr);
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    controller = new ROSController(rt_commander, args.joint_names, args.max_vel_change);
+    controller = new ROSController(*rt_commander, args.joint_names, args.max_vel_change);
     rt_vec.push_back(controller);
     services.push_back(controller);
+  }
+  else
+  {
+    LOG_INFO("ActionServer enabled");
+    action_server = new ActionServer(traj_follower, args.joint_names, args.max_velocity);
+    //rt_vec.push_back(action_server);
+    services.push_back(action_server);
   }
 
   MultiConsumer<RTPacket> rt_cons(rt_vec);
@@ -116,8 +129,11 @@ int main(int argc, char **argv)
   rt_pl.run();
   state_pl.run();
 
-  URCommander state_commander(state_stream);
-  IOService io_service(state_commander);
+  auto state_commander = factory.getCommander(state_stream);
+  IOService io_service(*state_commander);
+
+  if(action_server)
+    action_server->start();
 
   ros::spin();
 

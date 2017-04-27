@@ -37,6 +37,8 @@ private:
       case ur_msgs::SetIO::Request::FUN_SET_FLAG:
         res = commander_.setFlag(req.pin, flag);
       break;
+      default:
+        LOG_WARN("Invalid setIO function called (%d)", req.fun);
     }
 
     return (resp.success = res);

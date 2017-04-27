@@ -15,7 +15,14 @@ ActionServer::ActionServer(TrajectoryFollower& follower, std::vector<std::string
   , state_(RobotState::Error)
   , follower_(follower)
 {
-  
+}
+
+void ActionServer::start()
+{
+  if(running_)
+    return;
+  running_ = true;
+  tj_thread_ = thread(&ActionServer::trajectoryThread, this);
 }
 
 void ActionServer::onRobotStateChange(RobotState state)
@@ -34,7 +41,14 @@ void ActionServer::onGoal(GoalHandle gh)
 
 void ActionServer::onCancel(GoalHandle gh)
 {
+  interrupt_traj_ = true;
+  //wait for goal to be interrupted
+  std::lock_guard<std::mutex> lock(tj_mutex_);
 
+  Result res;
+  res.error_code = -100;
+  res.error_string = "Goal cancelled by client";
+  gh.setCanceled(res);
 }
 
 bool ActionServer::validate(GoalHandle& gh, Result& res)
@@ -125,7 +139,15 @@ bool ActionServer::validateTrajectory(GoalHandle& gh, Result& res)
     }
   }
 
+  //todo validate start position?
+
   return true;
+}
+
+inline std::chrono::microseconds convert(const ros::Duration &dur)
+{
+  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(dur.sec)) 
+    + std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::nanoseconds(dur.nsec));
 }
 
 bool ActionServer::try_execute(GoalHandle& gh, Result& res)
@@ -137,27 +159,20 @@ bool ActionServer::try_execute(GoalHandle& gh, Result& res)
   }
   if(!tj_mutex_.try_lock())
   {
-    has_goal_ = false;
-    //stop_trajectory();
+    interrupt_traj_ = true;
     res.error_string = "Received another trajectory";
     curr_gh_.setAborted(res, res.error_string);
     tj_mutex_.lock();
+    //todo: make configurable
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
   }
   //locked here
   curr_gh_ = gh;
+  interrupt_traj_ = false;
   has_goal_ = true;
   tj_mutex_.unlock();
   tj_cv_.notify_one();
-}
-
-inline double ActionServer::interp_cubic(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel)
-{
-  using std::pow;
-  double a = p0_pos;
-  double b = p0_vel;
-  double c = (-3 * a + 3 * p1_pos - 2 * T * b - T * p1_vel) / pow(T, 2);
-  double d = (2 * a - 2 * p1_pos + T * b + T * p1_vel) / pow(T, 3);
-  return a + b * t + c * pow(t, 2) + d * pow(t, 3);
+  return true;
 }
 
 std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joints)
@@ -179,53 +194,56 @@ std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joint
 
 void ActionServer::trajectoryThread()
 {
+  follower_.start(); //todo check error
+  //as_.start();
   while(running_)
   {
     std::unique_lock<std::mutex> lk(tj_mutex_);
     if(!tj_cv_.wait_for(lk, std::chrono::milliseconds(100), [&]{return running_ && has_goal_;}))
       continue;
     
-    auto g = curr_gh_.getGoal();
-    auto const& traj = g->trajectory;
-    auto const& points = traj.points;
-    size_t len = points.size();
-    auto const& last_point = points[points.size() - 1];
-    double end_time = last_point.time_from_start.toSec();
+    LOG_DEBUG("Trajectory received and accepted");
+    curr_gh_.setAccepted();
+
+    auto goal = curr_gh_.getGoal();
+    auto mapping = reorderMap(goal->trajectory.joint_names);
+    std::vector<TrajectoryPoint> trajectory(goal->trajectory.points.size());
     
-    auto mapping = reorderMap(traj.joint_names);
-    std::chrono::high_resolution_clock::time_point t0, t;
-    t = t0 = std::chrono::high_resolution_clock::now();
-
-    size_t i = 0;
-    while(end_time >= toSec(t - t0) && has_goal_)
+    for(auto const& point : goal->trajectory.points)
     {
-      while(points[i].time_from_start.toSec() <= toSec(t - t0) && i < len)
-        i++;
-      
-      auto const& pp = points[i-1];
-      auto const& p = points[i];
-
-      auto pp_t = pp.time_from_start.toSec();
-      auto p_t =p.time_from_start.toSec();
-
-      std::array<double, 6> pos;
-      for(size_t j = 0; j < pos.size(); j++)
+      std::array<double, 6> pos, vel;
+      for(size_t i = 0; i < 6; i++)
       {
-        pos[i] = interp_cubic(
-          toSec(t - t0) - pp_t,
-          p_t - pp_t,
-          pp.positions[j],
-          p.positions[j],
-          pp.velocities[j],
-          p.velocities[j]
-        );
+        //joint names of the goal might have a different ordering compared
+        //to what URScript expects so need to map between the two
+        size_t idx = mapping[i];
+        pos[idx] = point.positions[i];
+        vel[idx] = point.velocities[i];
       }
+      trajectory.push_back(TrajectoryPoint(pos, vel, convert(point.time_from_start)));
+    }
 
-      follower_.execute(pos);
-      //std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.))); 
-      t = std::chrono::high_resolution_clock::now();
+    Result res;
+    if(follower_.execute(trajectory, interrupt_traj_))
+    {
+      //interrupted goals must be handled by interrupt trigger
+      if(!interrupt_traj_)
+      {
+        LOG_DEBUG("Trajectory executed successfully");
+        res.error_code = Result::SUCCESSFUL;
+        curr_gh_.setSucceeded(res);
+      }
+    }
+    else
+    {
+      LOG_DEBUG("Trajectory failed");
+      res.error_code = -100;
+      res.error_string = "Connection to robot was lost";      
+      curr_gh_.setAborted(res, res.error_string);
     }
 
     has_goal_ = false;
+    lk.unlock();
   }
+  follower_.stop();
 }

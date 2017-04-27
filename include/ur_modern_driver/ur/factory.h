@@ -71,6 +71,19 @@ public:
     prod.teardownProducer();
   }
 
+  bool isVersion3()
+  {
+    return major_version_ == 3;
+  }
+
+  std::unique_ptr<URCommander> getCommander(URStream &stream)
+  {
+    if(major_version_ == 1)
+      return std::unique_ptr<URCommander>(new URCommander_V1_X(stream));
+    else
+      return std::unique_ptr<URCommander>(new URCommander_V3_X(stream));    
+  }
+
   std::unique_ptr<URParser<StatePacket>> getStateParser()
   {
     if (major_version_ == 1)

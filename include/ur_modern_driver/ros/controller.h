@@ -34,6 +34,7 @@ private:
   std::map<std::string, HardwareInterface*> available_interfaces_;
 
   std::atomic<bool> service_enabled_;
+  std::atomic<uint32_t> service_cooldown_;
 
   // helper functions to map interfaces
   template <typename T>
@@ -51,6 +52,7 @@ private:
   void read(RTShared& state);
   bool update(RTShared& state);
   bool write();
+  void reset();
 
 public:
   ROSController(URCommander& commander,  std::vector<std::string>& joint_names, double max_vel_change);

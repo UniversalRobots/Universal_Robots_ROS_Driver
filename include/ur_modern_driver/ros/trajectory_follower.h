@@ -5,21 +5,39 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <thread>
 #include <inttypes.h>
+#include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/server.h"
-#include "ur_modern_driver/ur/stream.h"
+
+struct TrajectoryPoint
+{
+  std::array<double, 6> positions;
+  std::array<double, 6> velocities;
+  std::chrono::microseconds time_from_start;
+
+  TrajectoryPoint()
+  {
+  }
+
+  TrajectoryPoint(std::array<double, 6> &pos, std::array<double, 6> &vel, std::chrono::microseconds tfs)
+    : positions(pos)
+    , velocities(vel)
+    , time_from_start(tfs)
+  {
+  }
+};
 
 class TrajectoryFollower 
 {
 private:
-  const int32_t MULT_JOINTSTATE_ = 1000000;
   double servoj_time_, servoj_lookahead_time_, servoj_gain_;
   std::atomic<bool> running_;
   std::array<double, 6> last_positions_;
   URCommander &commander_;
   URServer server_;
-  URStream stream_;
+  int reverse_port_;
   std::string program_;
 
   template <typename T>
@@ -30,15 +48,16 @@ private:
     return s;
   }
 
+  std::string buildProgram();
   bool execute(std::array<double, 6> &positions, bool keep_alive);  
+  double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel); 
 
 public:
   TrajectoryFollower(URCommander &commander, int reverse_port, bool version_3);
 
-  std::string buildProgram(bool version_3);
-
   bool start();
   bool execute(std::array<double, 6> &positions);
+  bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
   void stop();
-  void halt(); //maybe
+  void interrupt();
 };

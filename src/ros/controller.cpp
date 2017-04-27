@@ -20,6 +20,8 @@ void ROSController::setupConsumer()
 
 void ROSController::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list, const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
+  LOG_INFO("Switching hardware interface");
+
   if (active_interface_ != nullptr && stop_list.size() > 0)
   {
     LOG_INFO("Stopping active interface");
@@ -54,6 +56,14 @@ bool ROSController::write()
   return active_interface_->write();
 }
 
+void ROSController::reset()
+{
+  if (active_interface_ == nullptr)
+    return;
+  
+  active_interface_->reset();
+}
+
 void ROSController::read(RTShared& packet)
 {
   joint_interface_.update(packet);
@@ -68,17 +78,32 @@ bool ROSController::update(RTShared& state)
   lastUpdate_ = time;
 
   read(state);
-  controller_.update(time, diff);
+  controller_.update(time, diff, !service_enabled_);
 
   //emergency stop and such should not kill the pipeline
   //but still prevent writes
   if(!service_enabled_)
+  {
+    reset();
     return true;
+  }
+  
+  //allow the controller to update x times before allowing writes again
+  if(service_cooldown_ > 0)
+  {
+    service_cooldown_ -= 1;
+    return true;
+  }
 
   return write();
 }
 
 void ROSController::onRobotStateChange(RobotState state)
 {
-  service_enabled_ = (state == RobotState::Running);
+  bool next = (state == RobotState::Running);
+  if(next == service_enabled_)
+    return;
+  
+  service_enabled_ = next;
+  service_cooldown_ = 125; 
 }

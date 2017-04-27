@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <set>
+#include <thread>
 #include <ros/ros.h>
 #include <actionlib/server/action_server.h>
 #include <actionlib/server/server_goal_handle.h>
@@ -17,7 +18,7 @@
 #include "ur_modern_driver/ros/trajectory_follower.h"
 
 
-class ActionServer : public URRTPacketConsumer, public Service
+class ActionServer : public Service //,public URRTPacketConsumer
 {
 private:
   typedef control_msgs::FollowJointTrajectoryAction Action;
@@ -35,9 +36,11 @@ private:
 
   
   GoalHandle curr_gh_;
+  std::atomic<bool> interrupt_traj_;
   std::atomic<bool> has_goal_, running_;
   std::mutex tj_mutex_;
   std::condition_variable tj_cv_;
+  std::thread tj_thread_;
 
   TrajectoryFollower& follower_;
 
@@ -50,20 +53,16 @@ private:
   bool validateTrajectory(GoalHandle& gh, Result& res);
 
   bool try_execute(GoalHandle& gh, Result& res);
+  void interruptGoal(GoalHandle& gh);
 
   std::vector<size_t> reorderMap(std::vector<std::string> goal_joints);
-  double interp_cubic(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel);
 
   void trajectoryThread();
 
-  template <typename U>
-  double toSec(U const& u)
-  {
-      return std::chrono::duration_cast<std::chrono::duration<double>>(u).count();
-  }
 
 public:
   ActionServer(TrajectoryFollower& follower, std::vector<std::string>& joint_names, double max_velocity);
 
+  void start();
   virtual void onRobotStateChange(RobotState state);
 };

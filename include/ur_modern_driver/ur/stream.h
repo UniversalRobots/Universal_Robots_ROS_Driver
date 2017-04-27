@@ -5,56 +5,39 @@
 #include <mutex>
 #include <atomic>
 #include <string>
+#include "ur_modern_driver/log.h"
+#include "ur_modern_driver/tcp_socket.h"
 
-/// Encapsulates a TCP socket
-class URStream
+class URStream : private TCPSocket
 {
 private:
-  int socket_fd_ = -1;
   std::string host_;
   int port_;
+  std::mutex write_mutex_, read_mutex_;
 
-  std::atomic<bool> initialized_;
-  std::atomic<bool> stopping_;
-  std::mutex send_mutex_, receive_mutex_;
+protected:
+  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len)
+  {
+    return ::connect(socket_fd, address, address_len) == 0;
+  }
 
 public:
-  URStream() 
+  URStream(std::string& host, int port) : host_(host), port_(port)
   {
   }
 
-  URStream(std::string& host, int port) : host_(host), port_(port), initialized_(false), stopping_(false)
+  bool connect()
   {
+    return TCPSocket::setup(host_, port_);
+  }
+  void disconnect()
+  {
+    LOG_INFO("Disconnecting");
+    TCPSocket::close();
   }
 
-  URStream(int socket_fd) : socket_fd_(socket_fd), initialized_(true), stopping_(false)
-  {
-    
-  }
+  bool closed() { return getState() == SocketState::Closed; }
 
-  URStream(URStream&& other) noexcept : socket_fd_(other.socket_fd_), host_(other.host_), initialized_(other.initialized_.load()), stopping_(other.stopping_.load())
-  {
-    
-  }
-
-  ~URStream()
-  {
-    disconnect();
-  }
-
-  URStream& operator=(URStream&& other)
-  {
-    socket_fd_ = std::move(other.socket_fd_);
-    host_ = std::move(other.host_); 
-    initialized_ = std::move(other.initialized_.load());
-    stopping_ = std::move(other.stopping_.load());
-    return *this;
-  }
-
-  bool connect();
-  void disconnect();
-  void reconnect();
-
-  ssize_t send(const uint8_t* buf, size_t buf_len);
-  ssize_t receive(uint8_t* buf, size_t buf_len);
+  bool read(uint8_t* buf, size_t buf_len, size_t &read);
+  bool write(const uint8_t* buf, size_t buf_len, size_t &written);
 };

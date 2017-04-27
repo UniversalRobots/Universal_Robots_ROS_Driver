@@ -5,47 +5,48 @@
 #include "ur_modern_driver/ur/server.h"
 
 URServer::URServer(int port)
+  : port_(port)
 {
-  std::string service = std::to_string(port);
-  struct addrinfo hints, *result;
-  std::memset(&hints, 0, sizeof(hints));
-
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_PASSIVE;
-
-  if (getaddrinfo(nullptr, service.c_str(), &hints, &result) != 0)
-  {
-    LOG_ERROR("Failed to setup recieving server");
-    return;
-  }
-
-    // loop through the list of addresses untill we find one that's connectable
-  for (struct addrinfo* p = result; p != nullptr; p = p->ai_next)
-  {
-    socket_fd_ = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-
-    if (socket_fd_ == -1)  // socket error?
-      continue;
-
-    if (bind(socket_fd_, p->ai_addr, p->ai_addrlen) != 0)
-      continue;
-
-    // disable Nagle's algorithm to ensure we sent packets as fast as possible
-    int flag = 1;
-    setsockopt(socket_fd_, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag));
-    LOG_INFO("Server awaiting connection");
-    return;
-  }
-  
-  LOG_ERROR("Failed to setup recieving server");
-  std::exit(EXIT_FAILURE);
 }
 
-URStream URServer::accept()
+std::string URServer::getIP()
 {
+  char buf[128];
+  int res = ::gethostname(buf, sizeof(buf));
+  return std::string(buf);
+}
+
+bool URServer::bind()
+{
+  std::string empty;
+  bool res = TCPSocket::setup(empty, port_);
+  state_ = TCPSocket::getState();
+  
+  if(!res)
+    return false;
+
+  if(::listen(getSocketFD(), 1) < 0)
+    return false;
+
+  return true;
+}
+
+bool URServer::accept()
+{
+  if(state_ != SocketState::Connected || client_.getSocketFD() > 0)
+    return false;
+
   struct sockaddr addr; 
   socklen_t addr_len;
-  int client_fd = ::accept(socket_fd_, &addr, &addr_len);
-  return URStream(client_fd);
+  int client_fd = ::accept(getSocketFD(), &addr, &addr_len);
+
+  if(client_fd <= 0)
+    return false;
+
+  return client_.setSocketFD(client_fd);
+}
+
+bool URServer::write(const uint8_t* buf, size_t buf_len, size_t &written)
+{
+  return client_.write(buf, buf_len, written);
 }

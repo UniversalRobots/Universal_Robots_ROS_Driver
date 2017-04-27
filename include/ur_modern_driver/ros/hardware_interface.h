@@ -13,6 +13,7 @@ public:
   virtual bool write() = 0;
   virtual void start() {}
   virtual void stop() {}
+  virtual void reset() {}
 };
 
 using hardware_interface::JointHandle;
@@ -48,6 +49,7 @@ private:
 public:
   VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names, double max_vel_change);
   virtual bool write();
+  virtual void reset();
   typedef hardware_interface::VelocityJointInterface parent_type;
 };
 

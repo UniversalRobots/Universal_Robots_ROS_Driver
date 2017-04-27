@@ -23,6 +23,9 @@ public:
   virtual void stopConsumer()
   {
   }
+  virtual void onTimeout()
+  {
+  }
 
   virtual bool consume(shared_ptr<T> product) = 0;
 };
@@ -59,6 +62,13 @@ public:
       con->stopConsumer();
     }
   }
+  virtual void onTimeout()
+  {
+    for(auto &con : consumers_)
+    {
+      con->onTimeout();
+    }
+  }
 
   bool consume(shared_ptr<T> product)
   {
@@ -93,6 +103,8 @@ template <typename T>
 class Pipeline
 {
 private:
+  typedef std::chrono::high_resolution_clock Clock;
+  typedef Clock::time_point Time;
   IProducer<T>& producer_;
   IConsumer<T>& consumer_;
   BlockingReaderWriterQueue<unique_ptr<T>> queue_;
@@ -129,6 +141,8 @@ private:
   {
     consumer_.setupConsumer();
     unique_ptr<T> product;
+    Time last_pkg = Clock::now();
+    Time last_warn = last_pkg;
     while (running_)
     {
       // 16000us timeout was chosen because we should
@@ -136,8 +150,18 @@ private:
       // 8ms so double it for some error margin
       if (!queue_.wait_dequeue_timed(product, std::chrono::milliseconds(16)))
       {
+        Time now = Clock::now();
+        auto pkg_diff = now - last_pkg;
+        auto warn_diff = now - last_warn;
+        if(pkg_diff > std::chrono::seconds(1) && warn_diff > std::chrono::seconds(1))
+        {
+          last_warn = now;
+          consumer_.onTimeout();
+        }
         continue;
       }
+
+      last_pkg = Clock::now();
       if (!consumer_.consume(std::move(product)))
         break;
     }

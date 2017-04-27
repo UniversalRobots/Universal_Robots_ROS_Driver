@@ -172,6 +172,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ur/master_board.cpp
     src/ur/rt_state.cpp
     src/ur/messages.cpp
+    src/tcp_socket.cpp
     src/ur_driver.cpp
     src/ur_realtime_communication.cpp
     src/ur_communication.cpp
