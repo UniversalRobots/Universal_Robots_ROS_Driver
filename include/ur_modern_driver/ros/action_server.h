@@ -17,7 +17,7 @@
 #include "ur_modern_driver/ur/master_board.h"
 #include "ur_modern_driver/ur/state.h"
 
-class ActionServer : public Service, public IConsumer<RTPacket>
+class ActionServer : public Service, public URRTPacketConsumer
 {
 private:
   typedef control_msgs::FollowJointTrajectoryAction Action;
