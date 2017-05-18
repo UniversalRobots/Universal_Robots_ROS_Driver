@@ -1,3 +1,4 @@
+#include <cmath>
 #include <endian.h>
 #include "ur_modern_driver/ros/trajectory_follower.h"
   
@@ -46,7 +47,7 @@ def driverProg():
 		end
 	end
 
-  socket_open(\"{{SERVER_IP_REPLACE}}\", {{SERVER_PORT_REPLACE}})
+  socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}})
 
   thread_servo = run servoThread()
   keepalive = 1
@@ -68,6 +69,9 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, int reverse_port,
   : running_(false)
   , commander_(commander)
   , reverse_port_(reverse_port)
+  , servoj_time_(0.016/4)
+  , servoj_lookahead_time_(0.03)
+  , servoj_gain_(300.)
   , server_(reverse_port)
 {
   std::string res(POSITION_PROGRAM);
@@ -132,6 +136,8 @@ bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_ali
   if(!running_)
     return false;
 
+  //  LOG_INFO("servoj([%f,%f,%f,%f,%f,%f])", positions[0], positions[1], positions[2], positions[3], positions[4], positions[5]);
+
   last_positions_ = positions;
 
   uint8_t buf[sizeof(uint32_t)*7];
@@ -190,8 +196,13 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
     if(&point == &prev)
       continue;
 
+    if(interrupt)
+      break;
+
     auto duration = point.time_from_start - prev.time_from_start;
     double d_s = duration_cast<double_seconds>(duration).count();
+
+    LOG_INFO("Point duration: %f", d_s);
 
     //interpolation loop
     while(!interrupt)
@@ -199,8 +210,11 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
       latest = Clock::now();
       auto elapsed = latest - t0;
 
-      if(point.time_from_start <= elapsed || last.time_from_start >= elapsed)
+      if(point.time_from_start <= elapsed)
         break;
+
+      if(last.time_from_start <= elapsed)
+        return true;
 
       double elapsed_s = duration_cast<double_seconds>(elapsed - prev.time_from_start).count();
       //double prev_seconds
@@ -223,6 +237,16 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
     }
 
     prev = point;
+  }
+
+  //In theory it's possible the last position won't be sent by
+  //the interpolation loop above but rather some position between
+  //t[N-1] and t[N] where N is the number of trajectory points.
+  //To make sure this does not happen the last position is sent 
+  //if not interrupted.
+  if(!interrupt)
+  {
+    return execute(last.positions, true);
   }
 
   return true;
