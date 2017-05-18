@@ -25,6 +25,7 @@ protected:
   {
     return false;
   }
+  virtual void setOptions(int socket_fd);
   
   
   bool setup(std::string &host, int port);

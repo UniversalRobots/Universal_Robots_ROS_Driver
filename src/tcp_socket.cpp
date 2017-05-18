@@ -16,6 +16,12 @@ TCPSocket::~TCPSocket()
   close();
 }
 
+void TCPSocket::setOptions(int socket_fd)
+{
+  int flag = 1;
+  setsockopt(socket_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+}
+
 bool TCPSocket::setup(std::string &host, int port)
 {
   if(state_ == SocketState::Connected)
@@ -63,6 +69,7 @@ bool TCPSocket::setup(std::string &host, int port)
   }
   else
   {
+    setOptions(socket_fd_);
     state_ = SocketState::Connected;
     LOG_INFO("Connection established for %s:%d", host.c_str(), port);
   }

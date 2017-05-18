@@ -9,6 +9,14 @@ URServer::URServer(int port)
 {
 }
 
+void URServer::setOptions(int socket_fd)
+{
+  TCPSocket::setOptions(socket_fd);
+
+  int flag = 1;
+  setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
+}
+
 std::string URServer::getIP()
 {
   char buf[128];

@@ -20,6 +20,8 @@ protected:
   {
     return ::bind(socket_fd, address, address_len) == 0;
   }
+  virtual void setOptions(int socket_fd);
+
 
 public:
   URServer(int port);
