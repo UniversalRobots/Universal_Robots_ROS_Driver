@@ -30,6 +30,15 @@ static const std::string BASE_FRAME_ARG("~base_frame");
 static const std::string TOOL_FRAME_ARG("~tool_frame");
 static const std::string JOINT_NAMES_PARAM("hardware_interface/joints");
 
+static const std::vector<std::string> DEFAULT_JOINTS = {
+  "shoulder_pan_joint",
+  "shoulder_lift_joint",
+  "elbow_joint",
+  "wrist_1_joint",
+  "wrist_2_joint",
+  "wrist_3_joint"
+};
+
 static const int UR_SECONDARY_PORT = 30002;
 static const int UR_RT_PORT = 30003;
 
@@ -61,7 +70,7 @@ bool parse_args(ProgArgs &args)
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
   ros::param::param(TOOL_FRAME_ARG, args.tool_frame, args.prefix + "tool0_controller");
-  ros::param::get(JOINT_NAMES_PARAM, args.joint_names);
+  ros::param::param(JOINT_NAMES_PARAM, args.joint_names, DEFAULT_JOINTS);
   return true;
 }
 
@@ -105,7 +114,7 @@ int main(int argc, char **argv)
   {
     LOG_INFO("ActionServer enabled");
     action_server = new ActionServer(traj_follower, args.joint_names, args.max_velocity);
-    //rt_vec.push_back(action_server);
+    rt_vec.push_back(action_server);
     services.push_back(action_server);
   }
 
