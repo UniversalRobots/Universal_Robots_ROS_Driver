@@ -10,6 +10,11 @@ URServer::URServer(int port)
 {
 }
 
+URServer::~URServer()
+{
+  TCPSocket::close();
+}
+
 void URServer::setOptions(int socket_fd)
 {
   TCPSocket::setOptions(socket_fd);
@@ -60,6 +65,8 @@ bool URServer::accept()
 
   if(client_fd <= 0)
     return false;
+
+  setOptions(client_fd);
 
   return client_.setSocketFD(client_fd);
 }

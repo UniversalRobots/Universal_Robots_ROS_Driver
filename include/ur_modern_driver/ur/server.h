@@ -24,6 +24,7 @@ protected:
 
 public:
   URServer(int port);
+  ~URServer();
   std::string getIP();
   bool bind();
   bool accept();
