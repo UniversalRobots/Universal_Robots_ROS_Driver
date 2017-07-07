@@ -23,6 +23,7 @@ bool URStream::read(uint8_t* buf, size_t buf_len, size_t &total)
 
   while(remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
   {
+    TCPSocket::setOptions(getSocketFD());
     if (initial)
     {
       remainder = be32toh(*(reinterpret_cast<int32_t*>(buf)));
