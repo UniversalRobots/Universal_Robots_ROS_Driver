@@ -69,7 +69,7 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
   : running_(false)
   , commander_(commander)
   , reverse_port_(reverse_port)
-  , servoj_time_(0.016/4)
+  , servoj_time_(0.008)
   , servoj_lookahead_time_(0.03)
   , servoj_gain_(300.)
   , server_(reverse_port)
@@ -205,7 +205,6 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
         return true;
 
       double elapsed_s = duration_cast<double_seconds>(elapsed - prev.time_from_start).count();
-      //double prev_seconds
       for(size_t j = 0; j < positions.size(); j++)
       {
         positions[j] = interpolate(
@@ -221,7 +220,7 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
       if(!execute(positions, true))
         return false;
 
-      std::this_thread::sleep_for(double_seconds(servoj_time_));
+      std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
     }
 
     prev = point;
@@ -239,8 +238,8 @@ void TrajectoryFollower::stop()
   if(!running_)
     return;
 
-  std::array<double, 6> empty;
-  execute(empty, false);
+  //std::array<double, 6> empty;
+  //execute(empty, false);
 
   server_.disconnectClient();
   running_ = false;
