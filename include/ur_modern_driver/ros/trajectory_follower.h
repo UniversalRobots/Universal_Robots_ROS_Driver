@@ -49,12 +49,11 @@ private:
     return s;
   }
 
-  std::string buildProgram();
   bool execute(std::array<double, 6> &positions, bool keep_alive);  
   double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel); 
 
 public:
-  TrajectoryFollower(URCommander &commander, int reverse_port, bool version_3);
+  TrajectoryFollower(URCommander &commander, std::string& reverse_ip, int reverse_port, bool version_3);
 
   bool start();
   bool execute(std::array<double, 6> &positions);

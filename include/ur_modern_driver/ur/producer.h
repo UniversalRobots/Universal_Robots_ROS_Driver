@@ -50,6 +50,10 @@ public:
 
       LOG_WARN("Failed to read from stream, reconnecting in %ld seconds...", timeout_.count());
       std::this_thread::sleep_for(timeout_);
+
+      if(stream_.connect())
+        continue;
+
       auto next = timeout_ * 2;
       if(next <= std::chrono::seconds(120))
         timeout_ = next;

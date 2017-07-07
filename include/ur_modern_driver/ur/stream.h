@@ -8,7 +8,7 @@
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/tcp_socket.h"
 
-class URStream : private TCPSocket
+class URStream : public TCPSocket
 {
 private:
   std::string host_;

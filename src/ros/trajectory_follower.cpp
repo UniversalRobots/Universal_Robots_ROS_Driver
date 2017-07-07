@@ -65,7 +65,7 @@ def driverProg():
 end
 )";
 
-TrajectoryFollower::TrajectoryFollower(URCommander &commander, int reverse_port, bool version_3)
+TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reverse_ip, int reverse_port, bool version_3)
   : running_(false)
   , commander_(commander)
   , reverse_port_(reverse_port)
@@ -75,7 +75,6 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, int reverse_port,
   , server_(reverse_port)
 {
   std::string res(POSITION_PROGRAM);
-
   res.replace(res.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
 
   std::ostringstream out;
@@ -85,17 +84,16 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, int reverse_port,
 
   res.replace(res.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
 
-  program_ = res;
-}
+  if(!server_.bind())
+  {
+    LOG_ERROR("Failed to bind server, the port %d is likely already in use", reverse_port);
+    std::exit(-1);
+  }  
 
-std::string TrajectoryFollower::buildProgram()
-{
-  std::string res(program_);
-  std::string IP(server_.getIP());
-  LOG_INFO("Local IP: %s  ", IP.c_str());
-  res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), "127.0.0.1");
+  res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), reverse_ip);
   res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port_));
-  return res;
+
+  program_ = res;
 }
 
 bool TrajectoryFollower::start()
@@ -103,23 +101,15 @@ bool TrajectoryFollower::start()
   if(running_)
     return true; //not sure
 
-  if(!server_.bind())
-  {
-    LOG_ERROR("Failed to bind server");
-    return false;
-  }
-
   LOG_INFO("Uploading trajectory program to robot");
-
-  std::string prog(buildProgram());
-  //std::string prog = "socket_open(\"127.0.0.1\", 50001)\n";
-  if(!commander_.uploadProg(prog))
+  
+  if(!commander_.uploadProg(program_))
   {
     LOG_ERROR("Program upload failed!");
     return false;
   }
 
-  LOG_INFO("Awaiting incomming robot connection");
+  LOG_DEBUG("Awaiting incomming robot connection");
 
   if(!server_.accept())
   {
@@ -127,7 +117,7 @@ bool TrajectoryFollower::start()
     return false;
   }
   
-  LOG_INFO("Robot successfully connected");
+  LOG_DEBUG("Robot successfully connected");
   return (running_ = true);
 }
 
@@ -182,7 +172,7 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
   typedef high_resolution_clock Clock;
   typedef Clock::time_point Time;
 
-  auto const& last = trajectory[trajectory.size()-1];
+  auto& last = trajectory[trajectory.size()-1];
   auto& prev = trajectory[0];
 
   Time t0 = Clock::now();
@@ -201,8 +191,6 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
 
     auto duration = point.time_from_start - prev.time_from_start;
     double d_s = duration_cast<double_seconds>(duration).count();
-
-    LOG_INFO("Point duration: %f", d_s);
 
     //interpolation loop
     while(!interrupt)
@@ -243,13 +231,7 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
   //the interpolation loop above but rather some position between
   //t[N-1] and t[N] where N is the number of trajectory points.
   //To make sure this does not happen the last position is sent 
-  //if not interrupted.
-  if(!interrupt)
-  {
-    return execute(last.positions, true);
-  }
-
-  return true;
+  return execute(last.positions, true);
 }
 
 void TrajectoryFollower::stop()
@@ -260,6 +242,6 @@ void TrajectoryFollower::stop()
   std::array<double, 6> empty;
   execute(empty, false);
 
-  //server_.disconnect();
+  server_.disconnectClient();
   running_ = false;
 }

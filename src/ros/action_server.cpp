@@ -51,12 +51,12 @@ void ActionServer::onRobotStateChange(RobotState state)
   }
 
   interrupt_traj_ = true;
-  //wait for goal to be interrupted
+  //wait for goal to be interrupted and automagically unlock when going out of scope
   std::lock_guard<std::mutex> lock(tj_mutex_);
 
   Result res;
   res.error_code = -100;
-  res.error_string = "Received another trajectory";
+  res.error_string = "Robot safety stop";
   curr_gh_.setAborted(res, res.error_string);
 }
 
@@ -212,8 +212,8 @@ bool ActionServer::validateTrajectory(GoalHandle& gh, Result& res)
 
 inline std::chrono::microseconds convert(const ros::Duration &dur)
 {
-  return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::seconds(dur.sec)) 
-    + std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::nanoseconds(dur.nsec));
+  return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(dur.sec) +
+    std::chrono::nanoseconds(dur.nsec));
 }
 
 bool ActionServer::try_execute(GoalHandle& gh, Result& res)
@@ -261,7 +261,7 @@ std::vector<size_t> ActionServer::reorderMap(std::vector<std::string> goal_joint
 void ActionServer::trajectoryThread()
 {
   LOG_INFO("Trajectory thread started");
-  follower_.start(); //todo check error
+  
   while(running_)
   {
     std::unique_lock<std::mutex> lk(tj_mutex_);
@@ -272,7 +272,8 @@ void ActionServer::trajectoryThread()
     curr_gh_.setAccepted();
 
     auto goal = curr_gh_.getGoal();
-    std::vector<TrajectoryPoint> trajectory(goal->trajectory.points.size());
+    std::vector<TrajectoryPoint> trajectory;
+    trajectory.reserve(goal->trajectory.points.size()+1);
 
     //joint names of the goal might have a different ordering compared
     //to what URScript expects so need to map between the two
@@ -281,7 +282,7 @@ void ActionServer::trajectoryThread()
     LOG_INFO("Translating trajectory");
 
     auto const& fp = goal->trajectory.points[0];
-    auto fpt = convert(fp.time_from_start)
+    auto fpt = convert(fp.time_from_start);
 
     //make sure we have a proper t0 position
     if(fpt > std::chrono::microseconds(0))
@@ -290,6 +291,7 @@ void ActionServer::trajectoryThread()
       trajectory.push_back(TrajectoryPoint(q_actual_, qd_actual_, std::chrono::microseconds(0)));
     }
 
+    int j = 0;
     for(auto const& point : goal->trajectory.points)
     {
       std::array<double, 6> pos, vel;
@@ -299,35 +301,49 @@ void ActionServer::trajectoryThread()
         pos[idx] = point.positions[i];
         vel[idx] = point.velocities[i];
       }
-      trajectory.push_back(TrajectoryPoint(pos, vel, convert(point.time_from_start)));
+      auto t = convert(point.time_from_start);
+      LOG_DEBUG("P[%d] = %ds, %dns -> %dus", j++, point.time_from_start.sec, point.time_from_start.nsec, t.count());
+      trajectory.push_back(TrajectoryPoint(pos, vel, t));
     }
 
     double t = std::chrono::duration_cast<std::chrono::duration<double>>(trajectory[trajectory.size()-1].time_from_start).count();
-    LOG_INFO("Trajectory with %d points and duration of %f constructed, executing now", trajectory.size(), t);
+    LOG_INFO("Executing trajectory with %d points and duration of %4.3fs", trajectory.size(), t);
 
     Result res;
-    if(follower_.execute(trajectory, interrupt_traj_))
+
+    if(follower_.start())
     {
-      //interrupted goals must be handled by interrupt trigger
-      if(!interrupt_traj_)
+      if(follower_.execute(trajectory, interrupt_traj_))
       {
-        LOG_INFO("Trajectory executed successfully");
-        res.error_code = Result::SUCCESSFUL;
-        curr_gh_.setSucceeded(res);
+        //interrupted goals must be handled by interrupt trigger
+        if(!interrupt_traj_)
+        {
+          LOG_INFO("Trajectory executed successfully");
+          res.error_code = Result::SUCCESSFUL;
+          curr_gh_.setSucceeded(res);
+        }
+        else
+          LOG_INFO("Trajectory interrupted");
       }
       else
-        LOG_INFO("Trajectory interrupted");
+      {
+        LOG_INFO("Trajectory failed");
+        res.error_code = -100;
+        res.error_string = "Connection to robot was lost";      
+        curr_gh_.setAborted(res, res.error_string);
+      }
+
+      follower_.stop();
     }
     else
     {
-      LOG_INFO("Trajectory failed");
+      LOG_ERROR("Failed to start trajectory follower!");
       res.error_code = -100;
-      res.error_string = "Connection to robot was lost";      
+      res.error_string = "Robot connection could not be established";      
       curr_gh_.setAborted(res, res.error_string);
     }
 
     has_goal_ = false;
     lk.unlock();
   }
-  follower_.stop();
 }

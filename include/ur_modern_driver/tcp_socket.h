@@ -29,8 +29,6 @@ protected:
   
   
   bool setup(std::string &host, int port);
-  void close();
-
 
 public:
   TCPSocket();
@@ -41,6 +39,10 @@ public:
   int getSocketFD() { return socket_fd_; }
   bool setSocketFD(int socket_fd);
 
+  std::string getIP();
+
   bool read(uint8_t* buf, size_t buf_len, size_t &read);
   bool write(const uint8_t* buf, size_t buf_len, size_t &written);
+
+  void close();  
 };

@@ -1,5 +1,6 @@
 #include <cstring>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/server.h"
@@ -19,8 +20,18 @@ void URServer::setOptions(int socket_fd)
 
 std::string URServer::getIP()
 {
+  sockaddr_in name;
+  socklen_t len = sizeof(name);
+  int res = ::getsockname(getSocketFD(), (sockaddr*)&name, &len);
+
+  if(res < 0)
+  {
+    LOG_ERROR("Could not get local IP");
+    return std::string();
+  }
+
   char buf[128];
-  int res = ::gethostname(buf, sizeof(buf));
+  inet_ntop(AF_INET, &name.sin_addr, buf, sizeof(buf));
   return std::string(buf);
 }
 
@@ -28,7 +39,6 @@ bool URServer::bind()
 {
   std::string empty;
   bool res = TCPSocket::setup(empty, port_);
-  state_ = TCPSocket::getState();
   
   if(!res)
     return false;
@@ -41,7 +51,7 @@ bool URServer::bind()
 
 bool URServer::accept()
 {
-  if(state_ != SocketState::Connected || client_.getSocketFD() > 0)
+  if(TCPSocket::getState() != SocketState::Connected || client_.getSocketFD() > 0)
     return false;
 
   struct sockaddr addr; 
@@ -52,6 +62,14 @@ bool URServer::accept()
     return false;
 
   return client_.setSocketFD(client_fd);
+}
+
+void URServer::disconnectClient()
+{
+  if(client_.getState() != SocketState::Connected)
+    return;
+  
+  client_.close();
 }
 
 bool URServer::write(const uint8_t* buf, size_t buf_len, size_t &written)

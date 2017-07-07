@@ -68,7 +68,7 @@ public:
   template <typename T>
   T peek()
   {
-    assert(buf_pos_ <= buf_end_);
+    assert(buf_pos_ + sizeof(T) <= buf_end_);
     T val;
     std::memcpy(&val, buf_pos_, sizeof(T));
     return decode(val);

@@ -1,5 +1,6 @@
 #include <endian.h>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
 
@@ -92,6 +93,23 @@ void TCPSocket::close()
   state_ = SocketState::Closed;
   ::shutdown(socket_fd_, SHUT_RDWR);
   socket_fd_ = -1;
+}
+
+std::string TCPSocket::getIP()
+{
+  sockaddr_in name;
+  socklen_t len = sizeof(name);
+  int res = ::getsockname(socket_fd_, (sockaddr*)&name, &len);
+
+  if(res < 0)
+  {
+    LOG_ERROR("Could not get local IP");
+    return std::string();
+  }
+
+  char buf[128];
+  inet_ntop(AF_INET, &name.sin_addr, buf, sizeof(buf));
+  return std::string(buf);
 }
 
 bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)

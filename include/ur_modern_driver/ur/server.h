@@ -12,7 +12,6 @@ class URServer : private TCPSocket
 {
 private:
   int port_;
-  SocketState state_;
   TCPSocket client_;
 
 protected:
@@ -28,5 +27,6 @@ public:
   std::string getIP();
   bool bind();
   bool accept();
+  void disconnectClient();
   bool write(const uint8_t* buf, size_t buf_len, size_t &written);
 };

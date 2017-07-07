@@ -74,7 +74,11 @@ bool parse_args(ProgArgs &args)
   return true;
 }
 
-#include "ur_modern_driver/ur/server.h"
+std::string getLocalIPAccessibleFromHost(std::string& host)
+{
+  URStream stream(host, UR_RT_PORT);
+  return stream.connect() ? stream.getIP() : std::string();
+}
 
 int main(int argc, char **argv)
 {
@@ -86,9 +90,9 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-
+  std::string local_ip(getLocalIPAccessibleFromHost(args.host));
+  
   URFactory factory(args.host);
-
   vector<Service*> services;
 
   // RT packets
@@ -99,7 +103,7 @@ int main(int argc, char **argv)
   auto rt_commander = factory.getCommander(rt_stream);
   vector<IConsumer<RTPacket> *> rt_vec{&rt_pub};
 
-  TrajectoryFollower traj_follower(*rt_commander, args.reverse_port, factory.isVersion3());
+  TrajectoryFollower traj_follower(*rt_commander, local_ip, args.reverse_port, factory.isVersion3());
 
   ROSController *controller(nullptr);
   ActionServer *action_server(nullptr);
