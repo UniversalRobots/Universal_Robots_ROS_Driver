@@ -74,6 +74,11 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
   , servoj_gain_(300.)
   , server_(reverse_port)
 {
+  ros::param::get("~servoj_time", servoj_time_);
+  ros::param::get("~servoj_lookahead_time", servoj_lookahead_time_);
+  ros::param::get("~servoj_gain", servoj_gain_);
+
+
   std::string res(POSITION_PROGRAM);
   res.replace(res.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
 
@@ -83,17 +88,15 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
     out << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
 
   res.replace(res.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
+  res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), reverse_ip);
+  res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port_));
+  program_ = res;
 
   if(!server_.bind())
   {
     LOG_ERROR("Failed to bind server, the port %d is likely already in use", reverse_port);
     std::exit(-1);
   }  
-
-  res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), reverse_ip);
-  res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port_));
-
-  program_ = res;
 }
 
 bool TrajectoryFollower::start()
