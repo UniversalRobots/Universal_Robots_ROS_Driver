@@ -133,7 +133,7 @@ endif()
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(include 
+include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -176,6 +176,7 @@ target_link_libraries(ur_driver
 #############
 
 install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+install(DIRECTORY config/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config)
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ur_driver ur_hardware_interface
