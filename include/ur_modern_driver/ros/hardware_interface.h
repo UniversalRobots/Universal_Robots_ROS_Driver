@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/rt_state.h"
+#include "ur_modern_driver/ros/trajectory_follower.h"
 
 class HardwareInterface
 {
@@ -56,11 +57,11 @@ public:
 class PositionInterface : public HardwareInterface, public hardware_interface::PositionJointInterface
 {
 private:
-  URCommander &commander_;
+  TrajectoryFollower& follower_;
   std::array<double, 6> position_cmd_;
 
 public:
-  PositionInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names);
+  PositionInterface(TrajectoryFollower& follower, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names);
   virtual bool write();
   virtual void start();
   virtual void stop();

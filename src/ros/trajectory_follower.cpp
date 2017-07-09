@@ -68,11 +68,10 @@ end
 TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reverse_ip, int reverse_port, bool version_3)
   : running_(false)
   , commander_(commander)
-  , reverse_port_(reverse_port)
+  , server_(reverse_port)
   , servoj_time_(0.008)
   , servoj_lookahead_time_(0.03)
   , servoj_gain_(300.)
-  , server_(reverse_port)
 {
   ros::param::get("~servoj_time", servoj_time_);
   ros::param::get("~servoj_lookahead_time", servoj_lookahead_time_);
@@ -89,7 +88,7 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
 
   res.replace(res.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   res.replace(res.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), reverse_ip);
-  res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port_));
+  res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
   program_ = res;
 
   if(!server_.bind())

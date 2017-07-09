@@ -13,10 +13,10 @@ ActionServer::ActionServer(TrajectoryFollower& follower, std::vector<std::string
   , joint_set_(joint_names.begin(), joint_names.end())
   , max_velocity_(max_velocity)
   , interrupt_traj_(false)
-  , running_(false)
   , has_goal_(false)
-  , state_(RobotState::Error)
+  , running_(false)
   , follower_(follower)
+  , state_(RobotState::Error)
 {
 }
 
@@ -291,7 +291,6 @@ void ActionServer::trajectoryThread()
       trajectory.push_back(TrajectoryPoint(q_actual_, qd_actual_, std::chrono::microseconds(0)));
     }
 
-    int j = 0;
     for(auto const& point : goal->trajectory.points)
     {
       std::array<double, 6> pos, vel;
@@ -302,12 +301,11 @@ void ActionServer::trajectoryThread()
         vel[idx] = point.velocities[i];
       }
       auto t = convert(point.time_from_start);
-      LOG_DEBUG("P[%d] = %ds, %dns -> %dus", j++, point.time_from_start.sec, point.time_from_start.nsec, t.count());
       trajectory.push_back(TrajectoryPoint(pos, vel, t));
     }
 
     double t = std::chrono::duration_cast<std::chrono::duration<double>>(trajectory[trajectory.size()-1].time_from_start).count();
-    LOG_INFO("Executing trajectory with %d points and duration of %4.3fs", trajectory.size(), t);
+    LOG_INFO("Executing trajectory with %zu points and duration of %4.3fs", trajectory.size(), t);
 
     Result res;
 

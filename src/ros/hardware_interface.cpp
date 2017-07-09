@@ -57,8 +57,8 @@ void VelocityInterface::reset()
 }
 
 
-PositionInterface::  PositionInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names)
-  : commander_(commander)
+PositionInterface::  PositionInterface(TrajectoryFollower& follower, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names)
+  : follower_(follower)
 {
   for (size_t i = 0; i < 6; i++)
   {
@@ -68,15 +68,15 @@ PositionInterface::  PositionInterface(URCommander &commander, hardware_interfac
 
 bool PositionInterface::write()
 {
-
+  return follower_.execute(position_cmd_);
 }
 
 void PositionInterface::start()
 {
-
+  follower_.start();
 }
 
 void PositionInterface::stop()
 {
-
+  follower_.stop();
 }

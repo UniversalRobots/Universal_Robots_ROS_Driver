@@ -55,7 +55,7 @@ private:
   void reset();
 
 public:
-  ROSController(URCommander& commander,  std::vector<std::string>& joint_names, double max_vel_change);
+  ROSController(URCommander& commander, TrajectoryFollower& follower, std::vector<std::string>& joint_names, double max_vel_change);
   virtual ~ROSController() { }
   // from RobotHW
   void doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list, const std::list<hardware_interface::ControllerInfo>& stop_list);

@@ -33,17 +33,16 @@ public:
     bp.parse(packet_size);
     bp.parse(type);
 
-    //quietly ignore the intial version message
-    if (type == message_type::ROBOT_MESSAGE || ((int)type) == 5)
-    {
-      bp.consume();
-      return true;
-    }
-
     if (type != message_type::ROBOT_STATE)
     {
-      LOG_WARN("Invalid state message type recieved: %u", static_cast<uint8_t>(type));
-      return false;
+      //quietly ignore the intial version message
+      if(type != message_type::ROBOT_MESSAGE)
+      {
+        LOG_WARN("Invalid state message type recieved: %u", static_cast<uint8_t>(type));
+      }
+
+      bp.consume();
+      return true;
     }
 
     while (!bp.empty())
@@ -60,8 +59,6 @@ public:
         return false;
       }
 
-      //LOG_DEBUG("sub-packet size: %" PRIu32, sub_size);
-
       // deconstruction of a sub parser will increment the position of the parent parser
       BinParser sbp(bp, sub_size);
       sbp.consume(sizeof(sub_size));
@@ -73,7 +70,6 @@ public:
       if (packet == nullptr)
       {
         sbp.consume();
-        //LOG_DEBUG("Skipping sub-packet of type %d", type);
         continue;
       }
 

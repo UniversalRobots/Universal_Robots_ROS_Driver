@@ -110,7 +110,7 @@ int main(int argc, char **argv)
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    controller = new ROSController(*rt_commander, args.joint_names, args.max_vel_change);
+    controller = new ROSController(*rt_commander, traj_follower, args.joint_names, args.max_vel_change);
     rt_vec.push_back(controller);
     services.push_back(controller);
   }

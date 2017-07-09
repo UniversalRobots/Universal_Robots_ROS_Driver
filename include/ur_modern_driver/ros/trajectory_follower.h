@@ -33,12 +33,12 @@ struct TrajectoryPoint
 class TrajectoryFollower 
 {
 private:
-  double servoj_time_, servoj_lookahead_time_, servoj_gain_;
   std::atomic<bool> running_;
   std::array<double, 6> last_positions_;
   URCommander &commander_;
   URServer server_;
-  int reverse_port_;
+
+  double servoj_time_, servoj_lookahead_time_, servoj_gain_;
   std::string program_;
 
   template <typename T>

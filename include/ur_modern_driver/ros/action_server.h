@@ -32,9 +32,6 @@ private:
   std::set<std::string> joint_set_;
   double max_velocity_;
 
-  RobotState state_;
-  std::array<double, 6> q_actual_, qd_actual_;
-
   GoalHandle curr_gh_;
   std::atomic<bool> interrupt_traj_;
   std::atomic<bool> has_goal_, running_;
@@ -43,6 +40,9 @@ private:
   std::thread tj_thread_;
 
   TrajectoryFollower& follower_;
+
+  RobotState state_;
+  std::array<double, 6> q_actual_, qd_actual_;
 
   void onGoal(GoalHandle gh);
   void onCancel(GoalHandle gh);
