@@ -134,7 +134,7 @@ else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
-set(CMAKE_CXX_FLAGS "-g -Wall -Wextra ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Wno-unused-parameter ${CMAKE_CXX_FLAGS}")
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
@@ -146,7 +146,9 @@ include_directories(include
 ## Declare a C++ library
 
 # Hardware Interface
-add_library(ur_hardware_interface src/ur_hardware_interface.cpp)
+add_library(ur_hardware_interface 
+  src/ros/hardware_interface.cpp 
+  src/ros/controller.cpp)
 target_link_libraries(ur_hardware_interface
   ${catkin_LIBRARIES}
 )
@@ -159,8 +161,6 @@ target_link_libraries(ur_hardware_interface
 ## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
     src/ros/action_server.cpp
-    src/ros/controller.cpp
-    src/ros/hardware_interface.cpp
     src/ros/mb_publisher.cpp
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
@@ -172,13 +172,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ur/master_board.cpp
     src/ur/rt_state.cpp
     src/ur/messages.cpp
-    src/tcp_socket.cpp
-    src/ur_driver.cpp
-    src/ur_realtime_communication.cpp
-    src/ur_communication.cpp
-    src/robot_state.cpp
-    src/robot_state_RT.cpp
-    src/do_output.cpp)
+    src/tcp_socket.cpp)
 
 add_executable(ur_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
 
