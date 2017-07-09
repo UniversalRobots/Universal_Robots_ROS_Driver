@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cstdlib>
 #include <chrono>
+#include <cstdlib>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/consumer.h"
-
 
 class EventCounter : public URRTPacketConsumer
 {
@@ -13,32 +12,31 @@ private:
   Clock::time_point events_[250];
   size_t idx_ = 0;
 
-
   Clock::time_point last_;
 
 public:
   void trigger()
   {
-    //auto now = Clock::now();
-    //LOG_INFO("Time diff: %d ms", std::chrono::duration_cast<std::chrono::microseconds>(now - last_));
-    //last_ = now;
-    //return;
+    // auto now = Clock::now();
+    // LOG_INFO("Time diff: %d ms", std::chrono::duration_cast<std::chrono::microseconds>(now - last_));
+    // last_ = now;
+    // return;
 
     events_[idx_] = Clock::now();
     idx_ += 1;
 
-    if(idx_ > 250)
+    if (idx_ > 250)
     {
       std::chrono::time_point<std::chrono::high_resolution_clock> t_min =
-          std::chrono::time_point<std::chrono::high_resolution_clock>::max();     
+          std::chrono::time_point<std::chrono::high_resolution_clock>::max();
       std::chrono::time_point<std::chrono::high_resolution_clock> t_max =
           std::chrono::time_point<std::chrono::high_resolution_clock>::min();
-          
-      for(auto const& e : events_)
+
+      for (auto const& e : events_)
       {
-        if(e < t_min)
+        if (e < t_min)
           t_min = e;
-        if(e > t_max)
+        if (e > t_max)
           t_max = e;
       }
 
@@ -46,7 +44,7 @@ public:
       auto secs = std::chrono::duration_cast<std::chrono::seconds>(diff).count();
       auto ms = std::chrono::duration_cast<std::chrono::microseconds>(diff).count();
       std::chrono::duration<double> test(t_max - t_min);
-      LOG_INFO("Recieved 250 messages at %f Hz", (250.0/test.count()));
+      LOG_INFO("Recieved 250 messages at %f Hz", (250.0 / test.count()));
       idx_ = 0;
     }
   }

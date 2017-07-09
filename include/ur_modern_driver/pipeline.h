@@ -43,28 +43,28 @@ public:
 
   virtual void setupConsumer()
   {
-    for(auto &con : consumers_)
+    for (auto& con : consumers_)
     {
       con->setupConsumer();
     }
   }
   virtual void teardownConsumer()
   {
-    for(auto &con : consumers_)
+    for (auto& con : consumers_)
     {
       con->teardownConsumer();
     }
   }
   virtual void stopConsumer()
   {
-    for(auto &con : consumers_)
+    for (auto& con : consumers_)
     {
       con->stopConsumer();
     }
   }
   virtual void onTimeout()
   {
-    for(auto &con : consumers_)
+    for (auto& con : consumers_)
     {
       con->onTimeout();
     }
@@ -73,9 +73,9 @@ public:
   bool consume(shared_ptr<T> product)
   {
     bool res = true;
-    for(auto &con : consumers_)
+    for (auto& con : consumers_)
     {
-      if(!con->consume(product))
+      if (!con->consume(product))
         res = false;
     }
     return res;
@@ -153,7 +153,7 @@ private:
         Time now = Clock::now();
         auto pkg_diff = now - last_pkg;
         auto warn_diff = now - last_warn;
-        if(pkg_diff > std::chrono::seconds(1) && warn_diff > std::chrono::seconds(1))
+        if (pkg_diff > std::chrono::seconds(1) && warn_diff > std::chrono::seconds(1))
         {
           last_warn = now;
           consumer_.onTimeout();

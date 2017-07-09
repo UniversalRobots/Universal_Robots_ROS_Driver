@@ -3,11 +3,11 @@
 #include <assert.h>
 #include <endian.h>
 #include <inttypes.h>
+#include <array>
+#include <bitset>
 #include <cstddef>
 #include <cstring>
 #include <string>
-#include <array>
-#include <bitset>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/types.h"
 

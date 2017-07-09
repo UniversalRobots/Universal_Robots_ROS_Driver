@@ -1,6 +1,6 @@
 #include "ur_modern_driver/ros/mb_publisher.h"
 
-inline void appendAnalog(std::vector<ur_msgs::Analog> &vec, double val, uint8_t pin)
+inline void appendAnalog(std::vector<ur_msgs::Analog>& vec, double val, uint8_t pin)
 {
   ur_msgs::Analog ana;
   ana.pin = pin;
@@ -8,7 +8,7 @@ inline void appendAnalog(std::vector<ur_msgs::Analog> &vec, double val, uint8_t 
   vec.push_back(ana);
 }
 
-void MBPublisher::publish(ur_msgs::IOStates &io_msg, SharedMasterBoardData& data)
+void MBPublisher::publish(ur_msgs::IOStates& io_msg, SharedMasterBoardData& data)
 {
   appendAnalog(io_msg.analog_in_states, data.analog_input0, 0);
   appendAnalog(io_msg.analog_in_states, data.analog_input1, 1);

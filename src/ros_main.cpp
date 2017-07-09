@@ -11,8 +11,8 @@
 #include "ur_modern_driver/ros/io_service.h"
 #include "ur_modern_driver/ros/mb_publisher.h"
 #include "ur_modern_driver/ros/rt_publisher.h"
-#include "ur_modern_driver/ros/trajectory_follower.h"
 #include "ur_modern_driver/ros/service_stopper.h"
+#include "ur_modern_driver/ros/trajectory_follower.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
 #include "ur_modern_driver/ur/messages.h"
@@ -30,14 +30,8 @@ static const std::string BASE_FRAME_ARG("~base_frame");
 static const std::string TOOL_FRAME_ARG("~tool_frame");
 static const std::string JOINT_NAMES_PARAM("hardware_interface/joints");
 
-static const std::vector<std::string> DEFAULT_JOINTS = {
-  "shoulder_pan_joint",
-  "shoulder_lift_joint",
-  "elbow_joint",
-  "wrist_1_joint",
-  "wrist_2_joint",
-  "wrist_3_joint"
-};
+static const std::vector<std::string> DEFAULT_JOINTS = { "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
+                                                         "wrist_1_joint",      "wrist_2_joint",       "wrist_3_joint" };
 
 static const int UR_SECONDARY_PORT = 30002;
 static const int UR_RT_PORT = 30003;
@@ -65,7 +59,7 @@ bool parse_args(ProgArgs &args)
     return false;
   }
   ros::param::param(REVERSE_PORT_ARG, args.reverse_port, int32_t(50001));
-  ros::param::param(MAX_VEL_CHANGE_ARG, args.max_vel_change, 15.0); // rad/s
+  ros::param::param(MAX_VEL_CHANGE_ARG, args.max_vel_change, 15.0);  // rad/s
   ros::param::param(ROS_CONTROL_ARG, args.use_ros_control, false);
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
@@ -74,7 +68,7 @@ bool parse_args(ProgArgs &args)
   return true;
 }
 
-std::string getLocalIPAccessibleFromHost(std::string& host)
+std::string getLocalIPAccessibleFromHost(std::string &host)
 {
   URStream stream(host, UR_RT_PORT);
   return stream.connect() ? stream.getIP() : std::string();
@@ -91,9 +85,9 @@ int main(int argc, char **argv)
   }
 
   std::string local_ip(getLocalIPAccessibleFromHost(args.host));
-  
+
   URFactory factory(args.host);
-  vector<Service*> services;
+  vector<Service *> services;
 
   // RT packets
   auto rt_parser = factory.getRTParser();
@@ -101,7 +95,7 @@ int main(int argc, char **argv)
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
   RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
   auto rt_commander = factory.getCommander(rt_stream);
-  vector<IConsumer<RTPacket> *> rt_vec{&rt_pub};
+  vector<IConsumer<RTPacket> *> rt_vec{ &rt_pub };
 
   TrajectoryFollower traj_follower(*rt_commander, local_ip, args.reverse_port, factory.isVersion3());
 
@@ -130,10 +124,10 @@ int main(int argc, char **argv)
   URStream state_stream(args.host, UR_SECONDARY_PORT);
   URProducer<StatePacket> state_prod(state_stream, *state_parser);
   MBPublisher state_pub;
-  
+
   ServiceStopper service_stopper(services);
 
-  vector<IConsumer<StatePacket> *> state_vec{&state_pub, &service_stopper};
+  vector<IConsumer<StatePacket> *> state_vec{ &state_pub, &service_stopper };
   MultiConsumer<StatePacket> state_cons(state_vec);
   Pipeline<StatePacket> state_pl(state_prod, state_cons);
 
@@ -145,7 +139,7 @@ int main(int argc, char **argv)
   auto state_commander = factory.getCommander(state_stream);
   IOService io_service(*state_commander);
 
-  if(action_server)
+  if (action_server)
     action_server->start();
 
   ros::spin();
@@ -154,8 +148,8 @@ int main(int argc, char **argv)
 
   rt_pl.stop();
   state_pl.stop();
-  
-  if(controller)
+
+  if (controller)
     delete controller;
 
   LOG_INFO("Pipelines shutdown complete");

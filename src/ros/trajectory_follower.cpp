@@ -1,8 +1,7 @@
-#include <cmath>
-#include <endian.h>
 #include "ur_modern_driver/ros/trajectory_follower.h"
-  
-  
+#include <endian.h>
+#include <cmath>
+
 static const int32_t MULT_JOINTSTATE_ = 1000000;
 static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");
 static const std::string SERVO_J_REPLACE("{{SERVO_J_REPLACE}}");
@@ -65,7 +64,8 @@ def driverProg():
 end
 )";
 
-TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reverse_ip, int reverse_port, bool version_3)
+TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port,
+                                       bool version_3)
   : running_(false)
   , commander_(commander)
   , server_(reverse_port)
@@ -77,13 +77,12 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
   ros::param::get("~servoj_lookahead_time", servoj_lookahead_time_);
   ros::param::get("~servoj_gain", servoj_gain_);
 
-
   std::string res(POSITION_PROGRAM);
   res.replace(res.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
 
   std::ostringstream out;
   out << "t=" << std::fixed << std::setprecision(4) << servoj_time_;
-  if(version_3)
+  if (version_3)
     out << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
 
   res.replace(res.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
@@ -91,21 +90,21 @@ TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string& reve
   res.replace(res.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
   program_ = res;
 
-  if(!server_.bind())
+  if (!server_.bind())
   {
     LOG_ERROR("Failed to bind server, the port %d is likely already in use", reverse_port);
     std::exit(-1);
-  }  
+  }
 }
 
 bool TrajectoryFollower::start()
 {
-  if(running_)
-    return true; //not sure
+  if (running_)
+    return true;  // not sure
 
   LOG_INFO("Uploading trajectory program to robot");
-  
-  if(!commander_.uploadProg(program_))
+
+  if (!commander_.uploadProg(program_))
   {
     LOG_ERROR("Program upload failed!");
     return false;
@@ -113,29 +112,30 @@ bool TrajectoryFollower::start()
 
   LOG_DEBUG("Awaiting incomming robot connection");
 
-  if(!server_.accept())
+  if (!server_.accept())
   {
     LOG_ERROR("Failed to accept incomming robot connection");
     return false;
   }
-  
+
   LOG_DEBUG("Robot successfully connected");
   return (running_ = true);
 }
 
 bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_alive)
 {
-  if(!running_)
+  if (!running_)
     return false;
 
-  //  LOG_INFO("servoj([%f,%f,%f,%f,%f,%f])", positions[0], positions[1], positions[2], positions[3], positions[4], positions[5]);
+  //  LOG_INFO("servoj([%f,%f,%f,%f,%f,%f])", positions[0], positions[1], positions[2], positions[3], positions[4],
+  //  positions[5]);
 
   last_positions_ = positions;
 
-  uint8_t buf[sizeof(uint32_t)*7];
+  uint8_t buf[sizeof(uint32_t) * 7];
   uint8_t *idx = buf;
-  
-  for(auto const& pos : positions)
+
+  for (auto const &pos : positions)
   {
     int32_t val = static_cast<int32_t>(pos * MULT_JOINTSTATE_);
     val = htobe32(val);
@@ -145,7 +145,7 @@ bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_ali
   int32_t val = htobe32(static_cast<int32_t>(keep_alive));
   append(idx, val);
 
-  size_t written; 
+  size_t written;
   return server_.write(buf, sizeof(buf), written);
 }
 
@@ -166,60 +166,54 @@ bool TrajectoryFollower::execute(std::array<double, 6> &positions)
 
 bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
 {
-  if(!running_)
+  if (!running_)
     return false;
-  
+
   using namespace std::chrono;
   typedef duration<double> double_seconds;
   typedef high_resolution_clock Clock;
   typedef Clock::time_point Time;
 
-  auto& last = trajectory[trajectory.size()-1];
-  auto& prev = trajectory[0];
+  auto &last = trajectory[trajectory.size() - 1];
+  auto &prev = trajectory[0];
 
   Time t0 = Clock::now();
   Time latest = t0;
 
   std::array<double, 6> positions;
 
-  for(auto const& point : trajectory)
+  for (auto const &point : trajectory)
   {
-    //skip t0
-    if(&point == &prev)
+    // skip t0
+    if (&point == &prev)
       continue;
 
-    if(interrupt)
+    if (interrupt)
       break;
 
     auto duration = point.time_from_start - prev.time_from_start;
     double d_s = duration_cast<double_seconds>(duration).count();
 
-    //interpolation loop
-    while(!interrupt)
+    // interpolation loop
+    while (!interrupt)
     {
       latest = Clock::now();
       auto elapsed = latest - t0;
 
-      if(point.time_from_start <= elapsed)
+      if (point.time_from_start <= elapsed)
         break;
 
-      if(last.time_from_start <= elapsed)
+      if (last.time_from_start <= elapsed)
         return true;
 
       double elapsed_s = duration_cast<double_seconds>(elapsed - prev.time_from_start).count();
-      for(size_t j = 0; j < positions.size(); j++)
+      for (size_t j = 0; j < positions.size(); j++)
       {
-        positions[j] = interpolate(
-          elapsed_s, 
-          d_s, 
-          prev.positions[j], 
-          point.positions[j],
-          prev.velocities[j],
-          point.velocities[j]
-        );
+        positions[j] =
+            interpolate(elapsed_s, d_s, prev.positions[j], point.positions[j], prev.velocities[j], point.velocities[j]);
       }
 
-      if(!execute(positions, true))
+      if (!execute(positions, true))
         return false;
 
       std::this_thread::sleep_for(std::chrono::milliseconds((int)((servoj_time_ * 1000) / 4.)));
@@ -228,20 +222,20 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
     prev = point;
   }
 
-  //In theory it's possible the last position won't be sent by
-  //the interpolation loop above but rather some position between
-  //t[N-1] and t[N] where N is the number of trajectory points.
-  //To make sure this does not happen the last position is sent 
+  // In theory it's possible the last position won't be sent by
+  // the interpolation loop above but rather some position between
+  // t[N-1] and t[N] where N is the number of trajectory points.
+  // To make sure this does not happen the last position is sent
   return execute(last.positions, true);
 }
 
 void TrajectoryFollower::stop()
 {
-  if(!running_)
+  if (!running_)
     return;
 
-  //std::array<double, 6> empty;
-  //execute(empty, false);
+  // std::array<double, 6> empty;
+  // execute(empty, false);
 
   server_.disconnectClient();
   running_ = false;

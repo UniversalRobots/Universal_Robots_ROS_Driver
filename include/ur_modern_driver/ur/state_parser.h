@@ -35,8 +35,8 @@ public:
 
     if (type != message_type::ROBOT_STATE)
     {
-      //quietly ignore the intial version message
-      if(type != message_type::ROBOT_MESSAGE)
+      // quietly ignore the intial version message
+      if (type != message_type::ROBOT_MESSAGE)
       {
         LOG_WARN("Invalid state message type recieved: %u", static_cast<uint8_t>(type));
       }

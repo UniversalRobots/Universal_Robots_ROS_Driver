@@ -1,20 +1,20 @@
 #pragma once
 #include <array>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 #include "ur_modern_driver/ur/stream.h"
 
 class URCommander
 {
 private:
-  URStream& stream_;
+  URStream &stream_;
 
 protected:
-  bool write(std::string& s);
+  bool write(std::string &s);
   void formatArray(std::ostringstream &out, std::array<double, 6> &values);
 
 public:
-  URCommander(URStream& stream) : stream_(stream)
+  URCommander(URStream &stream) : stream_(stream)
   {
   }
 
@@ -22,7 +22,7 @@ public:
   virtual bool setDigitalOut(uint8_t pin, bool value) = 0;
   virtual bool setAnalogOut(uint8_t pin, double value) = 0;
 
-  //shared
+  // shared
   bool uploadProg(std::string &s);
   bool stopj(double a = 10.0);
   bool setToolVoltage(uint8_t voltage);
@@ -33,7 +33,7 @@ public:
 class URCommander_V1_X : public URCommander
 {
 public:
-  URCommander_V1_X(URStream& stream) : URCommander(stream)
+  URCommander_V1_X(URStream &stream) : URCommander(stream)
   {
   }
 
@@ -42,11 +42,10 @@ public:
   virtual bool setAnalogOut(uint8_t pin, double value);
 };
 
-
 class URCommander_V3_X : public URCommander
 {
 public:
-  URCommander_V3_X(URStream& stream) : URCommander(stream)
+  URCommander_V3_X(URStream &stream) : URCommander(stream)
   {
   }
 

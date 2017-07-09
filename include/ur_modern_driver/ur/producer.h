@@ -35,30 +35,29 @@ public:
     // 4KB should be enough to hold any packet received from UR
     uint8_t buf[4096];
     size_t read = 0;
-    //expoential backoff reconnects
-    while(true)
+    // expoential backoff reconnects
+    while (true)
     {
-      if(stream_.read(buf, sizeof(buf), read))
+      if (stream_.read(buf, sizeof(buf), read))
       {
-        //reset sleep amount
+        // reset sleep amount
         timeout_ = std::chrono::seconds(1);
         break;
       }
 
-      if(stream_.closed())
+      if (stream_.closed())
         return false;
 
       LOG_WARN("Failed to read from stream, reconnecting in %ld seconds...", timeout_.count());
       std::this_thread::sleep_for(timeout_);
 
-      if(stream_.connect())
+      if (stream_.connect())
         continue;
 
       auto next = timeout_ * 2;
-      if(next <= std::chrono::seconds(120))
+      if (next <= std::chrono::seconds(120))
         timeout_ = next;
     }
-
 
     BinParser bp(buf, read);
     return parser_.parse(bp, products);

@@ -1,13 +1,13 @@
 #pragma once
 
+#include <inttypes.h>
 #include <array>
-#include <vector>
 #include <atomic>
 #include <cstddef>
 #include <cstring>
 #include <string>
 #include <thread>
-#include <inttypes.h>
+#include <vector>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/server.h"
@@ -23,14 +23,12 @@ struct TrajectoryPoint
   }
 
   TrajectoryPoint(std::array<double, 6> &pos, std::array<double, 6> &vel, std::chrono::microseconds tfs)
-    : positions(pos)
-    , velocities(vel)
-    , time_from_start(tfs)
+    : positions(pos), velocities(vel), time_from_start(tfs)
   {
   }
 };
 
-class TrajectoryFollower 
+class TrajectoryFollower
 {
 private:
   std::atomic<bool> running_;
@@ -49,11 +47,11 @@ private:
     return s;
   }
 
-  bool execute(std::array<double, 6> &positions, bool keep_alive);  
-  double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel); 
+  bool execute(std::array<double, 6> &positions, bool keep_alive);
+  double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel);
 
 public:
-  TrajectoryFollower(URCommander &commander, std::string& reverse_ip, int reverse_port, bool version_3);
+  TrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
 
   bool start();
   bool execute(std::array<double, 6> &positions);

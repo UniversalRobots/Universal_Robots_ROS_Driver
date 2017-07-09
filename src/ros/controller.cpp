@@ -1,6 +1,7 @@
 #include "ur_modern_driver/ros/controller.h"
 
-ROSController::ROSController(URCommander &commander, TrajectoryFollower& follower, std::vector<std::string> &joint_names, double max_vel_change)
+ROSController::ROSController(URCommander& commander, TrajectoryFollower& follower,
+                             std::vector<std::string>& joint_names, double max_vel_change)
   : controller_(this, nh_)
   , joint_interface_(joint_names)
   , wrench_interface_()
@@ -18,7 +19,8 @@ void ROSController::setupConsumer()
   lastUpdate_ = ros::Time::now();
 }
 
-void ROSController::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list, const std::list<hardware_interface::ControllerInfo>& stop_list)
+void ROSController::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
+                             const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
   LOG_INFO("Switching hardware interface");
 
@@ -60,7 +62,7 @@ void ROSController::reset()
 {
   if (active_interface_ == nullptr)
     return;
-  
+
   active_interface_->reset();
 }
 
@@ -69,7 +71,6 @@ void ROSController::read(RTShared& packet)
   joint_interface_.update(packet);
   wrench_interface_.update(packet);
 }
-
 
 bool ROSController::update(RTShared& state)
 {
@@ -80,16 +81,16 @@ bool ROSController::update(RTShared& state)
   read(state);
   controller_.update(time, diff, !service_enabled_);
 
-  //emergency stop and such should not kill the pipeline
-  //but still prevent writes
-  if(!service_enabled_)
+  // emergency stop and such should not kill the pipeline
+  // but still prevent writes
+  if (!service_enabled_)
   {
     reset();
     return true;
   }
-  
-  //allow the controller to update x times before allowing writes again
-  if(service_cooldown_ > 0)
+
+  // allow the controller to update x times before allowing writes again
+  if (service_cooldown_ > 0)
   {
     service_cooldown_ -= 1;
     return true;
@@ -101,9 +102,9 @@ bool ROSController::update(RTShared& state)
 void ROSController::onRobotStateChange(RobotState state)
 {
   bool next = (state == RobotState::Running);
-  if(next == service_enabled_)
+  if (next == service_enabled_)
     return;
-  
+
   service_enabled_ = next;
-  service_cooldown_ = 125; 
+  service_cooldown_ = 125;
 }

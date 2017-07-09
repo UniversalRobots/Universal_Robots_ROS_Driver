@@ -2,9 +2,9 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <atomic>
 #include <cstdlib>
 #include <mutex>
-#include <atomic>
 #include <string>
 #include "ur_modern_driver/tcp_socket.h"
 
@@ -21,7 +21,6 @@ protected:
   }
   virtual void setOptions(int socket_fd);
 
-
 public:
   URServer(int port);
   ~URServer();
@@ -29,5 +28,5 @@ public:
   bool bind();
   bool accept();
   void disconnectClient();
-  bool write(const uint8_t* buf, size_t buf_len, size_t &written);
+  bool write(const uint8_t *buf, size_t buf_len, size_t &written);
 };

@@ -1,18 +1,18 @@
 #pragma once
-#include <atomic>
-#include <ros/ros.h>
 #include <controller_manager/controller_manager.h>
 #include <hardware_interface/force_torque_sensor_interface.h>
 #include <hardware_interface/internal/demangle_symbol.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <ros/ros.h>
+#include <atomic>
 #include "ur_modern_driver/log.h"
+#include "ur_modern_driver/ros/hardware_interface.h"
+#include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/consumer.h"
 #include "ur_modern_driver/ur/rt_state.h"
-#include "ur_modern_driver/ros/hardware_interface.h"
-#include "ur_modern_driver/ros/service_stopper.h"
 
 class ROSController : private hardware_interface::RobotHW, public URRTPacketConsumer, public Service
 {
@@ -55,10 +55,14 @@ private:
   void reset();
 
 public:
-  ROSController(URCommander& commander, TrajectoryFollower& follower, std::vector<std::string>& joint_names, double max_vel_change);
-  virtual ~ROSController() { }
+  ROSController(URCommander& commander, TrajectoryFollower& follower, std::vector<std::string>& joint_names,
+                double max_vel_change);
+  virtual ~ROSController()
+  {
+  }
   // from RobotHW
-  void doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list, const std::list<hardware_interface::ControllerInfo>& stop_list);
+  void doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
+                const std::list<hardware_interface::ControllerInfo>& stop_list);
   // from URRTPacketConsumer
   virtual void setupConsumer();
   virtual bool consume(RTState_V1_6__7& state)

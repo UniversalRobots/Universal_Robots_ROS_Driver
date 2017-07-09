@@ -59,7 +59,7 @@ bool MasterBoardData_V3_0__1::parseWith(BinParser& bp)
   bp.parse(euromap67_interface_installed);
 
   if (euromap67_interface_installed)
-  {  
+  {
     if (!bp.checkSize(MasterBoardData_V3_0__1::EURO_SIZE))
       return false;
 

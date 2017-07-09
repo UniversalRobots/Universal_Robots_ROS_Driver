@@ -6,22 +6,22 @@
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/stream.h"
 
-bool URStream::write(const uint8_t* buf, size_t buf_len, size_t &written)
+bool URStream::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
   std::lock_guard<std::mutex> lock(write_mutex_);
   return TCPSocket::write(buf, buf_len, written);
 }
 
-bool URStream::read(uint8_t* buf, size_t buf_len, size_t &total)
+bool URStream::read(uint8_t* buf, size_t buf_len, size_t& total)
 {
-  std::lock_guard<std::mutex> lock(read_mutex_);   
+  std::lock_guard<std::mutex> lock(read_mutex_);
 
   bool initial = true;
   uint8_t* buf_pos = buf;
   size_t remainder = sizeof(int32_t);
   size_t read = 0;
 
-  while(remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
+  while (remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
   {
     TCPSocket::setOptions(getSocketFD());
     if (initial)
@@ -39,6 +39,6 @@ bool URStream::read(uint8_t* buf, size_t buf_len, size_t &total)
     buf_pos += read;
     remainder -= read;
   }
-  
+
   return remainder == 0;
 }

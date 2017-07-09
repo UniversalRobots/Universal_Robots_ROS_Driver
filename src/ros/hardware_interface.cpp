@@ -19,14 +19,15 @@ void JointInterface::update(RTShared &packet)
 WrenchInterface::WrenchInterface()
 {
   registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", "", tcp_.begin(), tcp_.begin() + 3));
-} 
+}
 
 void WrenchInterface::update(RTShared &packet)
 {
   tcp_ = packet.tcp_force;
 }
 
-VelocityInterface::VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names, double max_vel_change)
+VelocityInterface::VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface,
+                                     std::vector<std::string> &joint_names, double max_vel_change)
   : commander_(commander), max_vel_change_(max_vel_change)
 {
   for (size_t i = 0; i < 6; i++)
@@ -50,14 +51,15 @@ bool VelocityInterface::write()
 
 void VelocityInterface::reset()
 {
-  for(auto &val : prev_velocity_cmd_)
+  for (auto &val : prev_velocity_cmd_)
   {
     val = 0;
   }
 }
 
-
-PositionInterface::  PositionInterface(TrajectoryFollower& follower, hardware_interface::JointStateInterface &js_interface, std::vector<std::string> &joint_names)
+PositionInterface::PositionInterface(TrajectoryFollower &follower,
+                                     hardware_interface::JointStateInterface &js_interface,
+                                     std::vector<std::string> &joint_names)
   : follower_(follower)
 {
   for (size_t i = 0; i < 6; i++)

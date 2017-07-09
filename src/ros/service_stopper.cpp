@@ -5,9 +5,8 @@ ServiceStopper::ServiceStopper(std::vector<Service*> services)
   , services_(services)
   , last_state_(RobotState::Error)
 {
-  //enable_all();
+  // enable_all();
 }
-
 
 bool ServiceStopper::enableCallback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& resp)
 {
@@ -17,10 +16,10 @@ bool ServiceStopper::enableCallback(std_srvs::EmptyRequest& req, std_srvs::Empty
 
 void ServiceStopper::notify_all(RobotState state)
 {
-  if(last_state_ == state)
+  if (last_state_ == state)
     return;
-  
-  for(auto const service : services_)
+
+  for (auto const service : services_)
   {
     service->onRobotStateChange(state);
   }
@@ -30,15 +29,15 @@ void ServiceStopper::notify_all(RobotState state)
 
 bool ServiceStopper::handle(SharedRobotModeData& data, bool error)
 {
-  if(data.emergency_stopped)
+  if (data.emergency_stopped)
   {
     notify_all(RobotState::EmergencyStopped);
   }
-  else if(data.protective_stopped)
+  else if (data.protective_stopped)
   {
     notify_all(RobotState::ProtectiveStopped);
   }
-  else if(error)
+  else if (error)
   {
     notify_all(RobotState::Error);
   }

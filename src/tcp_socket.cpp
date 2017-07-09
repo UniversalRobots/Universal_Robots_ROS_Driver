@@ -1,16 +1,14 @@
+#include <arpa/inet.h>
 #include <endian.h>
 #include <netinet/tcp.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
 
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/tcp_socket.h"
 
-TCPSocket::TCPSocket()
-  : socket_fd_(-1)
-  , state_(SocketState::Invalid)
-{ 
+TCPSocket::TCPSocket() : socket_fd_(-1), state_(SocketState::Invalid)
+{
 }
 TCPSocket::~TCPSocket()
 {
@@ -26,7 +24,7 @@ void TCPSocket::setOptions(int socket_fd)
 
 bool TCPSocket::setup(std::string &host, int port)
 {
-  if(state_ == SocketState::Connected)
+  if (state_ == SocketState::Connected)
     return false;
 
   LOG_INFO("Setting up connection: %s:%d", host.c_str(), port);
@@ -51,11 +49,11 @@ bool TCPSocket::setup(std::string &host, int port)
 
   bool connected = false;
   // loop through the list of addresses untill we find one that's connectable
-  for (struct addrinfo* p = result; p != nullptr; p = p->ai_next)
+  for (struct addrinfo *p = result; p != nullptr; p = p->ai_next)
   {
     socket_fd_ = ::socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 
-    if (socket_fd_ != -1 && open(socket_fd_, p->ai_addr, p->ai_addrlen)) 
+    if (socket_fd_ != -1 && open(socket_fd_, p->ai_addr, p->ai_addrlen))
     {
       connected = true;
       break;
@@ -63,8 +61,8 @@ bool TCPSocket::setup(std::string &host, int port)
   }
 
   freeaddrinfo(result);
-  
-  if(!connected)
+
+  if (!connected)
   {
     state_ = SocketState::Invalid;
     LOG_ERROR("Connection setup failed for %s:%d", host.c_str(), port);
@@ -80,7 +78,7 @@ bool TCPSocket::setup(std::string &host, int port)
 
 bool TCPSocket::setSocketFD(int socket_fd)
 {
-  if(state_ == SocketState::Connected)
+  if (state_ == SocketState::Connected)
     return false;
   socket_fd_ = socket_fd;
   state_ = SocketState::Connected;
@@ -89,7 +87,7 @@ bool TCPSocket::setSocketFD(int socket_fd)
 
 void TCPSocket::close()
 {
-  if(state_ != SocketState::Connected)
+  if (state_ != SocketState::Connected)
     return;
   state_ = SocketState::Closed;
   ::shutdown(socket_fd_, SHUT_RDWR);
@@ -100,9 +98,9 @@ std::string TCPSocket::getIP()
 {
   sockaddr_in name;
   socklen_t len = sizeof(name);
-  int res = ::getsockname(socket_fd_, (sockaddr*)&name, &len);
+  int res = ::getsockname(socket_fd_, (sockaddr *)&name, &len);
 
-  if(res < 0)
+  if (res < 0)
   {
     LOG_ERROR("Could not get local IP");
     return std::string();
@@ -117,17 +115,17 @@ bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
 {
   read = 0;
 
-  if(state_ != SocketState::Connected)
+  if (state_ != SocketState::Connected)
     return false;
-    
+
   ssize_t res = ::recv(socket_fd_, buf, buf_len, 0);
 
-  if(res == 0)
+  if (res == 0)
   {
     state_ = SocketState::Disconnected;
     return false;
   }
-  else if(res < 0)
+  else if (res < 0)
     return false;
 
   read = static_cast<size_t>(res);
@@ -137,8 +135,8 @@ bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
 bool TCPSocket::write(const uint8_t *buf, size_t buf_len, size_t &written)
 {
   written = 0;
-  
-  if(state_ != SocketState::Connected)
+
+  if (state_ != SocketState::Connected)
     return false;
 
   size_t remaining = buf_len;
@@ -150,10 +148,10 @@ bool TCPSocket::write(const uint8_t *buf, size_t buf_len, size_t &written)
 
     if (sent <= 0)
       return false;
-    
+
     written += sent;
     remaining -= sent;
   }
-  
+
   return true;
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <inttypes.h>
-#include <cstddef>
 #include <bitset>
+#include <cstddef>
 #include "ur_modern_driver/bin_parser.h"
 #include "ur_modern_driver/types.h"
 #include "ur_modern_driver/ur/state.h"
@@ -42,7 +42,6 @@ public:
   virtual bool parseWith(BinParser& bp);
   virtual bool consumeWith(URStatePacketConsumer& consumer);
 
-  
   std::bitset<10> digital_input_bits;
   std::bitset<10> digital_output_bits;
 

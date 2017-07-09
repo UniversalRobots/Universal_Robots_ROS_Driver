@@ -2,8 +2,8 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <mutex>
 #include <atomic>
+#include <mutex>
 #include <string>
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/tcp_socket.h"
@@ -16,7 +16,7 @@ private:
   std::mutex write_mutex_, read_mutex_;
 
 protected:
-  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len)
+  virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
   {
     return ::connect(socket_fd, address, address_len) == 0;
   }
@@ -36,8 +36,11 @@ public:
     TCPSocket::close();
   }
 
-  bool closed() { return getState() == SocketState::Closed; }
+  bool closed()
+  {
+    return getState() == SocketState::Closed;
+  }
 
-  bool read(uint8_t* buf, size_t buf_len, size_t &read);
-  bool write(const uint8_t* buf, size_t buf_len, size_t &written);
+  bool read(uint8_t* buf, size_t buf_len, size_t& read);
+  bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
