@@ -218,6 +218,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 
 set(${PROJECT_NAME}_TEST_SOURCES
     tests/ur/rt_state.cpp
+    tests/ur/master_board.cpp
     tests/ur/robot_mode.cpp)
 
 if (CATKIN_ENABLE_TESTING)

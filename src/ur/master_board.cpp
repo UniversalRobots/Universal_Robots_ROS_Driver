@@ -37,6 +37,8 @@ bool MasterBoardData_V1_X::parseWith(BinParser& bp)
     if (!bp.checkSize(MasterBoardData_V1_X::EURO_SIZE))
       return false;
 
+    bp.parse(euromap_input_bits);
+    bp.parse(euromap_output_bits);
     bp.parse(euromap_voltage);
     bp.parse(euromap_current);
   }
@@ -63,6 +65,8 @@ bool MasterBoardData_V3_0__1::parseWith(BinParser& bp)
     if (!bp.checkSize(MasterBoardData_V3_0__1::EURO_SIZE))
       return false;
 
+    bp.parse(euromap_input_bits);
+    bp.parse(euromap_output_bits);
     bp.parse(euromap_voltage);
     bp.parse(euromap_current);
   }
