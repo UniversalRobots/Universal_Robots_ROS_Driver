@@ -1,7 +1,6 @@
 #pragma once
 #include <controller_manager/controller_manager.h>
 #include <hardware_interface/force_torque_sensor_interface.h>
-#include <hardware_interface/internal/demangle_symbol.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -46,7 +45,7 @@ private:
   void registerControllereInterface(T* interface)
   {
     registerInterface(interface);
-    available_interfaces_[hardware_interface::internal::demangledTypeName<typename T::parent_type>()] = interface;
+    available_interfaces_[T::INTERFACE_NAME] = interface;
   }
 
   void read(RTShared& state);

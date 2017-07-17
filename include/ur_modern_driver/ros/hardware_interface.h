@@ -33,7 +33,9 @@ private:
 public:
   JointInterface(std::vector<std::string> &joint_names);
   void update(RTShared &packet);
+
   typedef hardware_interface::JointStateInterface parent_type;
+  static const std::string INTERFACE_NAME;
 };
 
 class WrenchInterface : public hardware_interface::ForceTorqueSensorInterface
@@ -44,6 +46,7 @@ public:
   WrenchInterface();
   void update(RTShared &packet);
   typedef hardware_interface::ForceTorqueSensorInterface parent_type;
+  static const std::string INTERFACE_NAME;
 };
 
 class VelocityInterface : public HardwareInterface, public hardware_interface::VelocityJointInterface
@@ -59,6 +62,7 @@ public:
   virtual bool write();
   virtual void reset();
   typedef hardware_interface::VelocityJointInterface parent_type;
+  static const std::string INTERFACE_NAME;
 };
 
 class PositionInterface : public HardwareInterface, public hardware_interface::PositionJointInterface
@@ -75,4 +79,5 @@ public:
   virtual void stop();
 
   typedef hardware_interface::PositionJointInterface parent_type;
+  static const std::string INTERFACE_NAME;
 };

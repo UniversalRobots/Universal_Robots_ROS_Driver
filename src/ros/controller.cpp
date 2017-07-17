@@ -33,21 +33,23 @@ void ROSController::doSwitch(const std::list<hardware_interface::ControllerInfo>
 
   for (auto const& ci : start_list)
   {
-    auto ait = available_interfaces_.find(ci.hardware_interface);
+    auto ait = available_interfaces_.find(ci.name);
 
     if (ait == available_interfaces_.end())
       continue;
 
     auto new_interface = ait->second;
 
-    LOG_INFO("Starting %s", ci.hardware_interface.c_str());
+    LOG_INFO("Starting %s", ci.name.c_str());
+
     active_interface_ = new_interface;
     new_interface->start();
 
     return;
   }
 
-  LOG_WARN("Failed to start interface!");
+  if(start_list.size() > 0)
+    LOG_WARN("Failed to start interface!");
 }
 
 bool ROSController::write()
