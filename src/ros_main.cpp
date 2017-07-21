@@ -85,6 +85,10 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
+  //Add prefix to joint names
+  std::transform (args.joint_names.begin(), args.joint_names.end(), args.joint_names.begin(),
+        [&args](std::string name){return args.prefix + name;});
+
   std::string local_ip(getLocalIPAccessibleFromHost(args.host));
 
   URFactory factory(args.host);
