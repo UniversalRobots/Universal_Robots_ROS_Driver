@@ -14,14 +14,6 @@ URServer::~URServer()
   TCPSocket::close();
 }
 
-void URServer::setOptions(int socket_fd)
-{
-  TCPSocket::setOptions(socket_fd);
-
-  int flag = 1;
-  setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
-}
-
 std::string URServer::getIP()
 {
   sockaddr_in name;
@@ -37,6 +29,14 @@ std::string URServer::getIP()
   char buf[128];
   inet_ntop(AF_INET, &name.sin_addr, buf, sizeof(buf));
   return std::string(buf);
+}
+
+
+bool URServer::open(int socket_fd, struct sockaddr *address, size_t address_len)
+{
+  int flag = 1;
+  setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
+  return ::bind(socket_fd, address, address_len) == 0;
 }
 
 bool URServer::bind()
@@ -65,7 +65,7 @@ bool URServer::accept()
   if (client_fd <= 0)
     return false;
 
-  setOptions(client_fd);
+  TCPSocket::setOptions(client_fd);
 
   return client_.setSocketFD(client_fd);
 }

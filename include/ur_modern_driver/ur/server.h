@@ -15,11 +15,7 @@ private:
   TCPSocket client_;
 
 protected:
-  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len)
-  {
-    return ::bind(socket_fd, address, address_len) == 0;
-  }
-  virtual void setOptions(int socket_fd);
+  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len);
 
 public:
   URServer(int port);
