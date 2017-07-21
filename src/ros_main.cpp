@@ -60,6 +60,7 @@ bool parse_args(ProgArgs &args)
   }
   ros::param::param(REVERSE_PORT_ARG, args.reverse_port, int32_t(50001));
   ros::param::param(MAX_VEL_CHANGE_ARG, args.max_vel_change, 15.0);  // rad/s
+  ros::param::param(MAX_VEL_CHANGE_ARG, args.max_velocity, 10.0);
   ros::param::param(ROS_CONTROL_ARG, args.use_ros_control, false);
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
