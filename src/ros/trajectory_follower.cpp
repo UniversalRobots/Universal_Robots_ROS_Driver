@@ -111,11 +111,11 @@ bool TrajectoryFollower::start()
     return false;
   }
 
-  LOG_DEBUG("Awaiting incomming robot connection");
+  LOG_DEBUG("Awaiting incoming robot connection");
 
   if (!server_.accept())
   {
-    LOG_ERROR("Failed to accept incomming robot connection");
+    LOG_ERROR("Failed to accept incoming robot connection");
     return false;
   }
 

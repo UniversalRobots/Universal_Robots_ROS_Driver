@@ -60,10 +60,14 @@ bool URServer::accept()
 
   struct sockaddr addr;
   socklen_t addr_len;
-  int client_fd = ::accept(getSocketFD(), &addr, &addr_len);
+  int client_fd = -1;
 
-  if (client_fd <= 0)
-    return false;
+  int retry = 0;
+  while((client_fd = ::accept(getSocketFD(), &addr, &addr_len)) == -1){
+    LOG_ERROR("Accepting socket connection failed. (errno: %d)", errno);
+    if(retry++ >= 5)
+      return false;
+  }
 
   TCPSocket::setOptions(client_fd);
 

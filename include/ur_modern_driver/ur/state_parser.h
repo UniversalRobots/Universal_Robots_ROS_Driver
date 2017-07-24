@@ -75,7 +75,7 @@ public:
 
       if (!packet->parseWith(sbp))
       {
-        LOG_ERROR("Sub-package parsing of type %d failed!", type);
+        LOG_ERROR("Sub-package parsing of type %d failed!", static_cast<int>(type));
         return false;
       }
 
@@ -83,7 +83,7 @@ public:
 
       if (!sbp.empty())
       {
-        LOG_ERROR("Sub-package of type %d was not parsed completely!", type);
+        LOG_ERROR("Sub-package of type %d was not parsed completely!", static_cast<int>(type));
         sbp.debug();
         return false;
       }
