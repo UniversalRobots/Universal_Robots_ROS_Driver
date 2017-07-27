@@ -7,26 +7,14 @@ services:
 language: generic 
 compiler:
   - gcc
-notifications:
-  email:
-    recipients:
-      - gm130s@gmail.com
 env:
   matrix:
     - ROS_DISTRO="indigo" ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu NOT_TEST_BUILD=true NOT_TEST_INSTALL=true
     - ROS_DISTRO="indigo" ROS_REPOSITORY_PATH=http://packages.ros.org/ros-shadow-fixed/ubuntu NOT_TEST_BUILD=true NOT_TEST_INSTALL=true
-    - ROS_DISTRO="indigo" PRERELEASE=true
     - ROS_DISTRO="jade"   ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu NOT_TEST_BUILD=true NOT_TEST_INSTALL=true
     - ROS_DISTRO="jade"   ROS_REPOSITORY_PATH=http://packages.ros.org/ros-shadow-fixed/ubuntu NOT_TEST_BUILD=true NOT_TEST_INSTALL=true
-    - ROS_DISTRO="jade"   PRERELEASE=true
     - ROS_DISTRO="kinetic"  ROS_REPOSITORY_PATH=http://packages.ros.org/ros/ubuntu NOT_TEST_INSTALL=true
     - ROS_DISTRO="kinetic"  ROS_REPOSITORY_PATH=http://packages.ros.org/ros-shadow-fixed/ubuntu NOT_TEST_INSTALL=true
-    - ROS_DISTRO="kinetic"  PRERELEASE=true
-matrix:
-  allow_failures:
-    - env: ROS_DISTRO="indigo" PRERELEASE=true  # Run docker-based ROS prerelease test http://wiki.ros.org/bloom/Tutorials/PrereleaseTest Because we might not want to run prerelease test for all PRs, it's omitted from pass-fail criteria.
-    - env: ROS_DISTRO="jade"   PRERELEASE=true
-    - env: ROS_DISTRO="kinetic"  PRERELEASE=true
 install:
   - git clone https://github.com/ros-industrial/industrial_ci.git .ci_config
 script:
