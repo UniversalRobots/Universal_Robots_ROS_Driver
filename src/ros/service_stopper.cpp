@@ -4,12 +4,33 @@ ServiceStopper::ServiceStopper(std::vector<Service*> services)
   : enable_service_(nh_.advertiseService("ur_driver/robot_enable", &ServiceStopper::enableCallback, this))
   , services_(services)
   , last_state_(RobotState::Error)
+  , activation_mode_(ActivationMode::Always)
 {
-  // enable_all();
+  std::string mode;
+  ros::param::param("~require_activation", mode, std::string("Always"));
+  if (mode == "Never")
+  {
+    activation_mode_ = ActivationMode::Never;
+    notify_all(RobotState::Running);
+  }
+  else if (mode == "OnStartup")
+  {
+    activation_mode_ = ActivationMode::OnStartup;
+  }
+  else if (mode != "Always")
+  {
+    LOG_WARN("Found invalid value for param service_stopper_mode: '%s'\nShould be one of Always, Never, OnStartup", mode.c_str());
+    mode = "Always";
+  }
+
+  LOG_INFO("ActivationMode mode: %s", mode.c_str());
 }
 
 bool ServiceStopper::enableCallback(std_srvs::EmptyRequest& req, std_srvs::EmptyResponse& resp)
 {
+  // After the startup call OnStartup and Never behave the same
+  if (activation_mode_ == ActivationMode::OnStartup)
+    activation_mode_ = ActivationMode::Never;
   notify_all(RobotState::Running);
   return true;
 }
@@ -40,6 +61,11 @@ bool ServiceStopper::handle(SharedRobotModeData& data, bool error)
   else if (error)
   {
     notify_all(RobotState::Error);
+  }
+  else if (activation_mode_ == ActivationMode::Never)
+  {
+    // No error encountered, the user requested automatic reactivation
+    notify_all(RobotState::Running);
   }
 
   return true;
