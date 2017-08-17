@@ -14,8 +14,8 @@ enum class RobotState
 
 enum class ActivationMode
 {
-  Always,
   Never,
+  Always,
   OnStartup
 };
 

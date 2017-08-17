@@ -17,7 +17,7 @@
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
 
   <!-- require_activation defines when the service /ur_driver/robot_enable needs to be called. -->
-  <arg name="require_activation" default="Always" /> <!-- Always, Never, OnStartup -->
+  <arg name="require_activation" default="Never" /> <!-- Never, Always, OnStartup -->
     
   <!-- The max_velocity parameter is only used for debugging in the ur_driver. It's not related to actual velocity limits -->
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
