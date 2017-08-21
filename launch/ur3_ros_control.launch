@@ -10,7 +10,7 @@
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="3.0"/>
-  <arg name="prefix" default="" />  
+  <arg name="prefix" default="" />
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
@@ -38,11 +38,11 @@
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="joint_state_controller force_torque_sensor_controller velocity_based_position_trajectory_controller" />
+    output="screen" args="joint_state_controller force_torque_sensor_controller pos_based_pos_traj_controller" />
 
   <!-- load other controller -->
   <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-    output="screen" args="load position_based_position_trajectory_controller" />
+    output="screen" args="load vel_based_pos_traj_controller" />
 
   <!-- Convert joint states to /tf tranforms -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
