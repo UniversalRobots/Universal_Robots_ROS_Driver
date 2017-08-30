@@ -15,6 +15,9 @@
   <arg name="servoj_time" default="0.008" />
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
+
+  <!-- require_activation defines when the service /ur_driver/robot_enable needs to be called. -->
+  <arg name="require_activation" default="Never" /> <!-- Never, Always, OnStartup -->
     
   <!-- The max_velocity parameter is only used for debugging in the ur_driver. It's not related to actual velocity limits -->
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
@@ -30,7 +33,8 @@
     <param name="max_payload" type="double" value="$(arg max_payload)" />
     <param name="max_velocity" type="double" value="$(arg max_velocity)" />
     <param name="servoj_time" type="double" value="$(arg servoj_time)" />
-	<param name="base_frame" type="str" value="$(arg base_frame)"/>
+    <param name="base_frame" type="str" value="$(arg base_frame)"/>
     <param name="tool_frame" type="str" value="$(arg tool_frame)"/>
+    <param name="require_activation" type="str" value="$(arg require_activation)" />
   </node>
 </launch>

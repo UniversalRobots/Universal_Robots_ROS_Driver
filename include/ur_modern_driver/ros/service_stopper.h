@@ -12,6 +12,13 @@ enum class RobotState
   ProtectiveStopped
 };
 
+enum class ActivationMode
+{
+  Never,
+  Always,
+  OnStartup
+};
+
 class Service
 {
 public:
@@ -25,6 +32,7 @@ private:
   ros::ServiceServer enable_service_;
   std::vector<Service*> services_;
   RobotState last_state_;
+  ActivationMode activation_mode_;
 
   void notify_all(RobotState state);
   bool handle(SharedRobotModeData& data, bool error);
