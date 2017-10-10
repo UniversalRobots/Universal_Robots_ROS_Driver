@@ -39,6 +39,8 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
 ## Installation
 
+**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.** 
+
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
 Note that this package depends on ur_msgs, hardware_interface, and controller_manager so it cannot directly be used with ROS versions prior to hydro.
