@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.12)
 project(ur_modern_driver)
 
 
@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   sensor_msgs
-  std_msgs
+  std_srvs
   trajectory_msgs
   ur_msgs
   tf
@@ -113,9 +113,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES ur_modern_driver
+  LIBRARIES ur_hardware_interface
   CATKIN_DEPENDS hardware_interface controller_manager actionlib control_msgs geometry_msgs roscpp sensor_msgs trajectory_msgs ur_msgs
-  DEPENDS ur_hardware_interface
 )
 
 ###########
@@ -127,14 +126,16 @@ include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    add_compile_options(-std=c++11)
 elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "-std=c++0x")
+    add_compile_options(-std=c++0x)
 else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
-set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -Wno-unused-parameter ${CMAKE_CXX_FLAGS}")
+add_compile_options(-Wall)
+add_compile_options(-Wextra)
+add_compile_options(-Wno-unused-parameter)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
