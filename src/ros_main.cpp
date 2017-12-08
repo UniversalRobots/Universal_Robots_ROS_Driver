@@ -67,7 +67,7 @@ bool parse_args(ProgArgs &args)
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
   ros::param::param(TOOL_FRAME_ARG, args.tool_frame, args.prefix + "tool0_controller");
-  ros::param::param(TCP_LINK_ARG, args.tcp_link, args.prefix + "ee_link");
+  ros::param::param(TCP_LINK_ARG, args.tcp_link, args.prefix + "tool0");
   ros::param::param(JOINT_NAMES_PARAM, args.joint_names, DEFAULT_JOINTS);
   return true;
 }
