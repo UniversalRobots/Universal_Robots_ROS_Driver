@@ -126,7 +126,7 @@ private:
       {
         if (!queue_.try_enqueue(std::move(p)))
         {
-          LOG_ERROR("Pipeline producer owerflowed!");
+          LOG_ERROR("Pipeline producer overflowed!");
         }
       }
 
@@ -141,27 +141,18 @@ private:
   {
     consumer_.setupConsumer();
     unique_ptr<T> product;
-    Time last_pkg = Clock::now();
-    Time last_warn = last_pkg;
     while (running_)
     {
-      // 16000us timeout was chosen because we should
-      // roughly recieve messages at 125hz which is every
-      // 8ms so double it for some error margin
-      if (!queue_.wait_dequeue_timed(product, std::chrono::milliseconds(16)))
+      // timeout was chosen because we should receive messages
+      // at roughly 125hz (every 8ms) and have to update
+      // the controllers (i.e. the consumer) with *at least* 125Hz
+      // So we update the consumer more frequently via onTimeout
+      if (!queue_.wait_dequeue_timed(product, std::chrono::milliseconds(8)))
       {
-        Time now = Clock::now();
-        auto pkg_diff = now - last_pkg;
-        auto warn_diff = now - last_warn;
-        if (pkg_diff > std::chrono::seconds(1) && warn_diff > std::chrono::seconds(1))
-        {
-          last_warn = now;
-          consumer_.onTimeout();
-        }
+        consumer_.onTimeout();
         continue;
       }
 
-      last_pkg = Clock::now();
       if (!consumer_.consume(std::move(product)))
         break;
     }

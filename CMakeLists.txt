@@ -137,6 +137,11 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wno-unused-parameter)
 
+# support indigo's ros_control - This can be removed upon EOL indigo
+if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
+    add_definitions(-DUR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
+endif()
+
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)

@@ -28,6 +28,7 @@ static const std::string MAX_VEL_CHANGE_ARG("~max_vel_change");
 static const std::string PREFIX_ARG("~prefix");
 static const std::string BASE_FRAME_ARG("~base_frame");
 static const std::string TOOL_FRAME_ARG("~tool_frame");
+static const std::string TCP_LINK_ARG("~tcp_link");
 static const std::string JOINT_NAMES_PARAM("hardware_interface/joints");
 
 static const std::vector<std::string> DEFAULT_JOINTS = { "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
@@ -43,6 +44,7 @@ public:
   std::string prefix;
   std::string base_frame;
   std::string tool_frame;
+  std::string tcp_link;
   std::vector<std::string> joint_names;
   double max_acceleration;
   double max_velocity;
@@ -65,6 +67,7 @@ bool parse_args(ProgArgs &args)
   ros::param::param(PREFIX_ARG, args.prefix, std::string());
   ros::param::param(BASE_FRAME_ARG, args.base_frame, args.prefix + "base_link");
   ros::param::param(TOOL_FRAME_ARG, args.tool_frame, args.prefix + "tool0_controller");
+  ros::param::param(TCP_LINK_ARG, args.tcp_link, args.prefix + "ee_link");
   ros::param::param(JOINT_NAMES_PARAM, args.joint_names, DEFAULT_JOINTS);
   return true;
 }
@@ -109,7 +112,7 @@ int main(int argc, char **argv)
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    controller = new ROSController(*rt_commander, traj_follower, args.joint_names, args.max_vel_change);
+    controller = new ROSController(*rt_commander, traj_follower, args.joint_names, args.max_vel_change, args.tcp_link);
     rt_vec.push_back(controller);
     services.push_back(controller);
   }

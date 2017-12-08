@@ -1,10 +1,10 @@
 #include "ur_modern_driver/ros/controller.h"
 
 ROSController::ROSController(URCommander& commander, TrajectoryFollower& follower,
-                             std::vector<std::string>& joint_names, double max_vel_change)
+                             std::vector<std::string>& joint_names, double max_vel_change, std::string tcp_link)
   : controller_(this, nh_)
   , joint_interface_(joint_names)
-  , wrench_interface_()
+  , wrench_interface_(tcp_link)
   , position_interface_(follower, joint_interface_, joint_names)
   , velocity_interface_(commander, joint_interface_, joint_names, max_vel_change)
 {
@@ -33,7 +33,16 @@ void ROSController::doSwitch(const std::list<hardware_interface::ControllerInfo>
 
   for (auto const& ci : start_list)
   {
-    auto ait = available_interfaces_.find(ci.name);
+    std::string requested_interface("");
+
+#if defined(UR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
+    requested_interface = ci.hardware_interface;
+#else
+    if (!ci.claimed_resources.empty())
+      requested_interface = ci.claimed_resources[0].hardware_interface;
+#endif
+
+    auto ait = available_interfaces_.find(requested_interface);
 
     if (ait == available_interfaces_.end())
       continue;
@@ -74,13 +83,12 @@ void ROSController::read(RTShared& packet)
   wrench_interface_.update(packet);
 }
 
-bool ROSController::update(RTShared& state)
+bool ROSController::update()
 {
   auto time = ros::Time::now();
   auto diff = time - lastUpdate_;
   lastUpdate_ = time;
 
-  read(state);
   controller_.update(time, diff, !service_enabled_);
 
   // emergency stop and such should not kill the pipeline
@@ -99,6 +107,11 @@ bool ROSController::update(RTShared& state)
   }
 
   return write();
+}
+
+void ROSController::onTimeout()
+{
+  update();
 }
 
 void ROSController::onRobotStateChange(RobotState state)

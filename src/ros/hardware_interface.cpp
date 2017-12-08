@@ -1,7 +1,7 @@
 #include "ur_modern_driver/ros/hardware_interface.h"
 #include "ur_modern_driver/log.h"
 
-const std::string JointInterface::INTERFACE_NAME = "joint_state_controller";
+const std::string JointInterface::INTERFACE_NAME = "hardware_interface::JointStateInterface";
 JointInterface::JointInterface(std::vector<std::string> &joint_names)
 {
   for (size_t i = 0; i < 6; i++)
@@ -18,10 +18,10 @@ void JointInterface::update(RTShared &packet)
 }
 
 
-const std::string WrenchInterface::INTERFACE_NAME = "force_torque_sensor_controller";
-WrenchInterface::WrenchInterface()
+const std::string WrenchInterface::INTERFACE_NAME = "hardware_interface::ForceTorqueSensorInterface";
+WrenchInterface::WrenchInterface(std::string tcp_link)
 {
-  registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", "", tcp_.begin(), tcp_.begin() + 3));
+  registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", tcp_link, tcp_.begin(), tcp_.begin() + 3));
 }
 
 void WrenchInterface::update(RTShared &packet)
@@ -30,7 +30,7 @@ void WrenchInterface::update(RTShared &packet)
 }
 
 
-const std::string VelocityInterface::INTERFACE_NAME = "vel_based_pos_traj_controller";
+const std::string VelocityInterface::INTERFACE_NAME = "hardware_interface::VelocityJointInterface";
 VelocityInterface::VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface,
                                      std::vector<std::string> &joint_names, double max_vel_change)
   : commander_(commander), max_vel_change_(max_vel_change)
@@ -62,7 +62,7 @@ void VelocityInterface::reset()
   }
 }
 
-const std::string PositionInterface::INTERFACE_NAME = "pos_based_pos_traj_controller";
+const std::string PositionInterface::INTERFACE_NAME = "hardware_interface::PositionJointInterface";
 PositionInterface::PositionInterface(TrajectoryFollower &follower,
                                      hardware_interface::JointStateInterface &js_interface,
                                      std::vector<std::string> &joint_names)

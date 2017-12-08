@@ -49,13 +49,13 @@ private:
   }
 
   void read(RTShared& state);
-  bool update(RTShared& state);
+  bool update();
   bool write();
   void reset();
 
 public:
   ROSController(URCommander& commander, TrajectoryFollower& follower, std::vector<std::string>& joint_names,
-                double max_vel_change);
+                double max_vel_change, std::string tcp_link);
   virtual ~ROSController()
   {
   }
@@ -66,20 +66,26 @@ public:
   virtual void setupConsumer();
   virtual bool consume(RTState_V1_6__7& state)
   {
-    return update(state);
+    read(state);
+    return update();
   }
   virtual bool consume(RTState_V1_8& state)
   {
-    return update(state);
+    read(state);
+    return update();
   }
   virtual bool consume(RTState_V3_0__1& state)
   {
-    return update(state);
+    read(state);
+    return update();
   }
   virtual bool consume(RTState_V3_2__3& state)
   {
-    return update(state);
+    read(state);
+    return update();
   }
+
+  virtual void onTimeout();
 
   virtual void onRobotStateChange(RobotState state);
 };
