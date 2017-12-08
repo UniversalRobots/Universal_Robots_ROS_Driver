@@ -39,6 +39,8 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
 ## Installation
 
+**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.** 
+
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
 Note that this package depends on ur_msgs, hardware_interface, and controller_manager so it cannot directly be used with ROS versions prior to hydro.
@@ -49,6 +51,21 @@ The driver is designed to be a drop-in replacement of the ur\_driver package. It
 
 If you want to test it in your current setup, just use the modified launch files included in this package instead of those in ur\_bringup. Everything else should work as usual.
 
+If you would like to run this package to connect to the hardware, you only need to run the following launch file.
+```
+roslaunch ur_modern_driver urXX_bringup.launch robot_ip:=ROBOT_IP_ADDRESS
+```
+
+Where ROBOT_IP_ADDRESS is your UR arm's IP and XX is '5' or '10' depending on your robot. The above launch file makes calls to both roscore and the launch file to the urXX_description so that ROS's parameter server has information on your robot arm. If you do not have your ```ur_description``` installed please do so via:
+```
+sudo apt install ros-<distro>-ur-description
+```
+
+Where <distro> is the ROS distribution your machine is running on. You may want to run MoveIt to plan and execute actions on the arm. You can do so by simply entering the following commands after launching ```ur_modern_driver```:
+```
+roslaunch urXX_moveit_config ur5_moveit_planning_executing.launch
+roslaunch urXX_moveit_config moveit_rviz.launch config:=true
+```
 ---
 If you would like to use the ros\_control-based approach, use the launch files urXX\_ros\_control.launch, where XX is '5' or '10' depending on your robot.
 
@@ -143,3 +160,4 @@ Please cite the following report if using this driver
 
 
 The report can be downloaded from http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html
+
