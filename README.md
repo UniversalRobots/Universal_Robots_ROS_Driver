@@ -1,4 +1,5 @@
-# ur_modern_driver
+# ur_modern_driver - Refactored
+[![Build Status](https://travis-ci.org/Zagitta/ur_modern_driver.svg?branch=master)](https://travis-ci.org/Zagitta/ur_modern_driver)
 
 A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is designed to replace the old driver transparently, while solving some issues, improving usability as well as enabling compatibility  of ros_control. 
 
@@ -21,7 +22,7 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
 * Besides this, the driver subscribes to two new topics:
 
-  * */ur\_driver/URScript* : Takes messages of type _std\_msgs/String_ and directly forwards it to the robot. Note that no control is done on the input, so use at your own risk! Inteded for sending movel/movej commands directly to the robot, conveyor tracking and the like.
+  * ~~*/ur\_driver/URScript* : Takes messages of type _std\_msgs/String_ and directly forwards it to the robot. Note that no control is done on the input, so use at your own risk! Inteded for sending movel/movej commands directly to the robot, conveyor tracking and the like.~~
 
   * */joint\_speed* : Takes messages of type _trajectory\_msgs/JointTrajectory_. Parses the first JointTracetoryPoint and sends the specified joint speeds and accelerations to the robot. This interface is intended for doing visual servoing and other kind of control that requires speed control rather than position control of the robot. Remember to set values for all 6 joints. Ignores the field joint\_names, so set the values in the correct order.
 
@@ -35,7 +36,8 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
   * As ros_control continuesly controls the robot, using the teach pendant while a controller is running will cause the controller **on the robot** to crash, as it obviously can't handle conflicting control input from two sources. Thus be sure to stop the running controller **before** moving the robot via the teach pendant:
     * A list of the loaded and running controllers can be found by a call to the controller_manager ```rosservice call /controller_manager/list_controllers {} ```
     * The running position trajectory controller can be stopped with a call to  ```rosservice call /universal_robot/controller_manager/switch_controller "start_controllers: - '' stop_controllers: - 'pos_based_pos_traj_controller' strictness: 1" ``` (Remember you can use tab-completion for this)
-   
+
+* Added activation modes: `Never`, `Always` and `OnStartup`. Sets wether a call to the `ur_driver/robot_enable` service is required at startup, at startup + on errors or never. Is intended as a safety feature to require some sort of manual intervention in case of driver crashes and robot safety faults.
 
 ## Installation
 
