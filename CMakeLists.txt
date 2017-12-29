@@ -137,6 +137,8 @@ endif()
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wno-unused-parameter)
+add_compile_options(-Wno-ignored-qualifiers)
+add_compile_options(-Wno-return-type)
 
 # support indigo's ros_control - This can be removed upon EOL indigo
 if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
@@ -172,6 +174,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
+    src/ros/safe_trajectory_follower.cpp
     src/ros/urscript_handler.cpp
     src/ur/stream.cpp
     src/ur/server.cpp

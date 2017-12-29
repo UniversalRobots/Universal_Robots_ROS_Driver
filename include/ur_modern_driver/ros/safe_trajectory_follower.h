@@ -13,7 +13,7 @@
 #include "ur_modern_driver/ur/server.h"
 #include "ur_modern_driver/ros/trajectory_follower_interface.h"
 
-class TrajectoryFollower : public TrajectoryFollowerInterface
+class SafeTrajectoryFollower:  public TrajectoryFollowerInterface
 {
 private:
   std::atomic<bool> running_;
@@ -21,7 +21,10 @@ private:
   URCommander &commander_;
   URServer server_;
 
-  double servoj_time_, servoj_lookahead_time_, servoj_gain_;
+  double time_interval_, servoj_time_, servoj_time_waiting_, max_waiting_time_, \
+         servoj_gain_, servoj_lookahead_time_;
+  bool debug_, more_debug_;
+
   std::string program_;
 
   template <typename T>
@@ -32,16 +35,16 @@ private:
     return s;
   }
 
-  bool execute(std::array<double, 6> &positions, bool keep_alive);
-  double interpolate(double t, double T, double p0_pos, double p1_pos, double p0_vel, double p1_vel);
+  bool execute(const std::array<double, 6> &positions,
+               const std::array<double, 6> &velocities,
+               double sample_number, double time_in_seconds);
 
 public:
-  TrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
+  SafeTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
 
   bool start();
-  bool execute(std::array<double, 6> &positions);
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
   void stop();
 
-  virtual ~TrajectoryFollower() {};
+  virtual ~SafeTrajectoryFollower() {};
 };
