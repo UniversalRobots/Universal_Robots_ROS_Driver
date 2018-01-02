@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   control_msgs
   geometry_msgs
+  industrial_msgs
   roscpp
   sensor_msgs
   std_srvs
