@@ -15,6 +15,7 @@
   <arg name="servoj_time" default="0.008" />
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
+  <arg name="shutdown_on_disconnect" default="true" />
 
   <!-- require_activation defines when the service /ur_driver/robot_enable needs to be called. -->
   <arg name="require_activation" default="Never" /> <!-- Never, Always, OnStartup -->
@@ -25,7 +26,7 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <!-- driver -->
-  <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen">
+  <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen" respawn="">
   <!-- copy the specified IP address to be consistant with ROS-Industrial spec. -->
     <param name="prefix" type="str" value="$(arg prefix)" />
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
@@ -36,5 +37,6 @@
     <param name="base_frame" type="str" value="$(arg base_frame)"/>
     <param name="tool_frame" type="str" value="$(arg tool_frame)"/>
     <param name="require_activation" type="str" value="$(arg require_activation)" />
+    <param name="shutdown_on_disconnect" type="bool" value="$(arg shutdown_on_disconnect)"/>
   </node>
 </launch>

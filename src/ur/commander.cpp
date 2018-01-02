@@ -1,7 +1,7 @@
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/log.h"
 
-bool URCommander::write(std::string &s)
+bool URCommander::write(const std::string &s)
 {
   size_t len = s.size();
   const uint8_t *data = reinterpret_cast<const uint8_t *>(s.c_str());
@@ -20,8 +20,9 @@ void URCommander::formatArray(std::ostringstream &out, std::array<double, 6> &va
   out << "]";
 }
 
-bool URCommander::uploadProg(std::string &s)
+bool URCommander::uploadProg(const std::string &s)
 {
+  LOG_DEBUG("Sending program [%s]",s.c_str());
   return write(s);
 }
 

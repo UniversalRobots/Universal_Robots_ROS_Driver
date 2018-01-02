@@ -13,6 +13,7 @@
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="3.0"/>
   <arg name="prefix" default="" />
+  <arg name="shutdown_on_disconnect" default="true" />
 
   <include file="$(find ur_modern_driver)/launch/ur3_bringup.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
@@ -20,5 +21,6 @@
     <arg name="min_payload"  value="$(arg min_payload)"/>
     <arg name="max_payload"  value="$(arg max_payload)"/>
     <arg name="prefix" value="$(arg prefix)" />
+    <arg name="shutdown_on_disconnect" value="$(arg shutdown_on_disconnect)"/>
   </include>
 </launch>

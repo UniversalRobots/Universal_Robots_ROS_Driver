@@ -13,6 +13,7 @@
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="10.0"/>
+  <arg name="shutdown_on_disconnect" default="true" />
 
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur10_upload.launch">
@@ -25,6 +26,7 @@
     <arg name="min_payload"  value="$(arg min_payload)"/>
     <arg name="max_payload"  value="$(arg max_payload)"/>
     <arg name="servoj_time"  value="0.08" />
+    <arg name="shutdown_on_disconnect" value="$(arg shutdown_on_disconnect)"/>
   </include>
 
 </launch>

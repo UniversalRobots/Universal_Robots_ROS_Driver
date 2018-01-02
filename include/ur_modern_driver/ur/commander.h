@@ -10,7 +10,7 @@ private:
   URStream &stream_;
 
 protected:
-  bool write(std::string &s);
+  bool write(const std::string &s);
   void formatArray(std::ostringstream &out, std::array<double, 6> &values);
 
 public:
@@ -23,7 +23,7 @@ public:
   virtual bool setAnalogOut(uint8_t pin, double value) = 0;
 
   // shared
-  bool uploadProg(std::string &s);
+  bool uploadProg(const std::string &s);
   bool stopj(double a = 10.0);
   bool setToolVoltage(uint8_t voltage);
   bool setFlag(uint8_t pin, bool value);

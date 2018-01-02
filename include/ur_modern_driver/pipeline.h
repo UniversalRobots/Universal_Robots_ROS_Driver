@@ -99,6 +99,18 @@ public:
   virtual bool tryGet(std::vector<unique_ptr<T>>& products) = 0;
 };
 
+class INotifier
+{
+public:
+  virtual void started(std::string name)
+  {
+  }
+  virtual void stopped(std::string name)
+  {
+  }
+};
+
+
 template <typename T>
 class Pipeline
 {
@@ -107,6 +119,8 @@ private:
   typedef Clock::time_point Time;
   IProducer<T>& producer_;
   IConsumer<T>& consumer_;
+  std::string name_;
+  INotifier& notifier_;
   BlockingReaderWriterQueue<unique_ptr<T>> queue_;
   atomic<bool> running_;
   thread pThread_, cThread_;
@@ -126,15 +140,17 @@ private:
       {
         if (!queue_.try_enqueue(std::move(p)))
         {
-          LOG_ERROR("Pipeline producer overflowed!");
+          LOG_ERROR("Pipeline producer overflowed! <%s>",name_.c_str());
         }
       }
 
       products.clear();
     }
     producer_.teardownProducer();
-    LOG_DEBUG("Pipline producer ended");
+    LOG_DEBUG("Pipeline producer ended! <%s>", name_.c_str());
     consumer_.stopConsumer();
+    running_ = false;
+    notifier_.stopped(name_);
   }
 
   void run_consumer()
@@ -157,13 +173,15 @@ private:
         break;
     }
     consumer_.teardownConsumer();
-    LOG_DEBUG("Pipline consumer ended");
+    LOG_DEBUG("Pipeline consumer ended! <%s>", name_.c_str());
     producer_.stopProducer();
+    running_ = false;
+    notifier_.stopped(name_);
   }
 
 public:
-  Pipeline(IProducer<T>& producer, IConsumer<T>& consumer)
-    : producer_(producer), consumer_(consumer), queue_{ 32 }, running_{ false }
+  Pipeline(IProducer<T>& producer, IConsumer<T>& consumer, std::string name, INotifier& notifier)
+    : producer_(producer), consumer_(consumer), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
   {
   }
 
@@ -175,6 +193,7 @@ public:
     running_ = true;
     pThread_ = thread(&Pipeline::run_producer, this);
     cThread_ = thread(&Pipeline::run_consumer, this);
+    notifier_.started(name_);
   }
 
   void stop()
@@ -182,7 +201,7 @@ public:
     if (!running_)
       return;
 
-    LOG_DEBUG("Stopping pipeline");
+    LOG_DEBUG("Stopping pipeline! <%s>",name_.c_str());
 
     consumer_.stopConsumer();
     producer_.stopProducer();
@@ -191,5 +210,6 @@ public:
 
     pThread_.join();
     cThread_.join();
+    notifier_.stopped(name_);
   }
 };

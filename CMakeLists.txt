@@ -146,15 +146,15 @@ endif()
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(include 
+include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 
 # Hardware Interface
-add_library(ur_hardware_interface 
-  src/ros/hardware_interface.cpp 
+add_library(ur_hardware_interface
+  src/ros/hardware_interface.cpp
   src/ros/controller.cpp)
 target_link_libraries(ur_hardware_interface
   ${catkin_LIBRARIES}
@@ -172,6 +172,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
+    src/ros/urscript_handler.cpp
     src/ur/stream.cpp
     src/ur/server.cpp
     src/ur/commander.cpp

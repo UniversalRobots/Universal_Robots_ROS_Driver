@@ -22,7 +22,7 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
 * Besides this, the driver subscribes to two new topics:
 
-  * ~~*/ur\_driver/URScript* : Takes messages of type _std\_msgs/String_ and directly forwards it to the robot. Note that no control is done on the input, so use at your own risk! Inteded for sending movel/movej commands directly to the robot, conveyor tracking and the like.~~
+  * */ur\_driver/URScript* : Takes messages of type _std\_msgs/String_ and directly forwards it to the robot. Note that no control is done on the input, so use at your own risk! Inteded for sending movel/movej commands directly to the robot, conveyor tracking and the like.
 
   * */joint\_speed* : Takes messages of type _trajectory\_msgs/JointTrajectory_. Parses the first JointTracetoryPoint and sends the specified joint speeds and accelerations to the robot. This interface is intended for doing visual servoing and other kind of control that requires speed control rather than position control of the robot. Remember to set values for all 6 joints. Ignores the field joint\_names, so set the values in the correct order.
 
