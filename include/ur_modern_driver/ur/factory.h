@@ -94,8 +94,10 @@ public:
     {
       if (minor_version_ < 3)
         return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_0__1);
-      else
+      else if (minor_version_ < 5)
         return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_2);
+      else
+        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_5);
     }
   }
 

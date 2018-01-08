@@ -103,3 +103,16 @@ public:
 
   static_assert(RobotModeData_V3_2::SIZE == 41, "RobotModeData_V3_2 has missmatched size");
 };
+
+class RobotModeData_V3_5 : public RobotModeData_V3_2
+{
+public:
+  virtual bool parseWith(BinParser& bp);
+  virtual bool consumeWith(URStatePacketConsumer& consumer);
+
+  unsigned char unknown_internal_use;
+
+  static const size_t SIZE = RobotModeData_V3_2::SIZE + sizeof(unsigned char);
+
+  static_assert(RobotModeData_V3_5::SIZE == 42, "RobotModeData_V3_5 has missmatched size");
+};

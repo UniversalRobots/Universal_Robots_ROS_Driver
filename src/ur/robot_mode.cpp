@@ -54,6 +54,18 @@ bool RobotModeData_V3_2::parseWith(BinParser& bp)
   return true;
 }
 
+bool RobotModeData_V3_5::parseWith(BinParser& bp)
+{
+  if (!bp.checkSize<RobotModeData_V3_5>())
+    return false;
+
+  RobotModeData_V3_2::parseWith(bp);
+
+  bp.parse(unknown_internal_use);
+
+  return true;
+}
+
 bool RobotModeData_V1_X::consumeWith(URStatePacketConsumer& consumer)
 {
   return consumer.consume(*this);
@@ -63,6 +75,10 @@ bool RobotModeData_V3_0__1::consumeWith(URStatePacketConsumer& consumer)
   return consumer.consume(*this);
 }
 bool RobotModeData_V3_2::consumeWith(URStatePacketConsumer& consumer)
+{
+  return consumer.consume(*this);
+}
+bool RobotModeData_V3_5::consumeWith(URStatePacketConsumer& consumer)
 {
   return consumer.consume(*this);
 }
