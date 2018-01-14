@@ -13,7 +13,7 @@
 #include "ur_modern_driver/ur/server.h"
 #include "ur_modern_driver/ros/trajectory_follower_interface.h"
 
-class SafeTrajectoryFollower:  public TrajectoryFollowerInterface
+class LowBandwidthTrajectoryFollower:  public TrajectoryFollowerInterface
 {
 private:
   std::atomic<bool> running_;
@@ -40,11 +40,11 @@ private:
                double sample_number, double time_in_seconds);
 
 public:
-  SafeTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
+  LowBandwidthTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port, bool version_3);
 
   bool start();
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
   void stop();
 
-  virtual ~SafeTrajectoryFollower() {};
+  virtual ~LowBandwidthTrajectoryFollower() {};
 };

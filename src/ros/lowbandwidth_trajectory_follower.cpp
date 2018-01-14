@@ -1,4 +1,4 @@
-#include "ur_modern_driver/ros/safe_trajectory_follower.h"
+#include "ur_modern_driver/ros/lowbandwidth_trajectory_follower.h"
 #include <endian.h>
 #include <cmath>
 #include <ros/ros.h>
@@ -16,7 +16,7 @@ static const std::string SERVOJ_LOOKAHEAD_TIME("{{SERVOJ_LOOKAHEAD_TIME}}");
 static const std::string REVERSE_IP("{{REVERSE_IP}}");
 static const std::string REVERSE_PORT("{{REVERSE_PORT}}");
 static const std::string POSITION_PROGRAM = R"(
-def driveRobotSafeTrajectory():
+def driveRobotLowBandwidthTrajectory():
 
     global JOINT_NUM               = 6
     global TIME_INTERVAL           = {{TIME_INTERVAL}}
@@ -359,7 +359,7 @@ end
 
 )";
 
-SafeTrajectoryFollower::SafeTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port,
+LowBandwidthTrajectoryFollower::LowBandwidthTrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port,
                                        bool version_3)
   : running_(false)
   , commander_(commander)
@@ -385,7 +385,7 @@ SafeTrajectoryFollower::SafeTrajectoryFollower(URCommander &commander, std::stri
   std::string res(POSITION_PROGRAM);
   std::ostringstream out;
   if (!version_3) {
-    LOG_ERROR("Safe Trajectory Follower only works for interface version > 3");
+    LOG_ERROR("Low Bandwidth Trajectory Follower only works for interface version > 3");
     std::exit(-1);
   }
   res.replace(res.find(TIME_INTERVAL), TIME_INTERVAL.length(), std::to_string(time_interval_));
@@ -405,12 +405,12 @@ SafeTrajectoryFollower::SafeTrajectoryFollower(URCommander &commander, std::stri
     LOG_ERROR("Failed to bind server, the port %d is likely already in use", reverse_port);
     std::exit(-1);
   }
-  LOG_INFO("Safe Trajectory Follower is initialized!");
+  LOG_INFO("Low Bandwidth Trajectory Follower is initialized!");
 }
 
-bool SafeTrajectoryFollower::start()
+bool LowBandwidthTrajectoryFollower::start()
 {
-  LOG_INFO("Starting SafeTrajectoryFollower");
+  LOG_INFO("Starting LowBandwidthTrajectoryFollower");
 
   if (running_)
     return true;  // not sure
@@ -435,7 +435,7 @@ bool SafeTrajectoryFollower::start()
   return (running_ = true);
 }
 
-bool SafeTrajectoryFollower::execute(const std::array<double, 6> &positions,
+bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positions,
                                      const std::array<double, 6> &velocities,
                                      double sample_number, double time_in_seconds)
 {
@@ -468,7 +468,7 @@ bool SafeTrajectoryFollower::execute(const std::array<double, 6> &positions,
   return server_.write(buf, strlen(formatted_message) + 1, written);
 }
 
-bool SafeTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
+bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
 {
   if (!running_)
     return false;
@@ -505,7 +505,7 @@ bool SafeTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, s
   return res;
 }
 
-void SafeTrajectoryFollower::stop()
+void LowBandwidthTrajectoryFollower::stop()
 {
   if (!running_)
     return;

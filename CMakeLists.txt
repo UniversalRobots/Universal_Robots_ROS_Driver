@@ -174,7 +174,7 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
-    src/ros/safe_trajectory_follower.cpp
+    src/ros/lowbandwidth_trajectory_follower.cpp
     src/ros/urscript_handler.cpp
     src/ur/stream.cpp
     src/ur/server.cpp

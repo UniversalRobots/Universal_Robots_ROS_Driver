@@ -13,7 +13,7 @@
   <arg name="max_payload" />
   <arg name="prefix" default="" />
   <arg name="use_ros_control" default="false"/>
-  <arg name="use_safe_trajectory_follower" default="false"/>
+  <arg name="use_lowbandwidth_trajectory_follower" default="false"/>
   <arg name="time_interval" default="0.008"/>
   <arg name="servoj_time" default="0.008" />
   <arg name="servoj_time_waiting" default="0.001" />
@@ -40,7 +40,7 @@
     <param name="prefix" type="str" value="$(arg prefix)" />
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
     <param name="use_ros_control" type="bool" value="$(arg use_ros_control)"/>
-    <param name="use_safe_trajectory_follower" type="bool" value="$(arg use_safe_trajectory_follower)"/>
+    <param name="use_lowbandwidth_trajectory_follower" type="bool" value="$(arg use_lowbandwidth_trajectory_follower)"/>
     <param name="min_payload" type="double" value="$(arg min_payload)" />
     <param name="max_payload" type="double" value="$(arg max_payload)" />
     <param name="max_velocity" type="double" value="$(arg max_velocity)" />
