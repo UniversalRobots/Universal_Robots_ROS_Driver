@@ -22,6 +22,7 @@
   <arg name="more_debug" default="false" />
   <arg name="servoj_gain" default="100." />
   <arg name="servoj_lookahead_time" default="1." />
+  <arg name="max_joint_difference" default="0.01" />
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
   <arg name="shutdown_on_disconnect" default="true" />
@@ -52,6 +53,7 @@
     <param name="more_debug" type="bool" value="$(arg more_debug)"/>
     <param name="servoj_gain" type="double" value="$(arg servoj_gain)" />
     <param name="servoj_lookahead_time" type="double" value="$(arg servoj_lookahead_time)" />
+    <param name="max_joint_difference" type="double" value="$(arg max_joint_difference)" />
     <param name="base_frame" type="str" value="$(arg base_frame)"/>
     <param name="tool_frame" type="str" value="$(arg tool_frame)"/>
     <param name="require_activation" type="str" value="$(arg require_activation)" />

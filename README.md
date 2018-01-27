@@ -55,10 +55,8 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
     * **servoj_time** - time interval (real time) for which each interpolation step controls the robot (using servoj command). See below on examples of setting different time parameters. Default value is 0.008 (corresponds to expected 125Hz frequency of UR robot control)
     * **servoj_time_waiting** - time in seconds (real time) of internal active loop while the robot waits for new instructions in case of delays in communication. The smaller value, the faster robot restarts move after delay (but more stress is put on URControl processor). Default value is 0.001 (1000 Hz check frequency)
     * **max_waiting_time** - maximum time in seconds (real time) to wait for instructions from the drive before move is aborted. Defaults to 2 seconds.
-    * **debug** - displays (visible in the log of Polyscope/pendant and URControl PC) helpful information about trajectory points messages exchanged Driver <-> URScript. It is safe to be run with real robot and introduces very small overhead on the execution of the moves
-    * **more_debug** - displays even more debug information in the logs of Polyscope - details about interpolation loop calculations and execution. It adds a lot of overhead and is not recommended to be used with real robot (It's quite OK to run it with URSim though)
     * **servoj_gain** and **servoj_lookahead_time** - useful to control precision and speed of the position moves with servoj command (see URScript documentation for detailes)
-
+    * **max_joint_difference** - maximum allowed difference between target and actual joints - checked at every trajectory step
 Here are some examples of manipulating the time flow for **Low Bandwidth Trajectory Follower** mode. You can use other settings but you should do it on your own risk.
   * Default mode: *servoj_time* = 0.008, *time_interval* = 0.008 : interpolation time flows with the same speed as real time - moves are executed as planned
   * Slow-motion mode: *servoj_time* = 0.008, *time_interval* = 0.004 : interpolation time flows 2x slower than real time, so the move is executed 2x slower than planned. Requires configuring MoveIt to accept much slower moves than expected (otherwise MoveIt cancels such move mid-way) 
