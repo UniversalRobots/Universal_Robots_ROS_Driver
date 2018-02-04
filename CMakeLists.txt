@@ -137,8 +137,6 @@ endif()
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wno-unused-parameter)
-add_compile_options(-Wno-ignored-qualifiers)
-add_compile_options(-Wno-return-type)
 
 # support indigo's ros_control - This can be removed upon EOL indigo
 if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
