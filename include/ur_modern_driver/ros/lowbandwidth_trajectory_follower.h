@@ -26,14 +26,6 @@ private:
 
   std::string program_;
 
-  template <typename T>
-  size_t append(uint8_t *buffer, T &val)
-  {
-    size_t s = sizeof(T);
-    std::memcpy(buffer, &val, s);
-    return s;
-  }
-
   bool execute(const std::array<double, 6> &positions,
                const std::array<double, 6> &velocities,
                double sample_number, double time_in_seconds);
