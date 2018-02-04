@@ -18,8 +18,6 @@
   <arg name="servoj_time" default="0.008" />
   <arg name="servoj_time_waiting" default="0.001" />
   <arg name="max_waiting_time" default="2.0" />
-  <arg name="debug" default="false" />
-  <arg name="more_debug" default="false" />
   <arg name="servoj_gain" default="100." />
   <arg name="servoj_lookahead_time" default="1." />
   <arg name="max_joint_difference" default="0.01" />
@@ -49,8 +47,6 @@
     <param name="servoj_time" type="double" value="$(arg servoj_time)" />
     <param name="servoj_time_waiting" type="double" value="$(arg servoj_time_waiting)" />
     <param name="max_waiting_time" type="double" value="$(arg max_waiting_time)" />
-    <param name="debug" type="bool" value="$(arg debug)"/>
-    <param name="more_debug" type="bool" value="$(arg more_debug)"/>
     <param name="servoj_gain" type="double" value="$(arg servoj_gain)" />
     <param name="servoj_lookahead_time" type="double" value="$(arg servoj_lookahead_time)" />
     <param name="max_joint_difference" type="double" value="$(arg max_joint_difference)" />
