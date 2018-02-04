@@ -148,7 +148,6 @@ def driveRobotLowBandwidthTrajectory():
                     l_current_position[j] = interpolate(l_segment_elapsed_time, l_total_segment_time, l_start_pos[j], l_end_pos[j], l_start_vel[j], l_end_vel[j])
                     j = j + 1
                 end
-
                 servoj(l_current_position,t=SERVOJ_TIME,lookahead_time=SERVOJ_LOOKAHEAD_TIME,gain=SERVOJ_GAIN)
                 enter_critical
                 g_total_elapsed_time = g_total_elapsed_time + TIME_INTERVAL
@@ -156,11 +155,12 @@ def driveRobotLowBandwidthTrajectory():
                 exit_critical
 
             end
-            while not is_final_position_reached(l_current_position):
-                servoj(l_current_position,t=SERVOJ_TIME,lookahead_time=SERVOJ_LOOKAHEAD_TIME,gain=SERVOJ_GAIN)
-            end
             if l_stopping_after_next_interpolation:
-                textmsg("Stopping the controlling thread on signal from receiving thread after one interpolation loop.")
+                while not is_final_position_reached(l_end_pos):
+                    textmsg("Catching up on final position not reached first time.")
+                    servoj(l_end_pos,t=SERVOJ_TIME,lookahead_time=SERVOJ_LOOKAHEAD_TIME,gain=SERVOJ_GAIN)
+                end
+                textmsg("Finishing the controlling thread. Final position reached.")
                 break
             end
         end
