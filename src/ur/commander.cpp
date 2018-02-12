@@ -86,16 +86,6 @@ bool URCommander_V1_X::setDigitalOut(uint8_t pin, bool value)
   return write(s);
 }
 
-bool URCommander_V3_X::speedj(std::array<double, 6> &speeds, double acceleration)
-{
-  std::ostringstream out;
-  out << std::fixed << std::setprecision(5);
-  out << "speedj(";
-  formatArray(out, speeds);
-  out << "," << acceleration << ")\n";
-  std::string s(out.str());
-  return write(s);
-}
 bool URCommander_V3_X::setAnalogOut(uint8_t pin, double value)
 {
   std::ostringstream out;
@@ -127,6 +117,28 @@ bool URCommander_V3_X::setDigitalOut(uint8_t pin, bool value)
     return false;
 
   out << func << "(" << (int)pin << "," << (value ? "True" : "False") << ")\n";
+  std::string s(out.str());
+  return write(s);
+}
+
+bool URCommander_V3_1__2::speedj(std::array<double, 6> &speeds, double acceleration)
+{
+  std::ostringstream out;
+  out << std::fixed << std::setprecision(5);
+  out << "speedj(";
+  formatArray(out, speeds);
+  out << "," << acceleration << ")\n";
+  std::string s(out.str());
+  return write(s);
+}
+
+bool URCommander_V3_3::speedj(std::array<double, 6> &speeds, double acceleration)
+{
+  std::ostringstream out;
+  out << std::fixed << std::setprecision(5);
+  out << "speedj(";
+  formatArray(out, speeds);
+  out << "," << acceleration << "," << 0.008 << ")\n";
   std::string s(out.str());
   return write(s);
 }

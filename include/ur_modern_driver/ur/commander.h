@@ -49,7 +49,27 @@ public:
   {
   }
 
-  virtual bool speedj(std::array<double, 6> &speeds, double acceleration);
+  virtual bool speedj(std::array<double, 6> &speeds, double acceleration) = 0;
   virtual bool setDigitalOut(uint8_t pin, bool value);
   virtual bool setAnalogOut(uint8_t pin, double value);
+};
+
+class URCommander_V3_1__2 : public URCommander_V3_X
+{
+public:
+  URCommander_V3_1__2(URStream &stream) : URCommander_V3_X(stream)
+  {
+  }
+
+  virtual bool speedj(std::array<double, 6> &speeds, double acceleration);
+};
+
+class URCommander_V3_3 : public URCommander_V3_X
+{
+public:
+  URCommander_V3_3(URStream &stream) : URCommander_V3_X(stream)
+  {
+  }
+
+  virtual bool speedj(std::array<double, 6> &speeds, double acceleration);
 };
