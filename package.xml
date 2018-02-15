@@ -54,7 +54,9 @@
   <build_depend>std_srvs</build_depend>
   <run_depend>hardware_interface</run_depend>
   <run_depend>controller_manager</run_depend>
-  <run_depend>ros_controllers</run_depend>
+  <run_depend>force_torque_sensor_controller</run_depend>
+  <run_depend>joint_state_controller</run_depend>
+  <run_depend>joint_trajectory_controller</run_depend>
   <run_depend>actionlib</run_depend>
   <run_depend>control_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
