@@ -1,7 +1,7 @@
 # ur_modern_driver - Refactored
 [![Build Status](https://travis-ci.org/Zagitta/ur_modern_driver.svg?branch=master)](https://travis-ci.org/Zagitta/ur_modern_driver)
 
-A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is designed to replace the old driver transparently, while solving some issues, improving usability as well as enabling compatibility  of ros_control. 
+A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is designed to replace the old driver transparently, while solving some issues, improving usability as well as enabling compatibility  of ros_control.
 
 ## Improvements
 
@@ -26,8 +26,8 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
   * */joint\_speed* : Takes messages of type _trajectory\_msgs/JointTrajectory_. Parses the first JointTrajectoryPoint and sends the specified joint speeds and accelerations to the robot. This interface is intended for doing visual servoing and other kind of control that requires speed control rather than position control of the robot. Remember to set values for all 6 joints. Ignores the field joint\_names, so set the values in the correct order.
 
-* Added support for ros_control. 
-  * As ros_control wants to have control over the robot at all times, ros_control compatibility is set via a parameter at launch-time. 
+* Added support for ros_control.
+  * As ros_control wants to have control over the robot at all times, ros_control compatibility is set via a parameter at launch-time.
   * With ros_control active, the driver doesn't open the action_lib interface nor publish joint_states or wrench msgs. This is handled by ros_control instead.
   * Currently two controllers are available, both controlling the joint position of the robot, useable for trajectroy execution
     * The velocity based controller sends joint speed commands to the robot, using the speedj command
@@ -39,7 +39,7 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
 
 * Added activation modes: `Never`, `Always` and `OnStartup`. Sets wether a call to the `ur_driver/robot_enable` service is required at startup, at startup + on errors or never. Is intended as a safety feature to require some sort of manual intervention in case of driver crashes and robot safety faults.
 
-* **Low Bandwidth Trajectory Follower** mode of execution. In this mode the real-time control loop for the robot is shifted from the client PC running the driver to URscript executed on the URControl PC of the robot with the following features:
+* **Low Bandwidth Trajectory Follower** mode of execution. (only works when `ros_control` is set to `false`)In this mode the real-time control loop for the robot is shifted from the client PC running the driver to URscript executed on the URControl PC of the robot with the following features:
   * It works only with */follow\_joint\_trajectory* action for MoveIt integration. It is mutually exclusive with *ros_control*
   * It only implements "position + velocity" based control - it uses coarse positions and velocities calculated by MoveIt and performs cubic interpolation of joint positions (Bezier' curve) of positions. The positions are set using servoj command of URScript.
   * It is much more resilient to connectivity problems than other methods of ur_modern_driver. It is resilient to additional load on client PC, latency of network and kernel of the PC the driver runs on. This makes it much better suitable for development/research quick iteration loops without separate dedicated physical setup.
@@ -59,12 +59,22 @@ A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is design
     * **max_joint_difference** - maximum allowed difference between target and actual joints - checked at every trajectory step
 Here are some examples of manipulating the time flow for **Low Bandwidth Trajectory Follower** mode. You can use other settings but you should do it on your own risk.
   * Default mode: *servoj_time* = 0.008, *time_interval* = 0.008 : interpolation time flows with the same speed as real time - moves are executed as planned
-  * Slow-motion mode: *servoj_time* = 0.008, *time_interval* = 0.004 : interpolation time flows 2x slower than real time, so the move is executed 2x slower than planned. Requires configuring MoveIt to accept much slower moves than expected (otherwise MoveIt cancels such move mid-way) 
+  * Slow-motion mode: *servoj_time* = 0.008, *time_interval* = 0.004 : interpolation time flows 2x slower than real time, so the move is executed 2x slower than planned. Requires configuring MoveIt to accept much slower moves than expected (otherwise MoveIt cancels such move mid-way)
   * Fast-forward mode: *servoj_time* = 0.004, *time_interval* = 0.012 : interpolation time flows 3x faster than real time, so the move is 3x faster than planned. Might violate limits of the robot speed so use carefully and make sure you gradually increase the speed in-between to check how safe it is.
+
+NOTE! In case you use Low Bandwidth Trajectory Follower and you experience MoveIt to cancel robot moves prematurely
+because of too long move duration, you should increase tolerance of duration monitoring of MoveIt trajectory execution
+You can find the configuration usually in trajectory_execution.launch.xml in generated moveit config - there are
+parameters that configure scaling and margin for allowed execution time among others.
+The relevant parameters are `trajectory_execution/allowed_execution_duration_scaling` (default 1.2) and
+`trajectory_execution/allowed_goal_duration_margin` (default 0.5). The first one is factor that scales execution time,
+the second is margin that is added on top of the scaled one. You can increase either of those values to make moveit
+executor more "tolerant" to execution delays. There is also another parameter:
+`trajectory_execution/execution_duration_monitoring`. You can set it to false to disable duration monitoring completely.
 
 ## Installation
 
-**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.** 
+**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.**
 
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
@@ -112,7 +122,7 @@ The position based controller *should* stay closer to the commanded path, while 
 
 **Note** that the PID values are not optimally tweaked as of this moment.
 
-To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following 
+To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following
 ```
 controller_list:
  - name: /vel_based_pos_traj_controller #or /pos_based_pos_traj_controller
@@ -133,7 +143,7 @@ controller_list:
 Each robot from UR is calibrated individually, so there is a small error (in the order of millimeters) between the end-effector reported by the URDF models in https://github.com/ros-industrial/universal_robot/tree/indigo-devel/ur_description and
 the end-effector as reported by the controller itself.
 
-This driver broadcasts a transformation between the base link and the end-effector as reported by the UR. The default frame names are: *base* and *tool0_controller*. 
+This driver broadcasts a transformation between the base link and the end-effector as reported by the UR. The default frame names are: *base* and *tool0_controller*.
 
 To use the *tool0_controller* frame in a URDF, there needs to be a link with that name connected to *base*. For example:
 
@@ -171,16 +181,16 @@ Should be compatible with all robots and control boxes with the newest firmware.
 
 *Simulated UR5 running 1.6.08725
 
- 
+
 #Credits
 Please cite the following report if using this driver
 
-@techreport{andersen2015optimizing, 
-  title = {Optimizing the Universal Robots ROS driver.}, 
-  institution = {Technical University of Denmark, Department of Electrical Engineering}, 
-  author = {Andersen, Thomas Timm}, 
-  year = {2015}, 
-  url = {http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html} 
+@techreport{andersen2015optimizing,
+  title = {Optimizing the Universal Robots ROS driver.},
+  institution = {Technical University of Denmark, Department of Electrical Engineering},
+  author = {Andersen, Thomas Timm},
+  year = {2015},
+  url = {http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html}
   }
 
 
