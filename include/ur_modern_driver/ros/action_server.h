@@ -39,7 +39,7 @@ private:
   std::condition_variable tj_cv_;
   std::thread tj_thread_;
 
-  TrajectoryFollowerInterface& follower_;
+  ActionTrajectoryFollowerInterface& follower_;
 
   RobotState state_;
   std::array<double, 6> q_actual_, qd_actual_;
@@ -61,7 +61,7 @@ private:
   bool updateState(RTShared& data);
 
 public:
-  ActionServer(TrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names, double max_velocity);
+  ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names, double max_velocity);
 
   void start();
   virtual void onRobotStateChange(RobotState state);

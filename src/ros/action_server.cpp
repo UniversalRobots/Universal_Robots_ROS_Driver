@@ -1,7 +1,7 @@
 #include "ur_modern_driver/ros/action_server.h"
 #include <cmath>
 
-ActionServer::ActionServer(TrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names, double max_velocity)
+ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names, double max_velocity)
   : as_(nh_, "follow_joint_trajectory", boost::bind(&ActionServer::onGoal, this, _1),
         boost::bind(&ActionServer::onCancel, this, _1), false)
   , joint_names_(joint_names)

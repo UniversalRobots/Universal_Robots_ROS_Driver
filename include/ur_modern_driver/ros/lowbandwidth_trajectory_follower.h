@@ -11,9 +11,9 @@
 #include "ur_modern_driver/log.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/server.h"
-#include "ur_modern_driver/ros/trajectory_follower_interface.h"
+#include "ur_modern_driver/ros/action_trajectory_follower_interface.h"
 
-class LowBandwidthTrajectoryFollower:  public TrajectoryFollowerInterface
+class LowBandwidthTrajectoryFollower:  public ActionTrajectoryFollowerInterface
 {
 private:
   std::atomic<bool> running_;
