@@ -15,7 +15,7 @@ void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
   LOG_INFO("Message received");
   std::string str(msg->data);
   if (str.back() != '\n')
-      str.append('\n');
+      str.append("\n");
   
   switch (state_)
   {
