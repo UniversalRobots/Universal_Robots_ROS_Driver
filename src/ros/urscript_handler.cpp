@@ -13,10 +13,14 @@ URScriptHandler::URScriptHandler(URCommander &commander)
 void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
 {
   LOG_INFO("Message received");
+  std::string str(msg->data);
+  if (str.back() != '\n')
+      str.append('\n');
+  
   switch (state_)
   {
     case RobotState::Running:
-      if (!commander_.uploadProg(msg->data))
+      if (!commander_.uploadProg(str))
       {
         LOG_ERROR("Program upload failed!");
       }
