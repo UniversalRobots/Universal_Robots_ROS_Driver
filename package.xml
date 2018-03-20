@@ -68,6 +68,7 @@
   <run_depend>ur_description</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>std_srvs</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
 
   <test_depend>rosunit</test_depend>
 
