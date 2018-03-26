@@ -73,7 +73,7 @@ bool URCommander_V1_X::speedj(std::array<double, 6> &speeds, double acceleration
 bool URCommander_V1_X::setAnalogOut(uint8_t pin, double value)
 {
   std::ostringstream out;
-  out << "set_analog_out(" << (int)pin << "," << std::fixed << std::setprecision(4) << value << ")\n";
+  out << "sec io_fun():\n" << "set_analog_out(" << (int)pin << "," << std::fixed << std::setprecision(4) << value << ")\n" << "end\n";
   std::string s(out.str());
   return write(s);
 }
@@ -81,7 +81,7 @@ bool URCommander_V1_X::setAnalogOut(uint8_t pin, double value)
 bool URCommander_V1_X::setDigitalOut(uint8_t pin, bool value)
 {
   std::ostringstream out;
-  out << "set_digital_out(" << (int)pin << "," << (value ? "True" : "False") << ")\n";
+  out << "sec io_fun():\n" << "set_digital_out(" << (int)pin << "," << (value ? "True" : "False") << ")\n" << "end\n";
   std::string s(out.str());
   return write(s);
 }
@@ -89,7 +89,7 @@ bool URCommander_V1_X::setDigitalOut(uint8_t pin, bool value)
 bool URCommander_V3_X::setAnalogOut(uint8_t pin, double value)
 {
   std::ostringstream out;
-  out << "set_standard_analog_out(" << (int)pin << "," << std::fixed << std::setprecision(5) << value << ")\n";
+  out << "sec io_fun():\n" << "set_standard_analog_out(" << (int)pin << "," << std::fixed << std::setprecision(5) << value << ")\n" << "end\n";
   std::string s(out.str());
   return write(s);
 }
@@ -116,7 +116,7 @@ bool URCommander_V3_X::setDigitalOut(uint8_t pin, bool value)
   else
     return false;
 
-  out << func << "(" << (int)pin << "," << (value ? "True" : "False") << ")\n";
+  out << "sec io_fun():\n" << func << "(" << (int)pin << "," << (value ? "True" : "False") << ")\n" << "end\n";
   std::string s(out.str());
   return write(s);
 }
