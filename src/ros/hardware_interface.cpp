@@ -17,7 +17,6 @@ void JointInterface::update(RTShared &packet)
   efforts_ = packet.i_actual;
 }
 
-
 const std::string WrenchInterface::INTERFACE_NAME = "hardware_interface::ForceTorqueSensorInterface";
 WrenchInterface::WrenchInterface(std::string tcp_link)
 {
@@ -29,11 +28,10 @@ void WrenchInterface::update(RTShared &packet)
   tcp_ = packet.tcp_force;
 }
 
-
 const std::string VelocityInterface::INTERFACE_NAME = "hardware_interface::VelocityJointInterface";
 VelocityInterface::VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface,
                                      std::vector<std::string> &joint_names, double max_vel_change)
-  : commander_(commander), max_vel_change_(max_vel_change)
+  : commander_(commander), max_vel_change_(max_vel_change), prev_velocity_cmd_({ 0, 0, 0, 0, 0, 0 })
 {
   for (size_t i = 0; i < 6; i++)
   {
