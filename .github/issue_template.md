@@ -27,9 +27,12 @@ Please search on the [issue track](../) before creating one.
 
 ## Your Environment
 <!--- Include as many relevant details about the environment you experienced the bug in -->
+* Operating System and version:
+* Platform (ie: PC or embedded arm):
 * Version used:
 * ROS version:
-* Operating System and version:
+* UR CB version:
+* Connection setup (wired or wireless):
 
 ## Log file
 ```
