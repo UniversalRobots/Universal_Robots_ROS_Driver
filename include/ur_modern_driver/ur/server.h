@@ -8,6 +8,8 @@
 #include <string>
 #include "ur_modern_driver/tcp_socket.h"
 
+#define MAX_SERVER_BUF_LEN 50
+
 class URServer : private TCPSocket
 {
 private:
@@ -24,5 +26,6 @@ public:
   bool bind();
   bool accept();
   void disconnectClient();
+  bool readLine(char* buffer, size_t buf_len);
   bool write(const uint8_t *buf, size_t buf_len, size_t &written);
 };

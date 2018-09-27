@@ -86,3 +86,44 @@ bool URServer::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
   return client_.write(buf, buf_len, written);
 }
+
+bool URServer::readLine(char* buffer, size_t buf_len)
+{
+    char *current_pointer = buffer;
+    char ch;
+    size_t total_read;
+
+    if (buf_len <= 0 || buffer == NULL) {
+        return false;
+    }
+
+    total_read = 0;
+    for (;;) {
+        if (client_.read(&ch))
+        {
+            if (total_read < buf_len - 1) // just in case ...
+            {
+                total_read ++;
+                *current_pointer++ = ch;
+            }
+            if (ch == '\n')
+            {
+                break;
+            }
+        }
+        else
+        {
+            if (total_read == 0)
+            {
+                return false;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    *current_pointer = '\0';
+    return true;
+}

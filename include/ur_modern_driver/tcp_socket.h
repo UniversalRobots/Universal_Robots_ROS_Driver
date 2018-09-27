@@ -46,6 +46,7 @@ public:
 
   std::string getIP();
 
+  bool read(char *character);
   bool read(uint8_t *buf, size_t buf_len, size_t &read);
   bool write(const uint8_t *buf, size_t buf_len, size_t &written);
 

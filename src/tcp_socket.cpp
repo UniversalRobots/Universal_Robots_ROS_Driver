@@ -90,7 +90,7 @@ void TCPSocket::close()
   if (state_ != SocketState::Connected)
     return;
   state_ = SocketState::Closed;
-  ::shutdown(socket_fd_, SHUT_RDWR);
+  ::close(socket_fd_);
   socket_fd_ = -1;
 }
 
@@ -110,6 +110,16 @@ std::string TCPSocket::getIP()
   inet_ntop(AF_INET, &name.sin_addr, buf, sizeof(buf));
   return std::string(buf);
 }
+
+bool TCPSocket::read(char *character)
+{
+    size_t read_chars;
+    // It's inefficient, but in our case we read very small messages
+    // and the overhead connected with reading character by character is
+    // negligible - adding buffering would complicate the code needlessly.
+    return read((uint8_t *) character, 1, read_chars);
+}
+
 
 bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
 {
