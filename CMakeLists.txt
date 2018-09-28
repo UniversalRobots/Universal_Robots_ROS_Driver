@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.12)
 project(ur_modern_driver)
+
+
 add_definitions( -DROS_BUILD )
+
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -10,9 +14,10 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   control_msgs
   geometry_msgs
+  industrial_msgs
   roscpp
   sensor_msgs
-  std_msgs
+  std_srvs
   trajectory_msgs
   ur_msgs
   tf
@@ -109,9 +114,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES ur_modern_driver
+  LIBRARIES ur_hardware_interface
   CATKIN_DEPENDS hardware_interface controller_manager actionlib control_msgs geometry_msgs roscpp sensor_msgs trajectory_msgs ur_msgs
-  DEPENDS ur_hardware_interface
 )
 
 ###########
@@ -123,11 +127,20 @@ include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "-std=c++11")
+    add_compile_options(-std=c++11)
 elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "-std=c++0x")
+    add_compile_options(-std=c++0x)
 else()
     message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
+endif()
+
+add_compile_options(-Wall)
+add_compile_options(-Wextra)
+add_compile_options(-Wno-unused-parameter)
+
+# support indigo's ros_control - This can be removed upon EOL indigo
+if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
+    add_definitions(-DUR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
 endif()
 
 ## Specify additional locations of header files
@@ -140,7 +153,9 @@ include_directories(include
 ## Declare a C++ library
 
 # Hardware Interface
-add_library(ur_hardware_interface src/ur_hardware_interface.cpp)
+add_library(ur_hardware_interface
+  src/ros/hardware_interface.cpp
+  src/ros/controller.cpp)
 target_link_libraries(ur_hardware_interface
   ${catkin_LIBRARIES}
 )
@@ -152,18 +167,27 @@ target_link_libraries(ur_hardware_interface
 
 ## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
-    src/ur_ros_wrapper.cpp
-    src/ur_driver.cpp
-    src/ur_realtime_communication.cpp
-    src/ur_communication.cpp
-    src/robot_state.cpp
-    src/robot_state_RT.cpp
-    src/do_output.cpp)
-add_executable(ur_driver ${${PROJECT_NAME}_SOURCES})
+    src/ros/action_server.cpp
+    src/ros/mb_publisher.cpp
+    src/ros/rt_publisher.cpp
+    src/ros/service_stopper.cpp
+    src/ros/trajectory_follower.cpp
+    src/ros/lowbandwidth_trajectory_follower.cpp
+    src/ros/urscript_handler.cpp
+    src/ur/stream.cpp
+    src/ur/server.cpp
+    src/ur/commander.cpp
+    src/ur/robot_mode.cpp
+    src/ur/master_board.cpp
+    src/ur/rt_state.cpp
+    src/ur/messages.cpp
+    src/tcp_socket.cpp)
+
+add_executable(ur_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
- add_dependencies(ur_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(ur_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ur_driver
@@ -201,11 +225,13 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ur_modern_driver.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+set(${PROJECT_NAME}_TEST_SOURCES
+    tests/ur/rt_state.cpp
+    tests/ur/master_board.cpp
+    tests/ur/robot_mode.cpp)
+
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(ur_modern_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
+  target_link_libraries(ur_modern_driver_test ur_hardware_interface ${catkin_LIBRARIES})
+endif()

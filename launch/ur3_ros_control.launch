@@ -14,6 +14,7 @@
   <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
+  <arg name="shutdown_on_disconnect" default="true" />
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur3_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
@@ -31,6 +32,7 @@
     <param name="prefix" value="$(arg prefix)" />
     <param name="base_frame" type="str" value="$(arg base_frame)"/>
     <param name="tool_frame" type="str" value="$(arg tool_frame)"/>
+    <param name="shutdown_on_disconnect" type="bool" value="$(arg shutdown_on_disconnect)"/>
   </node>
 
   <!-- Load controller settings -->
@@ -38,11 +40,11 @@
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="joint_state_controller force_torque_sensor_controller pos_based_pos_traj_controller" />
+    output="screen" args="joint_state_controller force_torque_sensor_controller vel_based_pos_traj_controller" />
 
   <!-- load other controller -->
   <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-    output="screen" args="load vel_based_pos_traj_controller" />
+    output="screen" args="load pos_based_pos_traj_controller" />
 
   <!-- Convert joint states to /tf tranforms -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

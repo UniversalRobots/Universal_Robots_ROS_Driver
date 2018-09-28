@@ -45,27 +45,32 @@
   <build_depend>actionlib</build_depend>
   <build_depend>control_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>industrial_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
   <build_depend>trajectory_msgs</build_depend>
   <build_depend>ur_msgs</build_depend>
   <build_depend>tf</build_depend>
-  <build_depend>realtime_tools</build_depend>
+  <build_depend>std_srvs</build_depend>
   <run_depend>hardware_interface</run_depend>
   <run_depend>controller_manager</run_depend>
+  <run_depend>force_torque_sensor_controller</run_depend>
+  <run_depend>joint_state_controller</run_depend>
+  <run_depend>joint_trajectory_controller</run_depend>
   <run_depend>actionlib</run_depend>
   <run_depend>control_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>industrial_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
-  <run_depend>std_msgs</run_depend>
   <run_depend>trajectory_msgs</run_depend>
   <run_depend>ur_msgs</run_depend>
   <run_depend>ur_description</run_depend>
   <run_depend>tf</run_depend>
-  <run_depend>realtime_tools</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
 
+  <test_depend>rosunit</test_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
