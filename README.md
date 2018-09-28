@@ -74,7 +74,7 @@ executor more "tolerant" to execution delays. There is also another parameter:
 
 ## Installation
 
-**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.** 
+**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.**
 
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
@@ -123,7 +123,8 @@ The position based controller *should* stay closer to the commanded path, while 
 **Note** that the PID values are not optimally tweaked as of this moment.
 
 To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following
-```
+
+```yaml
 controller_list:
  - name: /vel_based_pos_traj_controller #or /pos_based_pos_traj_controller
    action_ns: follow_joint_trajectory
@@ -147,44 +148,38 @@ This driver broadcasts a transformation between the base link and the end-effect
 
 To use the *tool0_controller* frame in a URDF, there needs to be a link with that name connected to *base*. For example:
 
-```
+```xml
 <!-- Connect tool0_controller to base using floating joint -->
 <link name="tool0_controller"/>
 <joint name="base-tool0_controller_floating_joint" type="floating">
   <origin xyz="0 0 0" rpy="0 0 0"/>
-  <parent link=base"/>
+  <parent link="base"/>
   <child link="tool0_controller"/>
 </joint>
 ```
 
 Now, the actual transform between *base* and *tool0_controller* will not be published by the *robot_state_publisher* but will be taken from this driver via */tf*.
 
-NOTE: You need an up-to-date version of *robot_state_publisher* that is able to deal with floating joints, see: https://github.com/ros/robot_state_publisher/pull/32
+**NOTE**: You need an up-to-date version of *robot_state_publisher* that is able to deal with floating joints, see: https://github.com/ros/robot_state_publisher/pull/32
 
 ## Compatibility
 Should be compatible with all robots and control boxes with the newest firmware.
 
-###Tested with:
+### Tested with:
 
-*Real UR10 with CB2 running 1.8.14035
-
-*Real UR5 with CB2 running 1.8.14035
-
-
-*Simulated UR3 running 3.1.18024
-
-*Simulated UR5 running 3.0.16471
-
-*Simulated UR5 running 1.8.16941
-
-*Simulated UR5 running 1.7.10857
-
-*Simulated UR5 running 1.6.08725
+* Real UR10 with CB2 running 1.8.14035
+* Real UR5 with CB2 running 1.8.14035
+* Simulated UR3 running 3.1.18024
+* Simulated UR5 running 3.0.16471
+* Simulated UR5 running 1.8.16941
+* Simulated UR5 running 1.7.10857
+* Simulated UR5 running 1.6.08725
 
 
-#Credits
+# Credits
 Please cite the following report if using this driver
 
+```
 @techreport{andersen2015optimizing,
   title = {Optimizing the Universal Robots ROS driver.},
   institution = {Technical University of Denmark, Department of Electrical Engineering},
@@ -192,6 +187,7 @@ Please cite the following report if using this driver
   year = {2015},
   url = {http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html}
   }
+```
 
 
 The report can be downloaded from http://orbit.dtu.dk/en/publications/optimizing-the-universal-robots-ros-driver(20dde139-7e87-4552-8658-dbf2cdaab24b).html
