@@ -74,7 +74,7 @@ executor more "tolerant" to execution delays. There is also another parameter:
 
 ## Installation
 
-**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.**
+**As the driver communicates with the robot via ethernet and depends on reliable continous communication, it is not possible to reliably control a UR from a virtual machine.** 
 
 Just clone the repository into your catkin working directory and make it with ```catkin_make```.
 
