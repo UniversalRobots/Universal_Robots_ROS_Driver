@@ -6,7 +6,7 @@
   <author>Thomas Timm Andersen</author>
   <author>Simon Rasmussen</author>
   <maintainer email="g.a.vanderhoorn@tudelft.nl">G.A. vd. Hoorn (TU Delft Robotics Institute)</maintainer>
-  <license>Beerware</license>
+  <license>Apache 2.0</license>
 
   <url type="website">http://wiki.ros.org/ur_modern_driver</url>
   <url type="bugtracker">https://github.com/ros-industrial/ur_modern_driver/issues</url>
