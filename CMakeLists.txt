@@ -26,6 +26,7 @@ catkin_package(
     ur_hardware_interface
   CATKIN_DEPENDS
     hardware_interface
+    industrial_msgs
     controller_manager
     actionlib
     control_msgs
