@@ -1,80 +1,39 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
   <name>ur_modern_driver</name>
-  <version>0.0.1</version>
-  <description>The new driver for the UR3/UR5/UR10 robot arms from universal robots</description>
+  <version>0.1.0</version>
+  <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB2 and CB3 controllers.</description>
+  <author>Thomas Timm Andersen</author>
+  <author>Simon Rasmussen</author>
+  <maintainer email="g.a.vanderhoorn@tudelft.nl">G.A. vd. Hoorn (TU Delft Robotics Institute)</maintainer>
+  <maintainer email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</maintainer>
+  <license>Apache 2.0</license>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="thomas.timm.dk@gmail.com">Thomas Timm Andersen</maintainer>
-
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>Beerware</license>
-
-
-  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
-  <!-- Optional attribute type can be: website, bugtracker, or repository -->
-  <!-- Example: -->
   <url type="website">http://wiki.ros.org/ur_modern_driver</url>
+  <url type="bugtracker">https://github.com/ros-industrial/ur_modern_driver/issues</url>
+  <url type="repository">https://github.com/ros-industrial/ur_modern_driver</url>
 
-
-  <!-- Author tags are optional, mutiple are allowed, one per tag -->
-  <!-- Authors do not have to be maintianers, but could be -->
-  <!-- Example: -->
-  <author email="thomas.timm.dk@gmail.com">Thomas Timm Andersen</author>
-
-
-  <!-- The *_depend tags are used to specify dependencies -->
-  <!-- Dependencies can be catkin packages or system dependencies -->
-  <!-- Examples: -->
-  <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
-  <!-- Use buildtool_depend for build tool packages: -->
-  <!--   <buildtool_depend>catkin</buildtool_depend> -->
-  <!-- Use run_depend for packages you need at runtime: -->
-  <!--   <run_depend>message_runtime</run_depend> -->
-  <!-- Use test_depend for packages you need only for testing: -->
-  <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>hardware_interface</build_depend>
-  <build_depend>controller_manager</build_depend>
-  <build_depend>actionlib</build_depend>
-  <build_depend>control_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>industrial_msgs</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>trajectory_msgs</build_depend>
-  <build_depend>ur_msgs</build_depend>
-  <build_depend>tf</build_depend>
-  <build_depend>std_srvs</build_depend>
-  <run_depend>hardware_interface</run_depend>
-  <run_depend>controller_manager</run_depend>
-  <run_depend>force_torque_sensor_controller</run_depend>
-  <run_depend>joint_state_controller</run_depend>
-  <run_depend>joint_trajectory_controller</run_depend>
-  <run_depend>actionlib</run_depend>
-  <run_depend>control_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>industrial_msgs</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>trajectory_msgs</run_depend>
-  <run_depend>ur_msgs</run_depend>
-  <run_depend>ur_description</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>std_srvs</run_depend>
-  <run_depend>robot_state_publisher</run_depend>
+
+  <depend>hardware_interface</depend>
+  <depend>controller_manager</depend>
+  <depend>actionlib</depend>
+  <depend>control_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>industrial_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>ur_msgs</depend>
+  <depend>tf</depend>
+  <depend>std_srvs</depend>
+
+  <exec_depend>force_torque_sensor_controller</exec_depend>
+  <exec_depend>joint_state_controller</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
 
   <test_depend>rosunit</test_depend>
-
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
 </package>

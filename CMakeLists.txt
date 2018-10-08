@@ -1,137 +1,54 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(ur_modern_driver)
 
-
 add_definitions( -DROS_BUILD )
 
-
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  hardware_interface
-  controller_manager
-  actionlib
-  control_msgs
-  geometry_msgs
-  industrial_msgs
-  roscpp
-  sensor_msgs
-  std_srvs
-  trajectory_msgs
-  ur_msgs
-  tf
+find_package(catkin REQUIRED
+  COMPONENTS
+    actionlib
+    control_msgs
+    controller_manager
+    geometry_msgs
+    hardware_interface
+    industrial_msgs
+    roscpp
+    sensor_msgs
+    std_srvs
+    tf
+    trajectory_msgs
+    ur_msgs
 )
 
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   control_msgs#   geometry_msgs#   sensor_msgs#   trajectory_msgs#   ur_msgs
-# )
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
-
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ur_hardware_interface
-  CATKIN_DEPENDS hardware_interface controller_manager actionlib control_msgs geometry_msgs roscpp sensor_msgs trajectory_msgs ur_msgs
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    ur_hardware_interface
+  CATKIN_DEPENDS
+    actionlib
+    control_msgs
+    controller_manager
+    geometry_msgs
+    hardware_interface
+    industrial_msgs
+    roscpp
+    sensor_msgs
+    trajectory_msgs
+    ur_msgs
 )
 
-###########
-## Build ##
-###########
 
 # check c++11 / c++0x
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
+check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-    add_compile_options(-std=c++11)
+  add_compile_options(-std=c++11)
 elseif(COMPILER_SUPPORTS_CXX0X)
-    add_compile_options(-std=c++0x)
+  add_compile_options(-std=c++0x)
 else()
-    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
+  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
 endif()
 
 add_compile_options(-Wall)
@@ -140,98 +57,66 @@ add_compile_options(-Wno-unused-parameter)
 
 # support indigo's ros_control - This can be removed upon EOL indigo
 if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
-    add_definitions(-DUR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
+  add_definitions(-DUR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
 endif()
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-# include_directories(include)
-include_directories(include
+include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-
 # Hardware Interface
 add_library(ur_hardware_interface
-  src/ros/hardware_interface.cpp
-  src/ros/controller.cpp)
-target_link_libraries(ur_hardware_interface
-  ${catkin_LIBRARIES}
-)
+  src/ros/controller.cpp
+  src/ros/hardware_interface.cpp)
+target_link_libraries(ur_hardware_interface ${catkin_LIBRARIES})
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(ur_modern_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Declare a C++ executable
 set(${PROJECT_NAME}_SOURCES
     src/ros/action_server.cpp
+    src/ros/lowbandwidth_trajectory_follower.cpp
     src/ros/mb_publisher.cpp
     src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
-    src/ros/lowbandwidth_trajectory_follower.cpp
     src/ros/urscript_handler.cpp
-    src/ur/stream.cpp
-    src/ur/server.cpp
+    src/tcp_socket.cpp
     src/ur/commander.cpp
-    src/ur/robot_mode.cpp
     src/ur/master_board.cpp
-    src/ur/rt_state.cpp
     src/ur/messages.cpp
-    src/tcp_socket.cpp)
+    src/ur/robot_mode.cpp
+    src/ur/rt_state.cpp
+    src/ur/server.cpp
+    src/ur/stream.cpp)
 
 add_executable(ur_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
-
-## Add cmake target dependencies of the executable
-## same as for the library above
 add_dependencies(ur_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
 target_link_libraries(ur_driver
   ur_hardware_interface
   ${catkin_LIBRARIES}
  )
 
-#############
-## Install ##
-#############
 
-install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
-install(DIRECTORY config/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config)
+install(DIRECTORY config launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-## Mark executables and/or libraries for installation
 install(TARGETS ur_driver ur_hardware_interface
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
 )
 
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-
-#############
-## Testing ##
-#############
-
-
-set(${PROJECT_NAME}_TEST_SOURCES
-    tests/ur/rt_state.cpp
-    tests/ur/master_board.cpp
-    tests/ur/robot_mode.cpp)
 
 if (CATKIN_ENABLE_TESTING)
+  set(${PROJECT_NAME}_TEST_SOURCES
+    tests/ur/master_board.cpp
+    tests/ur/robot_mode.cpp
+    tests/ur/rt_state.cpp)
+
   catkin_add_gtest(ur_modern_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
   target_link_libraries(ur_modern_driver_test ur_hardware_interface ${catkin_LIBRARIES})
 endif()
