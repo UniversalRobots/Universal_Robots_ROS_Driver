@@ -86,3 +86,13 @@ vel_based_pos_traj_controller:
    # action_monitor_rate: 20 # Defaults to 20
    #hold_trajectory_duration: 0 # Defaults to 0.5
 
+# Pass an array of joint velocities directly to the joints
+joint_group_vel_controller:
+   type: velocity_controllers/JointGroupVelocityController
+   joints:
+     - shoulder_pan_joint
+     - shoulder_lift_joint
+     - elbow_joint
+     - wrist_1_joint
+     - wrist_2_joint
+     - wrist_3_joint

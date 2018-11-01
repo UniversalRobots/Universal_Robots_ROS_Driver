@@ -44,7 +44,7 @@
 
   <!-- load other controller --> 
   <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-    output="screen" args="load pos_based_pos_traj_controller" /> 
+    output="screen" args="load pos_based_pos_traj_controller joint_group_vel_controller" />
 
   <!-- Convert joint states to /tf tranforms -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>

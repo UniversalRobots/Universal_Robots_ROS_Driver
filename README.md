@@ -122,7 +122,7 @@ The position based controller *should* stay closer to the commanded path, while 
 
 **Note** that the PID values are not optimally tweaked as of this moment.
 
-To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following
+To use ros_control together with MoveIt, be sure to add the desired controller to the ```controllers.yaml``` in the urXX_moveit_config/config folder. Add the following:
 
 ```yaml
 controller_list:
