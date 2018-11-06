@@ -3,6 +3,11 @@ project(ur_modern_driver)
 
 add_definitions( -DROS_BUILD )
 
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  message("${PROJECT_NAME}: You did not request a specific build type: selecting 'RelWithDebInfo'.")
+  set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+
 find_package(catkin REQUIRED
   COMPONENTS
     actionlib
