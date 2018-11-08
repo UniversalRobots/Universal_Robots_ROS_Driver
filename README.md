@@ -1,5 +1,6 @@
 # ur_modern_driver - Refactored
 [![Build Status](https://travis-ci.org/Zagitta/ur_modern_driver.svg?branch=master)](https://travis-ci.org/Zagitta/ur_modern_driver)
+[![license - apache 2.0](https://img.shields.io/:license-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A new driver for the UR3/UR5/UR10 robot arms from Universal Robots. It is designed to replace the old driver transparently, while solving some issues, improving usability as well as enabling compatibility  of ros_control.
 
