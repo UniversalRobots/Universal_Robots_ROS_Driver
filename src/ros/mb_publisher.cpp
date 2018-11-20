@@ -20,25 +20,25 @@ void MBPublisher::publish(ur_msgs::IOStates& io_msg, SharedMasterBoardData& data
 
 void MBPublisher::publishRobotStatus(industrial_msgs::RobotStatus& status, const SharedRobotModeData& data) const
 {
-  //note that this is true as soon as the drives are powered,
-  //even if the breakes are still closed
-  //which is in slight contrast to the comments in the
-  //message definition
+  // note that this is true as soon as the drives are powered,
+  // even if the breakes are still closed
+  // which is in slight contrast to the comments in the
+  // message definition
   status.drives_powered.val = data.robot_power_on;
 
   status.e_stopped.val = data.emergency_stopped;
 
-  //I found no way to reliably get information if the robot is moving
-  //data.programm_running would be true when using this driver to move the robot
-  //but it would also be true when another programm is running that might not
-  //in fact contain any movement commands
+  // I found no way to reliably get information if the robot is moving
+  // data.programm_running would be true when using this driver to move the robot
+  // but it would also be true when another programm is running that might not
+  // in fact contain any movement commands
   status.in_motion.val = industrial_msgs::TriState::UNKNOWN;
 
-  //the error code, if any, is not transmitted by this protocol
-  //it can and should be fetched seperately
+  // the error code, if any, is not transmitted by this protocol
+  // it can and should be fetched seperately
   status.error_code = 0;
 
-  //note that e-stop is handled by a seperate variable
+  // note that e-stop is handled by a seperate variable
   status.in_error.val = data.protective_stopped;
 
   status_pub_.publish(status);
@@ -53,9 +53,9 @@ void MBPublisher::publishRobotStatus(const RobotModeData_V1_X& data) const
   else
     msg.mode.val = industrial_msgs::RobotMode::AUTO;
 
-  //todo: verify that this correct, there is also ROBOT_READY_MODE
-  msg.motion_possible.val = (data.robot_mode == robot_mode_V1_X::ROBOT_RUNNING_MODE)
-                             ? industrial_msgs::TriState::ON : industrial_msgs::TriState::OFF;
+  // todo: verify that this correct, there is also ROBOT_READY_MODE
+  msg.motion_possible.val = (data.robot_mode == robot_mode_V1_X::ROBOT_RUNNING_MODE) ? industrial_msgs::TriState::ON :
+                                                                                       industrial_msgs::TriState::OFF;
 
   publishRobotStatus(msg, data);
 }
@@ -64,13 +64,13 @@ void MBPublisher::publishRobotStatus(const RobotModeData_V3_0__1& data) const
 {
   industrial_msgs::RobotStatus msg;
 
-  msg.motion_possible.val = (data.robot_mode == robot_mode_V3_X::RUNNING)
-                             ? industrial_msgs::TriState::ON : industrial_msgs::TriState::OFF;
+  msg.motion_possible.val =
+      (data.robot_mode == robot_mode_V3_X::RUNNING) ? industrial_msgs::TriState::ON : industrial_msgs::TriState::OFF;
 
   if (data.control_mode == robot_control_mode_V3_X::TEACH)
-      msg.mode.val = industrial_msgs::RobotMode::MANUAL;
+    msg.mode.val = industrial_msgs::RobotMode::MANUAL;
   else
-      msg.mode.val = industrial_msgs::RobotMode::AUTO;
+    msg.mode.val = industrial_msgs::RobotMode::AUTO;
 
   publishRobotStatus(msg, data);
 }

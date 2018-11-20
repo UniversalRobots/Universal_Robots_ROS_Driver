@@ -9,11 +9,11 @@
 #include "ur_modern_driver/ros/action_server.h"
 #include "ur_modern_driver/ros/controller.h"
 #include "ur_modern_driver/ros/io_service.h"
+#include "ur_modern_driver/ros/lowbandwidth_trajectory_follower.h"
 #include "ur_modern_driver/ros/mb_publisher.h"
 #include "ur_modern_driver/ros/rt_publisher.h"
 #include "ur_modern_driver/ros/service_stopper.h"
 #include "ur_modern_driver/ros/trajectory_follower.h"
-#include "ur_modern_driver/ros/lowbandwidth_trajectory_follower.h"
 #include "ur_modern_driver/ros/urscript_handler.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/factory.h"
@@ -62,27 +62,30 @@ public:
 class IgnorePipelineStoppedNotifier : public INotifier
 {
 public:
-    void started(std::string name){
-        LOG_INFO("Starting pipeline %s", name.c_str());
-    }
-    void stopped(std::string name){
-        LOG_INFO("Stopping pipeline %s", name.c_str());
-    }
+  void started(std::string name)
+  {
+    LOG_INFO("Starting pipeline %s", name.c_str());
+  }
+  void stopped(std::string name)
+  {
+    LOG_INFO("Stopping pipeline %s", name.c_str());
+  }
 };
 
 class ShutdownOnPipelineStoppedNotifier : public INotifier
 {
 public:
-    void started(std::string name){
-        LOG_INFO("Starting pipeline %s", name.c_str());
-    }
-    void stopped(std::string name){
-        LOG_INFO("Shutting down on stopped pipeline %s", name.c_str());
-        ros::shutdown();
-        exit(1);
-    }
+  void started(std::string name)
+  {
+    LOG_INFO("Starting pipeline %s", name.c_str());
+  }
+  void stopped(std::string name)
+  {
+    LOG_INFO("Shutting down on stopped pipeline %s", name.c_str());
+    ros::shutdown();
+    exit(1);
+  }
 };
-
 
 bool parse_args(ProgArgs &args)
 {
@@ -121,9 +124,9 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
   }
 
-  //Add prefix to joint names
-  std::transform (args.joint_names.begin(), args.joint_names.end(), args.joint_names.begin(),
-        [&args](std::string name){return args.prefix + name;});
+  // Add prefix to joint names
+  std::transform(args.joint_names.begin(), args.joint_names.end(), args.joint_names.begin(),
+                 [&args](std::string name) { return args.prefix + name; });
 
   std::string local_ip(getLocalIPAccessibleFromHost(args.host));
 
@@ -144,8 +147,8 @@ int main(int argc, char **argv)
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    TrajectoryFollower *traj_follower = new TrajectoryFollower(
-        *rt_commander, local_ip, args.reverse_port, factory.isVersion3());
+    TrajectoryFollower *traj_follower =
+        new TrajectoryFollower(*rt_commander, local_ip, args.reverse_port, factory.isVersion3());
     controller = new ROSController(*rt_commander, *traj_follower, args.joint_names, args.max_vel_change, args.tcp_link);
     rt_vec.push_back(controller);
     services.push_back(controller);
@@ -157,8 +160,8 @@ int main(int argc, char **argv)
     if (args.use_lowbandwidth_trajectory_follower)
     {
       LOG_INFO("Use low bandwidth trajectory follower");
-      traj_follower = new LowBandwidthTrajectoryFollower(*rt_commander,
-           local_ip, args.reverse_port,factory.isVersion3());
+      traj_follower =
+          new LowBandwidthTrajectoryFollower(*rt_commander, local_ip, args.reverse_port, factory.isVersion3());
     }
     else
     {

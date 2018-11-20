@@ -1,11 +1,11 @@
 #pragma once
 #include <inttypes.h>
 #include <algorithm>
+#include <bitset>
 #include <climits>
 #include <cstddef>
 #include <functional>
 #include <random>
-#include <bitset>
 #include "ur_modern_driver/bin_parser.h"
 
 class RandomDataTest
@@ -52,7 +52,7 @@ public:
   template <typename T>
   void set(T data, size_t pos)
   {
-    std::memcpy(&data, buf_+pos, sizeof(T));
+    std::memcpy(&data, buf_ + pos, sizeof(T));
   }
 
   void skip(size_t n)

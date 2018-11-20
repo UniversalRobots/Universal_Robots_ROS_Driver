@@ -1,7 +1,7 @@
 #include "ur_modern_driver/ros/trajectory_follower.h"
 #include <endian.h>
-#include <cmath>
 #include <ros/ros.h>
+#include <cmath>
 
 static const int32_t MULT_JOINTSTATE_ = 1000000;
 static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");

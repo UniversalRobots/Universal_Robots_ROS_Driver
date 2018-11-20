@@ -26,6 +26,6 @@ public:
   bool bind();
   bool accept();
   void disconnectClient();
-  bool readLine(char* buffer, size_t buf_len);
+  bool readLine(char *buffer, size_t buf_len);
   bool write(const uint8_t *buf, size_t buf_len, size_t &written);
 };

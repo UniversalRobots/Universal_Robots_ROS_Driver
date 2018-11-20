@@ -20,7 +20,8 @@ ServiceStopper::ServiceStopper(std::vector<Service*> services)
   {
     if (mode != "Never")
     {
-      LOG_WARN("Found invalid value for param require_activation: '%s'\nShould be one of Never, OnStartup, Always", mode.c_str());
+      LOG_WARN("Found invalid value for param require_activation: '%s'\nShould be one of Never, OnStartup, Always",
+               mode.c_str());
       mode = "Never";
     }
     notify_all(RobotState::Running);

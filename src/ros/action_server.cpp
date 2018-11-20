@@ -1,7 +1,8 @@
 #include "ur_modern_driver/ros/action_server.h"
 #include <cmath>
 
-ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names, double max_velocity)
+ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names,
+                           double max_velocity)
   : as_(nh_, "follow_joint_trajectory", boost::bind(&ActionServer::onGoal, this, _1),
         boost::bind(&ActionServer::onCancel, this, _1), false)
   , joint_names_(joint_names)
@@ -147,9 +148,10 @@ bool ActionServer::validateJoints(GoalHandle& gh, Result& res)
   res.error_code = Result::INVALID_JOINTS;
   res.error_string = "Invalid joint names for goal\n";
   res.error_string += "Expected: ";
-  std::for_each(goal_joints.begin(), goal_joints.end(), [&res](std::string joint){res.error_string += joint + ", ";});
+  std::for_each(goal_joints.begin(), goal_joints.end(),
+                [&res](std::string joint) { res.error_string += joint + ", "; });
   res.error_string += "\nFound: ";
-  std::for_each(joint_set_.begin(), joint_set_.end(), [&res](std::string joint){res.error_string += joint + ", ";});
+  std::for_each(joint_set_.begin(), joint_set_.end(), [&res](std::string joint) { res.error_string += joint + ", "; });
   return false;
 }
 
@@ -187,7 +189,8 @@ bool ActionServer::validateTrajectory(GoalHandle& gh, Result& res)
       }
       if (std::fabs(velocity) > max_velocity_)
       {
-        res.error_string = "Received a goal with velocities that are higher than max_velocity_ " + std::to_string(max_velocity_);
+        res.error_string =
+            "Received a goal with velocities that are higher than max_velocity_ " + std::to_string(max_velocity_);
         return false;
       }
     }

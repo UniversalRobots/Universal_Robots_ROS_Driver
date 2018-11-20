@@ -31,8 +31,7 @@ std::string URServer::getIP()
   return std::string(buf);
 }
 
-
-bool URServer::open(int socket_fd, struct sockaddr *address, size_t address_len)
+bool URServer::open(int socket_fd, struct sockaddr* address, size_t address_len)
 {
   int flag = 1;
   setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(int));
@@ -63,9 +62,10 @@ bool URServer::accept()
   int client_fd = -1;
 
   int retry = 0;
-  while((client_fd = ::accept(getSocketFD(), &addr, &addr_len)) == -1){
+  while ((client_fd = ::accept(getSocketFD(), &addr, &addr_len)) == -1)
+  {
     LOG_ERROR("Accepting socket connection failed. (errno: %d)", errno);
-    if(retry++ >= 5)
+    if (retry++ >= 5)
       return false;
   }
 
@@ -89,41 +89,43 @@ bool URServer::write(const uint8_t* buf, size_t buf_len, size_t& written)
 
 bool URServer::readLine(char* buffer, size_t buf_len)
 {
-    char *current_pointer = buffer;
-    char ch;
-    size_t total_read;
+  char* current_pointer = buffer;
+  char ch;
+  size_t total_read;
 
-    if (buf_len <= 0 || buffer == NULL) {
+  if (buf_len <= 0 || buffer == NULL)
+  {
+    return false;
+  }
+
+  total_read = 0;
+  for (;;)
+  {
+    if (client_.read(&ch))
+    {
+      if (total_read < buf_len - 1)  // just in case ...
+      {
+        total_read++;
+        *current_pointer++ = ch;
+      }
+      if (ch == '\n')
+      {
+        break;
+      }
+    }
+    else
+    {
+      if (total_read == 0)
+      {
         return false;
+      }
+      else
+      {
+        break;
+      }
     }
+  }
 
-    total_read = 0;
-    for (;;) {
-        if (client_.read(&ch))
-        {
-            if (total_read < buf_len - 1) // just in case ...
-            {
-                total_read ++;
-                *current_pointer++ = ch;
-            }
-            if (ch == '\n')
-            {
-                break;
-            }
-        }
-        else
-        {
-            if (total_read == 0)
-            {
-                return false;
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-
-    *current_pointer = '\0';
-    return true;
+  *current_pointer = '\0';
+  return true;
 }
