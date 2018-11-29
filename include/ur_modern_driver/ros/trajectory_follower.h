@@ -9,9 +9,9 @@
 #include <thread>
 #include <vector>
 #include "ur_modern_driver/log.h"
+#include "ur_modern_driver/ros/action_trajectory_follower_interface.h"
 #include "ur_modern_driver/ur/commander.h"
 #include "ur_modern_driver/ur/server.h"
-#include "ur_modern_driver/ros/action_trajectory_follower_interface.h"
 
 class TrajectoryFollower : public ActionTrajectoryFollowerInterface
 {
@@ -43,5 +43,5 @@ public:
   bool execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt);
   void stop();
 
-  virtual ~TrajectoryFollower() {};
+  virtual ~TrajectoryFollower(){};
 };

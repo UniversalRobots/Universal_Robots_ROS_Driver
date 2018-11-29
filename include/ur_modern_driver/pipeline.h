@@ -110,7 +110,6 @@ public:
   }
 };
 
-
 template <typename T>
 class Pipeline
 {
@@ -140,7 +139,7 @@ private:
       {
         if (!queue_.try_enqueue(std::move(p)))
         {
-          LOG_ERROR("Pipeline producer overflowed! <%s>",name_.c_str());
+          LOG_ERROR("Pipeline producer overflowed! <%s>", name_.c_str());
         }
       }
 
@@ -201,7 +200,7 @@ public:
     if (!running_)
       return;
 
-    LOG_DEBUG("Stopping pipeline! <%s>",name_.c_str());
+    LOG_DEBUG("Stopping pipeline! <%s>", name_.c_str());
 
     consumer_.stopConsumer();
     producer_.stopProducer();

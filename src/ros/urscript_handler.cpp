@@ -1,13 +1,11 @@
 #include "ur_modern_driver/ros/urscript_handler.h"
 #include "ur_modern_driver/log.h"
 
-URScriptHandler::URScriptHandler(URCommander &commander)
-    : commander_(commander)
-    , state_(RobotState::Error)
+URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander), state_(RobotState::Error)
 {
-    LOG_INFO("Initializing ur_driver/URScript subscriber");
-    urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1, &URScriptHandler::urscriptInterface, this);
-    LOG_INFO("The ur_driver/URScript initialized");
+  LOG_INFO("Initializing ur_driver/URScript subscriber");
+  urscript_sub_ = nh_.subscribe("ur_driver/URScript", 1, &URScriptHandler::urscriptInterface, this);
+  LOG_INFO("The ur_driver/URScript initialized");
 }
 
 void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
@@ -15,8 +13,8 @@ void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
   LOG_INFO("Message received");
   std::string str(msg->data);
   if (str.back() != '\n')
-      str.append("\n");
-  
+    str.append("\n");
+
   switch (state_)
   {
     case RobotState::Running:
@@ -42,5 +40,5 @@ void URScriptHandler::urscriptInterface(const std_msgs::String::ConstPtr& msg)
 
 void URScriptHandler::onRobotStateChange(RobotState state)
 {
-   state_ = state;
+  state_ = state;
 }

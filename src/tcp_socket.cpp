@@ -113,13 +113,12 @@ std::string TCPSocket::getIP()
 
 bool TCPSocket::read(char *character)
 {
-    size_t read_chars;
-    // It's inefficient, but in our case we read very small messages
-    // and the overhead connected with reading character by character is
-    // negligible - adding buffering would complicate the code needlessly.
-    return read((uint8_t *) character, 1, read_chars);
+  size_t read_chars;
+  // It's inefficient, but in our case we read very small messages
+  // and the overhead connected with reading character by character is
+  // negligible - adding buffering would complicate the code needlessly.
+  return read((uint8_t *)character, 1, read_chars);
 }
-
 
 bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
 {
