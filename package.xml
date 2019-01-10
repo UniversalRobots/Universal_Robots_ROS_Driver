@@ -24,13 +24,16 @@
   <depend>controller_manager</depend>
   <depend>actionlib</depend>
   <depend>control_msgs</depend>
+  <depend>eigen_conversions</depend>
   <depend>geometry_msgs</depend>
+  <depend>kdl_parser</depend>
   <depend>industrial_msgs</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
   <depend>trajectory_msgs</depend>
   <depend>ur_msgs</depend>
   <depend>tf</depend>
+  <depend>tf_conversions</depend>
   <depend>std_srvs</depend>
 
   <exec_depend>force_torque_sensor_controller</exec_depend>
