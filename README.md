@@ -103,7 +103,7 @@ roslaunch urXX_moveit_config ur5_moveit_planning_execution.launch
 roslaunch urXX_moveit_config moveit_rviz.launch config:=true
 ```
 ---
-If you would like to use the ros\_control-based approach, use the launch files urXX\_ros\_control.launch, where XX is '5' or '10' depending on your robot.
+If you would like to use the ros\_control-based approach, use the launch file urXX\_ros\_control.launch instead of urXX\_bringup.launch, where XX is '5' or '10' depending on your robot.
 
 **Note:** If you are using the ros\_control-based approach you will need 2 packages that can be found in the ur\_driver package. If you do not have the ur\_driver package in your workspace simply copy these packages into your workspace /src folder:
  * urXX_moveit_config
