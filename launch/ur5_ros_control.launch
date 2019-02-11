@@ -7,6 +7,7 @@
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
   <arg name="robot_ip"/>
+  <arg name="reverse_port" default="50001"/>
   <arg name="limited" default="false"/>
   <arg name="min_payload"  default="0.0"/>
   <arg name="max_payload"  default="3.0"/>
@@ -26,6 +27,7 @@
   <!-- Load hardware interface -->
   <node name="ur_hardware_interface" pkg="ur_modern_driver" type="ur_driver" output="log" launch-prefix="$(arg launch_prefix)">
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)"/>
+    <param name="reverse_port" type="int" value="$(arg reverse_port)" />
     <param name="min_payload" type="double" value="$(arg min_payload)"/>
     <param name="max_payload" type="double" value="$(arg max_payload)"/>
     <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
@@ -52,4 +54,3 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
 </launch>
-
