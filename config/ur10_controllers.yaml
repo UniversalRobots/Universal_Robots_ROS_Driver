@@ -48,7 +48,7 @@ pos_based_pos_traj_controller:
 
    # state_publish_rate:  50 # Defaults to 50
    # action_monitor_rate: 20 # Defaults to 20
-   #hold_trajectory_duration: 0 # Defaults to 0.5
+   #stop_trajectory_duration: 0 # Defaults to 0.0
 
 # Joint Trajectory Controller -------------------------------
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
@@ -93,7 +93,7 @@ vel_based_pos_traj_controller:
 
    # state_publish_rate:  50 # Defaults to 50
    # action_monitor_rate: 20 # Defaults to 20
-   #hold_trajectory_duration: 0 # Defaults to 0.5
+   #stop_trajectory_duration: 0 # Defaults to 0.0
 
 # Pass an array of joint velocities directly to the joints
 joint_group_vel_controller:
