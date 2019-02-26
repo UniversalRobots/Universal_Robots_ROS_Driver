@@ -74,13 +74,22 @@ vel_based_pos_traj_controller:
    state_publish_rate:  125
    action_monitor_rate: 10
    gains:
-      #!!These values are useable, but maybe not optimal
-      shoulder_pan_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
-      shoulder_lift_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
-      elbow_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
-      wrist_1_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
-      wrist_2_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
-      wrist_3_joint: {p: 1.2,  i: 0.0, d: 0.1, i_clamp: 1}
+      #!!These values have not been optimized!!
+      shoulder_pan_joint:  {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      shoulder_lift_joint: {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      elbow_joint:         {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_1_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_2_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_3_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+
+   # Use a feedforward term to reduce the size of PID gains
+   velocity_ff:
+      shoulder_pan_joint: 1.0
+      shoulder_lift_joint: 1.0
+      elbow_joint: 1.0
+      wrist_1_joint: 1.0
+      wrist_2_joint: 1.0
+      wrist_3_joint: 1.0
 
    # state_publish_rate:  50 # Defaults to 50
    # action_monitor_rate: 20 # Defaults to 20
