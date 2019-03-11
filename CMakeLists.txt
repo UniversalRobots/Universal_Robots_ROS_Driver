@@ -143,12 +143,19 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
 )
 
+#############
+## Testing ##
+#############
 
-#if (CATKIN_ENABLE_TESTING)
-  #set(${PROJECT_NAME}_TEST_SOURCES
-    #tests/ur/master_board.cpp
-    #tests/ur/robot_mode.cpp
-    #tests/ur/rt_state.cpp)
+if (CATKIN_ENABLE_TESTING)
+  catkin_add_gtest(calibration_test
+    test/calibration_test.cpp
+    src/calibration.cpp)
+  target_link_libraries(calibration_test ${catkin_LIBRARIES})
+endif()
+
+## Add folders to be run by python nosetests
+# catkin_add_nosetests(test)
 
   #catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
   #target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})

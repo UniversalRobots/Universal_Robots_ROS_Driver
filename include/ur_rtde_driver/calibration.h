@@ -134,7 +134,7 @@ struct DHRobot
 class Calibration
 {
 public:
-  Calibration();
+  Calibration(const DHRobot& robot);
   virtual ~Calibration();
 
   /*!
@@ -147,6 +147,11 @@ public:
    *
    */
   static void debugChain(const KDL::Chain& chain);
+
+  /*!
+   * \brief Creates a \p KDL::Chain representation of the member \p robot_parameters_
+   */
+  KDL::Chain getChain();
 
 private:
   /*!
@@ -169,11 +174,6 @@ private:
    * \brief Converts a \p KDL::Chain representation into a \ref DHRobot representation
    */
   static DHRobot chainToDH(const KDL::Chain& chain);
-
-  /*!
-   * \brief Creates a \p KDL::Chain representation of the member \p robot_parameters_
-   */
-  KDL::Chain getChain();
 
   /*!
    * \brief Modifies the robot chain at segment \p correction_index

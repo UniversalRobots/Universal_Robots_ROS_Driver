@@ -36,6 +36,8 @@
   <depend>tf_conversions</depend>
   <depend>std_srvs</depend>
 
+  <test_depend>gtest</test_depend>
+
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>

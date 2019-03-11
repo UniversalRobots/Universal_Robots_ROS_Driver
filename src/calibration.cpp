@@ -16,43 +16,8 @@
 
 #include <eigen_conversions/eigen_kdl.h>
 
-Calibration::Calibration()
+Calibration::Calibration(const DHRobot& robot_parameters) : robot_parameters_(robot_parameters)
 {
-  // This is the data of our ids-ur10-2 Later, dh parameters will be given using another
-  // constructor.
-
-  DHRobot my_robot;
-  my_robot.segments_.push_back(DHSegment(0.1273, 0, 0, M_PI / 2));
-  my_robot.segments_.push_back(DHSegment(0, -0.612, 0, 0));
-  my_robot.segments_.push_back(DHSegment(0, -0.5723, 0, 0.0));
-  my_robot.segments_.push_back(DHSegment(0.163841, 0, 0.0, M_PI / 2));
-  my_robot.segments_.push_back(DHSegment(0.1157, 0, 0, -M_PI / 2));
-  my_robot.segments_.push_back(DHSegment(0.0922, 0, 0, 0));
-  // my_robot.segments_.push_back(DHSegment(0.1, 0.2, 0.3, 0.4));
-
-  // DHRobot my_robot_calibration;
-  //// clang-format off
-  ////                                                 d,    a,    theta, alpha
-  // my_robot_calibration.segments_.push_back(DHSegment(0    ,0    ,0     ,0    ));
-  // my_robot_calibration.segments_.push_back(DHSegment(1.5  ,0    ,0.0   ,0.0  ));
-  // my_robot_calibration.segments_.push_back(DHSegment(0.5  ,0.0  ,0.2   ,0.0  ));
-  // my_robot_calibration.segments_.push_back(DHSegment(-2   ,0    ,0     ,0    ));
-  // my_robot_calibration.segments_.push_back(DHSegment(0    ,0    ,0     ,0    ));
-  // my_robot_calibration.segments_.push_back(DHSegment(0    ,0    ,0     ,0    ));
-  //// clang-format on
-
-  DHRobot my_robot_calibration;
-  // clang-format off
-  //                                                 d,                      a,                       theta,                  alpha
-  my_robot_calibration.segments_.push_back(DHSegment(0.00065609212979853    ,4.6311376834935676e-05  ,-7.290070070824746e-05 ,0.000211987863869334  ));
-  my_robot_calibration.segments_.push_back(DHSegment(1.4442162376284788     ,-0.00012568315331862312 ,-0.01713897289704999   ,-0.0072553625957652995));
-  my_robot_calibration.segments_.push_back(DHSegment(0.854147723854608      ,0.00186216581161458     ,-0.03707159413492756   ,-0.013483226769541364 ));
-  my_robot_calibration.segments_.push_back(DHSegment(-2.2989425877563705    ,9.918593870679266e-05   ,0.054279462160583214   ,0.0013495820227329425 ));
-  my_robot_calibration.segments_.push_back(DHSegment(-1.573498686836816e-05 ,4.215462720453189e-06   ,1.488984257025741e-07  ,-0.001263136163679901 ));
-  my_robot_calibration.segments_.push_back(DHSegment(1.9072435590711256e-05 ,0                       ,1.551499479707493e-05  ,0                     ));
-  // clang-format on
-
-  robot_parameters_ = my_robot + my_robot_calibration;
 }
 
 Calibration::~Calibration()
@@ -177,8 +142,8 @@ KDL::Chain Calibration::correctAxis(KDL::Chain& robot_chain)
   return buildCorrectedChain(robot_chain, new_length, new_theta, distance_correction);
 }
 
-KDL::Chain Calibration::buildCorrectedChain(const KDL::Chain& robot_chain, const double new_length, const double new_theta,
-                                      const double distance_correction)
+KDL::Chain Calibration::buildCorrectedChain(const KDL::Chain& robot_chain, const double new_length,
+                                            const double new_theta, const double distance_correction)
 {
   KDL::Chain corrected_chain;
 
@@ -216,7 +181,6 @@ KDL::Chain Calibration::buildCorrectedChain(const KDL::Chain& robot_chain, const
     KDL::Frame new_frame = robot_chain.getSegment(2).getFrameToTip();
     new_frame.p = robot_chain.getSegment(2).getFrameToTip().p;
     ROS_INFO_STREAM("Correcting segment i+2 length from " << new_frame.p.z());
-
 
     // the d-parameter can be modified by the intersection_parameter which is the distance traveled
     // along the rotation axis
@@ -310,6 +274,7 @@ KDL::Chain Calibration::getChain()
     KDL::Frame frame2 = KDL::Frame::DH(robot_parameters_.segments_[i].a_, robot_parameters_.segments_[i].alpha_, 0, 0);
     KDL::Segment segment2 =
         KDL::Segment(link_names_[i] + "_passive", KDL::Joint(link_names_[i] + "_passive", KDL::Joint::None), frame2);
+
     robot_chain.addSegment(segment2);
   }
   return robot_chain;
@@ -337,7 +302,8 @@ void Calibration::debugChain(const KDL::Chain& robot_chain)
     result.M.GetRPY(roll, pitch, yaw);
     ROS_INFO_STREAM("Relative rotation: " << roll << ", " << pitch << ", " << yaw);
     fk_solver.JntToCart(jointpositions, result, i);
-    ROS_INFO_STREAM(std::setprecision(15) << "Absolute position: " << result.p.x() << ", " << result.p.y() << ", " << result.p.z());
+    ROS_INFO_STREAM(std::setprecision(15)
+                    << "Absolute position: " << result.p.x() << ", " << result.p.y() << ", " << result.p.z());
     KDL::Joint joint = robot_chain.segments[i].getJoint();
     ROS_INFO_STREAM("Joint type: " << joint.getTypeName());
     ROS_INFO_STREAM("Joint position: " << joint.pose(0).p.x() << ", " << joint.pose(0).p.y() << ", "
