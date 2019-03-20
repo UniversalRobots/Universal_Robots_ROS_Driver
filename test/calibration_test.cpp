@@ -15,14 +15,15 @@
 #include <gtest/gtest.h>
 #include <ur_rtde_driver/calibration.h>
 
+namespace
+{
 TEST(UrRtdeDriver, ur10_ideal)
 {
   DHRobot my_robot;
-  const double pi = std::atan(1)*4;
+  const double pi = std::atan(1) * 4;
 
   // This is an ideal UR10
   // clang-format off
-  //                                     d,        a,       theta, alpha
   my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , pi / 2));
   my_robot.segments_.push_back(DHSegment(0       , -0.612 , 0    , 0));
   my_robot.segments_.push_back(DHSegment(0       , -0.5723, 0    , 0.0));
@@ -50,7 +51,7 @@ TEST(UrRtdeDriver, ur10_ideal)
 TEST(UrRtdeDriver, calibration)
 {
   DHRobot my_robot;
-  const double pi = std::atan(1)*4;
+  const double pi = std::atan(1) * 4;
 
   // This is an ideal UR10
   // clang-format off
@@ -89,20 +90,15 @@ TEST(UrRtdeDriver, calibration)
   fk_solver.JntToCart(jointpositions, result_corrected);
   //
   // Check whether our internal KDL representation gives correct values
-  std::cout << result_original.p.x() << std::endl;
-  std::cout << result_corrected.p.x() << std::endl;
-  std::cout << result_original.p.y() << std::endl;
-  std::cout << result_corrected.p.y() << std::endl;
-  std::cout << result_original.p.z() << std::endl;
-  std::cout << result_corrected.p.z() << std::endl;
   EXPECT_DOUBLE_EQ(result_original.p.x(), result_corrected.p.x());
   EXPECT_DOUBLE_EQ(result_original.p.y(), result_corrected.p.y());
   EXPECT_DOUBLE_EQ(result_original.p.z(), result_corrected.p.z());
 }
+}  // namespace
 
 int main(int argc, char* argv[])
 {
-  testing::InitGoogleTest(&argc, argv);
+  ::testing::InitGoogleTest(&argc, argv);
 
   return RUN_ALL_TESTS();
 }

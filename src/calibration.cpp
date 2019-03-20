@@ -97,9 +97,9 @@ KDL::Chain Calibration::correctAxis(KDL::Chain& robot_chain)
   KDL::JntArray jointpositions = KDL::JntArray(num_jts);
 
   fk_solver.JntToCart(jointpositions, passive_frame, 2);
-  ROS_INFO_STREAM(passive_frame.p.x() << ", " << passive_frame.p.y() << ", " << passive_frame.p.z());
+  //ROS_INFO_STREAM(passive_frame.p.x() << ", " << passive_frame.p.y() << ", " << passive_frame.p.z());
   fk_solver.JntToCart(jointpositions, next_segment_frame, 3);
-  ROS_INFO_STREAM(next_segment_frame.p.x() << ", " << next_segment_frame.p.y() << ", " << next_segment_frame.p.z());
+  //ROS_INFO_STREAM(next_segment_frame.p.x() << ", " << next_segment_frame.p.y() << ", " << next_segment_frame.p.z());
 
   Eigen::Vector3d eigen_passive;
   tf::vectorKDLToEigen(passive_frame.p, eigen_passive);
@@ -138,7 +138,7 @@ KDL::Chain Calibration::correctAxis(KDL::Chain& robot_chain)
   double sign_dir = next_line.direction().z() > 0 ? 1.0 : -1.0;
   double distance_correction = intersection_param * sign_dir;
 
-  ROS_INFO_STREAM("Corrected chain at " << robot_chain.segments[0].getName());
+  //ROS_INFO_STREAM("Corrected chain at " << robot_chain.segments[0].getName());
   return buildCorrectedChain(robot_chain, new_length, new_theta, distance_correction);
 }
 
@@ -180,13 +180,13 @@ KDL::Chain Calibration::buildCorrectedChain(const KDL::Chain& robot_chain, const
   {
     KDL::Frame new_frame = robot_chain.getSegment(2).getFrameToTip();
     new_frame.p = robot_chain.getSegment(2).getFrameToTip().p;
-    ROS_INFO_STREAM("Correcting segment i+2 length from " << new_frame.p.z());
+    //ROS_INFO_STREAM("Correcting segment i+2 length from " << new_frame.p.z());
 
     // the d-parameter can be modified by the intersection_parameter which is the distance traveled
     // along the rotation axis
     new_frame.p = KDL::Vector(0, 0, new_frame.p.z() - distance_correction);
 
-    ROS_INFO_STREAM("Corrected segment i+2 length to " << new_frame.p.z());
+    //ROS_INFO_STREAM("Corrected segment i+2 length to " << new_frame.p.z());
     KDL::Joint new_joint = robot_chain.getSegment(2).getJoint();
 
     KDL::Segment segment = KDL::Segment(robot_chain.getSegment(2).getName(), new_joint, new_frame);
