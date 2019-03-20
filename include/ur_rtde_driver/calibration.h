@@ -16,9 +16,7 @@
 #define UR_RTDE_DRIVER_CALIBRATION_H_INCLUDED
 
 #include <ros/ros.h>
-
-#include <kdl_parser/kdl_parser.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
+#include <Eigen/Dense>
 
 /*!
  * \brief An internal representation of a DH-parametrized link.
@@ -119,7 +117,6 @@ struct DHRobot
   }
 };
 
-
 /*!
  * \brief Class that handles the calibration correction for Universal Robots
  *
@@ -140,68 +137,23 @@ public:
   /*!
    * \brief Corrects a UR kinematic chain in such a way that shoulder and elbow offsets are 0.
    */
-  KDL::Chain correctChain();
+  void correctChain();
 
-  /*!
-   * \brief Print information about every segment in the chain
-   *
-   */
-  static void debugChain(const KDL::Chain& chain);
+  std::vector<Eigen::Matrix4d> getChain()
+  {
+    return chain_;
+  }
 
-  /*!
-   * \brief Creates a \p KDL::Chain representation of the member \p robot_parameters_
-   */
-  KDL::Chain getChain();
+  Eigen::Matrix4d calcForwardKinematics(const Eigen::Matrix<double, 6, 1>& joint_values, const size_t link_nr = 6);
 
 private:
-  /*!
-   * \brief Splits the given chain \p in into a subchain before \p split_index and after.
-   *
-   * \param[in,out] in Complete chain that will be split. Will be only the part before the \p
-   * split_index after the function returns.
-   * \param[out] second Will contain the subchain after \p split_index after the function returns.
-   * \param[in] split_index Index at which the chain should be split. The segment with this index
-   * will be the first segment in \p second.
-   *
-   * \returns true on success, false if \p split_index is larger than the chain size. In the latter
-   * case, \p in will not be touched.
-   */
-  bool splitChain(KDL::Chain& in, KDL::Chain& second, const size_t split_index);
+  void correctAxis(const size_t correction_index);
 
-  KDL::Chain correctAxis(KDL::Chain& chain);
-
-  /*!
-   * \brief Converts a \p KDL::Chain representation into a \ref DHRobot representation
-   */
-  static DHRobot chainToDH(const KDL::Chain& chain);
-
-  /*!
-   * \brief Modifies the robot chain at segment \p correction_index
-   *
-   * Correction will set the \p d parameter at the segment to 0 and adapt the rest of the chain
-   * accordingly
-   *
-   * \param[in,out] robot_chain The kinemtatic chain to correct
-   * \param[in] correction_index Index at which the correction step should be performed.
-   *
-   * \returns true on success, false if the chain is smaller than the \p correction_index
-   */
-  bool correctChainAt(KDL::Chain& robot_chain, const size_t correction_index);
-
-  /*!
-   * \brief Given all parameters to correct the chain and a chain, create a corrected chain.
-   *
-   * \param[in] robot_chain Uncorrected chain from which the correction parameters were calculated.
-   * \param[in] new_length New segment length (\p a) of the corrected segment
-   * \param[in] new_theta New rotation offset (\p theta) of the corrected segment
-   * \param[in] distance_correction Distance by which the next segment has to be adapted due to the
-   * correction
-   *
-   * \returns The corrected chain, where the first segment's \p d parameter is 0
-   */
-  static KDL::Chain buildCorrectedChain(const KDL::Chain& robot_chain, const double new_length, const double new_theta, const double distance_correction);
+  void buildChain();
 
   DHRobot robot_parameters_;
   std::vector<std::string> link_names_ = { "shoulder", "upper_arm", "forearm", "wrist_1", "wrist_2", "wrist_3" };
+
+  std::vector<Eigen::Matrix4d> chain_;
 };
 #endif  // ifndef UR_RTDE_DRIVER_CALIBRATION_H_INCLUDED

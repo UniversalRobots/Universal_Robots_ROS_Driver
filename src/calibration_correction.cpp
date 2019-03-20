@@ -17,16 +17,18 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>
 
-std::unique_ptr<KDL::ChainFkSolverPos_recursive> fk_solver;
 sensor_msgs::JointStatePtr joint_state;
+std::unique_ptr<Calibration> my_calibration;
 std::unique_ptr<tf::TransformListener> tf_listener;
 
 void jointStateCallback(sensor_msgs::JointStatePtr msg)
 {
+  ROS_INFO("Callback");
   tf::StampedTransform stamped_transform;
   try
   {
-    tf_listener->lookupTransform("base", "tool0_controller", ros::Time(0), stamped_transform);
+    tf_listener->waitForTransform("base", "tool0_controller", msg->header.stamp, ros::Duration(0.5));
+    tf_listener->lookupTransform("base", "tool0_controller", msg->header.stamp, stamped_transform);
   }
   catch (tf::TransformException ex)
   {
@@ -37,23 +39,16 @@ void jointStateCallback(sensor_msgs::JointStatePtr msg)
   geometry_msgs::TransformStamped tf_msg;
   tf::transformStampedTFToMsg(stamped_transform, tf_msg);
 
-  // ROS_INFO_STREAM(tf_msg);
+  Eigen::Matrix<double, 6, 1> jointvalues = Eigen::Matrix<double, 6, 1>(msg->position.data());
 
-  KDL::Frame result_original;
-  KDL::JntArray jointpositions = KDL::JntArray(6);
-  for (size_t i = 0; i < 6; ++i)
-  {
-    jointpositions.data[i] = msg->position[i];
-  }
-  fk_solver->JntToCart(jointpositions, result_original);
+  Eigen::Matrix4d mat = my_calibration->calcForwardKinematics(jointvalues);
 
-  Eigen::Matrix4d mat;
-  result_original.Make4x4(mat.data());
 
   Eigen::Vector3d error;
-  error << mat.transpose().topRightCorner(3, 1) - Eigen::Vector3d(stamped_transform.getOrigin());
+  error << mat.topRightCorner(3, 1) - Eigen::Vector3d(stamped_transform.getOrigin());
 
-  ROS_INFO_STREAM(error);
+  ROS_INFO_STREAM("Error(abs): " << error.norm());
+  ROS_INFO_STREAM("Error per axis:\n" << error);
 }
 
 int main(int argc, char* argv[])
@@ -65,41 +60,41 @@ int main(int argc, char* argv[])
   // This is an ideal UR10
   // clang-format off
   //                                     d,        a,       theta, alpha
-  my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , M_PI / 2));
+  my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , M_PI_2));
   my_robot.segments_.push_back(DHSegment(0       , -0.612 , 0    , 0));
   my_robot.segments_.push_back(DHSegment(0       , -0.5723, 0    , 0.0));
-  my_robot.segments_.push_back(DHSegment(0.163941, 0      , 0    , M_PI / 2));
-  my_robot.segments_.push_back(DHSegment(0.1157  , 0      , 0    , -M_PI / 2));
+  my_robot.segments_.push_back(DHSegment(0.163941, 0      , 0    , M_PI_2));
+  my_robot.segments_.push_back(DHSegment(0.1157  , 0      , 0    , -M_PI_2));
   my_robot.segments_.push_back(DHSegment(0.0922  , 0      , 0    , 0));
   // clang-format on
   // DHRobot my_robot_calibration;
   //// clang-format off
-  ////                                                 d,                      a,                       theta, alpha
-  // my_robot_calibration.segments_.push_back(DHSegment(0.00065609212979853    ,4.6311376834935676e-05
-  // ,-7.290070070824746e-05 ,0.000211987863869334  ));
-  // my_robot_calibration.segments_.push_back(DHSegment(1.4442162376284788     ,-0.00012568315331862312
-  // ,-0.01713897289704999   ,-0.0072553625957652995));
-  // my_robot_calibration.segments_.push_back(DHSegment(0.854147723854608      ,0.00186216581161458
-  // ,-0.03707159413492756   ,-0.013483226769541364 ));
-  // my_robot_calibration.segments_.push_back(DHSegment(-2.2989425877563705    ,9.918593870679266e-05
-  // ,0.054279462160583214   ,0.0013495820227329425 ));
-  // my_robot_calibration.segments_.push_back(DHSegment(-1.573498686836816e-05 ,4.215462720453189e-06
-  // ,1.488984257025741e-07  ,-0.001263136163679901 ));
-  // my_robot_calibration.segments_.push_back(DHSegment(1.9072435590711256e-05 ,0 ,1.551499479707493e-05  ,0 ));
+  ////                                                 d,                        a,                        theta, alpha
+  // my_robot_calibration.segments_.push_back(DHSegment( 0.00065609212979853    ,  4.6311376834935676e-05 ,
+  // -7.290070070824746e-05  ,  0.000211987863869334  ));
+  // my_robot_calibration.segments_.push_back(DHSegment( 1.4442162376284788     , -0.00012568315331862312 ,
+  // -0.01713897289704999    , -0.0072553625957652995)); my_robot_calibration.segments_.push_back(DHSegment(
+  // 0.854147723854608      ,  0.00186216581161458    , -0.03707159413492756    , -0.013483226769541364 ));
+  // my_robot_calibration.segments_.push_back(DHSegment(-2.2989425877563705     ,  9.918593870679266e-05  ,
+  // 0.054279462160583214   ,  0.0013495820227329425 ));
+  // my_robot_calibration.segments_.push_back(DHSegment(-1.573498686836816e-05  ,  4.215462720453189e-06  ,
+  // 1.488984257025741e-07  , -0.001263136163679901 ));
+  // my_robot_calibration.segments_.push_back(DHSegment( 1.9072435590711256e-05 ,  0                      ,
+  // 1.551499479707493e-05  ,  0 ));
+  //// clang-format on
   // Calibration calibration(my_robot + my_robot_calibration);
-  Calibration calibration(my_robot);
-  KDL::Chain corrected_chain = calibration.getChain();
-  // calibration.debugChain(corrected_chain);
+  my_calibration.reset(new Calibration(my_robot));
 
-  uint32_t num_jts = corrected_chain.getNrOfJoints();
+  my_calibration->correctChain();
 
-  fk_solver.reset(new KDL::ChainFkSolverPos_recursive(corrected_chain));
-  KDL::JntArray jointpositions = KDL::JntArray(num_jts);
-  KDL::Frame result_original;
+  Eigen::Matrix<double, 6, 1> jointvalues;
+  jointvalues << 0, 0, 0, 0, 0, 0;
+  Eigen::Matrix4d fk = my_calibration->calcForwardKinematics(jointvalues);
+  ROS_INFO_STREAM("Zero transform:\n" << fk);
 
   tf_listener.reset(new tf::TransformListener);
 
-  ros::Subscriber joint_state_sub = nh.subscribe("joint_states", 1, jointStateCallback);
+   ros::Subscriber joint_state_sub = nh.subscribe("joint_states", 1, jointStateCallback);
 
   ros::spin();
 
