@@ -135,6 +135,7 @@ void Calibration::correctAxis(const size_t link_index)
   // Correct next joint
   // ROS_INFO_STREAM("Second Next old:\n" << chain_[2 * link_index + 2]);
   chain_[2 * link_index + 2](2, 3) -= distance_correction;
+  robot_parameters_corrected_.segments_[link_index+1].d_ -= distance_correction;
   // ROS_INFO_STREAM("Second Next new:\n" << chain_[2 * link_index + 2]);
 }
 
