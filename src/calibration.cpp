@@ -25,6 +25,7 @@ Calibration::~Calibration()
 
 void Calibration::correctChain()
 {
+  robot_parameters_corrected_ = robot_parameters_;
   correctAxis(1);
   correctAxis(2);
 }
@@ -104,8 +105,10 @@ void Calibration::correctAxis(const size_t link_index)
   // Correct arm segment length and angle
   // ROS_INFO_STREAM("Passive old:\n" << chain_[2 * link_index]);
   chain_[2 * link_index](2, 3) = 0.0;
+  robot_parameters_corrected_.segments_[link_index].d_ = 0.0;
   chain_[2 * link_index].topLeftCorner(3, 3) =
       Eigen::AngleAxisd(new_theta, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+  robot_parameters_corrected_.segments_[link_index].theta_ = new_theta;
   // ROS_INFO_STREAM("Passive new:\n" << chain_[2 * link_index]);
 
   // Correct arm segment length and angle
@@ -113,10 +116,20 @@ void Calibration::correctAxis(const size_t link_index)
   // ROS_INFO_STREAM("Theta correction: " << robot_parameters_.segments_[link_index].theta_ - new_theta);
   // ROS_INFO_STREAM("Alpha correction: " << robot_parameters_.segments_[link_index].alpha_);
   chain_[2 * link_index + 1](0, 3) = new_length;
+  robot_parameters_corrected_.segments_[link_index].a_ = new_length;
   chain_[2 * link_index + 1].topLeftCorner(3, 3) =
       Eigen::AngleAxisd(robot_parameters_.segments_[link_index].theta_ - new_theta, Eigen::Vector3d::UnitZ())
           .toRotationMatrix() *
       Eigen::AngleAxisd(robot_parameters_.segments_[link_index].alpha_, Eigen::Vector3d::UnitX()).toRotationMatrix();
+  if (link_index == 1)
+  {
+    robot_parameters_corrected_.delta_theta_correction2_ = robot_parameters_.segments_[link_index].theta_ - new_theta;
+  }
+  else if (link_index == 2)
+  {
+    robot_parameters_corrected_.delta_theta_correction3_ = robot_parameters_.segments_[link_index].theta_ - new_theta;
+  }
+
   // ROS_INFO_STREAM("Next new:\n" << chain_[2 * link_index + 1]);
 
   // Correct next joint

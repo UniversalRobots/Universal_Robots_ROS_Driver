@@ -144,6 +144,8 @@ public:
     return chain_;
   }
 
+  std::string toXacroProperties() {return robot_parameters_corrected_.toXacroProperties();}
+
   Eigen::Matrix4d calcForwardKinematics(const Eigen::Matrix<double, 6, 1>& joint_values, const size_t link_nr = 6);
 
 private:
@@ -152,6 +154,7 @@ private:
   void buildChain();
 
   DHRobot robot_parameters_;
+  DHRobot robot_parameters_corrected_;
   std::vector<std::string> link_names_ = { "shoulder", "upper_arm", "forearm", "wrist_1", "wrist_2", "wrist_3" };
 
   std::vector<Eigen::Matrix4d> chain_;
