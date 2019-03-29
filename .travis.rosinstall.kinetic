@@ -1,0 +1,4 @@
+- git:
+    local-name: universal_robot
+    uri: 'https://github.com/ros-industrial/universal_robot.git'
+    version: kinetic-devel
