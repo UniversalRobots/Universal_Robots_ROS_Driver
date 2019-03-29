@@ -98,9 +98,12 @@ int main(int argc, char* argv[])
   {
     Eigen::Matrix<double, 6, 1> jointvalues;
 
-    double min_error = 9999;
-    double max_error = 0;
-    double mean_error = 0;
+    double pos_min_error = 9999;
+    double pos_max_error = 0;
+    double pos_mean_error = 0;
+    double angle_min_error = 9999;
+    double angle_max_error = 0;
+    double angle_mean_error = 0;
     const size_t num_runs = 100000;
     for (size_t i = 0; i < num_runs; ++i)
     {
@@ -110,22 +113,39 @@ int main(int argc, char* argv[])
       calibration.correctChain();
       Eigen::Matrix4d fk_corrected = calibration.calcForwardKinematics(jointvalues);
 
-      Eigen::Vector3d error;
-      error << fk_orig.topRightCorner(3, 1) - fk_corrected.topRightCorner(3, 1);
+      Eigen::Vector3d pos_error;
+      pos_error << fk_orig.topRightCorner(3, 1) - fk_corrected.topRightCorner(3, 1);
 
-      if (error.norm() < min_error)
+      if (pos_error.norm() < pos_min_error)
       {
-        min_error = error.norm();
+        pos_min_error = pos_error.norm();
       }
-      if (error.norm() > max_error)
+      if (pos_error.norm() > pos_max_error)
       {
-        max_error = error.norm();
+        pos_max_error = pos_error.norm();
       }
-      mean_error += error.norm() / static_cast<double>(num_runs);
+      pos_mean_error += pos_error.norm() / static_cast<double>(num_runs);
+
+      Eigen::Matrix3d rot_mat_orig = fk_orig.topLeftCorner(3, 3);
+      Eigen::Matrix3d rot_mat_corrected = fk_corrected.topLeftCorner(3, 3);
+      Eigen::Quaterniond rot_orig(rot_mat_orig);
+      Eigen::Quaterniond rot_corrected(rot_mat_corrected);
+      double angle_error = std::abs(rot_orig.angularDistance(rot_corrected));
+      if (angle_error < angle_min_error)
+      {
+        angle_min_error = angle_error;
+      }
+      if (angle_error > angle_max_error)
+      {
+        angle_max_error = angle_error;
+      }
+      angle_mean_error += angle_error / static_cast<double>(num_runs);
     }
 
-    ROS_INFO_STREAM(calib.first << ": Error over " << num_runs << " joint angles (mean, min, max): (" << mean_error
-                                << ", " << min_error << ", " << max_error << ")");
+    ROS_INFO_STREAM(calib.first << ": Position Error over " << num_runs << " joint angles (mean, min, max): ("
+                                << pos_mean_error << ", " << pos_min_error << ", " << pos_max_error << ")");
+    ROS_INFO_STREAM(calib.first << ": Angle Error over " << num_runs << " joint angles (mean, min, max): ("
+                                << angle_mean_error << ", " << angle_min_error << ", " << angle_max_error << ")");
     // Calibration calibration(my_robot + calib.second);
     // calibration.correctChain();
     // ROS_INFO_STREAM("Corrected calibration: " << std::endl << calibration.toXacroProperties());
