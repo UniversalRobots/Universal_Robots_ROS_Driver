@@ -1,0 +1,4 @@
+include: 'http://ids-services.fzi.de:8079/master/gitlab-ci-yml/catkin_pipeline.yml'
+variables:
+  BUILD_INDIGO: "false"
+  BUILD_MELODIC: "false"
