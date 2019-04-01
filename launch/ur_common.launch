@@ -35,7 +35,7 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <!-- driver -->
-  <node name="ur_driver" pkg="ur_modern_driver" type="ur_driver" output="screen">
+  <node name="ur_driver" pkg="ur_rtde_driver" type="ur_driver" output="screen">
   <!-- copy the specified IP address to be consistant with ROS-Industrial spec. -->
     <param name="prefix" type="str" value="$(arg prefix)" />
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />

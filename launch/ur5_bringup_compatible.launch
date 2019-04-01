@@ -33,7 +33,7 @@
   </include>
 
   <!-- ur common -->
-  <include file="$(find ur_modern_driver)/launch/ur_common.launch">
+  <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="reverse_port" value="$(arg reverse_port)"/>
     <arg name="min_payload"  value="$(arg min_payload)"/>

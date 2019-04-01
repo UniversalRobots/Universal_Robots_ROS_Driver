@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/master_board.h"
-#include "ur_modern_driver/ur/consumer.h"
+#include "ur_rtde_driver/ur/master_board.h"
+#include "ur_rtde_driver/ur/consumer.h"
 
 bool SharedMasterBoardData::parseWith(BinParser& bp)
 {

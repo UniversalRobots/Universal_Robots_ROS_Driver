@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/lowbandwidth_trajectory_follower.h"
+#include "ur_rtde_driver/ros/lowbandwidth_trajectory_follower.h"
 #include <endian.h>
 #include <ros/ros.h>
 #include <cmath>

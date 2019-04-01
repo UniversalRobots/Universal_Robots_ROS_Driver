@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/action_server.h"
+#include "ur_rtde_driver/ros/action_server.h"
 #include <cmath>
 
 ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names,

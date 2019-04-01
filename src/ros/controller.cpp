@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/controller.h"
+#include "ur_rtde_driver/ros/controller.h"
 
 ROSController::ROSController(URCommander& commander, TrajectoryFollower& follower,
                              std::vector<std::string>& joint_names, double max_vel_change, std::string tcp_link)

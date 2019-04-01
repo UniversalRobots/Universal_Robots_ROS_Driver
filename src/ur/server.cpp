@@ -18,12 +18,12 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/server.h"
+#include "ur_rtde_driver/ur/server.h"
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <unistd.h>
 #include <cstring>
-#include "ur_modern_driver/log.h"
+#include "ur_rtde_driver/log.h"
 
 URServer::URServer(int port) : port_(port)
 {

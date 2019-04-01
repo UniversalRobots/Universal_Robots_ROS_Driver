@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(ur_modern_driver)
+project(ur_rtde_driver)
 
 add_definitions( -DROS_BUILD )
 
@@ -123,6 +123,6 @@ if (CATKIN_ENABLE_TESTING)
     tests/ur/robot_mode.cpp
     tests/ur/rt_state.cpp)
 
-  catkin_add_gtest(ur_modern_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
-  target_link_libraries(ur_modern_driver_test ur_hardware_interface ${catkin_LIBRARIES})
+  catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
+  target_link_libraries(ur_rtde_driver_test ur_hardware_interface ${catkin_LIBRARIES})
 endif()

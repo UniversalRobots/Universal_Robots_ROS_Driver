@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/service_stopper.h"
+#include "ur_rtde_driver/ros/service_stopper.h"
 
 ServiceStopper::ServiceStopper(std::vector<Service*> services)
   : enable_service_(nh_.advertiseService("ur_driver/robot_enable", &ServiceStopper::enableCallback, this))

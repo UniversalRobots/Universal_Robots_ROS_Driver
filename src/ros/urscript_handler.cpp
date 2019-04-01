@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/urscript_handler.h"
-#include "ur_modern_driver/log.h"
+#include "ur_rtde_driver/ros/urscript_handler.h"
+#include "ur_rtde_driver/log.h"
 
 URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander), state_(RobotState::Error)
 {

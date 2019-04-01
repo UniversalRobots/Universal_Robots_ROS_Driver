@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>ur_modern_driver</name>
+  <name>ur_rtde_driver</name>
   <version>0.1.0</version>
   <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB2 and CB3 controllers.</description>
   <author>Thomas Timm Andersen</author>
@@ -12,9 +12,9 @@
   <license>BSD 2-clause</license>
   <license>Zlib</license>
 
-  <url type="website">http://wiki.ros.org/ur_modern_driver</url>
-  <url type="bugtracker">https://github.com/ros-industrial/ur_modern_driver/issues</url>
-  <url type="repository">https://github.com/ros-industrial/ur_modern_driver</url>
+  <url type="website">http://wiki.ros.org/ur_rtde_driver</url>
+  <url type="bugtracker">https://github.com/ros-industrial/ur_rtde_driver/issues</url>
+  <url type="repository">https://github.com/ros-industrial/ur_rtde_driver</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 

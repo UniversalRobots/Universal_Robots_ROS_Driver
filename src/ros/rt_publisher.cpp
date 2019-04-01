@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/rt_publisher.h"
+#include "ur_rtde_driver/ros/rt_publisher.h"
 
 bool RTPublisher::publishJoints(RTShared& packet, Time& t)
 {

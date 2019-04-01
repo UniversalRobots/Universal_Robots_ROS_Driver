@@ -25,7 +25,7 @@
 
 
   <!-- Load hardware interface -->
-  <node name="ur_hardware_interface" pkg="ur_modern_driver" type="ur_driver" output="log" launch-prefix="$(arg launch_prefix)">
+  <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_driver" output="log" launch-prefix="$(arg launch_prefix)">
     <param name="robot_ip_address" type="str" value="$(arg robot_ip)"/>
     <param name="reverse_port" type="int" value="$(arg reverse_port)" />
     <param name="min_payload" type="double" value="$(arg min_payload)"/>
@@ -40,7 +40,7 @@
   </node>
 
   <!-- Load controller settings -->
-  <rosparam file="$(find ur_modern_driver)/config/ur5_controllers.yaml" command="load"/>
+  <rosparam file="$(find ur_rtde_driver)/config/ur5_controllers.yaml" command="load"/>
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"

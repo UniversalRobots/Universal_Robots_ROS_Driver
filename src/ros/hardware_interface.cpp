@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/hardware_interface.h"
-#include "ur_modern_driver/log.h"
+#include "ur_rtde_driver/ros/hardware_interface.h"
+#include "ur_rtde_driver/log.h"
 
 const std::string JointInterface::INTERFACE_NAME = "hardware_interface::JointStateInterface";
 JointInterface::JointInterface(std::vector<std::string> &joint_names)

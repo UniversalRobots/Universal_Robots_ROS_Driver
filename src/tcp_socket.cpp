@@ -24,8 +24,8 @@
 #include <unistd.h>
 #include <cstring>
 
-#include "ur_modern_driver/log.h"
-#include "ur_modern_driver/tcp_socket.h"
+#include "ur_rtde_driver/log.h"
+#include "ur_rtde_driver/tcp_socket.h"
 
 TCPSocket::TCPSocket() : socket_fd_(-1), state_(SocketState::Invalid)
 {

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/rt_state.h"
+#include "ur_rtde_driver/ur/rt_state.h"
 #include <gtest/gtest.h>
-#include "ur_modern_driver/bin_parser.h"
-#include "ur_modern_driver/log.h"
-#include "ur_modern_driver/test/random_data.h"
-#include "ur_modern_driver/test/utils.h"
-#include "ur_modern_driver/types.h"
+#include "ur_rtde_driver/bin_parser.h"
+#include "ur_rtde_driver/log.h"
+#include "ur_rtde_driver/test/random_data.h"
+#include "ur_rtde_driver/test/utils.h"
+#include "ur_rtde_driver/types.h"
 
 TEST(RTState_V1_6__7, testRandomDataParsing)
 {

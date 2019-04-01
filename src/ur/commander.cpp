@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/commander.h"
-#include "ur_modern_driver/log.h"
+#include "ur_rtde_driver/ur/commander.h"
+#include "ur_rtde_driver/log.h"
 
 bool URCommander::write(const std::string &s)
 {

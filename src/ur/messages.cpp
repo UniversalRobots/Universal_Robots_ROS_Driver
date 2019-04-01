@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/messages.h"
-#include "ur_modern_driver/ur/consumer.h"
+#include "ur_rtde_driver/ur/messages.h"
+#include "ur_rtde_driver/ur/consumer.h"
 
 bool VersionMessage::parseWith(BinParser& bp)
 {

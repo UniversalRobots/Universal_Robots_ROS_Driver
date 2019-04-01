@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ros/mb_publisher.h"
+#include "ur_rtde_driver/ros/mb_publisher.h"
 
 inline void appendAnalog(std::vector<ur_msgs::Analog>& vec, double val, uint8_t pin)
 {

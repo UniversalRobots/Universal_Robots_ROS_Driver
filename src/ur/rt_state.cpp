@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include "ur_modern_driver/ur/rt_state.h"
-#include "ur_modern_driver/ur/consumer.h"
+#include "ur_rtde_driver/ur/rt_state.h"
+#include "ur_rtde_driver/ur/consumer.h"
 
 void RTShared::parse_shared1(BinParser& bp)
 {

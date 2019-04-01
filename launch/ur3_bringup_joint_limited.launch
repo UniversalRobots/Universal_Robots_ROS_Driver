@@ -26,7 +26,7 @@
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
   <arg name="shutdown_on_disconnect" default="true" />
 
-  <include file="$(find ur_modern_driver)/launch/ur3_bringup.launch">
+  <include file="$(find ur_rtde_driver)/launch/ur3_bringup.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="reverse_port" value="$(arg reverse_port)"/>
     <arg name="limited"  value="true"/>
