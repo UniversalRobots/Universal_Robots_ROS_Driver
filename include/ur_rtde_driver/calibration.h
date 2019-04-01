@@ -77,6 +77,8 @@ struct DHRobot
    */
   DHRobot(const std::vector<DHSegment>& segments)
   {
+    delta_theta_correction2_ = 0;
+    delta_theta_correction3_ = 0;
   }
 
   DHRobot() = default;

@@ -26,6 +26,8 @@ Calibration::~Calibration()
 void Calibration::correctChain()
 {
   robot_parameters_corrected_ = robot_parameters_;
+  robot_parameters_corrected_.delta_theta_correction2_ = 0.0;
+  robot_parameters_corrected_.delta_theta_correction3_ = 0.0;
   correctAxis(1);
   correctAxis(2);
 }
