@@ -29,7 +29,7 @@ catkin_package(
   INCLUDE_DIRS
     include
   LIBRARIES
-    ur_rtde_hardware_interface
+    ur_rtde_driver
   CATKIN_DEPENDS
     actionlib
     control_msgs
@@ -60,33 +60,16 @@ add_compile_options(-Wall)
 add_compile_options(-Wextra)
 add_compile_options(-Wno-unused-parameter)
 
-# support indigo's ros_control - This can be removed upon EOL indigo
-if("${controller_manager_msgs_VERSION}" VERSION_LESS "0.10.0")
-  add_definitions(-DUR_ROS_CONTROL_INTERFACE_OLD_ROS_CONTROL)
-endif()
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
 
-# Hardware Interface
-add_library(ur_rtde_hardware_interface
-  src/ros/controller.cpp
-  src/ros/hardware_interface.cpp)
-target_link_libraries(ur_rtde_hardware_interface ${catkin_LIBRARIES})
-
-
-set(${PROJECT_NAME}_SOURCES
+add_library(ur_rtde_driver
     src/comm/stream.cpp
     src/comm/tcp_socket.cpp
-    src/ros/action_server.cpp
-    src/ros/lowbandwidth_trajectory_follower.cpp
-    src/ros/mb_publisher.cpp
-    src/ros/rt_publisher.cpp
     src/ros/service_stopper.cpp
-    src/ros/trajectory_follower.cpp
-    src/ros/urscript_handler.cpp
     src/ur/commander.cpp
     src/ur/master_board.cpp
     src/ur/messages.cpp
@@ -94,23 +77,18 @@ set(${PROJECT_NAME}_SOURCES
     src/ur/rt_state.cpp
     src/ur/server.cpp
 )
-
-add_executable(ur_rtde_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
+target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(ur_rtde_driver
-  ur_rtde_hardware_interface
-  ${catkin_LIBRARIES}
- )
 
-
-install(DIRECTORY config launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-
-install(TARGETS ur_rtde_driver ur_rtde_hardware_interface
+install(TARGETS ur_rtde_driver
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(DIRECTORY config launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
@@ -125,5 +103,5 @@ if (CATKIN_ENABLE_TESTING)
     tests/ur/rt_state.cpp)
 
   catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
-  target_link_libraries(ur_rtde_driver_test ur_rtde_hardware_interface ${catkin_LIBRARIES})
+  target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})
 endif()
