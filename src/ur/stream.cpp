@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/ur/stream.h"
 
+namespace ur_rtde_driver
+{
 bool URStream::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
   std::lock_guard<std::mutex> lock(write_mutex_);
@@ -60,3 +62,4 @@ bool URStream::read(uint8_t* buf, size_t buf_len, size_t& total)
 
   return remainder == 0;
 }
+}  // namespace ur_rtde_driver

@@ -26,6 +26,8 @@
 #include <cstddef>
 #include <vector>
 
+namespace ur_rtde_driver
+{
 struct TrajectoryPoint
 {
   std::array<double, 6> positions;
@@ -50,3 +52,4 @@ public:
   virtual void stop() = 0;
   virtual ~ActionTrajectoryFollowerInterface(){};
 };
+}  // namespace ur_rtde_driver

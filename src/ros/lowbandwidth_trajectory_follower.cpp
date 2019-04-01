@@ -19,6 +19,8 @@
 #include <ros/ros.h>
 #include <cmath>
 
+namespace ur_rtde_driver
+{
 static const std::array<double, 6> EMPTY_VALUES = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
 static const std::string TIME_INTERVAL("{{TIME_INTERVAL}}");
@@ -402,3 +404,4 @@ void LowBandwidthTrajectoryFollower::stop()
   server_.disconnectClient();
   running_ = false;
 }
+}  // namespace ur_rtde_driver

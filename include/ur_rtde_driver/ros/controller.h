@@ -31,6 +31,8 @@
 #include "ur_rtde_driver/ur/consumer.h"
 #include "ur_rtde_driver/ur/rt_state.h"
 
+namespace ur_rtde_driver
+{
 class ROSController : private hardware_interface::RobotHW, public URRTPacketConsumer, public Service
 {
 private:
@@ -108,3 +110,4 @@ public:
 
   virtual void onRobotStateChange(RobotState state);
 };
+}  // namespace ur_rtde_driver

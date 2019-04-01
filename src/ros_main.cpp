@@ -61,6 +61,8 @@ static const std::vector<std::string> DEFAULT_JOINTS = { "shoulder_pan_joint", "
 static const int UR_SECONDARY_PORT = 30002;
 static const int UR_RT_PORT = 30003;
 
+using namespace ur_rtde_driver;
+
 struct ProgArgs
 {
 public:

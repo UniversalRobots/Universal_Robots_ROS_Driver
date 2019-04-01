@@ -18,6 +18,8 @@
 
 #include "ur_rtde_driver/ros/controller.h"
 
+namespace ur_rtde_driver
+{
 ROSController::ROSController(URCommander& commander, TrajectoryFollower& follower,
                              std::vector<std::string>& joint_names, double max_vel_change, std::string tcp_link)
   : controller_(this, nh_)
@@ -147,3 +149,4 @@ void ROSController::onRobotStateChange(RobotState state)
   service_enabled_ = next;
   service_cooldown_ = 125;
 }
+}  // namespace ur_rtde_driver

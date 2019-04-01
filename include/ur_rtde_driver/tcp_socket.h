@@ -24,6 +24,8 @@
 #include <mutex>
 #include <string>
 
+namespace ur_rtde_driver
+{
 enum class SocketState
 {
   Invalid,
@@ -70,3 +72,4 @@ public:
 
   void close();
 };
+}  // namespace ur_rtde_driver

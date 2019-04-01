@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/ur/parser.h"
 #include "ur_rtde_driver/ur/rt_state.h"
 
+namespace ur_rtde_driver
+{
 template <typename T>
 class URRTStateParser : public URParser<RTPacket>
 {
@@ -54,3 +56,4 @@ typedef URRTStateParser<RTState_V1_6__7> URRTStateParser_V1_6__7;
 typedef URRTStateParser<RTState_V1_8> URRTStateParser_V1_8;
 typedef URRTStateParser<RTState_V3_0__1> URRTStateParser_V3_0__1;
 typedef URRTStateParser<RTState_V3_2__3> URRTStateParser_V3_2__3;
+}  // namespace ur_rtde_driver

@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/types.h"
 #include "ur_rtde_driver/ur/state.h"
 
+namespace ur_rtde_driver
+{
 class SharedRobotModeData
 {
 public:
@@ -134,3 +136,4 @@ public:
 
   static_assert(RobotModeData_V3_5::SIZE == 42, "RobotModeData_V3_5 has missmatched size");
 };
+}  // namespace ur_rtde_driver

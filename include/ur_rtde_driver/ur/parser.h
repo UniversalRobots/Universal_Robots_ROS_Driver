@@ -21,9 +21,12 @@
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/pipeline.h"
 
+namespace ur_rtde_driver
+{
 template <typename T>
 class URParser
 {
 public:
   virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<T>>& results) = 0;
 };
+}  // namespace ur_rtde_driver

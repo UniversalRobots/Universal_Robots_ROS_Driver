@@ -22,6 +22,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
+namespace ur_rtde_driver
+{
 enum class RobotState
 {
   Running,
@@ -86,3 +88,4 @@ public:
     return true;
   }
 };
+}  // namespace ur_rtde_driver

@@ -25,6 +25,9 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/queue/readerwriterqueue.h"
 
+namespace ur_rtde_driver
+{
+// TODO: Remove these!!!
 using namespace moodycamel;
 using namespace std;
 
@@ -230,3 +233,4 @@ public:
     notifier_.stopped(name_);
   }
 };
+}  // namespace ur_rtde_driver

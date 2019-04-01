@@ -19,6 +19,8 @@
 #include "ur_rtde_driver/ros/urscript_handler.h"
 #include "ur_rtde_driver/log.h"
 
+namespace ur_rtde_driver
+{
 URScriptHandler::URScriptHandler(URCommander& commander) : commander_(commander), state_(RobotState::Error)
 {
   LOG_INFO("Initializing ur_driver/URScript subscriber");
@@ -60,3 +62,4 @@ void URScriptHandler::onRobotStateChange(RobotState state)
 {
   state_ = state;
 }
+}  // namespace ur_rtde_driver

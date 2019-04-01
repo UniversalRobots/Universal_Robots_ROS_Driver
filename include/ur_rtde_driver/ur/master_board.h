@@ -25,6 +25,8 @@
 #include "ur_rtde_driver/types.h"
 #include "ur_rtde_driver/ur/state.h"
 
+namespace ur_rtde_driver
+{
 class SharedMasterBoardData
 {
 public:
@@ -108,3 +110,4 @@ public:
 
   static const size_t SIZE = MasterBoardData_V3_0__1::SIZE + sizeof(uint8_t) * 2;
 };
+}  // namespace ur_rtde_driver

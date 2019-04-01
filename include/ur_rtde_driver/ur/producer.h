@@ -22,6 +22,8 @@
 #include "ur_rtde_driver/ur/parser.h"
 #include "ur_rtde_driver/ur/stream.h"
 
+namespace ur_rtde_driver
+{
 template <typename T>
 class URProducer : public IProducer<T>
 {
@@ -81,3 +83,4 @@ public:
     return parser_.parse(bp, products);
   }
 };
+}  // namespace ur_rtde_driver

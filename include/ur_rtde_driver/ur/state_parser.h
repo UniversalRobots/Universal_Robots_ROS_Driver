@@ -26,6 +26,8 @@
 #include "ur_rtde_driver/ur/robot_mode.h"
 #include "ur_rtde_driver/ur/state.h"
 
+namespace ur_rtde_driver
+{
 template <typename RMD, typename MBD>
 class URStateParser : public URParser<StatePacket>
 {
@@ -115,3 +117,4 @@ typedef URStateParser<RobotModeData_V1_X, MasterBoardData_V1_X> URStateParser_V1
 typedef URStateParser<RobotModeData_V3_0__1, MasterBoardData_V3_0__1> URStateParser_V3_0__1;
 typedef URStateParser<RobotModeData_V3_2, MasterBoardData_V3_2> URStateParser_V3_2;
 typedef URStateParser<RobotModeData_V3_5, MasterBoardData_V3_2> URStateParser_V3_5;
+}  // namespace ur_rtde_driver

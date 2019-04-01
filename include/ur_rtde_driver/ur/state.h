@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/pipeline.h"
 
+namespace ur_rtde_driver
+{
 enum class package_type : uint8_t
 {
   ROBOT_MODE_DATA = 0,
@@ -59,3 +61,4 @@ public:
   virtual bool parseWith(BinParser& bp) = 0;
   virtual bool consumeWith(URStatePacketConsumer& consumer) = 0;
 };
+}  // namespace ur_rtde_driver

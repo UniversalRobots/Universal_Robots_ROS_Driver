@@ -83,6 +83,8 @@ def driverProg():
 end
 )";
 
+namespace ur_rtde_driver
+{
 TrajectoryFollower::TrajectoryFollower(URCommander& commander, std::string& reverse_ip, int reverse_port,
                                        bool version_3)
   : running_(false)
@@ -259,3 +261,4 @@ void TrajectoryFollower::stop()
   server_.disconnectClient();
   running_ = false;
 }
+}  // namespace ur_rtde_driver

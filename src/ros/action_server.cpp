@@ -21,6 +21,8 @@
 #include "ur_rtde_driver/ros/action_server.h"
 #include <cmath>
 
+namespace ur_rtde_driver
+{
 ActionServer::ActionServer(ActionTrajectoryFollowerInterface& follower, std::vector<std::string>& joint_names,
                            double max_velocity)
   : as_(nh_, "follow_joint_trajectory", boost::bind(&ActionServer::onGoal, this, _1),
@@ -367,3 +369,4 @@ void ActionServer::trajectoryThread()
     lk.unlock();
   }
 }
+}  // namespace ur_rtde_driver

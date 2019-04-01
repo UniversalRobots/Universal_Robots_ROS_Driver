@@ -29,6 +29,8 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/ur/server.h"
 
+namespace ur_rtde_driver
+{
 class LowBandwidthTrajectoryFollower : public ActionTrajectoryFollowerInterface
 {
 private:
@@ -54,3 +56,4 @@ public:
 
   virtual ~LowBandwidthTrajectoryFollower(){};
 };
+}  // namespace ur_rtde_driver

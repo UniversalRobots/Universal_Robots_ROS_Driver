@@ -29,6 +29,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/types.h"
 
+namespace ur_rtde_driver
+{
 class BinParser
 {
 private:
@@ -201,3 +203,4 @@ public:
     LOG_DEBUG("BinParser: %p - %p (%zu bytes)", buf_pos_, buf_end_, buf_end_ - buf_pos_);
   }
 };
+}  // namespace ur_rtde_driver

@@ -26,6 +26,8 @@
 #include <string>
 #include "ur_rtde_driver/tcp_socket.h"
 
+namespace ur_rtde_driver
+{
 #define MAX_SERVER_BUF_LEN 50
 
 class URServer : private TCPSocket
@@ -47,3 +49,4 @@ public:
   bool readLine(char* buffer, size_t buf_len);
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
+}  // namespace ur_rtde_driver

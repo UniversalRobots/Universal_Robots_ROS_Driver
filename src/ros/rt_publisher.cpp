@@ -18,6 +18,8 @@
 
 #include "ur_rtde_driver/ros/rt_publisher.h"
 
+namespace ur_rtde_driver
+{
 bool RTPublisher::publishJoints(RTShared& packet, Time& t)
 {
   sensor_msgs::JointState joint_msg;
@@ -134,3 +136,4 @@ bool RTPublisher::consume(RTState_V3_2__3& state)
 {
   return publish(state);
 }
+}  // namespace ur_rtde_driver

@@ -26,6 +26,8 @@
 
 #include "ur_rtde_driver/ur/consumer.h"
 
+namespace ur_rtde_driver
+{
 using namespace ros;
 
 class MBPublisher : public URStatePacketConsumer
@@ -77,3 +79,4 @@ public:
   {
   }
 };
+}  // namespace ur_rtde_driver

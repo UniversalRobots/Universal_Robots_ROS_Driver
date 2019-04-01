@@ -23,6 +23,8 @@
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/pipeline.h"
 
+namespace ur_rtde_driver
+{
 enum class robot_message_type : uint8_t
 {
   ROBOT_MESSAGE_TEXT = 0,
@@ -67,3 +69,4 @@ public:
   int32_t svn_version;
   std::string build_date;
 };
+}  // namespace ur_rtde_driver

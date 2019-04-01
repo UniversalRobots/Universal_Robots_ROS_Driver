@@ -33,6 +33,8 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/ur/server.h"
 
+namespace ur_rtde_driver
+{
 class TrajectoryFollower : public ActionTrajectoryFollowerInterface
 {
 private:
@@ -65,3 +67,4 @@ public:
 
   virtual ~TrajectoryFollower(){};
 };
+}  // namespace ur_rtde_driver

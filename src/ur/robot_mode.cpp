@@ -19,6 +19,8 @@
 #include "ur_rtde_driver/ur/robot_mode.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
+namespace ur_rtde_driver
+{
 bool SharedRobotModeData::parseWith(BinParser& bp)
 {
   bp.parse(timestamp);
@@ -100,3 +102,4 @@ bool RobotModeData_V3_5::consumeWith(URStatePacketConsumer& consumer)
 {
   return consumer.consume(*this);
 }
+}  // namespace ur_rtde_driver

@@ -37,6 +37,8 @@
 #include "ur_rtde_driver/ur/master_board.h"
 #include "ur_rtde_driver/ur/state.h"
 
+namespace ur_rtde_driver
+{
 class ActionServer : public Service, public URRTPacketConsumer
 {
 private:
@@ -91,3 +93,4 @@ public:
   virtual bool consume(RTState_V3_0__1& state);
   virtual bool consume(RTState_V3_2__3& state);
 };
+}  // namespace ur_rtde_driver

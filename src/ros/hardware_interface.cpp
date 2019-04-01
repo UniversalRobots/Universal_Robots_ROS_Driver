@@ -19,6 +19,8 @@
 #include "ur_rtde_driver/ros/hardware_interface.h"
 #include "ur_rtde_driver/log.h"
 
+namespace ur_rtde_driver
+{
 const std::string JointInterface::INTERFACE_NAME = "hardware_interface::JointStateInterface";
 JointInterface::JointInterface(std::vector<std::string>& joint_names)
 {
@@ -104,3 +106,4 @@ void PositionInterface::stop()
 {
   follower_.stop();
 }
+}  // namespace ur_rtde_driver

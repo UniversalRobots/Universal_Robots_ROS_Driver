@@ -26,6 +26,8 @@
 #include <random>
 #include "ur_rtde_driver/bin_parser.h"
 
+namespace ur_rtde_driver
+{
 class RandomDataTest
 {
 private:
@@ -78,3 +80,4 @@ public:
     bp_.consume(n);
   }
 };
+}  // namespace ur_rtde_driver

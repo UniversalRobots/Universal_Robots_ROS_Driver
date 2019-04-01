@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/pipeline.h"
 #include "ur_rtde_driver/types.h"
 
+namespace ur_rtde_driver
+{
 class URRTPacketConsumer;
 
 class RTPacket
@@ -135,3 +137,4 @@ public:
 
   static_assert(RTState_V3_2__3::SIZE == 936, "RTState_V3_2__3 has mismatched size!");
 };
+}  // namespace ur_rtde_driver

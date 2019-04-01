@@ -26,6 +26,8 @@
 #include "ur_rtde_driver/ros/service_stopper.h"
 #include "ur_rtde_driver/ur/commander.h"
 
+namespace ur_rtde_driver
+{
 class URScriptHandler : public Service
 {
 private:
@@ -39,3 +41,4 @@ public:
   void urscriptInterface(const std_msgs::String::ConstPtr& msg);
   void onRobotStateChange(RobotState state);
 };
+}  // namespace ur_rtde_driver

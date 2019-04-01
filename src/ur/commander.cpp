@@ -19,6 +19,8 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/log.h"
 
+namespace ur_rtde_driver
+{
 bool URCommander::write(const std::string& s)
 {
   size_t len = s.size();
@@ -168,3 +170,4 @@ bool URCommander_V3_3::speedj(std::array<double, 6>& speeds, double acceleration
   std::string s(out.str());
   return write(s);
 }
+}  // namespace ur_rtde_driver

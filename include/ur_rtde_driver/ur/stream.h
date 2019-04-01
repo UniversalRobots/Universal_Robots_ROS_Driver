@@ -26,6 +26,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/tcp_socket.h"
 
+namespace ur_rtde_driver
+{
 class URStream : public TCPSocket
 {
 private:
@@ -62,3 +64,4 @@ public:
   bool read(uint8_t* buf, size_t buf_len, size_t& read);
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
+}  // namespace ur_rtde_driver

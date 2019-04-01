@@ -18,6 +18,8 @@
 
 #include "ur_rtde_driver/ros/mb_publisher.h"
 
+namespace ur_rtde_driver
+{
 inline void appendAnalog(std::vector<ur_msgs::Analog>& vec, double val, uint8_t pin)
 {
   ur_msgs::Analog ana;
@@ -130,3 +132,4 @@ bool MBPublisher::consume(RobotModeData_V3_2& data)
   publishRobotStatus(data);
   return true;
 }
+}  // namespace ur_rtde_driver

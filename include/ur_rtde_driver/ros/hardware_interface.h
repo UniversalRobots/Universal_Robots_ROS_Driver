@@ -26,6 +26,8 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/ur/rt_state.h"
 
+namespace ur_rtde_driver
+{
 class HardwareInterface
 {
 public:
@@ -99,3 +101,4 @@ public:
   typedef hardware_interface::PositionJointInterface parent_type;
   static const std::string INTERFACE_NAME;
 };
+}  // namespace ur_rtde_driver

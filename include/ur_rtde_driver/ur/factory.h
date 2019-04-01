@@ -27,6 +27,8 @@
 #include "ur_rtde_driver/ur/state_parser.h"
 #include "ur_rtde_driver/ur/stream.h"
 
+namespace ur_rtde_driver
+{
 static const int UR_PRIMARY_PORT = 30001;
 
 class URFactory : private URMessagePacketConsumer
@@ -139,3 +141,4 @@ public:
     }
   }
 };
+}  // namespace ur_rtde_driver

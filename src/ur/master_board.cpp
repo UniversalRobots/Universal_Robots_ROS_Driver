@@ -19,6 +19,8 @@
 #include "ur_rtde_driver/ur/master_board.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
+namespace ur_rtde_driver
+{
 bool SharedMasterBoardData::parseWith(BinParser& bp)
 {
   bp.parse(analog_input_range0);
@@ -119,3 +121,4 @@ bool MasterBoardData_V3_2::consumeWith(URStatePacketConsumer& consumer)
 {
   return consumer.consume(*this);
 }
+}  // namespace ur_rtde_driver

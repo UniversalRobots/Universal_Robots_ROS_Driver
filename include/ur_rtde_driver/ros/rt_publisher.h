@@ -31,6 +31,8 @@
 
 #include "ur_rtde_driver/ur/consumer.h"
 
+namespace ur_rtde_driver
+{
 using namespace ros;
 using namespace tf;
 
@@ -90,3 +92,4 @@ public:
   {
   }
 };
+}  // namespace ur_rtde_driver

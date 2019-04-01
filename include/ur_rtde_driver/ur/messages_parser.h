@@ -24,6 +24,8 @@
 #include "ur_rtde_driver/ur/messages.h"
 #include "ur_rtde_driver/ur/parser.h"
 
+namespace ur_rtde_driver
+{
 class URMessageParser : public URParser<MessagePacket>
 {
 public:
@@ -69,3 +71,4 @@ public:
     return parsed;
   }
 };
+}  // namespace ur_rtde_driver
