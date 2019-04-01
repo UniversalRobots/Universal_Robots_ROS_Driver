@@ -20,21 +20,21 @@
 #include <array>
 #include <iomanip>
 #include <sstream>
-#include "ur_rtde_driver/ur/stream.h"
+#include "ur_rtde_driver/comm/stream.h"
 
 namespace ur_rtde_driver
 {
 class URCommander
 {
 private:
-  URStream& stream_;
+  comm::URStream& stream_;
 
 protected:
   bool write(const std::string& s);
   void formatArray(std::ostringstream& out, std::array<double, 6>& values);
 
 public:
-  URCommander(URStream& stream) : stream_(stream)
+  URCommander(comm::URStream& stream) : stream_(stream)
   {
   }
 
@@ -53,7 +53,7 @@ public:
 class URCommander_V1_X : public URCommander
 {
 public:
-  URCommander_V1_X(URStream& stream) : URCommander(stream)
+  URCommander_V1_X(comm::URStream& stream) : URCommander(stream)
   {
   }
 
@@ -65,7 +65,7 @@ public:
 class URCommander_V3_X : public URCommander
 {
 public:
-  URCommander_V3_X(URStream& stream) : URCommander(stream)
+  URCommander_V3_X(comm::URStream& stream) : URCommander(stream)
   {
   }
 
@@ -77,7 +77,7 @@ public:
 class URCommander_V3_1__2 : public URCommander_V3_X
 {
 public:
-  URCommander_V3_1__2(URStream& stream) : URCommander_V3_X(stream)
+  URCommander_V3_1__2(comm::URStream& stream) : URCommander_V3_X(stream)
   {
   }
 
@@ -87,7 +87,7 @@ public:
 class URCommander_V3_3 : public URCommander_V3_X
 {
 public:
-  URCommander_V3_3(URStream& stream) : URCommander_V3_X(stream)
+  URCommander_V3_3(comm::URStream& stream) : URCommander_V3_X(stream)
   {
   }
 

@@ -22,7 +22,7 @@
 #include <cstddef>
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 
 namespace ur_rtde_driver
 {

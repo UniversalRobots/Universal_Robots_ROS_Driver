@@ -78,6 +78,8 @@ target_link_libraries(ur_rtde_hardware_interface ${catkin_LIBRARIES})
 
 
 set(${PROJECT_NAME}_SOURCES
+    src/comm/stream.cpp
+    src/comm/tcp_socket.cpp
     src/ros/action_server.cpp
     src/ros/lowbandwidth_trajectory_follower.cpp
     src/ros/mb_publisher.cpp
@@ -85,14 +87,13 @@ set(${PROJECT_NAME}_SOURCES
     src/ros/service_stopper.cpp
     src/ros/trajectory_follower.cpp
     src/ros/urscript_handler.cpp
-    src/tcp_socket.cpp
     src/ur/commander.cpp
     src/ur/master_board.cpp
     src/ur/messages.cpp
     src/ur/robot_mode.cpp
     src/ur/rt_state.cpp
     src/ur/server.cpp
-    src/ur/stream.cpp)
+)
 
 add_executable(ur_rtde_driver ${${PROJECT_NAME}_SOURCES} src/ros_main.cpp)
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -45,7 +45,7 @@ void ActionServer::start()
 
   LOG_INFO("Starting ActionServer");
   running_ = true;
-  tj_thread_ = thread(&ActionServer::trajectoryThread, this);
+  tj_thread_ = std::thread(&ActionServer::trajectoryThread, this);
   as_.start();
 }
 

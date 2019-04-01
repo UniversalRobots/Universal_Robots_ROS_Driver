@@ -27,9 +27,10 @@
 
 namespace ur_rtde_driver
 {
+namespace comm
+{
 // TODO: Remove these!!!
 using namespace moodycamel;
-using namespace std;
 
 template <typename T>
 class IConsumer
@@ -48,7 +49,7 @@ public:
   {
   }
 
-  virtual bool consume(shared_ptr<T> product) = 0;
+  virtual bool consume(std::shared_ptr<T> product) = 0;
 };
 
 template <typename T>
@@ -91,7 +92,7 @@ public:
     }
   }
 
-  bool consume(shared_ptr<T> product)
+  bool consume(std::shared_ptr<T> product)
   {
     bool res = true;
     for (auto& con : consumers_)
@@ -117,7 +118,7 @@ public:
   {
   }
 
-  virtual bool tryGet(std::vector<unique_ptr<T>>& products) = 0;
+  virtual bool tryGet(std::vector<std::unique_ptr<T>>& products) = 0;
 };
 
 class INotifier
@@ -141,14 +142,14 @@ private:
   IConsumer<T>& consumer_;
   std::string name_;
   INotifier& notifier_;
-  BlockingReaderWriterQueue<unique_ptr<T>> queue_;
-  atomic<bool> running_;
-  thread pThread_, cThread_;
+  BlockingReaderWriterQueue<std::unique_ptr<T>> queue_;
+  std::atomic<bool> running_;
+  std::thread pThread_, cThread_;
 
   void run_producer()
   {
     producer_.setupProducer();
-    std::vector<unique_ptr<T>> products;
+    std::vector<std::unique_ptr<T>> products;
     while (running_)
     {
       if (!producer_.tryGet(products))
@@ -176,7 +177,7 @@ private:
   void run_consumer()
   {
     consumer_.setupConsumer();
-    unique_ptr<T> product;
+    std::unique_ptr<T> product;
     while (running_)
     {
       // timeout was chosen because we should receive messages
@@ -211,8 +212,8 @@ public:
       return;
 
     running_ = true;
-    pThread_ = thread(&Pipeline::run_producer, this);
-    cThread_ = thread(&Pipeline::run_consumer, this);
+    pThread_ = std::thread(&Pipeline::run_producer, this);
+    cThread_ = std::thread(&Pipeline::run_consumer, this);
     notifier_.started(name_);
   }
 
@@ -233,4 +234,5 @@ public:
     notifier_.stopped(name_);
   }
 };
+}  // namespace comm
 }  // namespace ur_rtde_driver

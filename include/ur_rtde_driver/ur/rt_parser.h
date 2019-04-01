@@ -20,14 +20,14 @@
 #include <vector>
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/pipeline.h"
-#include "ur_rtde_driver/ur/parser.h"
+#include "ur_rtde_driver/comm/pipeline.h"
+#include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/ur/rt_state.h"
 
 namespace ur_rtde_driver
 {
 template <typename T>
-class URRTStateParser : public URParser<RTPacket>
+class URRTStateParser : public comm::URParser<RTPacket>
 {
 public:
   bool parse(BinParser& bp, std::vector<std::unique_ptr<RTPacket>>& results)

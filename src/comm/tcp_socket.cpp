@@ -25,9 +25,11 @@
 #include <cstring>
 
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/tcp_socket.h"
+#include "ur_rtde_driver/comm/tcp_socket.h"
 
 namespace ur_rtde_driver
+{
+namespace comm
 {
 TCPSocket::TCPSocket() : socket_fd_(-1), state_(SocketState::Invalid)
 {
@@ -186,4 +188,5 @@ bool TCPSocket::write(const uint8_t* buf, size_t buf_len, size_t& written)
 
   return true;
 }
+}  // namespace comm
 }  // namespace ur_rtde_driver

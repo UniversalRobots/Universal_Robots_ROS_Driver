@@ -20,16 +20,16 @@
 #include <vector>
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/parser.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/ur/messages.h"
-#include "ur_rtde_driver/ur/parser.h"
 
 namespace ur_rtde_driver
 {
-class URMessageParser : public URParser<MessagePacket>
+class URMessageParser : public comm::URParser<MessagePacket>
 {
 public:
-  bool parse(BinParser& bp, std::vector<unique_ptr<MessagePacket>>& results)
+  bool parse(BinParser& bp, std::vector<std::unique_ptr<MessagePacket>>& results)
   {
     int32_t packet_size;
     message_type type;

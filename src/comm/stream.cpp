@@ -22,9 +22,11 @@
 #include <cstring>
 
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/ur/stream.h"
+#include "ur_rtde_driver/comm/stream.h"
 
 namespace ur_rtde_driver
+{
+namespace comm
 {
 bool URStream::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
@@ -62,4 +64,5 @@ bool URStream::read(uint8_t* buf, size_t buf_len, size_t& total)
 
   return remainder == 0;
 }
+}  // namespace comm
 }  // namespace ur_rtde_driver

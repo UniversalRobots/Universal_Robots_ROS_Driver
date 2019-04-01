@@ -76,7 +76,7 @@ bool URServer::bind()
 
 bool URServer::accept()
 {
-  if (TCPSocket::getState() != SocketState::Connected || client_.getSocketFD() > 0)
+  if (TCPSocket::getState() != comm::SocketState::Connected || client_.getSocketFD() > 0)
     return false;
 
   struct sockaddr addr;
@@ -98,7 +98,7 @@ bool URServer::accept()
 
 void URServer::disconnectClient()
 {
-  if (client_.getState() != SocketState::Connected)
+  if (client_.getState() != comm::SocketState::Connected)
     return;
 
   client_.close();

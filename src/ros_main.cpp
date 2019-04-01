@@ -25,7 +25,8 @@
 #include <thread>
 
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/parser.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/ros/action_server.h"
 #include "ur_rtde_driver/ros/controller.h"
 #include "ur_rtde_driver/ros/io_service.h"
@@ -38,7 +39,6 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/ur/factory.h"
 #include "ur_rtde_driver/ur/messages.h"
-#include "ur_rtde_driver/ur/parser.h"
 #include "ur_rtde_driver/ur/producer.h"
 #include "ur_rtde_driver/ur/rt_state.h"
 #include "ur_rtde_driver/ur/state.h"
@@ -81,7 +81,7 @@ public:
   bool shutdown_on_disconnect;
 };
 
-class IgnorePipelineStoppedNotifier : public INotifier
+class IgnorePipelineStoppedNotifier : public comm::INotifier
 {
 public:
   void started(std::string name)
@@ -94,7 +94,7 @@ public:
   }
 };
 
-class ShutdownOnPipelineStoppedNotifier : public INotifier
+class ShutdownOnPipelineStoppedNotifier : public comm::INotifier
 {
 public:
   void started(std::string name)
@@ -132,7 +132,7 @@ bool parse_args(ProgArgs& args)
 
 std::string getLocalIPAccessibleFromHost(std::string& host)
 {
-  URStream stream(host, UR_RT_PORT);
+  comm::URStream stream(host, UR_RT_PORT);
   return stream.connect() ? stream.getIP() : std::string();
 }
 
@@ -153,17 +153,17 @@ int main(int argc, char** argv)
   std::string local_ip(getLocalIPAccessibleFromHost(args.host));
 
   URFactory factory(args.host);
-  vector<Service*> services;
+  std::vector<Service*> services;
 
   // RT packets
   auto rt_parser = factory.getRTParser();
-  URStream rt_stream(args.host, UR_RT_PORT);
+  comm::URStream rt_stream(args.host, UR_RT_PORT);
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
   RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
   auto rt_commander = factory.getCommander(rt_stream);
-  vector<IConsumer<RTPacket>*> rt_vec{ &rt_pub };
+  std::vector<comm::IConsumer<RTPacket>*> rt_vec{ &rt_pub };
 
-  INotifier* notifier(nullptr);
+  comm::INotifier* notifier(nullptr);
   ROSController* controller(nullptr);
   ActionServer* action_server(nullptr);
   if (args.use_ros_control)
@@ -208,20 +208,20 @@ int main(int argc, char** argv)
     notifier = new IgnorePipelineStoppedNotifier();
   }
 
-  MultiConsumer<RTPacket> rt_cons(rt_vec);
-  Pipeline<RTPacket> rt_pl(rt_prod, rt_cons, "RTPacket", *notifier);
+  comm::MultiConsumer<RTPacket> rt_cons(rt_vec);
+  comm::Pipeline<RTPacket> rt_pl(rt_prod, rt_cons, "RTPacket", *notifier);
 
   // Message packets
   auto state_parser = factory.getStateParser();
-  URStream state_stream(args.host, UR_SECONDARY_PORT);
+  comm::URStream state_stream(args.host, UR_SECONDARY_PORT);
   URProducer<StatePacket> state_prod(state_stream, *state_parser);
   MBPublisher state_pub;
 
   ServiceStopper service_stopper(services);
 
-  vector<IConsumer<StatePacket>*> state_vec{ &state_pub, &service_stopper };
-  MultiConsumer<StatePacket> state_cons(state_vec);
-  Pipeline<StatePacket> state_pl(state_prod, state_cons, "StatePacket", *notifier);
+  std::vector<comm::IConsumer<StatePacket>*> state_vec{ &state_pub, &service_stopper };
+  comm::MultiConsumer<StatePacket> state_cons(state_vec);
+  comm::Pipeline<StatePacket> state_pl(state_prod, state_cons, "StatePacket", *notifier);
 
   LOG_INFO("Starting main loop");
 

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/ur/master_board.h"
 #include "ur_rtde_driver/ur/messages.h"
 #include "ur_rtde_driver/ur/robot_mode.h"
@@ -27,10 +27,10 @@
 
 namespace ur_rtde_driver
 {
-class URRTPacketConsumer : public IConsumer<RTPacket>
+class URRTPacketConsumer : public comm::IConsumer<RTPacket>
 {
 public:
-  virtual bool consume(shared_ptr<RTPacket> packet)
+  virtual bool consume(std::shared_ptr<RTPacket> packet)
   {
     return packet->consumeWith(*this);
   }
@@ -41,10 +41,10 @@ public:
   virtual bool consume(RTState_V3_2__3& state) = 0;
 };
 
-class URStatePacketConsumer : public IConsumer<StatePacket>
+class URStatePacketConsumer : public comm::IConsumer<StatePacket>
 {
 public:
-  virtual bool consume(shared_ptr<StatePacket> packet)
+  virtual bool consume(std::shared_ptr<StatePacket> packet)
   {
     return packet->consumeWith(*this);
   }
@@ -58,10 +58,10 @@ public:
   virtual bool consume(RobotModeData_V3_2& data) = 0;
 };
 
-class URMessagePacketConsumer : public IConsumer<MessagePacket>
+class URMessagePacketConsumer : public comm::IConsumer<MessagePacket>
 {
 public:
-  virtual bool consume(shared_ptr<MessagePacket> packet)
+  virtual bool consume(std::shared_ptr<MessagePacket> packet)
   {
     return packet->consumeWith(*this);
   }

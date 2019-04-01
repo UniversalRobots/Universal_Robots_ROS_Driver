@@ -20,16 +20,16 @@
 #include <vector>
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/parser.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/ur/master_board.h"
-#include "ur_rtde_driver/ur/parser.h"
 #include "ur_rtde_driver/ur/robot_mode.h"
 #include "ur_rtde_driver/ur/state.h"
 
 namespace ur_rtde_driver
 {
 template <typename RMD, typename MBD>
-class URStateParser : public URParser<StatePacket>
+class URStateParser : public comm::URParser<StatePacket>
 {
 private:
   StatePacket* from_type(package_type type)

@@ -24,17 +24,17 @@
 #include <cstdlib>
 #include <mutex>
 #include <string>
-#include "ur_rtde_driver/tcp_socket.h"
+#include "ur_rtde_driver/comm/tcp_socket.h"
 
 namespace ur_rtde_driver
 {
 #define MAX_SERVER_BUF_LEN 50
 
-class URServer : private TCPSocket
+class URServer : private comm::TCPSocket
 {
 private:
   int port_;
-  TCPSocket client_;
+  comm::TCPSocket client_;
 
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len);

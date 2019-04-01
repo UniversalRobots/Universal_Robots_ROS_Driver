@@ -19,14 +19,18 @@
 #pragma once
 #include <vector>
 #include "ur_rtde_driver/bin_parser.h"
-#include "ur_rtde_driver/pipeline.h"
+#include "ur_rtde_driver/comm/pipeline.h"
 
 namespace ur_rtde_driver
+{
+namespace comm
 {
 template <typename T>
 class URParser
 {
 public:
   virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<T>>& results) = 0;
-};
+};  // namespace commtemplate<typenameT>classURParser
+
+}  // namespace comm
 }  // namespace ur_rtde_driver

@@ -23,45 +23,56 @@
 #include <atomic>
 #include <mutex>
 #include <string>
-#include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/tcp_socket.h"
 
 namespace ur_rtde_driver
 {
-class URStream : public TCPSocket
+namespace comm
+{
+enum class SocketState
+{
+  Invalid,
+  Connected,
+  Disconnected,
+  Closed
+};
+
+class TCPSocket
 {
 private:
-  std::string host_;
-  int port_;
-  std::mutex write_mutex_, read_mutex_;
+  std::atomic<int> socket_fd_;
+  std::atomic<SocketState> state_;
 
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
   {
-    return ::connect(socket_fd, address, address_len) == 0;
+    return false;
   }
+  virtual void setOptions(int socket_fd);
+
+  bool setup(std::string& host, int port);
 
 public:
-  URStream(std::string& host, int port) : host_(host), port_(port)
+  TCPSocket();
+  virtual ~TCPSocket();
+
+  SocketState getState()
   {
+    return state_;
   }
 
-  bool connect()
+  int getSocketFD()
   {
-    return TCPSocket::setup(host_, port_);
+    return socket_fd_;
   }
-  void disconnect()
-  {
-    LOG_INFO("Disconnecting from %s:%d", host_.c_str(), port_);
-    TCPSocket::close();
-  }
+  bool setSocketFD(int socket_fd);
 
-  bool closed()
-  {
-    return getState() == SocketState::Closed;
-  }
+  std::string getIP();
 
+  bool read(char* character);
   bool read(uint8_t* buf, size_t buf_len, size_t& read);
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
+
+  void close();
 };
+}  // namespace comm
 }  // namespace ur_rtde_driver

@@ -19,13 +19,13 @@
 #pragma once
 
 #include <cstdlib>
+#include "ur_rtde_driver/comm/parser.h"
+#include "ur_rtde_driver/comm/stream.h"
 #include "ur_rtde_driver/ur/consumer.h"
 #include "ur_rtde_driver/ur/messages_parser.h"
-#include "ur_rtde_driver/ur/parser.h"
 #include "ur_rtde_driver/ur/producer.h"
 #include "ur_rtde_driver/ur/rt_parser.h"
 #include "ur_rtde_driver/ur/state_parser.h"
-#include "ur_rtde_driver/ur/stream.h"
 
 namespace ur_rtde_driver
 {
@@ -34,7 +34,7 @@ static const int UR_PRIMARY_PORT = 30001;
 class URFactory : private URMessagePacketConsumer
 {
 private:
-  URStream stream_;
+  comm::URStream stream_;
   URMessageParser parser_;
 
   uint8_t major_version_;
@@ -67,7 +67,7 @@ public:
   URFactory(std::string& host) : stream_(host, UR_PRIMARY_PORT)
   {
     URProducer<MessagePacket> prod(stream_, parser_);
-    std::vector<unique_ptr<MessagePacket>> results;
+    std::vector<std::unique_ptr<MessagePacket>> results;
 
     prod.setupProducer();
 
@@ -96,7 +96,7 @@ public:
     return major_version_ == 3;
   }
 
-  std::unique_ptr<URCommander> getCommander(URStream& stream)
+  std::unique_ptr<URCommander> getCommander(comm::URStream& stream)
   {
     if (major_version_ == 1)
       return std::unique_ptr<URCommander>(new URCommander_V1_X(stream));
@@ -106,38 +106,38 @@ public:
       return std::unique_ptr<URCommander>(new URCommander_V3_3(stream));
   }
 
-  std::unique_ptr<URParser<StatePacket>> getStateParser()
+  std::unique_ptr<comm::URParser<StatePacket>> getStateParser()
   {
     if (major_version_ == 1)
     {
-      return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V1_X);
+      return std::unique_ptr<comm::URParser<StatePacket>>(new URStateParser_V1_X);
     }
     else
     {
       if (minor_version_ < 3)
-        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_0__1);
+        return std::unique_ptr<comm::URParser<StatePacket>>(new URStateParser_V3_0__1);
       else if (minor_version_ < 5)
-        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_2);
+        return std::unique_ptr<comm::URParser<StatePacket>>(new URStateParser_V3_2);
       else
-        return std::unique_ptr<URParser<StatePacket>>(new URStateParser_V3_5);
+        return std::unique_ptr<comm::URParser<StatePacket>>(new URStateParser_V3_5);
     }
   }
 
-  std::unique_ptr<URParser<RTPacket>> getRTParser()
+  std::unique_ptr<comm::URParser<RTPacket>> getRTParser()
   {
     if (major_version_ == 1)
     {
       if (minor_version_ < 8)
-        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V1_6__7);
+        return std::unique_ptr<comm::URParser<RTPacket>>(new URRTStateParser_V1_6__7);
       else
-        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V1_8);
+        return std::unique_ptr<comm::URParser<RTPacket>>(new URRTStateParser_V1_8);
     }
     else
     {
       if (minor_version_ < 3)
-        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V3_0__1);
+        return std::unique_ptr<comm::URParser<RTPacket>>(new URRTStateParser_V3_0__1);
       else
-        return std::unique_ptr<URParser<RTPacket>>(new URRTStateParser_V3_2__3);
+        return std::unique_ptr<comm::URParser<RTPacket>>(new URRTStateParser_V3_2__3);
     }
   }
 };

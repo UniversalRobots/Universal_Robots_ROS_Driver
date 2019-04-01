@@ -18,22 +18,22 @@
 
 #pragma once
 #include <chrono>
-#include "ur_rtde_driver/pipeline.h"
-#include "ur_rtde_driver/ur/parser.h"
-#include "ur_rtde_driver/ur/stream.h"
+#include "ur_rtde_driver/comm/pipeline.h"
+#include "ur_rtde_driver/comm/parser.h"
+#include "ur_rtde_driver/comm/stream.h"
 
 namespace ur_rtde_driver
 {
 template <typename T>
-class URProducer : public IProducer<T>
+class URProducer : public comm::IProducer<T>
 {
 private:
-  URStream& stream_;
-  URParser<T>& parser_;
+  comm::URStream& stream_;
+  comm::URParser<T>& parser_;
   std::chrono::seconds timeout_;
 
 public:
-  URProducer(URStream& stream, URParser<T>& parser) : stream_(stream), parser_(parser), timeout_(1)
+  URProducer(comm::URStream& stream, comm::URParser<T>& parser) : stream_(stream), parser_(parser), timeout_(1)
   {
   }
 
@@ -50,7 +50,7 @@ public:
     stream_.disconnect();
   }
 
-  bool tryGet(std::vector<unique_ptr<T>>& products)
+  bool tryGet(std::vector<std::unique_ptr<T>>& products)
   {
     // 4KB should be enough to hold any packet received from UR
     uint8_t buf[4096];
