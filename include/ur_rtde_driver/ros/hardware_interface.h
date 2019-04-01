@@ -49,8 +49,8 @@ private:
   std::array<double, 6> velocities_, positions_, efforts_;
 
 public:
-  JointInterface(std::vector<std::string> &joint_names);
-  void update(RTShared &packet);
+  JointInterface(std::vector<std::string>& joint_names);
+  void update(RTShared& packet);
 
   typedef hardware_interface::JointStateInterface parent_type;
   static const std::string INTERFACE_NAME;
@@ -62,7 +62,7 @@ class WrenchInterface : public hardware_interface::ForceTorqueSensorInterface
 
 public:
   WrenchInterface(std::string tcp_link);
-  void update(RTShared &packet);
+  void update(RTShared& packet);
   typedef hardware_interface::ForceTorqueSensorInterface parent_type;
   static const std::string INTERFACE_NAME;
 };
@@ -70,13 +70,13 @@ public:
 class VelocityInterface : public HardwareInterface, public hardware_interface::VelocityJointInterface
 {
 private:
-  URCommander &commander_;
+  URCommander& commander_;
   std::array<double, 6> velocity_cmd_, prev_velocity_cmd_;
   double max_vel_change_;
 
 public:
-  VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface,
-                    std::vector<std::string> &joint_names, double max_vel_change);
+  VelocityInterface(URCommander& commander, hardware_interface::JointStateInterface& js_interface,
+                    std::vector<std::string>& joint_names, double max_vel_change);
   virtual bool write();
   virtual void reset();
   typedef hardware_interface::VelocityJointInterface parent_type;
@@ -86,12 +86,12 @@ public:
 class PositionInterface : public HardwareInterface, public hardware_interface::PositionJointInterface
 {
 private:
-  TrajectoryFollower &follower_;
+  TrajectoryFollower& follower_;
   std::array<double, 6> position_cmd_;
 
 public:
-  PositionInterface(TrajectoryFollower &follower, hardware_interface::JointStateInterface &js_interface,
-                    std::vector<std::string> &joint_names);
+  PositionInterface(TrajectoryFollower& follower, hardware_interface::JointStateInterface& js_interface,
+                    std::vector<std::string>& joint_names);
   virtual bool write();
   virtual void start();
   virtual void stop();

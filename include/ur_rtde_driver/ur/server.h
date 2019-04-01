@@ -35,7 +35,7 @@ private:
   TCPSocket client_;
 
 protected:
-  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len);
+  virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len);
 
 public:
   URServer(int port);
@@ -44,6 +44,6 @@ public:
   bool bind();
   bool accept();
   void disconnectClient();
-  bool readLine(char *buffer, size_t buf_len);
-  bool write(const uint8_t *buf, size_t buf_len, size_t &written);
+  bool readLine(char* buffer, size_t buf_len);
+  bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };

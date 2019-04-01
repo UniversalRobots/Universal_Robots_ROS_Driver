@@ -107,7 +107,7 @@ public:
   }
 };
 
-bool parse_args(ProgArgs &args)
+bool parse_args(ProgArgs& args)
 {
   if (!ros::param::get(IP_ADDR_ARG, args.host))
   {
@@ -128,13 +128,13 @@ bool parse_args(ProgArgs &args)
   return true;
 }
 
-std::string getLocalIPAccessibleFromHost(std::string &host)
+std::string getLocalIPAccessibleFromHost(std::string& host)
 {
   URStream stream(host, UR_RT_PORT);
   return stream.connect() ? stream.getIP() : std::string();
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   ros::init(argc, argv, "ur_driver");
 
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
   std::string local_ip(getLocalIPAccessibleFromHost(args.host));
 
   URFactory factory(args.host);
-  vector<Service *> services;
+  vector<Service*> services;
 
   // RT packets
   auto rt_parser = factory.getRTParser();
@@ -159,15 +159,15 @@ int main(int argc, char **argv)
   URProducer<RTPacket> rt_prod(rt_stream, *rt_parser);
   RTPublisher rt_pub(args.prefix, args.base_frame, args.tool_frame, args.use_ros_control);
   auto rt_commander = factory.getCommander(rt_stream);
-  vector<IConsumer<RTPacket> *> rt_vec{ &rt_pub };
+  vector<IConsumer<RTPacket>*> rt_vec{ &rt_pub };
 
-  INotifier *notifier(nullptr);
-  ROSController *controller(nullptr);
-  ActionServer *action_server(nullptr);
+  INotifier* notifier(nullptr);
+  ROSController* controller(nullptr);
+  ActionServer* action_server(nullptr);
   if (args.use_ros_control)
   {
     LOG_INFO("ROS control enabled");
-    TrajectoryFollower *traj_follower =
+    TrajectoryFollower* traj_follower =
         new TrajectoryFollower(*rt_commander, local_ip, args.reverse_port, factory.isVersion3());
     controller = new ROSController(*rt_commander, *traj_follower, args.joint_names, args.max_vel_change, args.tcp_link);
     rt_vec.push_back(controller);
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
   else
   {
     LOG_INFO("ActionServer enabled");
-    ActionTrajectoryFollowerInterface *traj_follower(nullptr);
+    ActionTrajectoryFollowerInterface* traj_follower(nullptr);
     if (args.use_lowbandwidth_trajectory_follower)
     {
       LOG_INFO("Use low bandwidth trajectory follower");
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 
   ServiceStopper service_stopper(services);
 
-  vector<IConsumer<StatePacket> *> state_vec{ &state_pub, &service_stopper };
+  vector<IConsumer<StatePacket>*> state_vec{ &state_pub, &service_stopper };
   MultiConsumer<StatePacket> state_cons(state_vec);
   Pipeline<StatePacket> state_pl(state_prod, state_cons, "StatePacket", *notifier);
 

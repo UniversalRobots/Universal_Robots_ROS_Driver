@@ -249,7 +249,7 @@ end
 
 )";
 
-LowBandwidthTrajectoryFollower::LowBandwidthTrajectoryFollower(URCommander &commander, std::string &reverse_ip,
+LowBandwidthTrajectoryFollower::LowBandwidthTrajectoryFollower(URCommander& commander, std::string& reverse_ip,
                                                                int reverse_port, bool version_3)
   : running_(false)
   , commander_(commander)
@@ -323,8 +323,8 @@ bool LowBandwidthTrajectoryFollower::start()
   return (running_ = true);
 }
 
-bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positions,
-                                             const std::array<double, 6> &velocities, double sample_number,
+bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6>& positions,
+                                             const std::array<double, 6>& velocities, double sample_number,
                                              double time_in_seconds)
 {
   if (!running_)
@@ -334,11 +334,11 @@ bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positi
 
   out << "(";
   out << sample_number << ",";
-  for (auto const &pos : positions)
+  for (auto const& pos : positions)
   {
     out << pos << ",";
   }
-  for (auto const &vel : velocities)
+  for (auto const& vel : velocities)
   {
     out << vel << ",";
   }
@@ -347,8 +347,8 @@ bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positi
   // I know it's ugly but it's the most efficient and fastest way
   // We have only ASCII characters and we can cast char -> uint_8
   const std::string tmp = out.str();
-  const char *formatted_message = tmp.c_str();
-  const uint8_t *buf = (uint8_t *)formatted_message;
+  const char* formatted_message = tmp.c_str();
+  const uint8_t* buf = (uint8_t*)formatted_message;
 
   size_t written;
   LOG_DEBUG("Sending message %s", formatted_message);
@@ -356,26 +356,26 @@ bool LowBandwidthTrajectoryFollower::execute(const std::array<double, 6> &positi
   return server_.write(buf, strlen(formatted_message) + 1, written);
 }
 
-bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
+bool LowBandwidthTrajectoryFollower::execute(std::vector<TrajectoryPoint>& trajectory, std::atomic<bool>& interrupt)
 {
   if (!running_)
     return false;
 
   bool finished = false;
 
-  char *line[MAX_SERVER_BUF_LEN];
+  char* line[MAX_SERVER_BUF_LEN];
 
   bool res = true;
 
   while (!finished && !interrupt)
   {
-    if (!server_.readLine((char *)line, MAX_SERVER_BUF_LEN))
+    if (!server_.readLine((char*)line, MAX_SERVER_BUF_LEN))
     {
       LOG_DEBUG("Connection closed. Finishing!");
       finished = true;
       break;
     }
-    unsigned int message_num = atoi((const char *)line);
+    unsigned int message_num = atoi((const char*)line);
     LOG_DEBUG("Received request %i", message_num);
     if (message_num < trajectory.size())
     {

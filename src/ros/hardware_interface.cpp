@@ -20,7 +20,7 @@
 #include "ur_rtde_driver/log.h"
 
 const std::string JointInterface::INTERFACE_NAME = "hardware_interface::JointStateInterface";
-JointInterface::JointInterface(std::vector<std::string> &joint_names)
+JointInterface::JointInterface(std::vector<std::string>& joint_names)
 {
   for (size_t i = 0; i < 6; i++)
   {
@@ -28,7 +28,7 @@ JointInterface::JointInterface(std::vector<std::string> &joint_names)
   }
 }
 
-void JointInterface::update(RTShared &packet)
+void JointInterface::update(RTShared& packet)
 {
   positions_ = packet.q_actual;
   velocities_ = packet.qd_actual;
@@ -41,14 +41,14 @@ WrenchInterface::WrenchInterface(std::string tcp_link)
   registerHandle(hardware_interface::ForceTorqueSensorHandle("wrench", tcp_link, tcp_.begin(), tcp_.begin() + 3));
 }
 
-void WrenchInterface::update(RTShared &packet)
+void WrenchInterface::update(RTShared& packet)
 {
   tcp_ = packet.tcp_force;
 }
 
 const std::string VelocityInterface::INTERFACE_NAME = "hardware_interface::VelocityJointInterface";
-VelocityInterface::VelocityInterface(URCommander &commander, hardware_interface::JointStateInterface &js_interface,
-                                     std::vector<std::string> &joint_names, double max_vel_change)
+VelocityInterface::VelocityInterface(URCommander& commander, hardware_interface::JointStateInterface& js_interface,
+                                     std::vector<std::string>& joint_names, double max_vel_change)
   : commander_(commander), max_vel_change_(max_vel_change), prev_velocity_cmd_({ 0, 0, 0, 0, 0, 0 })
 {
   for (size_t i = 0; i < 6; i++)
@@ -72,16 +72,16 @@ bool VelocityInterface::write()
 
 void VelocityInterface::reset()
 {
-  for (auto &val : prev_velocity_cmd_)
+  for (auto& val : prev_velocity_cmd_)
   {
     val = 0;
   }
 }
 
 const std::string PositionInterface::INTERFACE_NAME = "hardware_interface::PositionJointInterface";
-PositionInterface::PositionInterface(TrajectoryFollower &follower,
-                                     hardware_interface::JointStateInterface &js_interface,
-                                     std::vector<std::string> &joint_names)
+PositionInterface::PositionInterface(TrajectoryFollower& follower,
+                                     hardware_interface::JointStateInterface& js_interface,
+                                     std::vector<std::string>& joint_names)
   : follower_(follower)
 {
   for (size_t i = 0; i < 6; i++)

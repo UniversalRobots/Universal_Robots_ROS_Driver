@@ -39,13 +39,13 @@ private:
   std::atomic<SocketState> state_;
 
 protected:
-  virtual bool open(int socket_fd, struct sockaddr *address, size_t address_len)
+  virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
   {
     return false;
   }
   virtual void setOptions(int socket_fd);
 
-  bool setup(std::string &host, int port);
+  bool setup(std::string& host, int port);
 
 public:
   TCPSocket();
@@ -64,9 +64,9 @@ public:
 
   std::string getIP();
 
-  bool read(char *character);
-  bool read(uint8_t *buf, size_t buf_len, size_t &read);
-  bool write(const uint8_t *buf, size_t buf_len, size_t &written);
+  bool read(char* character);
+  bool read(uint8_t* buf, size_t buf_len, size_t& read);
+  bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 
   void close();
 };

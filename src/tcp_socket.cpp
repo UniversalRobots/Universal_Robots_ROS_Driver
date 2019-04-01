@@ -42,7 +42,7 @@ void TCPSocket::setOptions(int socket_fd)
   setsockopt(socket_fd, IPPROTO_TCP, TCP_QUICKACK, &flag, sizeof(int));
 }
 
-bool TCPSocket::setup(std::string &host, int port)
+bool TCPSocket::setup(std::string& host, int port)
 {
   if (state_ == SocketState::Connected)
     return false;
@@ -52,7 +52,7 @@ bool TCPSocket::setup(std::string &host, int port)
   // gethostbyname() is deprecated so use getadderinfo() as described in:
   // http://www.beej.us/guide/bgnet/output/html/multipage/syscalls.html#getaddrinfo
 
-  const char *host_name = host.empty() ? nullptr : host.c_str();
+  const char* host_name = host.empty() ? nullptr : host.c_str();
   std::string service = std::to_string(port);
   struct addrinfo hints, *result;
   std::memset(&hints, 0, sizeof(hints));
@@ -69,7 +69,7 @@ bool TCPSocket::setup(std::string &host, int port)
 
   bool connected = false;
   // loop through the list of addresses untill we find one that's connectable
-  for (struct addrinfo *p = result; p != nullptr; p = p->ai_next)
+  for (struct addrinfo* p = result; p != nullptr; p = p->ai_next)
   {
     socket_fd_ = ::socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 
@@ -118,7 +118,7 @@ std::string TCPSocket::getIP()
 {
   sockaddr_in name;
   socklen_t len = sizeof(name);
-  int res = ::getsockname(socket_fd_, (sockaddr *)&name, &len);
+  int res = ::getsockname(socket_fd_, (sockaddr*)&name, &len);
 
   if (res < 0)
   {
@@ -131,16 +131,16 @@ std::string TCPSocket::getIP()
   return std::string(buf);
 }
 
-bool TCPSocket::read(char *character)
+bool TCPSocket::read(char* character)
 {
   size_t read_chars;
   // It's inefficient, but in our case we read very small messages
   // and the overhead connected with reading character by character is
   // negligible - adding buffering would complicate the code needlessly.
-  return read((uint8_t *)character, 1, read_chars);
+  return read((uint8_t*)character, 1, read_chars);
 }
 
-bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
+bool TCPSocket::read(uint8_t* buf, size_t buf_len, size_t& read)
 {
   read = 0;
 
@@ -161,7 +161,7 @@ bool TCPSocket::read(uint8_t *buf, size_t buf_len, size_t &read)
   return true;
 }
 
-bool TCPSocket::write(const uint8_t *buf, size_t buf_len, size_t &written)
+bool TCPSocket::write(const uint8_t* buf, size_t buf_len, size_t& written)
 {
   written = 0;
 

@@ -19,18 +19,18 @@
 #include "ur_rtde_driver/ur/commander.h"
 #include "ur_rtde_driver/log.h"
 
-bool URCommander::write(const std::string &s)
+bool URCommander::write(const std::string& s)
 {
   size_t len = s.size();
-  const uint8_t *data = reinterpret_cast<const uint8_t *>(s.c_str());
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(s.c_str());
   size_t written;
   return stream_.write(data, len, written);
 }
 
-void URCommander::formatArray(std::ostringstream &out, std::array<double, 6> &values)
+void URCommander::formatArray(std::ostringstream& out, std::array<double, 6>& values)
 {
   std::string mod("[");
-  for (auto const &val : values)
+  for (auto const& val : values)
   {
     out << mod << val;
     mod = ",";
@@ -38,7 +38,7 @@ void URCommander::formatArray(std::ostringstream &out, std::array<double, 6> &va
   out << "]";
 }
 
-bool URCommander::uploadProg(const std::string &s)
+bool URCommander::uploadProg(const std::string& s)
 {
   LOG_DEBUG("Sending program [%s]", s.c_str());
   return write(s);
@@ -78,7 +78,7 @@ bool URCommander::stopj(double a)
   return write(s);
 }
 
-bool URCommander_V1_X::speedj(std::array<double, 6> &speeds, double acceleration)
+bool URCommander_V1_X::speedj(std::array<double, 6>& speeds, double acceleration)
 {
   std::ostringstream out;
   out << std::fixed << std::setprecision(5);
@@ -147,7 +147,7 @@ bool URCommander_V3_X::setDigitalOut(uint8_t pin, bool value)
   return write(s);
 }
 
-bool URCommander_V3_1__2::speedj(std::array<double, 6> &speeds, double acceleration)
+bool URCommander_V3_1__2::speedj(std::array<double, 6>& speeds, double acceleration)
 {
   std::ostringstream out;
   out << std::fixed << std::setprecision(5);
@@ -158,7 +158,7 @@ bool URCommander_V3_1__2::speedj(std::array<double, 6> &speeds, double accelerat
   return write(s);
 }
 
-bool URCommander_V3_3::speedj(std::array<double, 6> &speeds, double acceleration)
+bool URCommander_V3_3::speedj(std::array<double, 6>& speeds, double acceleration)
 {
   std::ostringstream out;
   out << std::fixed << std::setprecision(5);

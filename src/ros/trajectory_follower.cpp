@@ -83,7 +83,7 @@ def driverProg():
 end
 )";
 
-TrajectoryFollower::TrajectoryFollower(URCommander &commander, std::string &reverse_ip, int reverse_port,
+TrajectoryFollower::TrajectoryFollower(URCommander& commander, std::string& reverse_ip, int reverse_port,
                                        bool version_3)
   : running_(false)
   , commander_(commander)
@@ -141,7 +141,7 @@ bool TrajectoryFollower::start()
   return (running_ = true);
 }
 
-bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_alive)
+bool TrajectoryFollower::execute(std::array<double, 6>& positions, bool keep_alive)
 {
   if (!running_)
     return false;
@@ -152,9 +152,9 @@ bool TrajectoryFollower::execute(std::array<double, 6> &positions, bool keep_ali
   last_positions_ = positions;
 
   uint8_t buf[sizeof(uint32_t) * 7];
-  uint8_t *idx = buf;
+  uint8_t* idx = buf;
 
-  for (auto const &pos : positions)
+  for (auto const& pos : positions)
   {
     int32_t val = static_cast<int32_t>(pos * MULT_JOINTSTATE_);
     val = htobe32(val);
@@ -178,12 +178,12 @@ double TrajectoryFollower::interpolate(double t, double T, double p0_pos, double
   return a + b * t + c * pow(t, 2) + d * pow(t, 3);
 }
 
-bool TrajectoryFollower::execute(std::array<double, 6> &positions)
+bool TrajectoryFollower::execute(std::array<double, 6>& positions)
 {
   return execute(positions, true);
 }
 
-bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::atomic<bool> &interrupt)
+bool TrajectoryFollower::execute(std::vector<TrajectoryPoint>& trajectory, std::atomic<bool>& interrupt)
 {
   if (!running_)
     return false;
@@ -193,15 +193,15 @@ bool TrajectoryFollower::execute(std::vector<TrajectoryPoint> &trajectory, std::
   typedef high_resolution_clock Clock;
   typedef Clock::time_point Time;
 
-  auto &last = trajectory[trajectory.size() - 1];
-  auto &prev = trajectory[0];
+  auto& last = trajectory[trajectory.size() - 1];
+  auto& prev = trajectory[0];
 
   Time t0 = Clock::now();
   Time latest = t0;
 
   std::array<double, 6> positions;
 
-  for (auto const &point : trajectory)
+  for (auto const& point : trajectory)
   {
     // skip t0
     if (&point == &prev)
