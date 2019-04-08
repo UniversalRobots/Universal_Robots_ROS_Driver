@@ -19,7 +19,7 @@
 #include "ur_rtde_driver/ur/messages.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 bool VersionMessage::parseWith(BinParser& bp)
 {
@@ -37,4 +37,4 @@ bool VersionMessage::consumeWith(URMessagePacketConsumer& consumer)
 {
   return consumer.consume(*this);
 }
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

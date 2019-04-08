@@ -21,7 +21,7 @@
 #include "ur_rtde_driver/bin_parser.h"
 #include "ur_rtde_driver/comm/pipeline.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 namespace comm
 {
@@ -33,4 +33,4 @@ public:
 };  // namespace commtemplate<typenameT>classURParser
 
 }  // namespace comm
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

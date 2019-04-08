@@ -25,7 +25,7 @@
 #include "ur_rtde_driver/ur/rt_state.h"
 #include "ur_rtde_driver/ur/state.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 class URRTPacketConsumer : public comm::IConsumer<RTPacket>
 {
@@ -68,4 +68,4 @@ public:
 
   virtual bool consume(VersionMessage& message) = 0;
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

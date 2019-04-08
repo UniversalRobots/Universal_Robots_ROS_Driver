@@ -44,5 +44,5 @@ private:
   HeaderT header_;
 };
 }  // namespace comm
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_PACKAGE_H_INCLUDED

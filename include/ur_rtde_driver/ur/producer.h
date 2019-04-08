@@ -22,7 +22,7 @@
 #include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/comm/stream.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 template <typename T>
 class URProducer : public comm::IProducer<T>
@@ -83,4 +83,4 @@ public:
     return parser_.parse(bp, products);
   }
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

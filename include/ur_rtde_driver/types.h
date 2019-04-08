@@ -20,7 +20,7 @@
 
 #include <inttypes.h>
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 struct double3_t
 {
@@ -42,4 +42,4 @@ inline bool operator==(const cartesian_coord_t& lhs, const cartesian_coord_t& rh
 {
   return lhs.position == rhs.position && lhs.rotation == rhs.rotation;
 }
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

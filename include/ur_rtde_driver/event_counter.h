@@ -23,7 +23,7 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 class EventCounter : public URRTPacketConsumer
 {
@@ -102,4 +102,4 @@ public:
   {
   }
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

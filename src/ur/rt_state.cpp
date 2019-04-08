@@ -19,7 +19,7 @@
 #include "ur_rtde_driver/ur/rt_state.h"
 #include "ur_rtde_driver/ur/consumer.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 void RTShared::parse_shared1(BinParser& bp)
 {
@@ -135,4 +135,4 @@ bool RTState_V3_2__3::consumeWith(URRTPacketConsumer& consumer)
 {
   return consumer.consume(*this);
 }
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

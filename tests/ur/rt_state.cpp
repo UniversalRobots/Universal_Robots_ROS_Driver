@@ -22,7 +22,7 @@
 #include "ur_rtde_driver/test/utils.h"
 #include "ur_rtde_driver/types.h"
 
-using namespace ur_rtde_driver;
+using namespace ur_driver;
 
 TEST(RTState_V1_6__7, testRandomDataParsing)
 {

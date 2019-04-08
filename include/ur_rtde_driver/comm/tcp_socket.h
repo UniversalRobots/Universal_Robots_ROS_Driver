@@ -24,7 +24,7 @@
 #include <mutex>
 #include <string>
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 namespace comm
 {
@@ -75,4 +75,4 @@ public:
   void close();
 };
 }  // namespace comm
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

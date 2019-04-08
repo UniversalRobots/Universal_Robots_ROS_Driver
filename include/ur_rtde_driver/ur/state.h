@@ -24,7 +24,7 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/comm/pipeline.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 enum class package_type : uint8_t
 {
@@ -61,4 +61,4 @@ public:
   virtual bool parseWith(BinParser& bp) = 0;
   virtual bool consumeWith(URStatePacketConsumer& consumer) = 0;
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

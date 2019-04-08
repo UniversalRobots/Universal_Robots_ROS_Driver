@@ -27,7 +27,7 @@
 #include "ur_rtde_driver/ur/rt_parser.h"
 #include "ur_rtde_driver/ur/state_parser.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 static const int UR_PRIMARY_PORT = 30001;
 
@@ -141,4 +141,4 @@ public:
     }
   }
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

@@ -18,7 +18,7 @@
 
 #include "ur_rtde_driver/ros/service_stopper.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 ServiceStopper::ServiceStopper(std::vector<Service*> services)
   : enable_service_(nh_.advertiseService("ur_driver/robot_enable", &ServiceStopper::enableCallback, this))
@@ -94,4 +94,4 @@ bool ServiceStopper::handle(SharedRobotModeData& data, bool error)
 
   return true;
 }
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

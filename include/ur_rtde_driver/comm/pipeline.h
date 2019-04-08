@@ -25,7 +25,7 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/queue/readerwriterqueue.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 namespace comm
 {
@@ -235,4 +235,4 @@ public:
   }
 };
 }  // namespace comm
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

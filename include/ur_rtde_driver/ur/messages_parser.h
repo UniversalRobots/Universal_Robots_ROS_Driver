@@ -24,7 +24,7 @@
 #include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/ur/messages.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 class URMessageParser : public comm::URParser<MessagePacket>
 {
@@ -71,4 +71,4 @@ public:
     return parsed;
   }
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

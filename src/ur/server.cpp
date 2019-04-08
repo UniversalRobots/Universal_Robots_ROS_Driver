@@ -25,7 +25,7 @@
 #include <cstring>
 #include "ur_rtde_driver/log.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 URServer::URServer(int port) : port_(port)
 {
@@ -151,4 +151,4 @@ bool URServer::readLine(char* buffer, size_t buf_len)
   *current_pointer = '\0';
   return true;
 }
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

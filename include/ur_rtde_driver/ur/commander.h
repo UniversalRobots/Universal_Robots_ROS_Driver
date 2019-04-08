@@ -22,7 +22,7 @@
 #include <sstream>
 #include "ur_rtde_driver/comm/stream.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 class URCommander
 {
@@ -93,4 +93,4 @@ public:
 
   virtual bool speedj(std::array<double, 6>& speeds, double acceleration);
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

@@ -27,7 +27,7 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/comm/tcp_socket.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 namespace comm
 {
@@ -189,4 +189,4 @@ bool TCPSocket::write(const uint8_t* buf, size_t buf_len, size_t& written)
   return true;
 }
 }  // namespace comm
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver

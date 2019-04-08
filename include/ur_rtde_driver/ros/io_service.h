@@ -28,7 +28,7 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/ur/commander.h"
 
-namespace ur_rtde_driver
+namespace ur_driver
 {
 class IOService
 {
@@ -79,4 +79,4 @@ public:
   {
   }
 };
-}  // namespace ur_rtde_driver
+}  // namespace ur_driver
