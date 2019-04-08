@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (templating)
+ *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
  *
  * Copyright 2015, 2016 Thomas Timm Andersen (original version)
@@ -21,19 +23,22 @@
 #include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/comm/stream.h"
+#include "ur_rtde_driver/comm/package.h"
 
 namespace ur_driver
 {
-template <typename T>
-class URProducer : public comm::IProducer<T>
+namespace comm
+{
+template <typename HeaderT>
+class URProducer : public IProducer<HeaderT>
 {
 private:
-  comm::URStream& stream_;
-  comm::URParser<T>& parser_;
+  URStream<HeaderT>& stream_;
+  URParser<HeaderT>& parser_;
   std::chrono::seconds timeout_;
 
 public:
-  URProducer(comm::URStream& stream, comm::URParser<T>& parser) : stream_(stream), parser_(parser), timeout_(1)
+  URProducer(URStream<HeaderT>& stream, URParser<HeaderT>& parser) : stream_(stream), parser_(parser), timeout_(1)
   {
   }
 
@@ -50,7 +55,7 @@ public:
     stream_.disconnect();
   }
 
-  bool tryGet(std::vector<std::unique_ptr<T>>& products)
+  bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products)
   {
     // 4KB should be enough to hold any packet received from UR
     uint8_t buf[4096];
@@ -83,4 +88,5 @@ public:
     return parser_.parse(bp, products);
   }
 };
+}  // namespace comm
 }  // namespace ur_driver

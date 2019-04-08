@@ -67,7 +67,6 @@ include_directories(
 )
 
 add_library(ur_rtde_driver
-    src/comm/stream.cpp
     src/comm/tcp_socket.cpp
     src/ros/service_stopper.cpp
     src/ur/commander.cpp
