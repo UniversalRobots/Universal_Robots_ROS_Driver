@@ -36,7 +36,7 @@
 
 namespace ur_driver
 {
-namespace primary
+namespace primary_interface
 {
 enum class message_type : int8_t
 {
@@ -77,7 +77,6 @@ enum class robot_message_type : uint8_t
   ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
 };
 
-
 class Header
 {
 public:
@@ -87,18 +86,11 @@ public:
   using _package_size_type = int32_t;
   static size_t getPackageLength(uint8_t* buf)
   {
-    return be32toh(*(reinterpret_cast<int32_t*>(buf)));
+    return be32toh(*(reinterpret_cast<_package_size_type*>(buf)));
   }
-
-  static size_t getPackageSize()
-  {
-    return sizeof(package_size_);
-  }
-
-  
 
 private:
-  int32_t package_size_;
+  _package_size_type package_size_;
   int8_t package_type_;
 };
 }  // namespace primary_interface

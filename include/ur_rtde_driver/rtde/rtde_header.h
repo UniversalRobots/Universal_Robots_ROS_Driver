@@ -1,4 +1,4 @@
- 
+
 // this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
 
 // -- BEGIN LICENSE BLOCK ----------------------------------------------
@@ -20,13 +20,10 @@
 #include <endian.h>
 #include "ur_rtde_driver/types.h"
 
-
 namespace ur_driver
 {
 namespace rtde_interface
 {
-
-
 enum class PackageType
 {
   RTDE_REQUEST_PROTOCOL_VERSION = 86,       // ascii V
@@ -39,29 +36,22 @@ enum class PackageType
   RTDE_CONTROL_PACKAGE_PAUSE = 80           // ascii P
 };
 
-
 class Header
 {
 public:
   Header() = default;
   virtual ~Header() = default;
+  using _package_size_type = uint16_t;
 
   static size_t getPackageLength(uint8_t* buf)
   {
-    return be16toh(*(reinterpret_cast<uint16_t*>(buf)));
+    return be16toh(*(reinterpret_cast<_package_size_type*>(buf)));
   }
-
-  static size_t getPackageSize()
-  {
-    return sizeof(package_size_);
-  }
-
 
 private:
-  uint16_t package_size_;
+  _package_size_type package_size_;
   PackageType package_type_;
 };
-
 
 }  // namespace rtde_interface
 }  // namespace ur_driver

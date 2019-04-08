@@ -19,33 +19,30 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Felix Mauch mauch@fzi.de
+ * \date    2019-04-08
  *
  */
 //----------------------------------------------------------------------
-
-#ifndef UR_RTDE_DRIVER_PRIMARY_PACKAGE_H_INCLUDED
-#define UR_RTDE_DRIVER_PRIMARY_PACKAGE_H_INCLUDED
-
-#include "ur_rtde_driver/primary/primary_header.h"
-#include "ur_rtde_driver/comm/package.h"
+#ifndef UR_RTDE_DRIVER_PACKAGE_H_INCLUDED
+#define UR_RTDE_DRIVER_PACKAGE_H_INCLUDED
 
 namespace ur_driver
 {
-namespace primary_interface
+namespace comm
 {
-class PrimaryPackage : comm::URPackage<Header>
+template <typename HeaderT>
+class URPackage
 {
 public:
-  PrimaryPackage() = default;
-  virtual ~PrimaryPackage() = default;
+  URPackage();
+  virtual ~URPackage();
+
+  using _header_type = HeaderT;
 
 private:
-  uint8_t* data_buffer_;
+  HeaderT header_;
 };
-
-}  // namespace primary_interface
-}  // namespace ur_driver
-
-#endif /* UR_RTDE_DRIVER_PRIMARY_PACKAGE_H_INCLUDED */
+}  // namespace comm
+}  // namespace ur_rtde_driver
+#endif  // ifndef UR_RTDE_DRIVER_PACKAGE_H_INCLUDED

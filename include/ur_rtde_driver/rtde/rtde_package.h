@@ -25,27 +25,22 @@
  */
 //----------------------------------------------------------------------
 
-
 #ifndef UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
 #define UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_header.h"
+#include "ur_rtde_driver/comm/package.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-
-
-class RTDEPackage
+class RTDEPackage : comm::URPackage<Header>
 {
 public:
   RTDEPackage() = default;
   virtual ~RTDEPackage() = default;
-
-  
 };
-
 
 }  // namespace rtde_interface
 }  // namespace ur_driver
