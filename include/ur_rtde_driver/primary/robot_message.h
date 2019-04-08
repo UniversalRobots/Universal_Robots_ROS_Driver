@@ -34,6 +34,19 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+enum class message_type : uint8_t
+{
+  ROBOT_MESSAGE_TEXT = 0,
+  ROBOT_MESSAGE_PROGRAM_LABEL = 1,
+  PROGRAM_STATE_MESSAGE_VARIABLE_UPDATE = 2,
+  ROBOT_MESSAGE_VERSION = 3,
+  ROBOT_MESSAGE_SAFETY_MODE = 5,
+  ROBOT_MESSAGE_ERROR_CODE = 6,
+  ROBOT_MESSAGE_KEY = 7,
+  ROBOT_MESSAGE_REQUEST_VALUE = 9,
+  ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
+};
+
 class RobotMessage : PrimaryPackage
 {
 public:

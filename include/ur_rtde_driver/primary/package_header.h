@@ -38,7 +38,7 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-enum class message_type : int8_t
+enum class robot_message_type : int8_t
 {
   DISCONNECT = -1,
   ROBOT_STATE = 16,
@@ -50,38 +50,11 @@ enum class message_type : int8_t
   PROGRAM_STATE_MESSAGE = 25
 };
 
-enum class robot_state_type : uint8_t
-{
-  ROBOT_MODE_DATA = 0,
-  JOINT_DATA = 1,
-  TOOL_DATA = 2,
-  MASTERBOARD_DATA = 3,
-  CARTESIAN_INFO = 4,
-  KINEMATICS_INFO = 5,
-  CONFIGURATION_DATA = 6,
-  FORCE_MODE_DATA = 7,
-  ADDITIONAL_INFO = 8,
-  CALIBRATION_DATA = 9
-};
-
-enum class robot_message_type : uint8_t
-{
-  ROBOT_MESSAGE_TEXT = 0,
-  ROBOT_MESSAGE_PROGRAM_LABEL = 1,
-  PROGRAM_STATE_MESSAGE_VARIABLE_UPDATE = 2,
-  ROBOT_MESSAGE_VERSION = 3,
-  ROBOT_MESSAGE_SAFETY_MODE = 5,
-  ROBOT_MESSAGE_ERROR_CODE = 6,
-  ROBOT_MESSAGE_KEY = 7,
-  ROBOT_MESSAGE_REQUEST_VALUE = 9,
-  ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
-};
-
-class Header
+class PackageHeader
 {
 public:
-  Header() = default;
-  virtual ~Header() = default;
+  PackageHeader() = default;
+  virtual ~PackageHeader() = default;
 
   using _package_size_type = int32_t;
   static size_t getPackageLength(uint8_t* buf)

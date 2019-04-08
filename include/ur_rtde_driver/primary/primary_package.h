@@ -28,14 +28,14 @@
 #ifndef UR_RTDE_DRIVER_PRIMARY_PACKAGE_H_INCLUDED
 #define UR_RTDE_DRIVER_PRIMARY_PACKAGE_H_INCLUDED
 
-#include "ur_rtde_driver/primary/primary_header.h"
+#include "ur_rtde_driver/primary/package_header.h"
 #include "ur_rtde_driver/comm/package.h"
 
 namespace ur_driver
 {
 namespace primary_interface
 {
-class PrimaryPackage : comm::URPackage<Header>
+class PrimaryPackage : comm::URPackage<PackageHeader>
 {
 public:
   PrimaryPackage() = default;

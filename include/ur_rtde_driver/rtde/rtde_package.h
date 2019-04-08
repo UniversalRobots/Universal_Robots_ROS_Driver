@@ -28,14 +28,14 @@
 #ifndef UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
 #define UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
 
-#include "ur_rtde_driver/rtde/rtde_header.h"
+#include "ur_rtde_driver/rtde/package_header.h"
 #include "ur_rtde_driver/comm/package.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-class RTDEPackage : comm::URPackage<Header>
+class RTDEPackage : comm::URPackage<PackageHeader>
 {
 public:
   RTDEPackage() = default;

@@ -36,11 +36,11 @@ enum class PackageType
   RTDE_CONTROL_PACKAGE_PAUSE = 80           // ascii P
 };
 
-class Header
+class PackageHeader
 {
 public:
-  Header() = default;
-  virtual ~Header() = default;
+  PackageHeader() = default;
+  virtual ~PackageHeader() = default;
   using _package_size_type = uint16_t;
 
   static size_t getPackageLength(uint8_t* buf)
