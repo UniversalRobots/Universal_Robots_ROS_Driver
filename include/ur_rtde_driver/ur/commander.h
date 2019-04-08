@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (templating)
+ *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
  *
  * Copyright 2015, 2016 Thomas Timm Andersen (original version)
@@ -21,20 +23,21 @@
 #include <iomanip>
 #include <sstream>
 #include "ur_rtde_driver/comm/stream.h"
+#include "ur_rtde_driver/primary/package_header.h"
 
 namespace ur_driver
 {
 class URCommander
 {
 private:
-  comm::URStream& stream_;
+  comm::URStream<primary_interface::PackageHeader>& stream_;
 
 protected:
   bool write(const std::string& s);
   void formatArray(std::ostringstream& out, std::array<double, 6>& values);
 
 public:
-  URCommander(comm::URStream& stream) : stream_(stream)
+  URCommander(comm::URStream<primary_interface::PackageHeader>& stream) : stream_(stream)
   {
   }
 
@@ -53,7 +56,7 @@ public:
 class URCommander_V1_X : public URCommander
 {
 public:
-  URCommander_V1_X(comm::URStream& stream) : URCommander(stream)
+  URCommander_V1_X(comm::URStream<primary_interface::PackageHeader>& stream) : URCommander(stream)
   {
   }
 
@@ -65,7 +68,7 @@ public:
 class URCommander_V3_X : public URCommander
 {
 public:
-  URCommander_V3_X(comm::URStream& stream) : URCommander(stream)
+  URCommander_V3_X(comm::URStream<primary_interface::PackageHeader>& stream) : URCommander(stream)
   {
   }
 
@@ -77,7 +80,7 @@ public:
 class URCommander_V3_1__2 : public URCommander_V3_X
 {
 public:
-  URCommander_V3_1__2(comm::URStream& stream) : URCommander_V3_X(stream)
+  URCommander_V3_1__2(comm::URStream<primary_interface::PackageHeader>& stream) : URCommander_V3_X(stream)
   {
   }
 
@@ -87,7 +90,7 @@ public:
 class URCommander_V3_3 : public URCommander_V3_X
 {
 public:
-  URCommander_V3_3(comm::URStream& stream) : URCommander_V3_X(stream)
+  URCommander_V3_3(comm::URStream<primary_interface::PackageHeader>& stream) : URCommander_V3_X(stream)
   {
   }
 
