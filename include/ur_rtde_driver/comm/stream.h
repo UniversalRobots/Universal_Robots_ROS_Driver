@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (templating)
+ *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
  *
  * Copyright 2015, 2016 Thomas Timm Andersen (original version)
@@ -30,6 +32,7 @@ namespace ur_driver
 {
 namespace comm
 {
+template <typename HeaderT>
 class URStream : public TCPSocket
 {
 private:
@@ -66,5 +69,44 @@ public:
   bool read(uint8_t* buf, size_t buf_len, size_t& read);
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
+
+template <typename HeaderT>
+bool URStream<HeaderT>::write(const uint8_t* buf, size_t buf_len, size_t& written)
+{
+  std::lock_guard<std::mutex> lock(write_mutex_);
+  return TCPSocket::write(buf, buf_len, written);
+}
+
+template <typename HeaderT>
+bool URStream<HeaderT>::read(uint8_t* buf, size_t buf_len, size_t& total)
+{
+  std::lock_guard<std::mutex> lock(read_mutex_);
+
+  bool initial = true;
+  uint8_t* buf_pos = buf;
+  size_t remainder = sizeof(HeaderT::_package_size_type);
+  size_t read = 0;
+
+  while (remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
+  {
+    TCPSocket::setOptions(getSocketFD());
+    if (initial)
+    {
+      remainder = HeaderT::getPackageLength(buf);
+      if (remainder >= (buf_len - sizeof(HeaderT::_package_size_type)))
+      {
+        LOG_ERROR("Packet size %zd is larger than buffer %zu, discarding.", remainder, buf_len);
+        return false;
+      }
+      initial = false;
+    }
+
+    total += read;
+    buf_pos += read;
+    remainder -= read;
+  }
+
+  return remainder == 0;
+}
 }  // namespace comm
 }  // namespace ur_driver
