@@ -31,6 +31,8 @@
 
 namespace ur_driver
 {
+namespace comm
+{
 class BinParser
 {
 private:
@@ -203,4 +205,6 @@ public:
     LOG_DEBUG("BinParser: %p - %p (%zu bytes)", buf_pos_, buf_end_, buf_end_ - buf_pos_);
   }
 };
+
+}  // namespace comm
 }  // namespace ur_driver

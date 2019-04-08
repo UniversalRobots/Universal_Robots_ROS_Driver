@@ -27,6 +27,8 @@
 #ifndef UR_RTDE_DRIVER_PACKAGE_H_INCLUDED
 #define UR_RTDE_DRIVER_PACKAGE_H_INCLUDED
 
+#include "ur_rtde_driver/comm/bin_parser.h"
+
 namespace ur_driver
 {
 namespace comm
@@ -39,6 +41,8 @@ public:
   virtual ~URPackage();
 
   using _header_type = HeaderT;
+
+  virtual bool parseWith(BinParser& bp) = 0;
 
 private:
   HeaderT header_;
