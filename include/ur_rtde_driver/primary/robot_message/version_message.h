@@ -19,33 +19,40 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Felix Mauch mauch@fzi.de
+ * \date    2019-04-08
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_RTDE_DRIVER_KINEMATICS_INFO_H_INCLUDED
-#define UR_RTDE_DRIVER_KINEMATICS_INFO_H_INCLUDED
+#ifndef UR_RTDE_DRIVER_VERSION_MESSAGE_H_INCLUDED
+#define UR_RTDE_DRIVER_VERSION_MESSAGE_H_INCLUDED
 
-#include "ur_rtde_driver/primary/primary_package.h"
-#include "ur_rtde_driver/primary/robot_state.h"
+#include "ur_rtde_driver/primary/robot_message.h"
 
 namespace ur_driver
 {
 namespace primary_interface
 {
-class KinematicsInfo : PrimaryPackage
+class VersionMessage : public RobotMessage
 {
-private:
-  RobotState robot_state_;
-
 public:
-  KinematicsInfo() = default;
-  virtual ~KinematicsInfo() = default;
-};
+  VersionMessage(uint64_t timestamp, uint8_t source) : RobotMessage(timestamp, source)
+  {
+  }
 
+  virtual bool parseWith(comm::BinParser& bp);
+
+  virtual std::string toString() const;
+
+  std::string project_name_;
+  uint8_t major_version_;
+  uint8_t minor_version_;
+  int32_t svn_version_;
+  int32_t build_number_;  // TODO Exists in version 3.3 above only
+  std::string build_date_;
+};
 }  // namespace primary_interface
 }  // namespace ur_driver
 
-#endif /* UR_RTDE_DRIVER_KINEMATICS_INFO_H_INCLUDED */
+#endif  // ifndef UR_RTDE_DRIVER_VERSION_MESSAGE_H_INCLUDED

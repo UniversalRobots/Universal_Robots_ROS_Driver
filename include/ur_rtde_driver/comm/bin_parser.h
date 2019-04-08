@@ -133,6 +133,38 @@ public:
     parse(val.z);
   }
 
+  void parse(vector3d_t& val)
+  {
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+      parse(val[i]);
+    }
+  }
+
+  void parse(vector6d_t& val)
+  {
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+      parse(val[i]);
+    }
+  }
+
+  void parse(vector6int32_t& val)
+  {
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+      parse(val[i]);
+    }
+  }
+
+  void parse(vector6uint32_t& val)
+  {
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+      parse(val[i]);
+    }
+  }
+
   // Explicit parsing order of fields to avoid issues with struct layout
   void parse(cartesian_coord_t& val)
   {
@@ -140,7 +172,7 @@ public:
     parse(val.rotation);
   }
 
-  void parse_remainder(std::string& val)
+  void parseRemainder(std::string& val)
   {
     parse(val, size_t(buf_end_ - buf_pos_));
   }

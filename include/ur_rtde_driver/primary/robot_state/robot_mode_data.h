@@ -1,30 +1,39 @@
-/*
- * Copyright 2017, 2018 Simon Rasmussen (refactor)
+// this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
+
+// -- BEGIN LICENSE BLOCK ----------------------------------------------
+// Copyright 2019 FZI Forschungszentrum Informatik
+// Copyright 2015, 2016 Thomas Timm Andersen (original version)
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// -- END LICENSE BLOCK ------------------------------------------------
+
+//----------------------------------------------------------------------
+/*!\file
  *
- * Copyright 2015, 2016 Thomas Timm Andersen (original version)
+ * \author  Felix Mauch mauch@fzi.de
+ * \date    2019-04-08
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
+//----------------------------------------------------------------------
 
-#pragma once
+#ifndef UR_RTDE_DRIBVER_ROBOT_MODE_DATA_H_INCLUDED
+#define UR_RTDE_DRIBVER_ROBOT_MODE_DATA_H_INCLUDED
 
-#include <inttypes.h>
-#include <cstddef>
-#include "ur_rtde_driver/comm/bin_parser.h"
-#include "ur_rtde_driver/types.h"
-#include "ur_rtde_driver/comm/ur/state.h"
+#include "ur_rtde_driver/primary/robot_state.h"
 
 namespace ur_driver
+{
+namespace primary_interface
 {
 class SharedRobotModeData
 {
@@ -41,35 +50,6 @@ public:
   bool program_paused;
 
   static const size_t SIZE = sizeof(uint64_t) + sizeof(uint8_t) * 6;
-};
-
-enum class robot_mode_V1_X : uint8_t
-{
-  ROBOT_RUNNING_MODE = 0,
-  ROBOT_FREEDRIVE_MODE = 1,
-  ROBOT_READY_MODE = 2,
-  ROBOT_INITIALIZING_MODE = 3,
-  ROBOT_SECURITY_STOPPED_MODE = 4,
-  ROBOT_EMERGENCY_STOPPED_MODE = 5,
-  ROBOT_FATAL_ERROR_MODE = 6,
-  ROBOT_NO_POWER_MODE = 7,
-  ROBOT_NOT_CONNECTED_MODE = 8,
-  ROBOT_SHUTDOWN_MODE = 9,
-  ROBOT_SAFEGUARD_STOP_MODE = 10
-};
-
-class RobotModeData_V1_X : public SharedRobotModeData, public StatePacket
-{
-public:
-  virtual bool parseWith(BinParser& bp);
-  virtual bool consumeWith(URStatePacketConsumer& consumer);
-
-  robot_mode_V1_X robot_mode;
-  double speed_fraction;
-
-  static const size_t SIZE = SharedRobotModeData::SIZE + sizeof(uint8_t) + sizeof(robot_mode_V1_X) + sizeof(double);
-
-  static_assert(RobotModeData_V1_X::SIZE == 24, "RobotModeData_V1_X has missmatched size");
 };
 
 enum class robot_mode_V3_X : uint8_t
@@ -93,11 +73,10 @@ enum class robot_control_mode_V3_X : uint8_t
   TORQUE = 3
 };
 
-class RobotModeData_V3_0__1 : public SharedRobotModeData, public StatePacket
+class RobotModeData_V3_0__1 : public SharedRobotModeData, public RobotState
 {
 public:
   virtual bool parseWith(BinParser& bp);
-  virtual bool consumeWith(URStatePacketConsumer& consumer);
 
   robot_mode_V3_X robot_mode;
   robot_control_mode_V3_X control_mode;
@@ -136,4 +115,6 @@ public:
 
   static_assert(RobotModeData_V3_5::SIZE == 42, "RobotModeData_V3_5 has missmatched size");
 };
+}  // namespace primary_interface
 }  // namespace ur_driver
+#endif  // ifndef UR_RTDE_DRIBVER_ROBOT_MODE_DATA_H_INCLUDED

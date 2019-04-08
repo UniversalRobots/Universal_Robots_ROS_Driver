@@ -44,6 +44,8 @@ public:
 
   virtual bool parseWith(BinParser& bp) = 0;
 
+  virtual std::string toString() const = 0;
+
 private:
   HeaderT header_;
 };

@@ -50,8 +50,17 @@ enum class message_type : uint8_t
 class RobotMessage : PrimaryPackage
 {
 public:
-  RobotMessage() = default;
+  RobotMessage(const uint64_t timestamp, const uint8_t source) : timestamp_(timestamp), source_(source)
+  {
+  }
   virtual ~RobotMessage() = default;
+
+  virtual bool parseWith(comm::BinParser& bp) = 0;
+  virtual std::string toString() const = 0;
+
+  uint64_t timestamp_;
+  uint8_t source_;
+  uint8_t message_type_;
 };
 
 }  // namespace primary_interface

@@ -68,13 +68,15 @@ include_directories(
 
 add_library(ur_rtde_driver
     src/comm/tcp_socket.cpp
-    src/ros/service_stopper.cpp
-    src/ur/commander.cpp
-    src/ur/master_board.cpp
-    src/ur/messages.cpp
-    src/ur/robot_mode.cpp
-    src/ur/rt_state.cpp
-    src/ur/server.cpp
+    #src/ros/service_stopper.cpp
+    #src/ur/commander.cpp
+    #src/ur/master_board.cpp
+    #src/ur/messages.cpp
+    #src/ur/robot_mode.cpp
+    #src/ur/rt_state.cpp
+    #src/ur/server.cpp
+    src/primary/robot_message/version_message.cpp
+    src/primary/robot_state/kinematics_info.cpp
 )
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

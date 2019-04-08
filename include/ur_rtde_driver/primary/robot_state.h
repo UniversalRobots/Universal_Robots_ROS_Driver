@@ -38,91 +38,17 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-enum class robot_state_type : uint8_t
+/*!
+ * \brief Abstract class for a RobotState msg. This will never be instanciated, but the underlying
+ * data packages will be used directly.
+ */
+class RobotState : public PrimaryPackage
 {
-  ROBOT_MODE_DATA = 0,
-  JOINT_DATA = 1,
-  TOOL_DATA = 2,
-  MASTERBOARD_DATA = 3,
-  CARTESIAN_INFO = 4,
-  KINEMATICS_INFO = 5,
-  CONFIGURATION_DATA = 6,
-  FORCE_MODE_DATA = 7,
-  ADDITIONAL_INFO = 8,
-  CALIBRATION_DATA = 9
-};
-
-struct version_message
-{
-  uint64_t timestamp;
-  int8_t source;
-  int8_t robot_message_type;
-  int8_t project_name_size;
-  char project_name[15];
-  uint8_t major_version;
-  uint8_t minor_version;
-  int svn_revision;
-  char build_date[25];
-};
-
-struct masterboard_data
-{
-  int digitalInputBits;
-  int digitalOutputBits;
-  char analogInputRange0;
-  char analogInputRange1;
-  double analogInput0;
-  double analogInput1;
-  char analogOutputDomain0;
-  char analogOutputDomain1;
-  double analogOutput0;
-  double analogOutput1;
-  float masterBoardTemperature;
-  float robotVoltage48V;
-  float robotCurrent;
-  float masterIOCurrent;
-  unsigned char safetyMode;
-  unsigned char masterOnOffState;
-  char euromap67InterfaceInstalled;
-  int euromapInputBits;
-  int euromapOutputBits;
-  float euromapVoltage;
-  float euromapCurrent;
-};
-
-struct robot_mode_data
-{
-  uint64_t timestamp;
-  bool isRobotConnected;
-  bool isRealRobotEnabled;
-  bool isPowerOnRobot;
-  bool isEmergencyStopped;
-  bool isProtectiveStopped;
-  bool isProgramRunning;
-  bool isProgramPaused;
-  unsigned char robotMode;
-  unsigned char controlMode;
-  double targetSpeedFraction;
-  double speedScaling;
-};
-
-class RobotState : PrimaryPackage
-{
-private:
-  robot_state_type robot_state_;
-  /*
-      version_message version_msg_;
-    masterboard_data mb_data_;
-    robot_mode_data robot_mode_;
-      std::recursive_mutex val_lock_; // Locks the variables while unpack parses data;
-    std::condition_variable* pMsg_cond_; //Signals that new vars are available
-    bool new_data_available_; //to avoid spurious wakes
-    unsigned char robot_mode_running_;
-  double ntohd(uint64_t nf); */
-
 public:
   RobotState() = default;
   virtual ~RobotState() = default;
+
+private:
 };
 
 }  // namespace primary_interface

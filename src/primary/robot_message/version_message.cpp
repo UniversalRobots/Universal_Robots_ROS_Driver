@@ -1,7 +1,10 @@
 // this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
 
 // -- BEGIN LICENSE BLOCK ----------------------------------------------
-// Copyright 2019 FZI Forschungszentrum Informatik
+// Copyright 2019 FZI Forschungszentrum Informatik (ur_rtde_driver)
+// Copyright 2017, 2018 Simon Rasmussen (refactor)
+//
+// Copyright 2015, 2016 Thomas Timm Andersen (original version)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,33 +22,42 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Felix Mauch mauch@fzi.de
+ * \date    2019-04-08
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_RTDE_DRIVER_ROBOT_MODE_DATA_H_INCLUDED
-#define UR_RTDE_DRIVER_ROBOT_MODE_DATA_H_INCLUDED
-
-#include "ur_rtde_driver/primary/primary_package.h"
-#include "ur_rtde_driver/primary/robot_state.h"
+#include "ur_rtde_driver/log.h"
+#include "ur_rtde_driver/primary/robot_message/version_message.h"
 
 namespace ur_driver
 {
 namespace primary_interface
 {
-class RobotModeData : PrimaryPackage
+bool VersionMessage::parseWith(comm::BinParser& bp)
 {
-private:
-  RobotState robot_state_;
+  bp.parse(timestamp_);
+  bp.parse(source_);
+  bp.parse(message_type_);
+  bp.parse(project_name_);
+  bp.parse(major_version_);
+  bp.parse(minor_version_);
+  bp.parse(svn_version_);
+  bp.parse(build_number_);
+  bp.parseRemainder(build_date_);
 
-public:
-  RobotModeData() = default;
-  virtual ~RobotModeData() = default;
-};
+  return true;  // not really possible to check dynamic size packets
+}
 
+std::string VersionMessage::toString() const
+{
+  std::stringstream ss;
+  ss << "project name: " << project_name_ << std::endl;
+  ss << "version: " << major_version_ << "." << minor_version_ << "." << svn_version_ << std::endl;
+  ss << "build date: " << build_date_;
+
+  return ss.str();
+}
 }  // namespace primary_interface
 }  // namespace ur_driver
-
-#endif /* UR_RTDE_DRIVER_ROBOT_MODE_DATA_H_INCLUDED */

@@ -21,11 +21,11 @@
 #include <inttypes.h>
 #include <bitset>
 #include <cstddef>
-#include "ur_rtde_driver/bin_parser.h"
-#include "ur_rtde_driver/types.h"
-#include "ur_rtde_driver/ur/state.h"
+#include "ur_rtde_driver/primary/robot_state.h"
 
 namespace ur_driver
+{
+namespace primary_interface
 {
 class SharedMasterBoardData
 {
@@ -110,4 +110,6 @@ public:
 
   static const size_t SIZE = MasterBoardData_V3_0__1::SIZE + sizeof(uint8_t) * 2;
 };
+
+}  // namespace primary_interface
 }  // namespace ur_driver

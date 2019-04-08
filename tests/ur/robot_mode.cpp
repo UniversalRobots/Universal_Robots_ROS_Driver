@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "ur_rtde_driver/ur/robot_mode.h"
+#include "ur_rtde_driver/comm/ur/robot_mode.h"
 #include <gtest/gtest.h>
-#include "ur_rtde_driver/bin_parser.h"
+#include "ur_rtde_driver/comm/bin_parser.h"
 #include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/test/random_data.h"
-#include "ur_rtde_driver/test/utils.h"
-#include "ur_rtde_driver/types.h"
+#include "ur_rtde_driver/comm/test/random_data.h"
+#include "ur_rtde_driver/comm/test/utils.h"
+#include "ur_rtde_driver/comm/types.h"
 
 using namespace ur_driver;
 TEST(RobotModeData_V1_X, testRandomDataParsing)

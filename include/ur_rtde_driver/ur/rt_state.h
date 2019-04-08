@@ -20,8 +20,8 @@
 
 #include <inttypes.h>
 #include <cstddef>
-#include "ur_rtde_driver/bin_parser.h"
-#include "ur_rtde_driver/comm/pipeline.h"
+#include "ur_rtde_driver/comm/bin_parser.h"
+#include "ur_rtde_driver/comm/comm/pipeline.h"
 #include "ur_rtde_driver/types.h"
 
 namespace ur_driver
