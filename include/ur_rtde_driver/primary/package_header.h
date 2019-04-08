@@ -38,7 +38,7 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-enum class robot_message_type : int8_t
+enum class RobotPackageType : int8_t
 {
   DISCONNECT = -1,
   ROBOT_STATE = 16,
@@ -64,7 +64,7 @@ public:
 
 private:
   _package_size_type package_size_;
-  int8_t package_type_;
+  RobotPackageType package_type_;
 };
 }  // namespace primary_interface
 }  // namespace ur_driver

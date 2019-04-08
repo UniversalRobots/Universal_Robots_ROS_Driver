@@ -32,7 +32,7 @@
 #include <condition_variable>
 
 #include "ur_rtde_driver/primary/primary_package.h"
-#include "ur_rtde_driver/primary/primary_header.h"
+#include "ur_rtde_driver/primary/package_header.h"
 
 namespace ur_driver
 {

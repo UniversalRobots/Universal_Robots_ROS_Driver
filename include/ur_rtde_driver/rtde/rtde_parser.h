@@ -18,24 +18,43 @@
 
 #pragma once
 #include <vector>
+#include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/comm/bin_parser.h"
-#include "ur_rtde_driver/comm/package.h"
+#include "ur_rtde_driver/comm/pipeline.h"
+#include "ur_rtde_driver/rtde/package_header.h"
 
 namespace ur_driver
 {
-namespace comm
+namespace rtde_interface
 {
-template <typename HeaderT>
-class Parser
+using namespace comm;
+template <typename T>
+class RTDEParser : comm::Parser<rtde_interface::PackageHeader>
 {
 public:
-  virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<HeaderT>>>& results) = 0;
-  using _header_type = HeaderT;
+  bool parse(BinParser& bp, std::vector<std::unique_ptr<PackageHeader>>& results)
 
-private:
-  HeaderT header_;
-  // URProducer producer_;
+  {
+    int32_t packet_size = bp.peek<int32_t>();
+
+    if (!bp.checkSize(packet_size))
+    {
+      LOG_ERROR("Buffer len shorter than expected packet length");
+      return false;
+    }
+
+    bp.parse(packet_size);  // consumes the peeked data
+
+    std::unique_ptr<PackageHeader> packet(new T);
+
+    if (!packet->parseWith(bp))
+      return false;
+
+    results.push_back(std::move(packet));
+
+    return true;
+  }
 };
 
-}  // namespace comm
+}  // namespace rtde_interface
 }  // namespace ur_driver
