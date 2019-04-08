@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (templating)
+ *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
  *
  * Copyright 2015, 2016 Thomas Timm Andersen (original version)
@@ -24,6 +26,7 @@
 #include <vector>
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/queue/readerwriterqueue.h"
+#include "ur_rtde_driver/comm/package.h"
 
 namespace ur_driver
 {
@@ -104,7 +107,7 @@ public:
   }
 };
 
-template <typename T>
+template <typename HeaderT>
 class IProducer
 {
 public:
@@ -118,7 +121,7 @@ public:
   {
   }
 
-  virtual bool tryGet(std::vector<std::unique_ptr<T>>& products) = 0;
+  virtual bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products) = 0;
 };
 
 class INotifier
@@ -132,24 +135,25 @@ public:
   }
 };
 
-template <typename T>
+template <typename HeaderT>
 class Pipeline
 {
 private:
   typedef std::chrono::high_resolution_clock Clock;
   typedef Clock::time_point Time;
-  IProducer<T>& producer_;
-  IConsumer<T>& consumer_;
+  using _package_type = URPackage<HeaderT>;
+  IProducer<HeaderT>& producer_;
+  IConsumer<_package_type>& consumer_;
   std::string name_;
   INotifier& notifier_;
-  BlockingReaderWriterQueue<std::unique_ptr<T>> queue_;
+  BlockingReaderWriterQueue<std::unique_ptr<_package_type>> queue_;
   std::atomic<bool> running_;
   std::thread pThread_, cThread_;
 
   void run_producer()
   {
     producer_.setupProducer();
-    std::vector<std::unique_ptr<T>> products;
+    std::vector<std::unique_ptr<_package_type>> products;
     while (running_)
     {
       if (!producer_.tryGet(products))
@@ -177,7 +181,7 @@ private:
   void run_consumer()
   {
     consumer_.setupConsumer();
-    std::unique_ptr<T> product;
+    std::unique_ptr<_package_type> product;
     while (running_)
     {
       // timeout was chosen because we should receive messages
@@ -201,7 +205,7 @@ private:
   }
 
 public:
-  Pipeline(IProducer<T>& producer, IConsumer<T>& consumer, std::string name, INotifier& notifier)
+  Pipeline(IProducer<HeaderT>& producer, IConsumer<_package_type>& consumer, std::string name, INotifier& notifier)
     : producer_(producer), consumer_(consumer), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
   {
   }
