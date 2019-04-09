@@ -33,10 +33,19 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The URPackage a parent class. From that two implementations are inherited,
+ * one for the primary, one for the rtde interface (primary_interface::primaryPackage;
+ * rtde_interface::rtdePackage). The URPackage makes use of the template HeaderT.
+ */
 template <typename HeaderT>
 class URPackage
 {
 public:
+  /*!
+   * \brief Creates a new URPackage object.
+   */
+
   URPackage();
   virtual ~URPackage();
 

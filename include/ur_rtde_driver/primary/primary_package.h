@@ -35,9 +35,17 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief The PrimaryPackage is solely an abstraction level.
+ * It inherits form the URPackage and is also a parent class for primary_interface::RobotMessage,
+ * primary_interface::RobotState
+ */
 class PrimaryPackage : public comm::URPackage<PackageHeader>
 {
 public:
+  /*!
+   * \brief Creates a new PrimaryPackage object.
+   */
   PrimaryPackage() = default;
   virtual ~PrimaryPackage() = default;
 

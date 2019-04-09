@@ -35,9 +35,16 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * brief The RTDEPackage is solely an abstraction level.
+ * It inherits form the URPackage and is also a parent class for rtde_interface::TextMessage.
+ */
 class RTDEPackage : public comm::URPackage<PackageHeader>
 {
 public:
+  /*!
+   * \brief Creates a new RTDEPackage object.
+   */
   RTDEPackage() = default;
   virtual ~RTDEPackage() = default;
 };

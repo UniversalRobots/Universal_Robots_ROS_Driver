@@ -25,10 +25,22 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The parser is a general paser. The namsepace rtde_interface and primary_interface both
+ * iclude classes which inherit from it (rtdeParser and primaryParser).
+ * The parser functionality also embodies a factory function taking in an uint8.
+ */
 template <typename HeaderT>
 class Parser
+
 {
 public:
+  /*!
+   * \brief declares the parse function.
+   *
+   * \param bp instant of class binaryParser
+   * \param results unique pointer
+   */
   virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<HeaderT>>>& results) = 0;
   using _header_type = HeaderT;
 
