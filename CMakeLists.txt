@@ -107,12 +107,12 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 
-if (CATKIN_ENABLE_TESTING)
-  set(${PROJECT_NAME}_TEST_SOURCES
-    tests/ur/master_board.cpp
-    tests/ur/robot_mode.cpp
-    tests/ur/rt_state.cpp)
+#if (CATKIN_ENABLE_TESTING)
+  #set(${PROJECT_NAME}_TEST_SOURCES
+    #tests/ur/master_board.cpp
+    #tests/ur/robot_mode.cpp
+    #tests/ur/rt_state.cpp)
 
-  catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
-  target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})
-endif()
+  #catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
+  #target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})
+#endif()
