@@ -144,7 +144,7 @@ bool TCPSocket::read(char* character)
   return read((uint8_t*)character, 1, read_chars);
 }
 
-bool TCPSocket::read(uint8_t* buf, size_t buf_len, size_t& read)
+bool TCPSocket::read(uint8_t* buf, const size_t buf_len, size_t& read)
 {
   read = 0;
 
@@ -165,7 +165,7 @@ bool TCPSocket::read(uint8_t* buf, size_t buf_len, size_t& read)
   return true;
 }
 
-bool TCPSocket::write(const uint8_t* buf, size_t buf_len, size_t& written)
+bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
 {
   written = 0;
 

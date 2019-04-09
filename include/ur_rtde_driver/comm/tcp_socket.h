@@ -36,6 +36,9 @@ enum class SocketState
   Closed
 };
 
+/*!
+ * \brief Class for TCP socket abstraction
+ */
 class TCPSocket
 {
 private:
@@ -66,12 +69,47 @@ public:
   }
   bool setSocketFD(int socket_fd);
 
+  /*!
+   * \brief Determines the IP address of the local machine
+   *
+   * \returns The IP address of the local machine.
+   */
   std::string getIP();
 
+  /*!
+   * \brief Reads one byte from the socket
+   *
+   * \param character[out] Target buffer
+   *
+   * \returns True on success, false otherwise
+   */
   bool read(char* character);
-  bool read(uint8_t* buf, size_t buf_len, size_t& read);
-  bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 
+  /*!
+   * \brief Reads data from the socket
+   *
+   * \param[out] buf Buffer where the data shall be stored
+   * \param[in] buf_len Number of bytes allocated for the buffer
+   * \param[out] read Number of bytes actually read
+   *
+   * \returns True on success, false otherwise
+   */
+  bool read(uint8_t* buf, const size_t buf_len, size_t& read);
+
+  /*!
+   * \brief Writes to the socket
+   *
+   * \param[in] buf Buffer of bytes to write
+   * \param[in] buf_len Number of bytes in the buffer
+   * \param[out] written Number of bytes actually written
+   *
+   * \returns True on success, false otherwise
+   */
+  bool write(const uint8_t* buf, const size_t buf_len, size_t& written);
+
+  /*!
+   * \brief Closes the connection to the socket.
+   */
   void close();
 };
 }  // namespace comm
