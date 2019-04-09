@@ -38,6 +38,20 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+enum class RobotStateType : uint8_t
+{
+  ROBOT_MODE_DATA = 0,
+  JOINT_DATA = 1,
+  TOOL_DATA = 2,
+  MASTERBOARD_DATA = 3,
+  CARTESIAN_INFO = 4,
+  KINEMATICS_INFO = 5,
+  CONFIGURATION_DATA = 6,
+  FORCE_MODE_DATA = 7,
+  ADDITIONAL_INFO = 8,
+  CALIBRATION_DATA = 9
+};
+
 /*!
  * \brief Abstract class for a RobotState msg. This will never be instanciated, but the underlying
  * data packages will be used directly.

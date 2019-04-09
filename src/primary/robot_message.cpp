@@ -32,10 +32,6 @@ namespace primary_interface
 {
 bool RobotMessage::parseWith(comm::BinParser& bp)
 {
-  bp.parse(timestamp_);
-  bp.parse(source_);
-  bp.parse(message_type_);
-
   return true;
 }
 

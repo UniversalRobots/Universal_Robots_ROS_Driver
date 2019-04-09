@@ -24,9 +24,9 @@
 #include "ur_rtde_driver/primary/package_header.h"
 #include "ur_rtde_driver/primary/robot_state.h"
 #include "ur_rtde_driver/primary/robot_message.h"
-#include "ur_rtde_driver/primary/robot_state/robot_mode_data.h"
+//#include "ur_rtde_driver/primary/robot_state/robot_mode_data.h"
 #include "ur_rtde_driver/primary/robot_state/kinematics_info.h"
-#include "ur_rtde_driver/primary/robot_state/master_board.h"
+//#include "ur_rtde_driver/primary/robot_state/master_board.h"
 #include "ur_rtde_driver/primary/robot_message/version_message.h"
 
 namespace ur_driver
@@ -34,54 +34,22 @@ namespace ur_driver
 namespace primary_interface
 {
 using namespace comm;
-class PrimaryParser : comm::Parser<PackageHeader>
+class PrimaryParser : public comm::Parser<PackageHeader>
 {
-private:
-  RobotState* state_from_type(robot_state_type type)
-  {
-    switch (type)
-    {
-      /*case robot_state_type::ROBOT_MODE_DATA:
-        // SharedRobotModeData* rmd = new SharedRobotModeData();
-
-        //return new rmd;
-      case robot_state_type::MASTERBOARD_DATA:
-        return new MBD;*/
-      case robot_state_type::KINEMATICS_INFO:
-        return new KinematicsInfo;
-      default:
-        return nullptr;
-    }
-  }
-
-  RobotMessage* message_from_type(message_type type, uint64_t timestamp, uint8_t source)
-  {
-    switch (type)
-    {
-      /*case robot_state_type::ROBOT_MODE_DATA:
-        // SharedRobotModeData* rmd = new SharedRobotModeData();
-
-        //return new rmd;
-      case robot_state_type::MASTERBOARD_DATA:
-        return new MBD;*/
-      case message_type::ROBOT_MESSAGE_VERSION:
-        return new VersionMessage(timestamp, source);
-      default:
-        return nullptr;
-    }
-  }
-
 public:
-  bool parse(BinParser& bp, std::vector<std::unique_ptr<PrimaryPackage>>& results)
+  PrimaryParser() = default;
+  virtual ~PrimaryParser() = default;
+
+  bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<PackageHeader>>>& results)
   {
     int32_t packet_size;
-    robot_message_type type;
+    RobotPackageType type;
     bp.parse(packet_size);
     bp.parse(type);
 
     switch (type)
     {
-      case robot_message_type::ROBOT_STATE:
+      case RobotPackageType::ROBOT_STATE:
       {
         while (!bp.empty())
         {
@@ -100,7 +68,7 @@ public:
           // deconstruction of a sub parser will increment the position of the parent parser
           BinParser sbp(bp, sub_size);
           sbp.consume(sizeof(sub_size));
-          robot_state_type type;
+          RobotStateType type;
           sbp.parse(type);
 
           std::unique_ptr<PrimaryPackage> packet(state_from_type(type));
@@ -132,17 +100,15 @@ public:
         break;
       }
 
-      case robot_message_type::ROBOT_MESSAGE:
+      case RobotPackageType::ROBOT_MESSAGE:
       {
         uint64_t timestamp;
         uint8_t source;
-        message_type message_type;
+        RobotMessagePackageType message_type;
 
         bp.parse(timestamp);
         bp.parse(source);
         bp.parse(message_type);
-
-        bool parsed = false;
 
         std::unique_ptr<PrimaryPackage> packet(message_from_type(message_type, timestamp, source));
         if (!packet->parseWith(bp))
@@ -152,18 +118,53 @@ public:
         }
 
         results.push_back(std::move(packet));
-        return parsed;
+        return true;
         break;
       }
 
       default:
       {
-        LOG_WARN("Invalid state message type recieved: %u", static_cast<uint8_t>(type));
+        LOG_WARN("Invalid robot package type recieved: %u", static_cast<uint8_t>(type));
         bp.consume();
         return true;
       }
     }
     return true;
+  }
+
+private:
+  RobotState* state_from_type(RobotStateType type)
+  {
+    switch (type)
+    {
+      /*case robot_state_type::ROBOT_MODE_DATA:
+        // SharedRobotModeData* rmd = new SharedRobotModeData();
+
+        //return new rmd;
+      case robot_state_type::MASTERBOARD_DATA:
+        return new MBD;*/
+      case RobotStateType::KINEMATICS_INFO:
+        return new KinematicsInfo;
+      default:
+        return nullptr;
+    }
+  }
+
+  RobotMessage* message_from_type(RobotMessagePackageType type, uint64_t timestamp, uint8_t source)
+  {
+    switch (type)
+    {
+      /*case robot_state_type::ROBOT_MODE_DATA:
+        // SharedRobotModeData* rmd = new SharedRobotModeData();
+
+        //return new rmd;
+      case robot_state_type::MASTERBOARD_DATA:
+        return new MBD;*/
+      case RobotMessagePackageType::ROBOT_MESSAGE_VERSION:
+        return new VersionMessage(timestamp, source);
+      default:
+        return new RobotMessage(timestamp, source);
+    }
   }
 };
 

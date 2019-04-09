@@ -15,6 +15,7 @@
 #ifndef UR_RTDE_DRIVER_SHELL_CONSUMER_H_INCLUDED
 #define UR_RTDE_DRIVER_SHELL_CONSUMER_H_INCLUDED
 
+#include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/comm/pipeline.h"
 #include "ur_rtde_driver/comm/package.h"
 
@@ -42,7 +43,11 @@ public:
   {
   }
 
-  virtual bool consume(std::shared_ptr<URPackage<HeaderT>> product);
+  virtual bool consume(std::shared_ptr<URPackage<HeaderT>> product)
+  {
+    LOG_INFO("%s", product->toString().c_str());
+    return true;
+  }
 
 private:
   /* data */

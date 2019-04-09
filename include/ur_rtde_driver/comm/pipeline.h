@@ -138,10 +138,44 @@ public:
 template <typename HeaderT>
 class Pipeline
 {
+public:
+  using _package_type = URPackage<HeaderT>;
+  Pipeline(IProducer<HeaderT>& producer, IConsumer<_package_type>& consumer, std::string name, INotifier& notifier)
+    : producer_(producer), consumer_(consumer), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
+  {
+  }
+
+  void run()
+  {
+    if (running_)
+      return;
+
+    running_ = true;
+    pThread_ = std::thread(&Pipeline::run_producer, this);
+    cThread_ = std::thread(&Pipeline::run_consumer, this);
+    notifier_.started(name_);
+  }
+
+  void stop()
+  {
+    if (!running_)
+      return;
+
+    LOG_INFO("Stopping pipeline! <%s>", name_.c_str());
+
+    consumer_.stopConsumer();
+    producer_.stopProducer();
+
+    running_ = false;
+
+    pThread_.join();
+    cThread_.join();
+    notifier_.stopped(name_);
+  }
+
 private:
   typedef std::chrono::high_resolution_clock Clock;
   typedef Clock::time_point Time;
-  using _package_type = URPackage<HeaderT>;
   IProducer<HeaderT>& producer_;
   IConsumer<_package_type>& consumer_;
   std::string name_;
@@ -201,40 +235,6 @@ private:
     LOG_DEBUG("Pipeline consumer ended! <%s>", name_.c_str());
     producer_.stopProducer();
     running_ = false;
-    notifier_.stopped(name_);
-  }
-
-public:
-  Pipeline(IProducer<HeaderT>& producer, IConsumer<_package_type>& consumer, std::string name, INotifier& notifier)
-    : producer_(producer), consumer_(consumer), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
-  {
-  }
-
-  void run()
-  {
-    if (running_)
-      return;
-
-    running_ = true;
-    pThread_ = std::thread(&Pipeline::run_producer, this);
-    cThread_ = std::thread(&Pipeline::run_consumer, this);
-    notifier_.started(name_);
-  }
-
-  void stop()
-  {
-    if (!running_)
-      return;
-
-    LOG_DEBUG("Stopping pipeline! <%s>", name_.c_str());
-
-    consumer_.stopConsumer();
-    producer_.stopProducer();
-
-    running_ = false;
-
-    pThread_.join();
-    cThread_.join();
     notifier_.stopped(name_);
   }
 };

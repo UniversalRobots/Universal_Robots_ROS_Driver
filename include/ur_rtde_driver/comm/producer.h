@@ -34,11 +34,11 @@ class URProducer : public IProducer<HeaderT>
 {
 private:
   URStream<HeaderT>& stream_;
-  URParser<HeaderT>& parser_;
+  Parser<HeaderT>& parser_;
   std::chrono::seconds timeout_;
 
 public:
-  URProducer(URStream<HeaderT>& stream, URParser<HeaderT>& parser) : stream_(stream), parser_(parser), timeout_(1)
+  URProducer(URStream<HeaderT>& stream, Parser<HeaderT>& parser) : stream_(stream), parser_(parser), timeout_(1)
   {
   }
 

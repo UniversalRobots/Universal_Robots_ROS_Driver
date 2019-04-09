@@ -130,7 +130,7 @@ bool URStream<HeaderT>::read(uint8_t* buf, const size_t buf_len, size_t& total)
 
   bool initial = true;
   uint8_t* buf_pos = buf;
-  size_t remainder = sizeof(HeaderT::_package_size_type);
+  size_t remainder = sizeof(typename HeaderT::_package_size_type);
   size_t read = 0;
 
   while (remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
@@ -139,7 +139,7 @@ bool URStream<HeaderT>::read(uint8_t* buf, const size_t buf_len, size_t& total)
     if (initial)
     {
       remainder = HeaderT::getPackageLength(buf);
-      if (remainder >= (buf_len - sizeof(HeaderT::_package_size_type)))
+      if (remainder >= (buf_len - sizeof(typename HeaderT::_package_size_type)))
       {
         LOG_ERROR("Packet size %zd is larger than buffer %zu, discarding.", remainder, buf_len);
         return false;

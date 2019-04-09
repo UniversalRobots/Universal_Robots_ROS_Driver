@@ -46,8 +46,8 @@ public:
    * \brief Creates a new URPackage object.
    */
 
-  URPackage();
-  virtual ~URPackage();
+  URPackage() = default;
+  virtual ~URPackage() = default;
 
   using _header_type = HeaderT;
 

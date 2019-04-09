@@ -35,6 +35,9 @@ class Parser
 
 {
 public:
+  Parser() = default;
+  virtual ~Parser() = default;
+
   /*!
    * \brief declares the parse function.
    *

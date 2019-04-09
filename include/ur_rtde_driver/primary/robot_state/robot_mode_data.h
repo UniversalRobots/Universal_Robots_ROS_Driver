@@ -38,7 +38,7 @@ namespace primary_interface
 class SharedRobotModeData
 {
 public:
-  virtual bool parseWith(BinParser& bp);
+  virtual bool parseWith(comm::BinParser& bp);
 
   uint64_t timestamp;
   bool physical_robot_connected;
@@ -76,7 +76,7 @@ enum class robot_control_mode_V3_X : uint8_t
 class RobotModeData_V3_0__1 : public SharedRobotModeData, public RobotState
 {
 public:
-  virtual bool parseWith(BinParser& bp);
+  virtual bool parseWith(comm::BinParser& bp);
 
   robot_mode_V3_X robot_mode;
   robot_control_mode_V3_X control_mode;
@@ -93,8 +93,8 @@ public:
 class RobotModeData_V3_2 : public RobotModeData_V3_0__1
 {
 public:
-  virtual bool parseWith(BinParser& bp);
-  virtual bool consumeWith(URStatePacketConsumer& consumer);
+  virtual bool parseWith(comm::BinParser& bp);
+  // virtual bool consumeWith(URStatePacketConsumer& consumer);
 
   double target_speed_fraction_limit;
 
@@ -106,8 +106,8 @@ public:
 class RobotModeData_V3_5 : public RobotModeData_V3_2
 {
 public:
-  virtual bool parseWith(BinParser& bp);
-  virtual bool consumeWith(URStatePacketConsumer& consumer);
+  virtual bool parseWith(comm::BinParser& bp);
+  // virtual bool consumeWith(URStatePacketConsumer& consumer);
 
   unsigned char unknown_internal_use;
 
