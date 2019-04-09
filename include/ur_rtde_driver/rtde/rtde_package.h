@@ -35,7 +35,7 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-class RTDEPackage : comm::URPackage<PackageHeader>
+class RTDEPackage : public comm::URPackage<PackageHeader>
 {
 public:
   RTDEPackage() = default;

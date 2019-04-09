@@ -79,6 +79,13 @@ add_library(ur_rtde_driver
     src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
+    src/rtde/request_protocol_version.cpp
+    src/rtde/get_urcontrol_version.cpp
+    src/rtde/text_message.cpp
+    src/rtde/control_package_setup_outputs.cpp
+    src/rtde/control_package_setup_inputs.cpp
+    src/rtde/control_package_start.cpp
+    src/rtde/control_package_pause.cpp
 )
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

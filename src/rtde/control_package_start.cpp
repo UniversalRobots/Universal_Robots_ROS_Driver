@@ -19,32 +19,30 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Tristan Schnell schnell@fzi.de
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
-#define UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
-
-#include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/rtde/control_package_start.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-class DataPackage : public RTDEPackage
+bool ControlPackageStart::parseWith(comm::BinParser& bp)
 {
-private:
-  uint8_t recipe_id_;
+  bp.parse(accepted_);
 
-public:
-  DataPackage() = default;
-  virtual ~DataPackage() = default;
-};
+  return true;
+}
+std::string ControlPackageStart::toString() const
+{
+  std::stringstream ss;
+  ss << "accepted: " << accepted_;
 
+  return ss.str();
+}
 }  // namespace rtde_interface
 }  // namespace ur_driver
-
-#endif  // ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED

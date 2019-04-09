@@ -19,14 +19,14 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Tristan Schnell schnell@fzi.de
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
-#define UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
+#ifndef UR_RTDE_DRIVER_CONTROL_PACKAGE_PAUSE_H_INCLUDED
+#define UR_RTDE_DRIVER_CONTROL_PACKAGE_PAUSE_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_package.h"
 
@@ -34,17 +34,26 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-class DataPackage : public RTDEPackage
+class ControlPackagePause : public RTDEPackage
 {
-private:
-  uint8_t recipe_id_;
-
 public:
-  DataPackage() = default;
-  virtual ~DataPackage() = default;
+  ControlPackagePause() = default;
+  virtual ~ControlPackagePause() = default;
+
+  virtual bool parseWith(comm::BinParser& bp);
+  virtual std::string toString() const;
+
+  uint8_t accepted_;
+};
+
+class ControlPackagePauseRequest : public RTDEPackage
+{
+public:
+  ControlPackagePauseRequest() = default;
+  virtual ~ControlPackagePauseRequest() = default;
 };
 
 }  // namespace rtde_interface
 }  // namespace ur_driver
 
-#endif  // ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
+#endif  // UR_RTDE_DRIVER_CONTROL_PACKAGE_PAUSE_H_INCLUDED

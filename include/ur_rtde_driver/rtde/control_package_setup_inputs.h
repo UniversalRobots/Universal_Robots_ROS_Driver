@@ -19,14 +19,14 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Tristan Schnell schnell@fzi.de
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
-#define UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
+#ifndef UR_RTDE_DRIVER_CONTROL_PACKAGE_SETUP_INPUTS_H_INCLUDED
+#define UR_RTDE_DRIVER_CONTROL_PACKAGE_SETUP_INPUTS_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_package.h"
 
@@ -34,17 +34,29 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-class DataPackage : public RTDEPackage
+class ControlPackageSetupInputs : public RTDEPackage
 {
-private:
-  uint8_t recipe_id_;
-
 public:
-  DataPackage() = default;
-  virtual ~DataPackage() = default;
+  ControlPackageSetupInputs() = default;
+  virtual ~ControlPackageSetupInputs() = default;
+
+  virtual bool parseWith(comm::BinParser& bp);
+  virtual std::string toString() const;
+
+  uint8_t input_recipe_id_;
+  std::string variable_types_;
+};
+
+class ControlPackageSetupInputsRequest : public RTDEPackage
+{
+public:
+  ControlPackageSetupInputsRequest() = default;
+  virtual ~ControlPackageSetupInputsRequest() = default;
+
+  std::string variable_names_;
 };
 
 }  // namespace rtde_interface
 }  // namespace ur_driver
 
-#endif  // ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
+#endif  // UR_RTDE_DRIVER_CONTROL_PACKAGE_SETUP_INPUTS_H_INCLUDED

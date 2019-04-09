@@ -48,7 +48,6 @@ private:
   std::string buffer_;
 };
 
-
 }  // namespace primary_interface
 }  // namespace ur_driver
 

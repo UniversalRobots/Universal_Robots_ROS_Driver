@@ -34,11 +34,20 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-class TextMessage : RTDEPackage
+class TextMessage : public RTDEPackage
 {
 public:
   TextMessage() = default;
   virtual ~TextMessage() = default;
+
+  virtual bool parseWith(comm::BinParser& bp);
+  virtual std::string toString() const;
+
+  uint8_t message_length_;
+  std::string message_;
+  uint8_t source_length_;
+  std::string source_;
+  uint8_t warning_level_;
 };
 
 }  // namespace rtde_interface
