@@ -2,3 +2,15 @@ include: 'http://ids-services.fzi.de:8079/master/gitlab-ci-yml/catkin_pipeline.y
 variables:
   BUILD_INDIGO: "false"
   BUILD_MELODIC: "false"
+
+clang-tidy:
+  tags:
+    - docker
+  image: ids-git.fzi.de:5555/continuous_integration/ci_docker_images/ubuntu_16.04_ros
+  stage: check
+  script:
+    - rosdep install --from-path ${CATKIN_ROOT}/src -y --ignore-src
+    - apt-get -y install clang-tidy-6.0
+    - cd ${CATKIN_ROOT}/src
+    - cmake . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - /usr/bin/run-clang-tidy-6.0.py .
