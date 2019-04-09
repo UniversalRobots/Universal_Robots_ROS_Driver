@@ -40,6 +40,7 @@ public:
   VersionMessage(uint64_t timestamp, uint8_t source) : RobotMessage(timestamp, source)
   {
   }
+  virtual ~VersionMessage() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
 

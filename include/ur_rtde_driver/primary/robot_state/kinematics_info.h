@@ -26,7 +26,7 @@ namespace primary_interface
  * a combination between the perfect model parameters and the correction deltas as noted in the
  * configuration files on the robot controller.
  */
-class KinematicsInfo : RobotState
+class KinematicsInfo : public RobotState
 {
 public:
   KinematicsInfo() = default;

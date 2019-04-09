@@ -48,6 +48,15 @@ public:
   RobotState() = default;
   virtual ~RobotState() = default;
 
+  virtual bool parseWith(comm::BinParser& bp)
+  {
+    return true;
+  }
+  virtual std::string toString() const
+  {
+    return std::string();
+  }
+
 private:
 };
 

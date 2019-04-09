@@ -35,15 +35,19 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-class PrimaryPackage : comm::URPackage<PackageHeader>
+class PrimaryPackage : public comm::URPackage<PackageHeader>
 {
 public:
   PrimaryPackage() = default;
   virtual ~PrimaryPackage() = default;
 
+  virtual bool parseWith(comm::BinParser& bp);
+  virtual std::string toString() const;
+
 private:
-  uint8_t* data_buffer_;
+  std::string buffer_;
 };
+
 
 }  // namespace primary_interface
 }  // namespace ur_driver

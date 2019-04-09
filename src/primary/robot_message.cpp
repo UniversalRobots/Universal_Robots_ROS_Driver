@@ -2,9 +2,6 @@
 
 // -- BEGIN LICENSE BLOCK ----------------------------------------------
 // Copyright 2019 FZI Forschungszentrum Informatik (ur_rtde_driver)
-// Copyright 2017, 2018 Simon Rasmussen (refactor)
-//
-// Copyright 2015, 2016 Thomas Timm Andersen (original version)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,39 +20,34 @@
 /*!\file
  *
  * \author  Felix Mauch mauch@fzi.de
- * \date    2019-04-08
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
-
-#include "ur_rtde_driver/log.h"
-#include "ur_rtde_driver/primary/robot_message/version_message.h"
+#include "ur_rtde_driver/primary/robot_message.h"
 
 namespace ur_driver
 {
 namespace primary_interface
 {
-bool VersionMessage::parseWith(comm::BinParser& bp)
+bool RobotMessage::parseWith(comm::BinParser& bp)
 {
-  RobotMessage::parseWith(bp);
-  bp.parse(project_name_);
-  bp.parse(major_version_);
-  bp.parse(minor_version_);
-  bp.parse(svn_version_);
-  bp.parse(build_number_);
-  bp.parseRemainder(build_date_);
+  bp.parse(timestamp_);
+  bp.parse(source_);
+  bp.parse(message_type_);
 
-  return true;  // not really possible to check dynamic size packets
+  return true;
 }
 
-std::string VersionMessage::toString() const
+std::string RobotMessage::toString() const
 {
   std::stringstream ss;
-  ss << "project name: " << project_name_ << std::endl;
-  ss << "version: " << major_version_ << "." << minor_version_ << "." << svn_version_ << std::endl;
-  ss << "build date: " << build_date_;
+  ss << "timestamp: " << timestamp_ << std::endl;
+  ss << "source: " << static_cast<int>(source_) << std::endl;
+  ss << "message_type: " << static_cast<int>(message_type_) << std::endl;
 
   return ss.str();
 }
+
 }  // namespace primary_interface
 }  // namespace ur_driver

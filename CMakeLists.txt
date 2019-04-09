@@ -75,6 +75,8 @@ add_library(ur_rtde_driver
     #src/ur/robot_mode.cpp
     #src/ur/rt_state.cpp
     #src/ur/server.cpp
+    src/primary/primary_package.cpp
+    src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
 )
