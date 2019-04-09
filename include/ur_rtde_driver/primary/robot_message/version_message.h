@@ -37,6 +37,7 @@ namespace primary_interface
 class VersionMessage : public RobotMessage
 {
 public:
+  VersionMessage() = delete;
   VersionMessage(uint64_t timestamp, uint8_t source) : RobotMessage(timestamp, source)
   {
   }
@@ -46,6 +47,7 @@ public:
 
   virtual std::string toString() const;
 
+  int8_t project_name_length_;
   std::string project_name_;
   uint8_t major_version_;
   uint8_t minor_version_;

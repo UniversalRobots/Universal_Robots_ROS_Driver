@@ -37,8 +37,8 @@ namespace primary_interface
 {
 bool VersionMessage::parseWith(comm::BinParser& bp)
 {
-  RobotMessage::parseWith(bp);
-  bp.parse(project_name_);
+  bp.parse(project_name_length_);
+  bp.parse(project_name_, project_name_length_);
   bp.parse(major_version_);
   bp.parse(minor_version_);
   bp.parse(svn_version_);
@@ -52,7 +52,7 @@ std::string VersionMessage::toString() const
 {
   std::stringstream ss;
   ss << "project name: " << project_name_ << std::endl;
-  ss << "version: " << major_version_ << "." << minor_version_ << "." << svn_version_ << std::endl;
+  ss << "version: " << unsigned(major_version_) << "." << unsigned(minor_version_) << "." << svn_version_ << std::endl;
   ss << "build date: " << build_date_;
 
   return ss.str();
