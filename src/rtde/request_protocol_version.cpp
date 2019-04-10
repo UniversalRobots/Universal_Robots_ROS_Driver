@@ -39,7 +39,19 @@ bool RequestProtocolVersion::parseWith(comm::BinParser& bp)
 }
 std::string RequestProtocolVersion::toString() const
 {
-  return "accepted: " + accepted_;
+  std::stringstream ss;
+  ss << "accepted: " << static_cast<int>(accepted_);
+  return ss.str();
+}
+
+size_t RequestProtocolVersionRequest::generateSerializedRequest(uint8_t* buffer, uint16_t version)
+{
+  size_t size = 0;
+  size += PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, PAYLOAD_SIZE);
+
+  size += comm::PackageSerializer::serialize(buffer + size, version);
+
+  return size;
 }
 }  // namespace rtde_interface
 }  // namespace ur_driver

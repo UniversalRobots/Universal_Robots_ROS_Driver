@@ -29,6 +29,7 @@
 #define UR_RTDE_DRIVER_REQUEST_PROTOCOL_VERSION_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/rtde/package_header.h"
 
 namespace ur_driver
 {
@@ -52,7 +53,13 @@ public:
   RequestProtocolVersionRequest() = default;
   virtual ~RequestProtocolVersionRequest() = default;
 
+  static size_t generateSerializedRequest(uint8_t* buffer, uint16_t version);
+
   uint16_t protocol_version_;
+
+private:
+  static const uint16_t PAYLOAD_SIZE = sizeof(uint16_t);
+  static const PackageType PACKAGE_TYPE = PackageType::RTDE_REQUEST_PROTOCOL_VERSION;
 };
 
 }  // namespace rtde_interface

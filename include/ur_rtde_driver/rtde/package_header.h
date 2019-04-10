@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <endian.h>
 #include "ur_rtde_driver/types.h"
+#include "ur_rtde_driver/comm/package_serializer.h"
 
 namespace ur_driver
 {
@@ -49,6 +50,15 @@ public:
   static size_t getPackageLength(uint8_t* buf)
   {
     return be16toh(*(reinterpret_cast<_package_size_type*>(buf)));
+  }
+
+  static size_t serializeHeader(uint8_t* buffer, PackageType package_type, uint16_t payload_length)
+  {
+    uint16_t header_size = sizeof(_package_size_type) + sizeof(PackageType);
+    uint16_t size = header_size+payload_length;
+    comm::PackageSerializer::serialize(buffer, size);
+    comm::PackageSerializer::serialize(buffer + sizeof(size), package_type);
+    return header_size;
   }
 
 private:
