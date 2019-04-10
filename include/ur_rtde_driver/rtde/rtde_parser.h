@@ -81,7 +81,12 @@ public:
         break;
       }
     }
-
+    if (!bp.empty())
+    {
+      LOG_ERROR("Package of type %d was not parsed completely!", static_cast<int>(type));
+      bp.debug();
+      return false;
+    }
 
     return true;
   }
