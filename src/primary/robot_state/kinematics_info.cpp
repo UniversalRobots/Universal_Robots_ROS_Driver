@@ -34,6 +34,12 @@ bool KinematicsInfo::parseWith(comm::BinParser& bp)
 std::string KinematicsInfo::toString() const
 {
   std::stringstream os;
+  os << "checksum: [";
+  for (size_t i = 0; i < checksum_.size(); ++i)
+  {
+    os << checksum_[i] << " ";
+  }
+  os << "]" << std::endl;
   os << "dh_theta: [";
   for (size_t i = 0; i < dh_theta_.size(); ++i)
   {
@@ -61,6 +67,8 @@ std::string KinematicsInfo::toString() const
     os << dh_alpha_[i] << " ";
   }
   os << "]" << std::endl;
+
+  os << "calibration_status: " << calibration_status_ << std::endl;
 
   return os.str();
 }

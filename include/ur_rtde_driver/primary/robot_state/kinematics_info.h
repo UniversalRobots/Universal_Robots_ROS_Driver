@@ -29,18 +29,21 @@ namespace primary_interface
 class KinematicsInfo : public RobotState
 {
 public:
-  KinematicsInfo() = default;
+  KinematicsInfo() = delete;
+  KinematicsInfo(const RobotStateType type) : RobotState(type)
+  {
+  }
   virtual ~KinematicsInfo() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
 
-  vector6d_t checksum_;
+  vector6uint32_t checksum_;
   vector6d_t dh_theta_;
   vector6d_t dh_a_;
   vector6d_t dh_d_;
   vector6d_t dh_alpha_;
-  uint8_t calibration_status_;
+  uint32_t calibration_status_;  // According to the docs this should be uint8_t, but then I have 3 bytes left.
 };
 
 // TODO: Handle pre-3.6 as they don't have kinematics info
