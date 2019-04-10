@@ -33,14 +33,13 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-using namespace comm;
 class PrimaryParser : public comm::Parser<PackageHeader>
 {
 public:
   PrimaryParser() = default;
   virtual ~PrimaryParser() = default;
 
-  bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<PackageHeader>>>& results)
+  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
   {
     int32_t packet_size;
     RobotPackageType type;
@@ -66,7 +65,7 @@ public:
           }
 
           // deconstruction of a sub parser will increment the position of the parent parser
-          BinParser sbp(bp, sub_size);
+          comm::BinParser sbp(bp, sub_size);
           sbp.consume(sizeof(sub_size));
           RobotStateType type;
           sbp.parse(type);
