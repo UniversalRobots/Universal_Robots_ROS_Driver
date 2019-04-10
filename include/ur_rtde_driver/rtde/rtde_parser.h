@@ -21,38 +21,88 @@
 #include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/comm/bin_parser.h"
 #include "ur_rtde_driver/comm/pipeline.h"
+
 #include "ur_rtde_driver/rtde/package_header.h"
+#include "ur_rtde_driver/rtde/data_package.h"
+#include "ur_rtde_driver/rtde/text_message.h"
+#include "ur_rtde_driver/rtde/request_protocol_version.h"
+#include "ur_rtde_driver/rtde/get_urcontrol_version.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-using namespace comm;
 template <typename T>
 class RTDEParser : comm::Parser<rtde_interface::PackageHeader>
 {
 public:
-  bool parse(BinParser& bp, std::vector<std::unique_ptr<PackageHeader>>& results)
+  RTDEParser() = default;
+  virtual ~RTDEParser() = default;
+
+  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
 
   {
-    int32_t packet_size = bp.peek<int32_t>();
+    PackageHeader::_package_size_type size;
+    PackageType type;
+    bp.parse(size);
+    bp.parse(type);
 
-    if (!bp.checkSize(packet_size))
+    if (!bp.checkSize(size))
     {
       LOG_ERROR("Buffer len shorter than expected packet length");
       return false;
     }
 
-    bp.parse(packet_size);  // consumes the peeked data
+    switch (type)
+    {
+      case PackageType::RTDE_DATA_PACKAGE:
+      {
+        // TODO: get proper recipe here
+        std::vector<std::string> recipe;
+        std::unique_ptr<RTDEPackage> package(new DataPackage(recipe));
 
-    std::unique_ptr<PackageHeader> packet(new T);
+        if (!package->parseWith(bp))
+        {
+          return false;
+        }
+        results.push_back(std::move(package));
+        break;
+      }
+      default:
+      {
+        std::unique_ptr<RTDEPackage> package(package_from_type(type));
+        if (!package->parseWith(bp))
+        {
+          LOG_ERROR("Package parsing of type %d failed!", static_cast<int>(type));
+          return false;
+        }
 
-    if (!packet->parseWith(bp))
-      return false;
+        results.push_back(std::move(package));
+        break;
+      }
+    }
 
-    results.push_back(std::move(packet));
 
     return true;
+  }
+
+private:
+  RTDEPackage* package_from_type(PackageType type)
+  {
+    switch (type)
+    {
+      case PackageType::RTDE_TEXT_MESSAGE:
+        return new TextMessage;
+        break;
+      case PackageType::RTDE_GET_URCONTROL_VERSION:
+        return new GetUrcontrolVersion;
+        break;
+      case PackageType::RTDE_REQUEST_PROTOCOL_VERSION:
+        return new RequestProtocolVersion;
+        break;
+      default:
+        return new RTDEPackage(type);
+    }
   }
 };
 

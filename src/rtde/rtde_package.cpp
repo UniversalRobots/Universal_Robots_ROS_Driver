@@ -19,46 +19,27 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Lea Steffen steffen@fzi.de
- * \date    2019-04-01
+ * \author  Felix Mauch mauch@fzi.de
+ * \date    2019-04-10
  *
  */
 //----------------------------------------------------------------------
-
-#ifndef UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
-#define UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
-
-#include "ur_rtde_driver/rtde/package_header.h"
-#include "ur_rtde_driver/comm/package.h"
+#include "ur_rtde_driver/rtde/rtde_package.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-/*!
- * brief The RTDEPackage is solely an abstraction level.
- * It inherits form the URPackage and is also a parent class for rtde_interface::TextMessage.
- */
-class RTDEPackage : public comm::URPackage<PackageHeader>
+bool RTDEPackage::parseWith(comm::BinParser& bp)
 {
-public:
-  /*!
-   * \brief Creates a new RTDEPackage object.
-   */
-  RTDEPackage() = default;
-  RTDEPackage(const PackageType type) : type_(type)
-  {
-  }
-  virtual ~RTDEPackage() = default;
+  return true;
+}
 
-  virtual bool parseWith(comm::BinParser& bp);
-  virtual std::string toString() const;
-
-protected:
-  PackageType type_;
-};
-
+std::string rtde_interface::RTDEPackage ::toString() const
+{
+  std::stringstream ss;
+  ss << "Type: " << static_cast<int>(type_);
+  return ss.str();
+}
 }  // namespace rtde_interface
 }  // namespace ur_driver
-
-#endif  // UR_RTDE_DRIVER_RTDE_PACKAGE_H_INCLUDED
