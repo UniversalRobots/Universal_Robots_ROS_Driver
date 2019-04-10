@@ -57,7 +57,6 @@ struct StringVisitor : public boost::static_visitor<std::string>
   }
 };
 
-
 class DataPackage : public RTDEPackage
 {
 public:
@@ -72,6 +71,31 @@ public:
 
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
+
+  template <typename T>
+  /*!
+   * \brief Get a data field from the DataPackage.
+   *
+   * The data package contains a lot of different data fields, depending on the recipe.
+   *
+   * \param name The string identifier for the data field as used in the documentation.
+   * \param val Target variable. Make sure, it's the correct type.
+   *
+   * \returns True on success, false if the field cannot be found inside the package.
+   */
+  bool getData(const std::string& name, T& val)
+  {
+    if (data_.find(name) != data_.end())
+    {
+      // TODO: Can we check this somehow?
+      val = boost::strict_get<T>(data_[name]);
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
 
 private:
   // Const would be better here
