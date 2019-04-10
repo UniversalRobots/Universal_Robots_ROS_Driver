@@ -23,7 +23,7 @@ find_package(catkin REQUIRED
     trajectory_msgs
     ur_msgs
 )
-
+find_package(Boost REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -41,6 +41,8 @@ catkin_package(
     sensor_msgs
     trajectory_msgs
     ur_msgs
+  DEPENDS
+    Boost
 )
 
 
@@ -64,6 +66,7 @@ add_compile_options(-Wno-unused-parameter)
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 add_library(ur_rtde_driver
@@ -79,6 +82,7 @@ add_library(ur_rtde_driver
     src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
+    src/rtde/data_package.cpp
     src/rtde/request_protocol_version.cpp
     src/rtde/get_urcontrol_version.cpp
     src/rtde/text_message.cpp

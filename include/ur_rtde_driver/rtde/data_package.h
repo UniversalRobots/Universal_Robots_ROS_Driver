@@ -28,20 +28,56 @@
 #ifndef UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
 #define UR_RTDE_DRIVER_DATA_PACKAGE_H_INCLUDED
 
+#include <unordered_map>
+
+#include "ur_rtde_driver/types.h"
 #include "ur_rtde_driver/rtde/rtde_package.h"
+#include <boost/variant.hpp>
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
+struct ParseVisitor : public boost::static_visitor<>
+{
+  template <typename T>
+  void operator()(T& d, comm::BinParser& bp) const
+  {
+    bp.parse(d);
+  }
+};
+struct StringVisitor : public boost::static_visitor<std::string>
+{
+  template <typename T>
+  std::string operator()(T& d) const
+  {
+    std::stringstream ss;
+    ss << d;
+    return ss.str();
+  }
+};
+
+
 class DataPackage : public RTDEPackage
 {
-private:
-  uint8_t recipe_id_;
-
 public:
-  DataPackage() = default;
+  using _rtde_type_variant = boost::variant<bool, uint8_t, uint32_t, uint64_t, int32_t, double, vector3d_t, vector6d_t,
+                                            vector6int32_t, vector6uint32_t, std::string>;
+
+  DataPackage() = delete;
+  DataPackage(const std::vector<std::string>& recipe) : recipe_(recipe)
+  {
+  }
   virtual ~DataPackage() = default;
+
+  virtual bool parseWith(comm::BinParser& bp);
+  virtual std::string toString() const;
+
+private:
+  // Const would be better here
+  static std::unordered_map<std::string, _rtde_type_variant> type_list_;
+  std::unordered_map<std::string, _rtde_type_variant> data_;
+  std::vector<std::string> recipe_;
 };
 
 }  // namespace rtde_interface

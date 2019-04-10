@@ -20,6 +20,7 @@
 
 #include <inttypes.h>
 #include <array>
+#include <iostream>
 
 namespace ur_driver
 {
@@ -48,5 +49,21 @@ inline bool operator==(const double3_t& lhs, const double3_t& rhs)
 inline bool operator==(const cartesian_coord_t& lhs, const cartesian_coord_t& rhs)
 {
   return lhs.position == rhs.position && lhs.rotation == rhs.rotation;
+}
+
+template <class T, std::size_t N>
+std::ostream& operator<<(std::ostream& out, const std::array<T, N>& item)
+{
+  out << "[";
+  for (size_t i = 0; i < item.size(); ++i)
+  {
+    out << item[i];
+    if (i != item.size() - 1)
+    {
+      out << ", ";
+    }
+  }
+  out << "]";
+  return out;
 }
 }  // namespace ur_driver
