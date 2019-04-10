@@ -181,9 +181,9 @@ public:
     notifier_.stopped(name_);
   }
 
-  bool getLatestProduct(std::unique_ptr<URPackage<HeaderT>> product, std::chrono::milliseconds timeout)
+  bool getLatestProduct(std::unique_ptr<URPackage<HeaderT>>& product, std::chrono::milliseconds timeout)
   {
-    return !queue_.wait_dequeue_timed(product, timeout);
+    return queue_.wait_dequeue_timed(product, timeout);
   }
 
 private:
