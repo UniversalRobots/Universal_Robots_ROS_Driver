@@ -46,14 +46,17 @@ public:
   /*!
    * \brief Creates a new PrimaryPackage object.
    */
-  PrimaryPackage() = default;
+  PrimaryPackage() : buffer_length_(0)
+  {
+  }
   virtual ~PrimaryPackage() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
 
-private:
-  std::string buffer_;
+protected:
+  std::unique_ptr<uint8_t> buffer_;
+  size_t buffer_length_;
 };
 
 }  // namespace primary_interface

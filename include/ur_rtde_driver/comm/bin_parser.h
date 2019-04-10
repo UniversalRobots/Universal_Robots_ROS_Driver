@@ -172,6 +172,14 @@ public:
     parse(val.rotation);
   }
 
+  void rawData(std::unique_ptr<uint8_t>& buffer, size_t& buffer_length)
+  {
+    buffer_length = buf_end_ - buf_pos_;
+    buffer.reset(new uint8_t[buffer_length]);
+    memcpy(buffer.get(), buf_pos_, buffer_length);
+    consume();
+  }
+
   void parseRemainder(std::string& val)
   {
     parse(val, size_t(buf_end_ - buf_pos_));

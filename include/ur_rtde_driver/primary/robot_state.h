@@ -53,25 +53,31 @@ enum class RobotStateType : uint8_t
 };
 
 /*!
- * \brief Abstract class for a RobotState msg. This will never be instanciated, but the underlying
- * data packages will be used directly.
+ * \brief Base class for a RobotState data packages will be used directly.
  */
 class RobotState : public PrimaryPackage
 {
 public:
-  RobotState() = default;
+  RobotState() = delete;
+  RobotState(const RobotStateType type) : state_type_(type)
+  {
+  }
   virtual ~RobotState() = default;
 
   virtual bool parseWith(comm::BinParser& bp)
   {
-    return true;
+    return PrimaryPackage::parseWith(bp);
   }
   virtual std::string toString() const
   {
-    return std::string();
+    std::stringstream ss;
+    ss << "Type: " << static_cast<int>(state_type_) << std::endl;
+    ss << PrimaryPackage::toString();
+    return ss.str();
   }
 
 private:
+  RobotStateType state_type_;
 };
 
 }  // namespace primary_interface

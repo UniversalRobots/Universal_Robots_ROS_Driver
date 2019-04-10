@@ -144,9 +144,9 @@ private:
       case robot_state_type::MASTERBOARD_DATA:
         return new MBD;*/
       case RobotStateType::KINEMATICS_INFO:
-        return new KinematicsInfo;
+        return new KinematicsInfo(type);
       default:
-        return nullptr;
+        return new RobotState(type);
     }
   }
 

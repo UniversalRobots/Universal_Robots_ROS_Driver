@@ -33,13 +33,21 @@ namespace primary_interface
 {
 bool PrimaryPackage::parseWith(comm::BinParser& bp)
 {
-  bp.parseRemainder(buffer_);
+  bp.rawData(buffer_, buffer_length_);
   return true;
 }
 
 std::string PrimaryPackage::toString() const
 {
-  return buffer_;
+  std::stringstream ss;
+  ss << "Raw byte stream: ";
+  for (size_t i = 0; i < buffer_length_; ++i)
+  {
+    uint8_t* buf = buffer_.get();
+    ss << std::hex << static_cast<int>(buf[i]) << " ";
+  }
+  ss << std::endl;
+  return ss.str();
 }
 
 }  // namespace primary_interface
