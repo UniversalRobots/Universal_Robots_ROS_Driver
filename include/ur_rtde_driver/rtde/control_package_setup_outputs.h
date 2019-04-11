@@ -29,6 +29,7 @@
 #define UR_RTDE_DRIVER_CONTROL_PACKAGE_SETUP_OUTPUTS_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/rtde/package_header.h"
 
 namespace ur_driver
 {
@@ -53,8 +54,14 @@ public:
   ControlPackageSetupOutputsRequest() = default;
   virtual ~ControlPackageSetupOutputsRequest() = default;
 
+  static size_t generateSerializedRequest(uint8_t* buffer, double output_frequency,
+                                          std::vector<std::string> variable_names);
+
   double output_frequency_;
   std::string variable_names_;
+
+private:
+  static const PackageType PACKAGE_TYPE = PackageType::RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS;
 };
 
 }  // namespace rtde_interface

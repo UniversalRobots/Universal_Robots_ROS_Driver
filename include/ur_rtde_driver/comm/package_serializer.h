@@ -47,6 +47,17 @@ public:
     return size;
   }
 
+  static size_t serialize(uint8_t* buffer, std::string val)
+  {
+    const uint8_t* c_val = reinterpret_cast<const uint8_t*>(val.c_str());
+
+    for (size_t i = 0; i < val.size(); i++)
+    {
+      buffer[i] = c_val[i];
+    }
+    return val.size();
+  }
+
 private:
   template <typename T>
   static T encode(T val)

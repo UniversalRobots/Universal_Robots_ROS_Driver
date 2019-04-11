@@ -51,6 +51,12 @@ class ControlPackageStartRequest : public RTDEPackage
 public:
   ControlPackageStartRequest() = default;
   virtual ~ControlPackageStartRequest() = default;
+
+  static size_t generateSerializedRequest(uint8_t* buffer);
+
+private:
+  static const uint16_t PAYLOAD_SIZE = 0;
+  static const PackageType PACKAGE_TYPE = PackageType::RTDE_CONTROL_PACKAGE_START;
 };
 
 }  // namespace rtde_interface

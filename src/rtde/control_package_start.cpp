@@ -44,5 +44,10 @@ std::string ControlPackageStart::toString() const
 
   return ss.str();
 }
+
+size_t ControlPackageStartRequest::generateSerializedRequest(uint8_t* buffer)
+{
+  return PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, PAYLOAD_SIZE);
+}
 }  // namespace rtde_interface
 }  // namespace ur_driver

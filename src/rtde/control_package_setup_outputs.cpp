@@ -46,5 +46,26 @@ std::string ControlPackageSetupOutputs::toString() const
 
   return ss.str();
 }
+
+size_t ControlPackageSetupOutputsRequest::generateSerializedRequest(uint8_t* buffer, double output_frequency,
+                                                                    std::vector<std::string> variable_names)
+{
+  if (variable_names.size() == 0)
+  {
+    return 0;
+  }
+  std::string variables;
+  for (const auto& piece : variable_names)
+    variables += (piece + ",");
+  variables.pop_back();
+  uint16_t payload_size = sizeof(double) + variables.size();
+
+  size_t size = 0;
+  size += PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, payload_size);
+  size += comm::PackageSerializer::serialize(buffer + size, output_frequency);
+  size += comm::PackageSerializer::serialize(buffer + size, variables);
+
+  return size;
+}
 }  // namespace rtde_interface
 }  // namespace ur_driver
