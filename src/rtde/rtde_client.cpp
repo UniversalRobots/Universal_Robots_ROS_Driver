@@ -35,23 +35,42 @@ RTDEClient::RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier)
     : stream_(ROBOT_IP, UR_RTDE_PORT), parser_(), prod_(stream_, parser_),
       pipeline_(prod_, PIPELINE_NAME, notifier)
 {
+}
+
+bool RTDEClient::init()
+{
   pipeline_.run();
-
-  sleep(1);
-
   uint8_t buffer[4096];
   size_t size;
   size_t written;
-  size = RequestProtocolVersionRequest::generateSerializedRequest(buffer);
-  std::cout << "size: " << size << std::endl;
-  std::cout << "buffer: " << static_cast<int>(buffer[0]) << " - "
-            << static_cast<int>(buffer[1]) << " - "
-            << static_cast<int>(buffer[2]) << " - "
-            << static_cast<int>(buffer[3]) << " - "
-            << static_cast<int>(buffer[4]) << std::endl;
-   stream_.write(buffer, size, written);
+  size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, 2);
+  stream_.write(buffer, size, written);
+  std::unique_ptr<comm::URPackage<PackageHeader>> package;
 
-  std::cout << "wrote: " << written << std::endl;
+  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, 500.0, readRecipe());
+  stream_.write(buffer, size, written);
+  return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+}
+bool RTDEClient::start()
+{
+  uint8_t buffer[4096];
+  size_t size;
+  size_t written;
+  size = ControlPackageStartRequest::generateSerializedRequest(buffer);
+  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  stream_.write(buffer, size, written);
+  return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+}
+std::vector<std::string> RTDEClient::readRecipe()
+{
+  std::vector<std::string> recipe;
+  recipe.push_back("timestamp");
+  recipe.push_back("actual_q");
+  recipe.push_back("actual_qd");
+  recipe.push_back("speed_scaling");
+  recipe.push_back("target_speed_fraction");
+  return recipe;
 }
 
 bool RTDEClient::getDataPackage(

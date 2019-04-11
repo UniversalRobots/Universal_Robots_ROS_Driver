@@ -36,6 +36,8 @@
 #include "ur_rtde_driver/comm/producer.h"
 #include "ur_rtde_driver/rtde/data_package.h"
 #include "ur_rtde_driver/rtde/request_protocol_version.h"
+#include "ur_rtde_driver/rtde/control_package_setup_outputs.h"
+#include "ur_rtde_driver/rtde/control_package_start.h"
 
 static const int UR_RTDE_PORT = 30004;
 static const std::string PIPELINE_NAME = "RTDE Data Pipeline";
@@ -50,6 +52,8 @@ public:
   RTDEClient() = delete;
   RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier);
   ~RTDEClient() = default;
+  bool init();
+  bool start();
   bool getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package, std::chrono::milliseconds timeout);
 
 private:
@@ -57,6 +61,8 @@ private:
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
+
+  std::vector<std::string> readRecipe();
 };
 
 }  // namespace rtde_interface
