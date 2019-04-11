@@ -92,15 +92,16 @@ add_library(ur_rtde_driver
     src/rtde/rtde_package.cpp
     src/rtde/text_message.cpp
     src/rtde/rtde_client.cpp
+    src/ur/ur_driver.cpp
 )
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(producer
-  src/producer.cpp
+add_executable(plain_driver
+  src/main_plain_driver.cpp
 )
-target_link_libraries(producer ${catkin_LIBRARIES} ur_rtde_driver)
-add_dependencies(producer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(plain_driver ${catkin_LIBRARIES} ur_rtde_driver)
+add_dependencies(plain_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS ur_rtde_driver
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
