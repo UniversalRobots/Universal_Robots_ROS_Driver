@@ -28,11 +28,28 @@
 #include "ur_rtde_driver/ur/ur_driver.h"
 #include <memory>
 
-namespace ur_driver{
-
-  ur_driver::UrDriver::UrDriver (const std::string& ROBOT_IP)
-  {
-    rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
-  }
-
+namespace ur_driver
+{
+ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
+{
+  rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
 }
+
+std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
+{
+  // TODO: This goes into the rtde_client
+  std::unique_ptr<comm::URPackage<rtde_interface::PackageHeader>> urpackage;
+  uint32_t period_ms = (1.0 / rtde_frequency_) / 1000;
+  std::chrono::milliseconds timeout(period_ms);
+  if (rtde_client_->getDataPackage(urpackage, timeout))
+  {
+    rtde_interface::DataPackage* tmp = dynamic_cast<rtde_interface::DataPackage*>(urpackage.get());
+    if (tmp != nullptr)
+    {
+      urpackage.release();
+      return std::move(std::unique_ptr<rtde_interface::DataPackage>(tmp));
+    }
+  }
+  return nullptr;
+}
+}  // namespace ur_driver

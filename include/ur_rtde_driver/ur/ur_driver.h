@@ -25,18 +25,40 @@
  */
 //----------------------------------------------------------------------
 
-
 #include "ur_rtde_driver/rtde/rtde_client.h"
 
-namespace ur_driver{
-  class UrDriver
-  {
-  public:
-    UrDriver (const std::string& ROBOT_IP);
-    virtual ~UrDriver () = default;
-  
-  private:
-    comm::INotifier notifier_;
-    std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
-  };
-}
+namespace ur_driver
+{
+/*!
+ * \brief This is the main class for interfacing the driver.
+ *
+ * It sets up all the necessary socket connections and handles the data exchange with the robot.
+ * Use this classes methods to access and write data.
+ */
+class UrDriver
+{
+public:
+  /*!
+   * \brief Constructs a new UrDriver object.
+   *
+   * \param ROBOT_IP IP-address under which the robot is reachable.
+   */
+  UrDriver(const std::string& ROBOT_IP);
+  virtual ~UrDriver() = default;
+
+  /*!
+   * \brief Access function to receive the latest data package sent from the robot through RTDE
+   * interface.
+   *
+   * \returns The latest data package on success, a nullptr if no package can be found inside the
+   * interface's cycle time. See the private parameter #rtde_frequency_
+   */
+  std::unique_ptr<rtde_interface::DataPackage> getDataPackage();
+
+private:
+  //! This frequency is used for the rtde interface. By default, it will be 125Hz on CB3 and 500Hz on the e-series.
+  uint32_t rtde_frequency_;
+  comm::INotifier notifier_;
+  std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
+};
+}  // namespace ur_driver

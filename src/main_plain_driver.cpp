@@ -16,7 +16,7 @@
 
 using namespace ur_driver;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::string ROBOT_IP = "192.168.56.101";
 
@@ -30,7 +30,11 @@ int main(int argc, char *argv[])
   while (true)
   {
     sleep(1);
-    // LOG_INFO("Still running");
+    std::unique_ptr<rtde_interface::DataPackage> data_pkg = driver.getDataPackage();
+    if (data_pkg)
+    {
+      data_pkg->toString();
+    }
   }
   return 0;
 }
