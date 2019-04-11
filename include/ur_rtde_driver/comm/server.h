@@ -28,6 +28,8 @@
 
 namespace ur_driver
 {
+namespace comm
+{
 #define MAX_SERVER_BUF_LEN 50
 
 class URServer : private comm::TCPSocket
@@ -49,4 +51,5 @@ public:
   bool readLine(char* buffer, size_t buf_len);
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
+}  // namespace comm
 }  // namespace ur_driver

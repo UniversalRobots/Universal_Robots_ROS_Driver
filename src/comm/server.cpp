@@ -27,6 +27,8 @@
 
 namespace ur_driver
 {
+namespace comm
+{
 URServer::URServer(int port) : port_(port)
 {
 }
@@ -151,4 +153,5 @@ bool URServer::readLine(char* buffer, size_t buf_len)
   *current_pointer = '\0';
   return true;
 }
+}  // namespace comm
 }  // namespace ur_driver
