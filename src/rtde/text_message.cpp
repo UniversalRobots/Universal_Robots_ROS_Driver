@@ -46,7 +46,7 @@ std::string TextMessage::toString() const
   std::stringstream ss;
   ss << "message: " << message_ << std::endl;
   ss << "source: " << source_ << std::endl;
-  ss << "warning level: " << warning_level_;
+  ss << "warning level: " << static_cast<int>(warning_level_);
 
   return ss.str();
 }

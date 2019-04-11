@@ -25,7 +25,7 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-enum class PackageType
+enum class PackageType : uint8_t
 {
   RTDE_REQUEST_PROTOCOL_VERSION = 86,       // ascii V
   RTDE_GET_URCONTROL_VERSION = 118,         // ascii v
@@ -55,7 +55,7 @@ public:
   static size_t serializeHeader(uint8_t* buffer, PackageType package_type, uint16_t payload_length)
   {
     uint16_t header_size = sizeof(_package_size_type) + sizeof(PackageType);
-    uint16_t size = header_size+payload_length;
+    uint16_t size = header_size + payload_length;
     comm::PackageSerializer::serialize(buffer, size);
     comm::PackageSerializer::serialize(buffer + sizeof(size), package_type);
     return header_size;

@@ -40,7 +40,7 @@ bool ControlPackageStart::parseWith(comm::BinParser& bp)
 std::string ControlPackageStart::toString() const
 {
   std::stringstream ss;
-  ss << "accepted: " << accepted_;
+  ss << "accepted: " << static_cast<int>(accepted_);
 
   return ss.str();
 }

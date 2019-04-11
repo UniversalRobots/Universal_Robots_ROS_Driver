@@ -41,7 +41,7 @@ bool ControlPackageSetupInputs::parseWith(comm::BinParser& bp)
 std::string ControlPackageSetupInputs::toString() const
 {
   std::stringstream ss;
-  ss << "input recipe id: " << input_recipe_id_ << std::endl;
+  ss << "input recipe id: " << static_cast<int>(input_recipe_id_) << std::endl;
   ss << "variable types: " << variable_types_;
 
   return ss.str();

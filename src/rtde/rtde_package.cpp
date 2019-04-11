@@ -32,13 +32,21 @@ namespace rtde_interface
 {
 bool RTDEPackage::parseWith(comm::BinParser& bp)
 {
+  bp.rawData(buffer_, buffer_length_);
   return true;
 }
 
 std::string rtde_interface::RTDEPackage ::toString() const
 {
   std::stringstream ss;
-  ss << "Type: " << static_cast<int>(type_);
+  ss << "Type: " << static_cast<int>(type_) << std::endl;
+  ss << "Raw byte stream: ";
+  for (size_t i = 0; i < buffer_length_; ++i)
+  {
+    uint8_t* buf = buffer_.get();
+    ss << std::hex << static_cast<int>(buf[i]) << " ";
+  }
+  ss << std::endl;
   return ss.str();
 }
 }  // namespace rtde_interface

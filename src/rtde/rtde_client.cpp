@@ -32,8 +32,10 @@ namespace ur_driver
 namespace rtde_interface
 {
 RTDEClient::RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier)
-    : stream_(ROBOT_IP, UR_RTDE_PORT), parser_(), prod_(stream_, parser_),
-      pipeline_(prod_, PIPELINE_NAME, notifier)
+  : stream_(ROBOT_IP, UR_RTDE_PORT)
+  , parser_(readRecipe())
+  , prod_(stream_, parser_)
+  , pipeline_(prod_, PIPELINE_NAME, notifier)
 {
 }
 
@@ -73,11 +75,10 @@ std::vector<std::string> RTDEClient::readRecipe()
   return recipe;
 }
 
-bool RTDEClient::getDataPackage(
-    std::unique_ptr<comm::URPackage<PackageHeader>>& data_package,
-    std::chrono::milliseconds timeout)
+bool RTDEClient::getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package,
+                                std::chrono::milliseconds timeout)
 {
   return pipeline_.getLatestProduct(data_package, timeout);
 }
-} // namespace rtde_interface
-} // namespace ur_driver
+}  // namespace rtde_interface
+}  // namespace ur_driver

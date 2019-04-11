@@ -40,7 +40,7 @@ bool ControlPackagePause::parseWith(comm::BinParser& bp)
 std::string ControlPackagePause::toString() const
 {
   std::stringstream ss;
-  ss << "accepted: " << accepted_;
+  ss << "accepted: " << static_cast<int>(accepted_);
 
   return ss.str();
 }
