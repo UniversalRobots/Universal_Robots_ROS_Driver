@@ -97,17 +97,25 @@ add_library(ur_rtde_driver
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(ur_rtde_driver_node
+  src/ros/hardware_interface.cpp
+  src/ros/hardware_interface_node.cpp
+)
+target_link_libraries(ur_rtde_driver_node ${catkin_LIBRARIES} ur_rtde_driver)
+add_dependencies(ur_rtde_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 add_executable(plain_driver
   src/main_plain_driver.cpp
 )
 target_link_libraries(plain_driver ${catkin_LIBRARIES} ur_rtde_driver)
 add_dependencies(plain_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-install(TARGETS ur_rtde_driver
+install(TARGETS ur_rtde_driver ur_rtde_driver_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
 
 install(DIRECTORY config launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

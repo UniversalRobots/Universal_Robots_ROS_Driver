@@ -30,16 +30,23 @@
 
 namespace ur_driver
 {
-ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
+ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125)  // conservative CB3 default.
 {
+  ROS_INFO_STREAM("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
+
+  if (!rtde_client_->init())
+  {
+    throw std::runtime_error("initialization went wrong");  // TODO: be less harsh
+  }
+  rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
 }
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
 {
   // TODO: This goes into the rtde_client
   std::unique_ptr<comm::URPackage<rtde_interface::PackageHeader>> urpackage;
-  uint32_t period_ms = (1.0 / rtde_frequency_) / 1000;
+  uint32_t period_ms = (1.0 / rtde_frequency_) * 1000;
   std::chrono::milliseconds timeout(period_ms);
   if (rtde_client_->getDataPackage(urpackage, timeout))
   {
