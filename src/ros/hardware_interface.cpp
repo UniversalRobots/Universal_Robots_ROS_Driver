@@ -101,7 +101,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  // TODO: Implement
+  ur_driver_->writeJointCommand(joint_position_command_);
 }
 
 bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,

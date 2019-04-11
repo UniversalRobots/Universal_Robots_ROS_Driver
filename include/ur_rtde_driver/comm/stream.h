@@ -49,7 +49,7 @@ public:
    * \param host IP address of the remote host
    * \param port Port on which the socket shall be connected
    */
-  URStream(std::string& host, int port) : host_(host), port_(port)
+  URStream(const std::string& host, int port) : host_(host), port_(port)
   {
   }
 

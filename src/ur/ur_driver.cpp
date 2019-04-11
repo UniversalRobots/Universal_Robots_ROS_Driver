@@ -30,6 +30,66 @@
 
 namespace ur_driver
 {
+static const std::string POSITION_PROGRAM = R"(
+def myProg():
+  textmsg("hello")
+  MULT_jointstate = 1000000
+
+  SERVO_IDLE = 0
+  SERVO_RUNNING = 1
+  cmd_servo_state = SERVO_IDLE
+  cmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  def set_servo_setpoint(q):
+    enter_critical
+    cmd_servo_state = SERVO_RUNNING
+    cmd_servo_q = q
+    exit_critical
+  end
+
+  thread servoThread():
+    state = SERVO_IDLE
+    while True:
+      enter_critical
+      q = cmd_servo_q
+      do_brake = False
+      if (state == SERVO_RUNNING) and (cmd_servo_state == SERVO_IDLE):
+        do_brake = True
+      end
+      state = cmd_servo_state
+      cmd_servo_state = SERVO_IDLE
+      exit_critical
+      if do_brake:
+        stopj(1.0)
+        sync()
+      elif state == SERVO_RUNNING:
+        servoj(q, t=0.008, lookahead_time=0.03, gain=300)
+      else:
+        sync()
+      end
+    end
+  end
+  socket_open("192.168.56.1", 50001)
+
+  thread_servo = run servoThread()
+  keepalive = -2
+  params_mult = socket_read_binary_integer(6+1)
+  keepalive = params_mult[7]
+  while keepalive > 0:
+    params_mult = socket_read_binary_integer(6+1)
+    keepalive = params_mult[7]
+    if keepalive > 0:
+      if params_mult[0] > 0:
+        q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
+        set_servo_setpoint(q)
+      end
+    end
+  end
+  sleep(.1)
+  socket_close()
+  kill thread_servo
+end
+)";
+
 ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125)  // conservative CB3 default.
 {
   ROS_INFO_STREAM("Initializing RTDE client");
@@ -39,6 +99,26 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125
   {
     throw std::runtime_error("initialization went wrong");  // TODO: be less harsh
   }
+
+  comm::URStream<rtde_interface::PackageHeader> stream(ROBOT_IP, 30001);
+  stream.connect();
+
+  size_t len = POSITION_PROGRAM.size();
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(POSITION_PROGRAM.c_str());
+  size_t written;
+
+  if (stream.write(data, len, written))
+  {
+    LOG_INFO("Sent program to robot");
+  }
+  else
+  {
+    LOG_ERROR("Could not send program to robot");
+  }
+
+  uint32_t reverse_port = 50001;  // TODO: Make this a parameter
+  reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
+
   rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
 }
 
@@ -58,5 +138,19 @@ std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage
     }
   }
   return nullptr;
+}
+
+bool UrDriver::writeJointCommand(const vector6d_t& values)
+{
+  if (reverse_interface_)
+  {
+    reverse_interface_->write(values);
+  }
+  else
+  {
+    return false;
+  }
+
+  return true;
 }
 }  // namespace ur_driver

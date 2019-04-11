@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------
 
 #include "ur_rtde_driver/rtde/rtde_client.h"
+#include "ur_rtde_driver/comm/reverse_interface.h"
 
 namespace ur_driver
 {
@@ -60,10 +61,13 @@ public:
     return rtde_frequency_;
   }
 
+  bool writeJointCommand(const vector6d_t& values);
+
 private:
   //! This frequency is used for the rtde interface. By default, it will be 125Hz on CB3 and 500Hz on the e-series.
   uint32_t rtde_frequency_;
   comm::INotifier notifier_;
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
+  std::unique_ptr<comm::ReverseInterface> reverse_interface_;
 };
 }  // namespace ur_driver

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "ur_rtde_driver/ur/server.h"
+#include "ur_rtde_driver/comm/server.h"
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <unistd.h>
