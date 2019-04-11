@@ -157,6 +157,7 @@ public:
       return;
 
     running_ = true;
+    producer_.setupProducer();
     pThread_ = std::thread(&Pipeline::runProducer, this);
     if (consumer_ != nullptr)
       cThread_ = std::thread(&Pipeline::runConsumer, this);
@@ -197,7 +198,6 @@ private:
 
   void runProducer()
   {
-    producer_.setupProducer();
     std::vector<std::unique_ptr<_package_type>> products;
     while (running_)
     {
