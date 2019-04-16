@@ -65,6 +65,8 @@ protected:
   vector6d_t joint_velocities_;
   vector6d_t joint_efforts_;
   std::vector<std::string> joint_names_;
+
+  bool position_controller_running_;
 };
 
 }  // namespace ur_driver

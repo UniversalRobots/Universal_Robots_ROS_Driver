@@ -35,6 +35,7 @@ HardwareInterface::HardwareInterface()
   , joint_velocities_{ 0, 0, 0, 0, 0, 0 }
   , joint_efforts_{ 0, 0, 0, 0, 0, 0 }
   , joint_names_(6)
+  , position_controller_running_(false)
 
 {
 }
@@ -101,7 +102,10 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  ur_driver_->writeJointCommand(joint_position_command_);
+  if (position_controller_running_)
+  {
+    ur_driver_->writeJointCommand(joint_position_command_);
+  }
 }
 
 bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
@@ -114,7 +118,17 @@ bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::Contr
 void HardwareInterface ::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                                   const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
-  // TODO: Implement
+  position_controller_running_ = false;
+  for (auto& controller_it : start_list)
+  {
+    for (auto& resource_it : controller_it.claimed_resources)
+    {
+      if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
+      {
+        position_controller_running_ = true;
+      }
+    }
+  }
 }
 
 const uint32_t HardwareInterface ::getControlFrequency() const
