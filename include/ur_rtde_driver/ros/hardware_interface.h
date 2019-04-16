@@ -50,7 +50,7 @@ public:
   virtual void doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                         const std::list<hardware_interface::ControllerInfo>& stop_list) override;
 
-  const uint32_t getControlFrequency() const;
+  uint32_t getControlFrequency() const;
 
 protected:
   std::unique_ptr<UrDriver> ur_driver_;

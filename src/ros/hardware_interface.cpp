@@ -131,7 +131,7 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
   }
 }
 
-const uint32_t HardwareInterface ::getControlFrequency() const
+uint32_t HardwareInterface ::getControlFrequency() const
 {
   if (ur_driver_ != nullptr)
   {
