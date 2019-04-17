@@ -45,12 +45,50 @@ bool RTDEClient::init()
   uint8_t buffer[4096];
   size_t size;
   size_t written;
-  size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, 2);
+  // negotiate version
+  uint16_t protocol_version = 2;
+  size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
   stream_.write(buffer, size, written);
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
-
   pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
-  size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, 500.0, readRecipe());
+  rtde_interface::RequestProtocolVersion* tmp_version =
+      dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
+  if (!tmp_version->accepted_)
+  {
+    protocol_version = 1;
+    size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
+    stream_.write(buffer, size, written);
+    pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+    tmp_version = dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
+    if (!tmp_version->accepted_)
+    {
+      LOG_ERROR("Could not negotiate protocol version");
+      return false;
+    }
+  }
+
+  // determine maximum frequency from ur-control version
+  double max_frequency = URE_MAX_FREQUENCY;
+  size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
+  stream_.write(buffer, size, written);
+  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  rtde_interface::GetUrcontrolVersion* tmp_control_version =
+      dynamic_cast<rtde_interface::GetUrcontrolVersion*>(package.get());
+  if (tmp_control_version->major_ < 5)
+  {
+    max_frequency = CB3_MAX_FREQUENCY;
+  }
+
+  // sending output recipe
+  LOG_INFO("Setting up RTDE communication with frequency %f", max_frequency);
+  if (protocol_version == 2)
+  {
+    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, max_frequency, readRecipe());
+  }
+  else
+  {
+    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, readRecipe());
+  }
   stream_.write(buffer, size, written);
   return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
 }
@@ -62,7 +100,9 @@ bool RTDEClient::start()
   size = ControlPackageStartRequest::generateSerializedRequest(buffer);
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
   stream_.write(buffer, size, written);
-  return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  rtde_interface::ControlPackageStart* tmp = dynamic_cast<rtde_interface::ControlPackageStart*>(package.get());
+  return tmp->accepted_;
 }
 std::vector<std::string> RTDEClient::readRecipe()
 {

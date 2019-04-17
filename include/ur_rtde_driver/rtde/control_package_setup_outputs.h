@@ -57,6 +57,8 @@ public:
   static size_t generateSerializedRequest(uint8_t* buffer, double output_frequency,
                                           std::vector<std::string> variable_names);
 
+  static size_t generateSerializedRequest(uint8_t* buffer, std::vector<std::string> variable_names);
+
   double output_frequency_;
   std::string variable_names_;
 

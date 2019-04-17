@@ -38,6 +38,7 @@
 #include "ur_rtde_driver/rtde/request_protocol_version.h"
 #include "ur_rtde_driver/rtde/control_package_setup_outputs.h"
 #include "ur_rtde_driver/rtde/control_package_start.h"
+#include "ur_rtde_driver/log.h"
 
 static const int UR_RTDE_PORT = 30004;
 static const std::string PIPELINE_NAME = "RTDE Data Pipeline";
@@ -61,6 +62,9 @@ private:
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
+
+  constexpr static const double CB3_MAX_FREQUENCY = 125.0;
+  constexpr static const double URE_MAX_FREQUENCY = 500.0;
 
   std::vector<std::string> readRecipe();
 };

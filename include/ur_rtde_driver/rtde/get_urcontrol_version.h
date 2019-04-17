@@ -54,6 +54,12 @@ class GetUrcontrolVersionRequest : public RTDEPackage
 public:
   GetUrcontrolVersionRequest() = default;
   virtual ~GetUrcontrolVersionRequest() = default;
+
+  static size_t generateSerializedRequest(uint8_t* buffer);
+
+private:
+  static const uint16_t PAYLOAD_SIZE = 0;
+  static const PackageType PACKAGE_TYPE = PackageType::RTDE_GET_URCONTROL_VERSION;
 };
 
 }  // namespace rtde_interface
