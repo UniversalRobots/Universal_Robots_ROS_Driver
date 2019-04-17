@@ -60,22 +60,26 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // Create ros_control interfaces
   for (std::size_t i = 0; i < joint_positions_.size(); ++i)
   {
+    ROS_INFO_STREAM("Registing handles for joint " << joint_names_[i]);
     // Create joint state interface for all joints
     js_interface_.registerHandle(hardware_interface::JointStateHandle(joint_names_[i], &joint_positions_[i],
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
 
     // Create joint position control interface
-    pj_interface_.registerHandle(
-        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    // pj_interface_.registerHandle(
+    // hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
+        js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
   }
 
-  speedsc_interface_.registerHandle(
-      ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
+  // speedsc_interface_.registerHandle(
+  // ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
   // Register interfaces
   registerInterface(&js_interface_);
-  registerInterface(&pj_interface_);
-  registerInterface(&speedsc_interface_);
+  registerInterface(&spj_interface_);
+  // registerInterface(&pj_interface_);
+  // registerInterface(&speedsc_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
@@ -97,11 +101,18 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find joint velocity in data sent from robot. This should not happen!");
     }
-    if (!data_pkg->getData("target_speed_fraction", speed_scaling_value_))
+    if (!data_pkg->getData("target_speed_fraction", target_speed_fraction_))
+    {
+      // This throwing should never happen unless misconfigured
+      throw std::runtime_error("Did not find target_speed_fraction_ in data sent from robot. This should not happen!");
+    }
+    if (!data_pkg->getData("speed_scaling", speed_scaling_))
     {
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
     }
+
+    speed_scaling_combined_ = speed_scaling_ * target_speed_fraction_;
   }
   else
   {
@@ -113,6 +124,7 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
 {
   if (position_controller_running_)
   {
+    // ROS_INFO_STREAM("Writing command: " << joint_position_command_);
     ur_driver_->writeJointCommand(joint_position_command_);
   }
 }
@@ -132,7 +144,7 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
   {
     for (auto& resource_it : controller_it.claimed_resources)
     {
-      if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
+      if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
       {
         position_controller_running_ = true;
       }

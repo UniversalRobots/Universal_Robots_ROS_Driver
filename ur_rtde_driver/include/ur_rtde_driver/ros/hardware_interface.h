@@ -34,6 +34,7 @@
 #include <algorithm>
 
 #include <ur_controllers/speed_scaling_interface.h>
+#include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_rtde_driver/ur/ur_driver.h"
 
@@ -58,6 +59,7 @@ protected:
   std::unique_ptr<UrDriver> ur_driver_;
 
   hardware_interface::JointStateInterface js_interface_;
+  ur_controllers::ScaledPositionJointInterface spj_interface_;
   hardware_interface::PositionJointInterface pj_interface_;
   ur_controllers::SpeedScalingInterface speedsc_interface_;
   // hardware_interface::VelocityJointInterface vj_interface_;
@@ -67,7 +69,9 @@ protected:
   vector6d_t joint_positions_;
   vector6d_t joint_velocities_;
   vector6d_t joint_efforts_;
-  double speed_scaling_value_;
+  double speed_scaling_;
+  double target_speed_fraction_;
+  double speed_scaling_combined_;
   std::vector<std::string> joint_names_;
 
   bool position_controller_running_;
