@@ -21,6 +21,7 @@ find_package(catkin REQUIRED
     std_srvs
     tf
     trajectory_msgs
+    ur_controllers
     ur_msgs
 )
 find_package(Boost REQUIRED)
@@ -40,6 +41,7 @@ catkin_package(
     roscpp
     sensor_msgs
     trajectory_msgs
+    ur_controllers
     ur_msgs
   DEPENDS
     Boost

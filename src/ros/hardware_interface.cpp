@@ -69,9 +69,13 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
   }
 
+  speedsc_interface_.registerHandle(
+      ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&pj_interface_);
+  registerInterface(&speedsc_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
@@ -92,6 +96,11 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     {
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find joint velocity in data sent from robot. This should not happen!");
+    }
+    if (!data_pkg->getData("target_speed_fraction", speed_scaling_value_))
+    {
+      // This throwing should never happen unless misconfigured
+      throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
     }
   }
   else

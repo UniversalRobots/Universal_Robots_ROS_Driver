@@ -22,6 +22,11 @@ force_torque_sensor_controller:
    type:         force_torque_sensor_controller/ForceTorqueSensorController
    publish_rate: 125
 
+# Publish speed_scaling factor
+speed_scaling_state_controller:
+   type:         ur_controllers/SpeedScalingStateController
+   publish_rate: 125
+
 # Joint Trajectory Controller - position based -------------------------------
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
 pos_based_pos_traj_controller:
