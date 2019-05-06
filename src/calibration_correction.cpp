@@ -94,6 +94,7 @@ int main(int argc, char* argv[])
   }
   // my_calibration.reset(new Calibration(my_robot));
 
+  /*
   for (auto& calib : calibrations)
   {
     Eigen::Matrix<double, 6, 1> jointvalues;
@@ -150,9 +151,25 @@ int main(int argc, char* argv[])
     // calibration.correctChain();
     // ROS_INFO_STREAM("Corrected calibration: " << std::endl << calibration.toXacroProperties());
   }
-  // my_calibration->correctChain();
+  */
+  my_calibration->correctChain();
+  std::vector<Eigen::Matrix4d> corrected_chain = my_calibration->getSimplified();
+
+  for (auto& it : corrected_chain)
+  {
+    Eigen::Matrix3d rot_a = it.topLeftCorner(3, 3);
+    Eigen::Vector3d rpy_a = rot_a.eulerAngles(0, 1, 2);
+    ROS_INFO_STREAM("Translation: [" << it.topRightCorner(3, 1).transpose() << "]");
+    ROS_INFO_STREAM("Rotation: [" << rpy_a.transpose() << "]");
+  }
+
+  std::ofstream file;
+  file.open("test.yaml");
+  my_calibration->writeToYaml(file);
+  file.close();
 
   // ROS_INFO_STREAM("Corrected calibration: " << std::endl << my_calibration->toXacroProperties());
+  std::cout << my_calibration->toXacroProperties() << std::endl;
 
   // tf_listener.reset(new tf::TransformListener);
 
