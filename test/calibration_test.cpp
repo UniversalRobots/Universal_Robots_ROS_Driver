@@ -22,10 +22,22 @@ bool isApproximately(const double val1, const double val2, const double precisio
   return std::abs(val1 - val2) < precision;
 }
 
-TEST(UrRtdeDriver, ur10_ideal)
+template <class Scalar_, int dim_>
+void doubleEqVec(const Eigen::Matrix<Scalar_, dim_, 1> vec1, const Eigen::Matrix<Scalar_, dim_, 1> vec2,
+                 const double precision)
+{
+  for (size_t i = 0; i < dim_; ++i)
+  {
+    EXPECT_NEAR(vec1[i], vec2[i], precision);
+  }
+}
+
+TEST(UrRtdeDriver, ur10_fw_kinematics)
 {
   DHRobot my_robot;
   const double pi = std::atan(1) * 4;
+  // const double pi = 1.570796327 * 2.0;
+  // const double pi = M_PI;
 
   // This is an ideal UR10
   // clang-format off
@@ -40,6 +52,8 @@ TEST(UrRtdeDriver, ur10_ideal)
   Calibration calibration(my_robot);
 
   Eigen::Matrix<double, 6, 1> jointvalues;
+  Eigen::Vector3d expected_position;
+  Eigen::Quaterniond expected_orientation;
   {
     jointvalues << 0, 0, 0, 0, 0, 0;
     Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
@@ -51,22 +65,40 @@ TEST(UrRtdeDriver, ur10_ideal)
   {
     jointvalues << M_PI_2, -M_PI_4, M_PI_2, -M_PI_4, 0, 0;
     Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
-    EXPECT_DOUBLE_EQ(fk(0, 3), my_robot.segments_[3].d_ + my_robot.segments_[5].d_);
-    EXPECT_DOUBLE_EQ(fk(1, 3), my_robot.segments_[1].a_ / std::sqrt(2) + my_robot.segments_[2].a_ / std::sqrt(2));
-    // Because of the sqrt calculations a DOUBLE_EQ does not work here.
-    EXPECT_PRED3(isApproximately, fk(2, 3),
-                 my_robot.segments_[0].d_ - my_robot.segments_[1].a_ / std::sqrt(2) +
-                     my_robot.segments_[2].a_ / std::sqrt(2) - my_robot.segments_[4].d_,
-                 1e-16);
+
+    expected_position << my_robot.segments_[3].d_ + my_robot.segments_[5].d_,
+        my_robot.segments_[1].a_ / std::sqrt(2) + my_robot.segments_[2].a_ / std::sqrt(2),
+        my_robot.segments_[0].d_ - my_robot.segments_[1].a_ / std::sqrt(2) + my_robot.segments_[2].a_ / std::sqrt(2) -
+            my_robot.segments_[4].d_;
+    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-16);
+  }
+  {
+    jointvalues << -1.6007002035724084976209269370884, -1.7271001974688928726209269370884,
+        -2.2029998938189905288709269370884, -0.80799991289247685699592693708837, 1.59510004520416259765625,
+        -0.03099996248354131012092693708837;
+    expected_position << -0.179925914147547, -0.606869755162764, 0.230789102067257;
+
+    Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
+
+    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-10);
+  }
+  {
+    jointvalues << 1.32645022869110107421875, 2.426007747650146484375, 5.951572895050048828125,
+        1.27409040927886962890625, -0.54105216661562138824592693708837, 0.122173048555850982666015625;
+    expected_position << 0.39922988003280424074148413637886, 0.59688365069340565405298093537567,
+        -0.6677819040276375961440180617501;
+
+    Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
+
+    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-9);
   }
 }
 
 TEST(UrRtdeDriver, calibration)
 {
-  /* This test compares the forward kinematics of the model constructed from uncorrected
-   * parameters with the one from the corrected parameters. They are tested against random
-   * joint values and should be equal (in a numeric sense).
-   */
+  // This test compares the forward kinematics of the model constructed from uncorrected
+  // parameters with the one from the corrected parameters. They are tested against random
+  // joint values and should be equal (in a numeric sense).
 
   DHRobot my_robot;
   const double pi = std::atan(1) * 4;
@@ -107,10 +139,10 @@ TEST(UrRtdeDriver, calibration)
     Eigen::Matrix3d rot_mat_corrected = fk_corrected.topLeftCorner(3, 3);
     Eigen::Quaterniond rot_corrected(rot_mat_corrected);
     double angle_error = std::abs(rot_orig.angularDistance(rot_corrected));
-    EXPECT_PRED3(isApproximately, fk_orig(0, 3), fk_corrected(0, 3), 1e-12);
-    EXPECT_PRED3(isApproximately, fk_orig(1, 3), fk_corrected(1, 3), 1e-12);
-    EXPECT_PRED3(isApproximately, fk_orig(2, 3), fk_corrected(2, 3), 1e-12);
-    EXPECT_PRED3(isApproximately, angle_error, 0.0, 1e-12);
+    EXPECT_NEAR(fk_orig(0, 3), fk_corrected(0, 3), 1e-12);
+    EXPECT_NEAR(fk_orig(1, 3), fk_corrected(1, 3), 1e-12);
+    EXPECT_NEAR(fk_orig(2, 3), fk_corrected(2, 3), 1e-12);
+    EXPECT_NEAR(angle_error, 0.0, 1e-12);
   }
 }
 }  // namespace

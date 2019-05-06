@@ -147,11 +147,13 @@ Eigen::Matrix4d Calibration::calcForwardKinematics(const Eigen::Matrix<double, 6
   // ROS_INFO_STREAM("Calculating forward kinematics at link " << link_nr);
   // Currently ignore input and calculate for zero vector input
   Eigen::Matrix4d output = Eigen::Matrix4d::Identity();
+
+  std::vector<Eigen::Matrix4d> simplified_chain = getSimplified();
   for (size_t i = 0; i < link_nr; ++i)
   {
     Eigen::Matrix4d rotation = Eigen::Matrix4d::Identity();
     rotation.topLeftCorner(3, 3) = Eigen::AngleAxisd(joint_values(i), Eigen::Vector3d::UnitZ()).toRotationMatrix();
-    output *= chain_[2 * i] * rotation * chain_[2 * i + 1];
+    output *= simplified_chain[i] * rotation;
   }
 
   // ROS_INFO_STREAM("forward_kinematics at " << link_nr << std::endl << output);
@@ -178,4 +180,51 @@ void Calibration::buildChain()
 
     chain_.push_back(seg2_mat);
   }
+}
+
+std::vector<Eigen::Matrix4d> Calibration::getSimplified() const
+{
+  std::vector<Eigen::Matrix4d> simplified_chain;
+  simplified_chain.push_back(chain_[0]);
+  for (size_t i = 1; i < chain_.size() - 1; i += 2)
+  {
+    simplified_chain.push_back(chain_[i] * chain_[i + 1]);
+    Eigen::Matrix3d rot_a = chain_[i].topLeftCorner(3, 3);
+    Eigen::Vector3d rpy_a = rot_a.eulerAngles(0, 1, 2);
+    // ROS_INFO_STREAM("Rotation " << i / 2 << " a: [" << rpy_a.transpose() << "]");
+    Eigen::Matrix3d rot_b = chain_[i + 1].topLeftCorner(3, 3);
+    Eigen::Vector3d rpy_b = rot_b.eulerAngles(0, 1, 2);
+    // ROS_INFO_STREAM("Rotation " << i / 2 << " b: [" << rpy_b.transpose() << "]");
+    // ROS_INFO_STREAM("Matrix " << i / 2 << ":\n" << simplified_chain.back());
+    Eigen::Matrix3d rot = simplified_chain.back().topLeftCorner(3, 3);
+    Eigen::Vector3d rpy = rot.eulerAngles(0, 1, 2);
+    Eigen::Quaterniond quat(rot);
+    // ROS_INFO_STREAM("Rotation (rpy) " << i / 2 << ": [" << rpy.transpose() << "]");
+    // ROS_INFO_STREAM("Rotation (quat, [xyz], w)" << i / 2 << ": [" << quat.vec().transpose() << "], " << quat.w());
+  }
+  simplified_chain.push_back(chain_.back());
+  return simplified_chain;
+}
+
+void Calibration::writeToYaml(std::ofstream& ofstream) const
+{
+  YAML::Node node;
+
+  std::vector<Eigen::Matrix4d> chain = getSimplified();
+
+  for (std::size_t i = 0; i < link_names_.size(); ++i)
+  {
+    YAML::Node link;
+    link["x"] = chain[i](0, 3);
+    link["y"] = chain[i](1, 3);
+    link["z"] = chain[i](2, 3);
+    Eigen::Matrix3d rot = chain[i].topLeftCorner(3, 3);
+    Eigen::Vector3d rpy = rot.eulerAngles(0, 1, 2);
+    link["roll"] = rpy[0];
+    link["pitch"] = rpy[1];
+    link["yaw"] = rpy[2];
+    node["kinematics"][link_names_[i]] = link;
+  }
+
+  ofstream << node;
 }

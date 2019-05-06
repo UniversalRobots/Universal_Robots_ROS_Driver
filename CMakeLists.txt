@@ -127,7 +127,6 @@ add_executable(calibration_correction
 )
 
 add_dependencies(calibration_correction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 ## Specify libraries to link a library or executable target against
 target_link_libraries(calibration_correction
   ${catkin_LIBRARIES}

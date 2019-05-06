@@ -17,6 +17,8 @@
 
 #include <ros/ros.h>
 #include <Eigen/Dense>
+#include <yaml-cpp/yaml.h>
+#include <fstream>
 
 /*!
  * \brief An internal representation of a DH-parametrized link.
@@ -147,6 +149,9 @@ public:
   }
 
   std::string toXacroProperties() {return robot_parameters_corrected_.toXacroProperties();}
+  void writeToYaml(std::ofstream& ofstream) const;
+
+  std::vector<Eigen::Matrix4d> getSimplified() const;
 
   Eigen::Matrix4d calcForwardKinematics(const Eigen::Matrix<double, 6, 1>& joint_values, const size_t link_nr = 6);
 
