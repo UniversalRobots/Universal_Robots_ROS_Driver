@@ -86,4 +86,3 @@ void SpeedScalingStateController ::stopping(const ros::Time& /*time*/)
 }  // namespace ur_controllers
 
 PLUGINLIB_EXPORT_CLASS(ur_controllers::SpeedScalingStateController, controller_interface::ControllerBase)
-

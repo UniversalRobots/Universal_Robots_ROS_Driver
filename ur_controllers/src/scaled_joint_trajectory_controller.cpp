@@ -18,7 +18,6 @@
 #include <pluginlib/class_list_macros.hpp>
 #include <trajectory_interface/quintic_spline_segment.h>
 
-
 namespace position_controllers
 {
 typedef ur_controllers::ScaledJointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,

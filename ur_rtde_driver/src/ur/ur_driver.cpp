@@ -62,7 +62,7 @@ def myProg():
         stopj(1.0)
         sync()
       elif state == SERVO_RUNNING:
-        servoj(q, t=0.008, lookahead_time=0.03, gain=300)
+        servoj(q, t=0.008, lookahead_time=0.03, gain=750)
       else:
         sync()
       end
@@ -90,7 +90,7 @@ def myProg():
 end
 )";
 
-ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125)  // conservative CB3 default.
+ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
 {
   ROS_INFO_STREAM("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
@@ -99,6 +99,8 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125
   {
     throw std::runtime_error("initialization went wrong");  // TODO: be less harsh
   }
+
+  rtde_frequency_ = rtde_client_->getMaxFrequency();
 
   comm::URStream<rtde_interface::PackageHeader> stream(ROBOT_IP, 30001);
   stream.connect();
@@ -119,7 +121,10 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP) : rtde_frequency_(125
   uint32_t reverse_port = 50001;  // TODO: Make this a parameter
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
 
+  ROS_INFO_STREAM("Created reverse interface");
+
   rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
+  ROS_INFO_STREAM("Initialization done");
 }
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
@@ -134,7 +139,7 @@ std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage
     if (tmp != nullptr)
     {
       urpackage.release();
-      return std::move(std::unique_ptr<rtde_interface::DataPackage>(tmp));
+      return std::unique_ptr<rtde_interface::DataPackage>(tmp);
     }
   }
   return nullptr;

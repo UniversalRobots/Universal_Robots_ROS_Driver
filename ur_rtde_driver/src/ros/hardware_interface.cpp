@@ -30,10 +30,10 @@
 namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
-  : joint_position_command_{ 0, 0, 0, 0, 0, 0 }
-  , joint_positions_{ 0, 0, 0, 0, 0, 0 }
-  , joint_velocities_{ 0, 0, 0, 0, 0, 0 }
-  , joint_efforts_{ 0, 0, 0, 0, 0, 0 }
+  : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
+  , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
+  , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
+  , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_names_(6)
   , position_controller_running_(false)
 
@@ -42,8 +42,8 @@ HardwareInterface::HardwareInterface()
 
 bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
 {
-  joint_velocities_ = { 0, 0, 0, 0, 0, 0 };
-  joint_efforts_ = { 0, 0, 0, 0, 0, 0 };
+  joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
+  joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string ROBOT_IP = robot_hw_nh.param<std::string>("robot_ip", "192.168.56.101");
 
   ROS_INFO_STREAM("Initializing urdriver");

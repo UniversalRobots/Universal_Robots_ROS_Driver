@@ -57,11 +57,18 @@ public:
   bool start();
   bool getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package, std::chrono::milliseconds timeout);
 
+  double getMaxFrequency() const
+  {
+    return max_frequency_;
+  }
+
 private:
   comm::URStream<PackageHeader> stream_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
+
+  double max_frequency_;
 
   constexpr static const double CB3_MAX_FREQUENCY = 125.0;
   constexpr static const double URE_MAX_FREQUENCY = 500.0;

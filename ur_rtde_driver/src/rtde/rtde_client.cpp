@@ -36,6 +36,7 @@ RTDEClient::RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier)
   , parser_(readRecipe())
   , prod_(stream_, parser_)
   , pipeline_(prod_, PIPELINE_NAME, notifier)
+  , max_frequency_(URE_MAX_FREQUENCY)
 {
 }
 
@@ -68,7 +69,6 @@ bool RTDEClient::init()
   }
 
   // determine maximum frequency from ur-control version
-  double max_frequency = URE_MAX_FREQUENCY;
   size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
   stream_.write(buffer, size, written);
   pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
@@ -76,14 +76,14 @@ bool RTDEClient::init()
       dynamic_cast<rtde_interface::GetUrcontrolVersion*>(package.get());
   if (tmp_control_version->major_ < 5)
   {
-    max_frequency = CB3_MAX_FREQUENCY;
+    max_frequency_ = CB3_MAX_FREQUENCY;
   }
 
   // sending output recipe
-  LOG_INFO("Setting up RTDE communication with frequency %f", max_frequency);
+  LOG_INFO("Setting up RTDE communication with frequency %f", max_frequency_);
   if (protocol_version == 2)
   {
-    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, max_frequency, readRecipe());
+    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, max_frequency_, readRecipe());
   }
   else
   {

@@ -48,7 +48,9 @@ int main(int argc, char** argv)
   auto stopwatch_now = stopwatch_last;
 
   hw_interface.init(nh, nh_priv);
+  ROS_INFO_STREAM("initialized hw interface");
   controller_manager::ControllerManager cm(&hw_interface, nh);
+  ROS_INFO_STREAM("started controller manager");
 
   // Get current time and elapsed time since last read
   timestamp = ros::Time::now();
@@ -76,7 +78,8 @@ int main(int argc, char** argv)
 
     if (!control_rate.sleep())
     {
-      ROS_WARN_STREAM("Could not keep cycle rate of " << control_rate.expectedCycleTime().toNSec() / 1000000.0 << "ms");
+      // ROS_WARN_STREAM("Could not keep cycle rate of " << control_rate.expectedCycleTime().toNSec() / 1000000.0 <<
+      // "ms");
     }
   }
 

@@ -56,7 +56,7 @@ public:
    */
   std::unique_ptr<rtde_interface::DataPackage> getDataPackage();
 
-  const uint32_t& getControlFrequency() const
+  uint32_t getControlFrequency() const
   {
     return rtde_frequency_;
   }
@@ -64,8 +64,7 @@ public:
   bool writeJointCommand(const vector6d_t& values);
 
 private:
-  //! This frequency is used for the rtde interface. By default, it will be 125Hz on CB3 and 500Hz on the e-series.
-  uint32_t rtde_frequency_;
+  int rtde_frequency_;
   comm::INotifier notifier_;
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
   std::unique_ptr<comm::ReverseInterface> reverse_interface_;
