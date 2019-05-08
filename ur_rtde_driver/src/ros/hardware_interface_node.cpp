@@ -60,6 +60,55 @@ int main(int argc, char** argv)
 
   ros::Rate control_rate(static_cast<double>(hw_interface.getControlFrequency()));
 
+  std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
+  bool has_realtime;
+  realtime_file >> has_realtime;
+  if (has_realtime)
+  {
+    const int max_thread_priority = sched_get_priority_max(SCHED_FIFO);
+    if (max_thread_priority != -1)
+    {
+      // We'll operate on the currently running thread.
+      pthread_t this_thread = pthread_self();
+
+      // struct sched_param is used to store the scheduling priority
+      struct sched_param params;
+
+      // We'll set the priority to the maximum.
+      params.sched_priority = max_thread_priority;
+
+      int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
+      if (ret != 0)
+      {
+        ROS_ERROR_STREAM("Unsuccessful in setting main thread realtime priority. Error code: " << ret);
+      }
+      // Now verify the change in thread priority
+      int policy = 0;
+      ret = pthread_getschedparam(this_thread, &policy, &params);
+      if (ret != 0)
+      {
+        std::cout << "Couldn't retrieve real-time scheduling paramers" << std::endl;
+      }
+
+      // Check the correct policy was applied
+      if (policy != SCHED_FIFO)
+      {
+        ROS_ERROR("Main thread: Scheduling is NOT SCHED_FIFO!");
+      }
+      else
+      {
+        ROS_INFO("Main thread: SCHED_FIFO OK");
+      }
+
+      // Print thread scheduling priority
+      ROS_INFO_STREAM("Main thread priority is " << params.sched_priority);
+    }
+    else
+    {
+      ROS_ERROR("Could not get maximum thread priority for main thread");
+    }
+  }
+
   // Run as fast as possible
   while (ros::ok())
   {
