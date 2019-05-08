@@ -65,7 +65,8 @@ public:
       b_pos += append(b_pos, val);
     }
 
-    int32_t val = htobe32(1);
+    // TODO: Make this a parameter: Number of allowed missed packages
+    int32_t val = htobe32(5);
     append(b_pos, val);
 
     size_t written;

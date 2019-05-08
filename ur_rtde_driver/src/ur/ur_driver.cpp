@@ -73,27 +73,28 @@ def myProg():
         sync()
       elif state == SERVO_RUNNING:
         servoj(q, {{SERVO_J_REPLACE}})
-        servoj(q, t=0.008, lookahead_time=0.03, gain=750)
       else:
         sync()
       end
     end
   end
-  socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}})
+  socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
   thread_servo = run servoThread()
   keepalive = -2
-  params_mult = socket_read_binary_integer(6+1)
+  params_mult = socket_read_binary_integer(6+1, "reverse_socket")
   keepalive = params_mult[7]
   while keepalive > 0:
-    params_mult = socket_read_binary_integer(6+1)
-    keepalive = params_mult[7]
-    if keepalive > 0:
-      if params_mult[0] > 0:
-        q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
-        set_servo_setpoint(q)
-      end
+    params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.002)
+    if params_mult[0] > 0:
+      keepalive = params_mult[7]
+      q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
+      set_servo_setpoint(q)
+    else:
+      # TODO: Extrapolation goes here
+      keepalive = keepalive - 1
     end
+    sync()
   end
   sleep(.1)
   socket_close()

@@ -78,8 +78,10 @@ int main(int argc, char** argv)
 
     if (!control_rate.sleep())
     {
-      // ROS_WARN_STREAM("Could not keep cycle rate of " << control_rate.expectedCycleTime().toNSec() / 1000000.0 <<
-      // "ms");
+      ROS_WARN_STREAM("Could not keep cycle rate of " << control_rate.expectedCycleTime().toNSec() / 1000000.0 <<
+          "ms");
+      ROS_WARN_STREAM("Actual cycle time:" << control_rate.cycleTime().toNSec() / 1000000.0 <<
+          "ms");
     }
   }
 
