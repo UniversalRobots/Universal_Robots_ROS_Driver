@@ -14,6 +14,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Many parts from this (Most of the URScript program) comes from the ur_modern_driver
+// Copyright 2017, 2018 Simon Rasmussen (refactor)
+// Copyright 2015, 2016 Thomas Timm Andersen (original version)
+//
 // -- END LICENSE BLOCK ------------------------------------------------
 
 //----------------------------------------------------------------------
@@ -30,10 +35,15 @@
 
 namespace ur_driver
 {
+static const int32_t MULT_JOINTSTATE_ = 1000000;
+static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");
+static const std::string SERVO_J_REPLACE("{{SERVO_J_REPLACE}}");
+static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
+static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 static const std::string POSITION_PROGRAM = R"(
 def myProg():
   textmsg("hello")
-  MULT_jointstate = 1000000
+  MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
   SERVO_IDLE = 0
   SERVO_RUNNING = 1
@@ -62,13 +72,14 @@ def myProg():
         stopj(1.0)
         sync()
       elif state == SERVO_RUNNING:
+        servoj(q, {{SERVO_J_REPLACE}})
         servoj(q, t=0.008, lookahead_time=0.03, gain=750)
       else:
         sync()
       end
     end
   end
-  socket_open("192.168.56.1", 50001)
+  socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}})
 
   thread_servo = run servoThread()
   keepalive = -2
@@ -91,6 +102,7 @@ end
 )";
 
 ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
+  : servoj_time_(0.002), servoj_gain_(750), servoj_lookahead_time_(0.03)
 {
   ROS_INFO_STREAM("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
@@ -101,12 +113,24 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
   }
 
   rtde_frequency_ = rtde_client_->getMaxFrequency();
+  servoj_time_ = 1.0 / rtde_frequency_;
 
   comm::URStream<rtde_interface::PackageHeader> stream(ROBOT_IP, 30001);
   stream.connect();
+  std::string local_ip = stream.getIP();
 
-  size_t len = POSITION_PROGRAM.size();
-  const uint8_t* data = reinterpret_cast<const uint8_t*>(POSITION_PROGRAM.c_str());
+  uint32_t reverse_port = 50001;  // TODO: Make this a parameter
+
+  std::string prog = POSITION_PROGRAM;
+  prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
+  std::ostringstream out;
+  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_;
+  out << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
+  prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
+  prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
+  prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
+  size_t len = prog.size();
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(prog.c_str());
   size_t written;
 
   if (stream.write(data, len, written))
@@ -118,7 +142,6 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
     LOG_ERROR("Could not send program to robot");
   }
 
-  uint32_t reverse_port = 50001;  // TODO: Make this a parameter
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
 
   ROS_INFO_STREAM("Created reverse interface");

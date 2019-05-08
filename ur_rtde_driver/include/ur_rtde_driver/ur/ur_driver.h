@@ -68,5 +68,9 @@ private:
   comm::INotifier notifier_;
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
   std::unique_ptr<comm::ReverseInterface> reverse_interface_;
+
+  double servoj_time_;
+  uint32_t servoj_gain_;
+  double servoj_lookahead_time_;
 };
 }  // namespace ur_driver
