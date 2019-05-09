@@ -42,7 +42,8 @@ static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
 static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 static const std::string POSITION_PROGRAM = R"(
 def myProg():
-  textmsg("hello")
+  global steptime = get_steptime()
+  textmsg("steptime=", steptime)
   MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
   SERVO_IDLE = 0
@@ -69,10 +70,11 @@ def myProg():
       cmd_servo_state = SERVO_IDLE
       exit_critical
       if do_brake:
+        textmsg("No new setpoint received. Stopping robot.")
         stopj(1.0)
         sync()
       elif state == SERVO_RUNNING:
-        servoj(q, {{SERVO_J_REPLACE}})
+        servoj(q, t=steptime, {{SERVO_J_REPLACE}})
       else:
         sync()
       end
@@ -85,7 +87,7 @@ def myProg():
   params_mult = socket_read_binary_integer(6+1, "reverse_socket")
   keepalive = params_mult[7]
   while keepalive > 0:
-    params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.002)
+    params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.012)
     if params_mult[0] > 0:
       keepalive = params_mult[7]
       q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
@@ -96,6 +98,7 @@ def myProg():
     end
     sync()
   end
+  stopj(1.0)
   sleep(.1)
   socket_close()
   kill thread_servo
@@ -103,7 +106,7 @@ end
 )";
 
 ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
-  : servoj_time_(0.002), servoj_gain_(750), servoj_lookahead_time_(0.03)
+  : servoj_time_(0.008), servoj_gain_(750), servoj_lookahead_time_(0.03)
 {
   ROS_INFO_STREAM("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
@@ -125,8 +128,7 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
   std::string prog = POSITION_PROGRAM;
   prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
   std::ostringstream out;
-  out << "t=" << std::fixed << std::setprecision(4) << servoj_time_;
-  out << ", lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
+  out << "lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
   prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
