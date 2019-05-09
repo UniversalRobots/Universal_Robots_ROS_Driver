@@ -27,7 +27,21 @@
 #include <ros/ros.h>
 #include <controller_manager/controller_manager.h>
 
+#include <csignal>
 #include <ur_rtde_driver/ros/hardware_interface.h>
+
+std::unique_ptr<ur_driver::HardwareInterface> hw_interface;
+
+void signalHandler(int signum)
+{
+  std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+  hw_interface.reset();
+  // cleanup and close up stuff here
+  // terminate program
+
+  exit(signum);
+}
 
 int main(int argc, char** argv)
 {
@@ -39,7 +53,8 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::NodeHandle nh_priv("~");
 
-  ur_driver::HardwareInterface hw_interface;
+  // register signal SIGINT and signal handler
+  signal(SIGINT, signalHandler);
 
   // Set up timers
   ros::Time timestamp;
@@ -47,9 +62,11 @@ int main(int argc, char** argv)
   auto stopwatch_last = std::chrono::steady_clock::now();
   auto stopwatch_now = stopwatch_last;
 
-  hw_interface.init(nh, nh_priv);
+  hw_interface.reset(new ur_driver::HardwareInterface);
+
+  hw_interface->init(nh, nh_priv);
   ROS_INFO_STREAM("initialized hw interface");
-  controller_manager::ControllerManager cm(&hw_interface, nh);
+  controller_manager::ControllerManager cm(hw_interface.get(), nh);
   ROS_INFO_STREAM("started controller manager");
 
   // Get current time and elapsed time since last read
@@ -57,8 +74,6 @@ int main(int argc, char** argv)
   stopwatch_now = std::chrono::steady_clock::now();
   period.fromSec(std::chrono::duration_cast<std::chrono::duration<double>>(stopwatch_now - stopwatch_last).count());
   stopwatch_last = stopwatch_now;
-
-  ros::Rate control_rate(static_cast<double>(hw_interface.getControlFrequency()));
 
   std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
   bool has_realtime;
@@ -109,11 +124,13 @@ int main(int argc, char** argv)
     }
   }
 
+  double expected_cycle_time = 1.0 / (static_cast<double>(hw_interface->getControlFrequency()));
+
   // Run as fast as possible
   while (ros::ok())
   {
     // Receive current state from robot
-    hw_interface.read(timestamp, period);
+    hw_interface->read(timestamp, period);
 
     // Get current time and elapsed time since last read
     timestamp = ros::Time::now();
@@ -123,14 +140,12 @@ int main(int argc, char** argv)
 
     cm.update(timestamp, period);
 
-    hw_interface.write(timestamp, period);
-
-    if (!control_rate.sleep())
+    hw_interface->write(timestamp, period);
+    // if (!control_rate.sleep())
+    if (period.toSec() > expected_cycle_time)
     {
-      ROS_WARN_STREAM("Could not keep cycle rate of " << control_rate.expectedCycleTime().toNSec() / 1000000.0 <<
-          "ms");
-      ROS_WARN_STREAM("Actual cycle time:" << control_rate.cycleTime().toNSec() / 1000000.0 <<
-          "ms");
+      // ROS_WARN_STREAM("Could not keep cycle rate of " << expected_cycle_time * 1000 << "ms");
+      // ROS_WARN_STREAM("Actual cycle time:" << period.toNSec() / 1000000.0 << "ms");
     }
   }
 

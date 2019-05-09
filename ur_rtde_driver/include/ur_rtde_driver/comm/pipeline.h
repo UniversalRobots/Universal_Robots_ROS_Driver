@@ -152,6 +152,11 @@ public:
   {
   }
 
+  virtual ~Pipeline()
+  {
+    stop();
+  }
+
   void run()
   {
     if (running_)
@@ -170,7 +175,7 @@ public:
     if (!running_)
       return;
 
-    LOG_DEBUG("Stopping pipeline! <%s>", name_.c_str());
+    LOG_INFO("Stopping pipeline! <%s>", name_.c_str());
 
     if (consumer_ != nullptr)
       consumer_->stopConsumer();

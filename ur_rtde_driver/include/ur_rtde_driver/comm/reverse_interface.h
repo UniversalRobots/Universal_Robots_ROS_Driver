@@ -52,7 +52,10 @@ public:
       throw std::runtime_error("Failed to accept robot connection");
     }
   }
-  ~ReverseInterface() = default;
+  ~ReverseInterface()
+  {
+    server_.disconnectClient();
+  }
 
   bool write(const vector6d_t& positions)
   {
