@@ -156,7 +156,8 @@ std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage
   // TODO: This goes into the rtde_client
   std::unique_ptr<comm::URPackage<rtde_interface::PackageHeader>> urpackage;
   uint32_t period_ms = (1.0 / rtde_frequency_) * 1000;
-  std::chrono::milliseconds timeout(period_ms);
+  // std::chrono::milliseconds timeout(period_ms);
+  std::chrono::milliseconds timeout(100);
   if (rtde_client_->getDataPackage(urpackage, timeout))
   {
     rtde_interface::DataPackage* tmp = dynamic_cast<rtde_interface::DataPackage*>(urpackage.get());
