@@ -46,15 +46,28 @@ def myProg():
   textmsg("steptime=", steptime)
   MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
+  SERVO_UNINITIALIZED = -1
   SERVO_IDLE = 0
   SERVO_RUNNING = 1
-  cmd_servo_state = SERVO_IDLE
-  cmd_servo_q = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  cmd_servo_state = SERVO_UNINITIALIZED
+  cmd_servo_q = get_actual_joint_positions()
+  cmd_servo_q_last = get_actual_joint_positions()
   def set_servo_setpoint(q):
     enter_critical
     cmd_servo_state = SERVO_RUNNING
+    cmd_servo_q_last = cmd_servo_q
     cmd_servo_q = q
     exit_critical
+  end
+
+  def extrapolate():
+    enter_critical
+    diff = [cmd_servo_q[0] - cmd_servo_q_last[0], cmd_servo_q[1] - cmd_servo_q_last[1], cmd_servo_q[2] - cmd_servo_q_last[2], cmd_servo_q[3] - cmd_servo_q_last[3], cmd_servo_q[4] - cmd_servo_q_last[4], cmd_servo_q[5] - cmd_servo_q_last[5]]
+    cmd_servo_q_last = cmd_servo_q
+    cmd_servo_q = [cmd_servo_q[0] + diff[0], cmd_servo_q[1] + diff[1], cmd_servo_q[2] + diff[2], cmd_servo_q[3] + diff[3], cmd_servo_q[4] + diff[4], cmd_servo_q[5] + diff[5]]
+    exit_critical
+
+    return cmd_servo_q
   end
 
   thread servoThread():
@@ -62,23 +75,25 @@ def myProg():
     while True:
       enter_critical
       q = cmd_servo_q
-      do_brake = False
-      if (state == SERVO_RUNNING) and (cmd_servo_state == SERVO_IDLE):
-        do_brake = True
+      do_extrapolate = False
+      if (cmd_servo_state == SERVO_IDLE):
+        do_extrapolate = True
       end
       state = cmd_servo_state
       cmd_servo_state = SERVO_IDLE
       exit_critical
-      if do_brake:
-        textmsg("No new setpoint received. Stopping robot.")
-        stopj(1.0)
-        sync()
+      if do_extrapolate:
+        textmsg("No new setpoint received. Extrapolating.")
+        q = extrapolate()
+        servoj(q, t=steptime, {{SERVO_J_REPLACE}})
       elif state == SERVO_RUNNING:
         servoj(q, t=steptime, {{SERVO_J_REPLACE}})
       else:
+        textmsg("Should not be here")
         sync()
       end
     end
+    stopj(0.1)
   end
   socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
@@ -87,7 +102,7 @@ def myProg():
   params_mult = socket_read_binary_integer(6+1, "reverse_socket")
   keepalive = params_mult[7]
   while keepalive > 0:
-    params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.012)
+    params_mult = socket_read_binary_integer(6+1, "reverse_socket", steptime)
     if params_mult[0] > 0:
       keepalive = params_mult[7]
       q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
@@ -96,9 +111,7 @@ def myProg():
       # TODO: Extrapolation goes here
       keepalive = keepalive - 1
     end
-    sync()
   end
-  stopj(1.0)
   sleep(.1)
   socket_close()
   kill thread_servo
@@ -129,6 +142,7 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
   prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
   std::ostringstream out;
   out << "lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
+  prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
