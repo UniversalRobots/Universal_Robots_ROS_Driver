@@ -16,7 +16,7 @@
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
   <arg name="shutdown_on_disconnect" default="true" />
-  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller"/>
+  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller"/>
   <arg name="stopped_controllers" default=""/>
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur10_upload.launch">

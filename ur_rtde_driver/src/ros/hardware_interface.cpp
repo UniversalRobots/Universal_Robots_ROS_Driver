@@ -72,14 +72,14 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
   }
 
-  // speedsc_interface_.registerHandle(
-  // ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
+  speedsc_interface_.registerHandle(
+      ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
   // registerInterface(&pj_interface_);
-  // registerInterface(&speedsc_interface_);
+  registerInterface(&speedsc_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
