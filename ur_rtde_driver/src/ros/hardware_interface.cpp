@@ -66,7 +66,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
 
   ROS_INFO_STREAM("Initializing urdriver");
-  ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename));
+  ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
+                                std::bind(&HardwareInterface::handleRobotProgramStop, this, std::placeholders::_1)));
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {
@@ -263,4 +264,16 @@ void HardwareInterface ::transform_force_torque()
 
   fts_measurements_ = { tcp_force[0], tcp_force[1], tcp_force[2], tcp_torque[0], tcp_torque[1], tcp_torque[2] };
 }
+
+bool HardwareInterface ::isRobotProgramRunning() const
+{
+  return robot_program_running_;
+}
+
+void HardwareInterface ::handleRobotProgramStop(bool program_running)
+{
+  // TODO add ROS publisher to call for controller stop
+  robot_program_running_ = program_running;
+}
+
 }  // namespace ur_driver

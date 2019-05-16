@@ -62,6 +62,10 @@ public:
 
   uint32_t getControlFrequency() const;
 
+  bool isRobotProgramRunning() const;
+
+  void handleRobotProgramStop(bool program_running);
+
 protected:
   /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame
@@ -96,6 +100,7 @@ protected:
   double pausing_ramp_up_increment_;
 
   std::string tcp_link_;
+  bool robot_program_running_;
 };
 
 }  // namespace ur_driver

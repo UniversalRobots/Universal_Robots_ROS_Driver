@@ -77,6 +77,23 @@ public:
     return server_.write(buffer, sizeof(buffer), written);
   }
 
+  std::string readKeepalive()
+  {
+    size_t buf_len = 16;
+    char buffer[buf_len];
+
+    bool read_successful = server_.readLine(buffer, buf_len);
+
+    if (read_successful)
+    {
+      return std::string(buffer);
+    }
+    else
+    {
+      return std::string("");
+    }
+  }
+
   template <typename T>
   size_t append(uint8_t* buffer, T& val)
   {

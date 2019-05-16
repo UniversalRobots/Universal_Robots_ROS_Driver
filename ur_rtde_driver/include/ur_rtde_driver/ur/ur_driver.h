@@ -48,7 +48,8 @@ public:
    * \param robot_ip IP-address under which the robot is reachable.
    * \param script_file URScript file that should be sent to the robot
    */
-  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file);
+  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
+           std::function<void(bool)> handle_program_state);
   virtual ~UrDriver() = default;
 
   /*!
@@ -67,8 +68,11 @@ public:
 
   bool writeJointCommand(const vector6d_t& values);
 
+  void startWatchdog();
+
 private:
   std::string readScriptFile(const std::string& filename);
+  std::string readKeepalive();
 
   int rtde_frequency_;
   comm::INotifier notifier_;
@@ -79,6 +83,11 @@ private:
   double servoj_time_;
   uint32_t servoj_gain_;
   double servoj_lookahead_time_;
+
+  std::thread watchdog_thread_;
+  bool reverse_interface_active_;
+  uint32_t reverse_port_;
+  std::function<void(bool)> handle_program_state_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED

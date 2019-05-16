@@ -44,8 +44,12 @@ static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
 static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
-                              const std::string& recipe_file)
-  : servoj_time_(0.008), servoj_gain_(2000), servoj_lookahead_time_(0.03)
+                              const std::string& recipe_file, std::function<void(bool)> handle_program_state)
+  : servoj_time_(0.008)
+  , servoj_gain_(2000)
+  , servoj_lookahead_time_(0.03)
+  , reverse_interface_active_(false)
+  , handle_program_state_(handle_program_state)
 {
   LOG_INFO("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_, recipe_file));
@@ -79,9 +83,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
   script_sender_->start();
   LOG_INFO("Created script sender");
-  reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
 
-  LOG_INFO("Created reverse interface");
+  reverse_port_ = reverse_port;
+  watchdog_thread_ = std::thread(&UrDriver::startWatchdog, this);
 
   rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
   LOG_INFO("Initialization done");
@@ -107,7 +111,7 @@ std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage
 
 bool UrDriver::writeJointCommand(const vector6d_t& values)
 {
-  if (reverse_interface_)
+  if (reverse_interface_active_)
   {
     reverse_interface_->write(values);
   }
@@ -119,11 +123,50 @@ bool UrDriver::writeJointCommand(const vector6d_t& values)
   return true;
 }
 
+void UrDriver::startWatchdog()
+{
+  handle_program_state_(false);
+  reverse_interface_.reset(new comm::ReverseInterface(reverse_port_));
+  reverse_interface_active_ = true;
+  LOG_INFO("Created reverse interface");
+
+  while (true)
+  {
+    handle_program_state_(true);
+    while (reverse_interface_active_ == true)
+    {
+      std::string keepalive = readKeepalive();
+
+      if (keepalive == std::string(""))
+      {
+        reverse_interface_active_ = false;
+      }
+    }
+
+    LOG_INFO("Connection to robot dropped, waiting for new connection.");
+    handle_program_state_(false);
+    reverse_interface_->~ReverseInterface();
+    reverse_interface_.reset(new comm::ReverseInterface(reverse_port_));
+    reverse_interface_active_ = true;
+  }
+}
+
 std::string UrDriver::readScriptFile(const std::string& filename)
 {
   std::ifstream ifs(filename);
   std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 
   return content;
+}
+std::string UrDriver::readKeepalive()
+{
+  if (reverse_interface_active_)
+  {
+    return reverse_interface_->readKeepalive();
+  }
+  else
+  {
+    return std::string("");
+  }
 }
 }  // namespace ur_driver
