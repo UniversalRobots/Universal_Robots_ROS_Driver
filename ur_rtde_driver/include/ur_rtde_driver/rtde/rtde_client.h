@@ -51,7 +51,7 @@ class RTDEClient
 {
 public:
   RTDEClient() = delete;
-  RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier);
+  RTDEClient(std::string robot_ip, comm::INotifier& notifier);
   ~RTDEClient() = default;
   bool init();
   bool start();

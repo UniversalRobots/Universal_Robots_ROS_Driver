@@ -42,9 +42,9 @@ public:
   /*!
    * \brief Constructs a new UrDriver object.
    *
-   * \param ROBOT_IP IP-address under which the robot is reachable.
+   * \param robot_ip IP-address under which the robot is reachable.
    */
-  UrDriver(const std::string& ROBOT_IP);
+  UrDriver(const std::string& robot_ip);
   virtual ~UrDriver() = default;
 
   /*!

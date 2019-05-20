@@ -44,10 +44,10 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 {
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
-  std::string ROBOT_IP = robot_hw_nh.param<std::string>("robot_ip", "192.168.56.101");
+  std::string robot_ip = robot_hw_nh.param<std::string>("robot_ip", "192.168.56.101");
 
   ROS_INFO_STREAM("Initializing urdriver");
-  ur_driver_.reset(new UrDriver(ROBOT_IP));
+  ur_driver_.reset(new UrDriver(robot_ip));
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {

@@ -118,11 +118,11 @@ def myProg():
 end
 )";
 
-ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
+ur_driver::UrDriver::UrDriver(const std::string& robot_ip)
   : servoj_time_(0.008), servoj_gain_(750), servoj_lookahead_time_(0.03)
 {
   ROS_INFO_STREAM("Initializing RTDE client");
-  rtde_client_.reset(new rtde_interface::RTDEClient(ROBOT_IP, notifier_));
+  rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_));
 
   if (!rtde_client_->init())
   {
@@ -132,7 +132,9 @@ ur_driver::UrDriver::UrDriver(const std::string& ROBOT_IP)
   rtde_frequency_ = rtde_client_->getMaxFrequency();
   servoj_time_ = 1.0 / rtde_frequency_;
 
-  comm::URStream<rtde_interface::PackageHeader> stream(ROBOT_IP, 30001);
+  // Open Stream to get own IP
+  // TODO: Open Primary interface to query version and calibration
+  comm::URStream<rtde_interface::PackageHeader> stream(robot_ip, 30001);
   stream.connect();
   std::string local_ip = stream.getIP();
 

@@ -31,8 +31,8 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-RTDEClient::RTDEClient(std::string ROBOT_IP, comm::INotifier& notifier)
-  : stream_(ROBOT_IP, UR_RTDE_PORT)
+RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier)
+  : stream_(robot_ip, UR_RTDE_PORT)
   , parser_(readRecipe())
   , prod_(stream_, parser_)
   , pipeline_(prod_, PIPELINE_NAME, notifier)
