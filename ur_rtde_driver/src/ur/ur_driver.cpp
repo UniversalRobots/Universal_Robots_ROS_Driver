@@ -122,7 +122,7 @@ end
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip)
   : servoj_time_(0.008), servoj_gain_(750), servoj_lookahead_time_(0.03)
 {
-  ROS_INFO_STREAM("Initializing RTDE client");
+  LOG_INFO("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_));
 
   if (!rtde_client_->init())
@@ -164,10 +164,10 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip)
 
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
 
-  ROS_INFO_STREAM("Created reverse interface");
+  LOG_INFO("Created reverse interface");
 
   rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
-  ROS_INFO_STREAM("Initialization done");
+  LOG_INFO("Initialization done");
 }
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
