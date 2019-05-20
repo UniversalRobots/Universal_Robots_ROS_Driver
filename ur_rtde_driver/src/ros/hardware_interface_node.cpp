@@ -64,7 +64,11 @@ int main(int argc, char** argv)
 
   hw_interface.reset(new ur_driver::HardwareInterface);
 
-  hw_interface->init(nh, nh_priv);
+  if (!hw_interface->init(nh, nh_priv))
+  {
+    ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
+    exit(1);
+  }
   ROS_INFO_STREAM("initialized hw interface");
   controller_manager::ControllerManager cm(hw_interface.get(), nh);
   ROS_INFO_STREAM("started controller manager");

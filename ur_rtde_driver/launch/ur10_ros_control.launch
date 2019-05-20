@@ -18,6 +18,7 @@
   <arg name="shutdown_on_disconnect" default="true" />
   <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller"/>
   <arg name="stopped_controllers" default=""/>
+  <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <!-- robot model -->
   <include file="$(find ur_description)/launch/ur10_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
@@ -25,8 +26,9 @@
 
 
   <!-- Load hardware interface -->
-  <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_rtde_driver_node" output="screen" launch-prefix="$(arg launch_prefix)">
+  <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_rtde_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
     <param name="robot_ip" type="str" value="$(arg robot_ip)"/>
+    <param name="script_file" value="$(arg urscript_file)"/>
     <!--<param name="reverse_port" type="int" value="$(arg reverse_port)" />-->
     <!--<param name="min_payload" type="double" value="$(arg min_payload)"/>-->
     <!--<param name="max_payload" type="double" value="$(arg max_payload)"/>-->

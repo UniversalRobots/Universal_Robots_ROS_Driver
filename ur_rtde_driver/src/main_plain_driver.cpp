@@ -18,14 +18,15 @@ using namespace ur_driver;
 
 int main(int argc, char* argv[])
 {
-  std::string ROBOT_IP = "192.168.56.101";
+  std::string robot_ip = "192.168.56.101";
+  std::string script_filename = "urprog.urscript";
 
-  if (argc > 1)
+  if (argc > 2)
   {
-    ROBOT_IP = argv[1];
+    robot_ip = argv[1];
   }
 
-  UrDriver driver(ROBOT_IP);
+  UrDriver driver(robot_ip, script_filename);
 
   while (true)
   {

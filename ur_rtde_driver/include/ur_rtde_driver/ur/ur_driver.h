@@ -43,8 +43,9 @@ public:
    * \brief Constructs a new UrDriver object.
    *
    * \param robot_ip IP-address under which the robot is reachable.
+   * \param script_file URScript file that should be sent to the robot
    */
-  UrDriver(const std::string& robot_ip);
+  UrDriver(const std::string& robot_ip, const std::string& script_file);
   virtual ~UrDriver() = default;
 
   /*!
@@ -64,6 +65,8 @@ public:
   bool writeJointCommand(const vector6d_t& values);
 
 private:
+  std::string readScriptFile(const std::string& filename);
+
   int rtde_frequency_;
   comm::INotifier notifier_;
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
