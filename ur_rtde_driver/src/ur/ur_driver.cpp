@@ -31,6 +31,7 @@
 //----------------------------------------------------------------------
 
 #include "ur_rtde_driver/ur/ur_driver.h"
+#include "ur_rtde_driver/primary/package_header.h"
 #include <memory>
 
 namespace ur_driver
@@ -134,7 +135,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip)
 
   // Open Stream to get own IP
   // TODO: Open Primary interface to query version and calibration
-  comm::URStream<rtde_interface::PackageHeader> stream(robot_ip, 30001);
+  comm::URStream<primary_interface::PackageHeader> stream(robot_ip, 30001);
   stream.connect();
   std::string local_ip = stream.getIP();
 
