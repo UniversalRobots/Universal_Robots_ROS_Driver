@@ -61,6 +61,7 @@ keepalive = -2
 params_mult = socket_read_binary_integer(6+1, "reverse_socket")
 keepalive = params_mult[7]
 while keepalive > 0:
+  socket_send_line(1, "reverse_socket")
   params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
   if params_mult[0] > 0:
     keepalive = params_mult[7]
