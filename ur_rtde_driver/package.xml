@@ -2,12 +2,12 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>ur_rtde_driver</name>
-  <version>0.1.0</version>
-  <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB2 and CB3 controllers.</description>
+  <version>0.0.1</version>
+  <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controllers and the e-series.</description>
   <author>Thomas Timm Andersen</author>
   <author>Simon Rasmussen</author>
-  <maintainer email="g.a.vanderhoorn@tudelft.nl">G.A. vd. Hoorn (TU Delft Robotics Institute)</maintainer>
-  <maintainer email="nhg@ipa.fhg.de">Nadia Hammoudeh Garcia</maintainer>
+  <author>Felix Mauch</author>
+  <maintainer email="mauch@fzi.de">Felix Mauch</maintainer>
   <license>Apache 2.0</license>
   <license>BSD 2-clause</license>
   <license>Zlib</license>
@@ -20,11 +20,11 @@
 
   <build_depend>boost</build_depend>
 
-  <depend>hardware_interface</depend>
-  <depend>controller_manager</depend>
   <depend>actionlib</depend>
   <depend>control_msgs</depend>
+  <depend>controller_manager</depend>
   <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
   <depend>industrial_msgs</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
@@ -37,8 +37,8 @@
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
-  <exec_depend>ur_description</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>ur_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
   <test_depend>rosunit</test_depend>
