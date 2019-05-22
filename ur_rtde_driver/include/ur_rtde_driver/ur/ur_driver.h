@@ -27,6 +27,7 @@
 
 #include "ur_rtde_driver/rtde/rtde_client.h"
 #include "ur_rtde_driver/comm/reverse_interface.h"
+#include "ur_rtde_driver/comm/script_sender.h"
 
 namespace ur_driver
 {
@@ -71,6 +72,7 @@ private:
   comm::INotifier notifier_;
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
   std::unique_ptr<comm::ReverseInterface> reverse_interface_;
+  std::unique_ptr<comm::ScriptSender> script_sender_;
 
   double servoj_time_;
   uint32_t servoj_gain_;

@@ -62,7 +62,8 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   stream.connect();
   std::string local_ip = stream.getIP();
 
-  uint32_t reverse_port = 50001;  // TODO: Make this a parameter
+  uint32_t reverse_port = 50001;        // TODO: Make this a parameter
+  uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
 
   std::string prog = readScriptFile(script_file);
   prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
@@ -72,19 +73,10 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
-  size_t len = prog.size();
-  const uint8_t* data = reinterpret_cast<const uint8_t*>(prog.c_str());
-  size_t written;
 
-  if (stream.write(data, len, written))
-  {
-    LOG_INFO("Sent program to robot");
-  }
-  else
-  {
-    LOG_ERROR("Could not send program to robot");
-  }
-
+  script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
+  script_sender_->start();
+  LOG_INFO("Created script sender");
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port));
 
   LOG_INFO("Created reverse interface");
