@@ -20,13 +20,14 @@ int main(int argc, char* argv[])
 {
   std::string robot_ip = "192.168.56.101";
   std::string script_filename = "urprog.urscript";
+  std::string recipe_filename = "rtde_recipe.txt";
 
   if (argc > 2)
   {
     robot_ip = argv[1];
   }
 
-  UrDriver driver(robot_ip, script_filename);
+  UrDriver driver(robot_ip, script_filename, recipe_filename);
 
   while (true)
   {

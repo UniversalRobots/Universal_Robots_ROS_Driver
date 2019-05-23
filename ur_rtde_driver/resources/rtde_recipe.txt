@@ -1,0 +1,5 @@
+timestamp
+actual_q
+actual_qd
+speed_scaling
+target_speed_fraction

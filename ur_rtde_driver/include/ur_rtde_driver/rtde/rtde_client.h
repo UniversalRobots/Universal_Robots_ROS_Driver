@@ -51,7 +51,7 @@ class RTDEClient
 {
 public:
   RTDEClient() = delete;
-  RTDEClient(std::string robot_ip, comm::INotifier& notifier);
+  RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& recipe_file);
   ~RTDEClient() = default;
   bool init();
   bool start();
@@ -64,6 +64,7 @@ public:
 
 private:
   comm::URStream<PackageHeader> stream_;
+  std::vector<std::string> recipe_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
@@ -73,7 +74,7 @@ private:
   constexpr static const double CB3_MAX_FREQUENCY = 125.0;
   constexpr static const double URE_MAX_FREQUENCY = 500.0;
 
-  std::vector<std::string> readRecipe();
+  std::vector<std::string> readRecipe(const std::string& recipe_file);
 };
 
 }  // namespace rtde_interface

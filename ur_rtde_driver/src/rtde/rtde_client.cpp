@@ -31,9 +31,10 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier)
+RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& recipe_file)
   : stream_(robot_ip, UR_RTDE_PORT)
-  , parser_(readRecipe())
+  , recipe_(readRecipe(recipe_file))
+  , parser_(recipe_)
   , prod_(stream_, parser_)
   , pipeline_(prod_, PIPELINE_NAME, notifier)
   , max_frequency_(URE_MAX_FREQUENCY)
@@ -83,11 +84,11 @@ bool RTDEClient::init()
   LOG_INFO("Setting up RTDE communication with frequency %f", max_frequency_);
   if (protocol_version == 2)
   {
-    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, max_frequency_, readRecipe());
+    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, max_frequency_, recipe_);
   }
   else
   {
-    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, readRecipe());
+    size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, recipe_);
   }
   stream_.write(buffer, size, written);
   return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
@@ -104,14 +105,16 @@ bool RTDEClient::start()
   rtde_interface::ControlPackageStart* tmp = dynamic_cast<rtde_interface::ControlPackageStart*>(package.get());
   return tmp->accepted_;
 }
-std::vector<std::string> RTDEClient::readRecipe()
+std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
 {
   std::vector<std::string> recipe;
-  recipe.push_back("timestamp");
-  recipe.push_back("actual_q");
-  recipe.push_back("actual_qd");
-  recipe.push_back("speed_scaling");
-  recipe.push_back("target_speed_fraction");
+  std::ifstream file(recipe_file);
+  std::string line;
+  while (std::getline(file, line))
+  {
+    recipe.push_back(line);
+  }
+  recipe_ = recipe;
   return recipe;
 }
 

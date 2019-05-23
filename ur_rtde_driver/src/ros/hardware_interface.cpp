@@ -46,14 +46,21 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string robot_ip = robot_hw_nh.param<std::string>("robot_ip", "192.168.56.101");
   std::string script_filename;
+  std::string recipe_filename;
   if (!robot_hw_nh.getParam("script_file", script_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("script_file") << " not given.");
     return false;
   }
 
+  if (!robot_hw_nh.getParam("recipe_file", recipe_filename))
+  {
+    ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("recipe_file") << " not given.");
+    return false;
+  }
+
   ROS_INFO_STREAM("Initializing urdriver");
-  ur_driver_.reset(new UrDriver(robot_ip, script_filename));
+  ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename));
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {

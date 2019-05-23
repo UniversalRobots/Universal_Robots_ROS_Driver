@@ -46,7 +46,7 @@ public:
    * \param robot_ip IP-address under which the robot is reachable.
    * \param script_file URScript file that should be sent to the robot
    */
-  UrDriver(const std::string& robot_ip, const std::string& script_file);
+  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file);
   virtual ~UrDriver() = default;
 
   /*!
