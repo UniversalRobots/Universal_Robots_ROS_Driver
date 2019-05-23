@@ -74,6 +74,7 @@ protected:
   double speed_scaling_combined_;
   std::vector<std::string> joint_names_;
 
+  uint32_t runtime_state_;
   bool position_controller_running_;
 };
 

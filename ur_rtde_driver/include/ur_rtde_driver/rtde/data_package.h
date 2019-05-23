@@ -38,6 +38,16 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+enum class RUNTIME_STATE : uint32_t
+{
+  STOPPING = 0,
+  STOPPED = 1,
+  PLAYING = 2,
+  PAUSING = 3,
+  PAUSED = 4,
+  RESUMING = 5
+};
+
 struct ParseVisitor : public boost::static_visitor<>
 {
   template <typename T>

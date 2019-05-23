@@ -35,6 +35,7 @@ HardwareInterface::HardwareInterface()
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_names_(6)
+  , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
 
 {
@@ -124,6 +125,11 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
     }
+    if (!data_pkg->getData("runtime_state", runtime_state_))
+    {
+      // This throwing should never happen unless misconfigured
+      throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
+    }
 
     speed_scaling_combined_ = speed_scaling_ * target_speed_fraction_;
   }
@@ -135,7 +141,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  if (position_controller_running_)
+  if (position_controller_running_ && (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) || runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)))
   {
     // ROS_INFO_STREAM("Writing command: " << joint_position_command_);
     ur_driver_->writeJointCommand(joint_position_command_);
