@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   ur_rtde_driver
 )
 find_package(Eigen3 REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -108,7 +109,8 @@ catkin_package(
   CATKIN_DEPENDS
     roscpp
     ur_rtde_driver
-#  DEPENDS Eigen3
+  DEPENDS
+    yaml-cpp
 )
 
 ###########
@@ -180,7 +182,7 @@ if (CATKIN_ENABLE_TESTING)
   catkin_add_gtest(calibration_test
     test/calibration_test.cpp
     src/calibration.cpp)
-  target_link_libraries(calibration_test ${catkin_LIBRARIES})
+  target_link_libraries(calibration_test ${catkin_LIBRARIES} yaml-cpp)
 endif()
 
 install(TARGETS calibration_correction RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

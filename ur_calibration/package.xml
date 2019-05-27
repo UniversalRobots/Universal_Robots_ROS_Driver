@@ -51,6 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
   <depend>ur_rtde_driver</depend>
+  <depend>yaml-cpp</depend>
 
 
   <test_depend>rosunit</test_depend>
