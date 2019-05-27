@@ -148,7 +148,10 @@ public:
     return chain_;
   }
 
-  std::string toXacroProperties() {return robot_parameters_corrected_.toXacroProperties();}
+  std::string toXacroProperties()
+  {
+    return robot_parameters_corrected_.toXacroProperties();
+  }
   void writeToYaml(std::ofstream& ofstream) const;
 
   std::vector<Eigen::Matrix4d> getSimplified() const;

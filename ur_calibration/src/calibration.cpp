@@ -12,7 +12,7 @@
  */
 //----------------------------------------------------------------------
 
-#include <ur_rtde_driver/calibration.h>
+#include <ur_calibration/calibration.h>
 
 Calibration::Calibration(const DHRobot& robot_parameters) : robot_parameters_(robot_parameters)
 {

@@ -13,21 +13,17 @@ find_package(catkin REQUIRED
     actionlib
     control_msgs
     controller_manager
-    eigen_conversions
     geometry_msgs
     hardware_interface
-    kdl_parser
     industrial_msgs
     roscpp
     sensor_msgs
     std_srvs
     tf
-    tf_conversions
     trajectory_msgs
     ur_msgs
 )
 find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -38,10 +34,8 @@ catkin_package(
     actionlib
     control_msgs
     controller_manager
-    eigen_conversions
     geometry_msgs
     hardware_interface
-    kdl_parser
     industrial_msgs
     roscpp
     sensor_msgs
@@ -49,7 +43,6 @@ catkin_package(
     ur_msgs
     std_srvs
     tf
-    tf_conversions
   DEPENDS
     Boost
 )
@@ -121,18 +114,6 @@ target_link_libraries(plain_driver ${catkin_LIBRARIES} ur_rtde_driver)
 add_dependencies(plain_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(calibration_correction
-  src/calibration.cpp
-  src/calibration_correction.cpp
-)
-
-add_dependencies(calibration_correction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-## Specify libraries to link a library or executable target against
-target_link_libraries(calibration_correction
-  ${catkin_LIBRARIES}
-  yaml-cpp
-)
-
 install(DIRECTORY config launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
@@ -142,25 +123,5 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
 )
 
-#############
-## Testing ##
-#############
-
-if (CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(calibration_test
-    test/calibration_test.cpp
-    src/calibration.cpp)
-  target_link_libraries(calibration_test ${catkin_LIBRARIES})
-endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
-
-  #catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
-  #target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})
-#endif()
-install(TARGETS calibration_correction RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(TARGETS ur_rtde_driver ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION} LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION} RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION})
 install(DIRECTORY include/${PROJECT_NAME}/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
-install(FILES Apache-2.0_ur_modern_driver.txt DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/LICENSES)
-install(FILES manifest.yaml rosdoc.yaml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/doc)

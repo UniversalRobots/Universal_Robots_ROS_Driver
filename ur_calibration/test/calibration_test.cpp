@@ -13,7 +13,7 @@
 //----------------------------------------------------------------------
 
 #include <gtest/gtest.h>
-#include <ur_rtde_driver/calibration.h>
+#include <ur_calibration/calibration.h>
 
 namespace
 {

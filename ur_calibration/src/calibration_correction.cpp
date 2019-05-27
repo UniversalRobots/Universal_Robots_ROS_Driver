@@ -12,7 +12,7 @@
  */
 //----------------------------------------------------------------------
 
-#include <ur_rtde_driver/calibration.h>
+#include <ur_calibration/calibration.h>
 
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>
