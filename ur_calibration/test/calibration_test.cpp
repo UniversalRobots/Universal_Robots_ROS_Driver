@@ -44,7 +44,7 @@ TEST(UrRtdeDriver, ur10_fw_kinematics)
   my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , pi / 2));
   my_robot.segments_.push_back(DHSegment(0       , -0.612 , 0    , 0));
   my_robot.segments_.push_back(DHSegment(0       , -0.5723, 0    , 0.0));
-  my_robot.segments_.push_back(DHSegment(0.163841, 0      , 0    , pi / 2));
+  my_robot.segments_.push_back(DHSegment(0.163941, 0      , 0    , pi / 2));
   my_robot.segments_.push_back(DHSegment(0.1157  , 0      , 0    , -pi / 2));
   my_robot.segments_.push_back(DHSegment(0.0922  , 0      , 0    , 0));
   // clang-format on
@@ -109,7 +109,7 @@ TEST(UrRtdeDriver, calibration)
   my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , pi / 2));
   my_robot.segments_.push_back(DHSegment(0       , -0.612 , 0    , 0));
   my_robot.segments_.push_back(DHSegment(0       , -0.5723, 0    , 0.0));
-  my_robot.segments_.push_back(DHSegment(0.163841, 0      , 0    , pi / 2));
+  my_robot.segments_.push_back(DHSegment(0.163941, 0      , 0    , pi / 2));
   my_robot.segments_.push_back(DHSegment(0.1157  , 0      , 0    , -pi / 2));
   my_robot.segments_.push_back(DHSegment(0.0922  , 0      , 0    , 0));
   // clang-format on
