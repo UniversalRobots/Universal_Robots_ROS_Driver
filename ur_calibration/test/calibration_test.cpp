@@ -15,6 +15,8 @@
 #include <gtest/gtest.h>
 #include <ur_calibration/calibration.h>
 
+using namespace ur_calibration;
+
 namespace
 {
 bool isApproximately(const double val1, const double val2, const double precision)
