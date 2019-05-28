@@ -15,6 +15,8 @@
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/primary/robot_state/kinematics_info.h"
 
+#include <iomanip>
+
 namespace ur_driver
 {
 namespace primary_interface
@@ -43,28 +45,28 @@ std::string KinematicsInfo::toString() const
   os << "dh_theta: [";
   for (size_t i = 0; i < dh_theta_.size(); ++i)
   {
-    os << dh_theta_[i] << " ";
+    os << std::setprecision(15) << dh_theta_[i] << " ";
   }
   os << "]" << std::endl;
 
   os << "dh_a: [";
   for (size_t i = 0; i < dh_a_.size(); ++i)
   {
-    os << dh_a_[i] << " ";
+    os << std::setprecision(15) << dh_a_[i] << " ";
   }
   os << "]" << std::endl;
 
   os << "dh_d: [";
   for (size_t i = 0; i < dh_d_.size(); ++i)
   {
-    os << dh_d_[i] << " ";
+    os << std::setprecision(15) << dh_d_[i] << " ";
   }
   os << "]" << std::endl;
 
   os << "dh_alpha: [";
   for (size_t i = 0; i < dh_alpha_.size(); ++i)
   {
-    os << dh_alpha_[i] << " ";
+    os << std::setprecision(15) << dh_alpha_[i] << " ";
   }
   os << "]" << std::endl;
 
