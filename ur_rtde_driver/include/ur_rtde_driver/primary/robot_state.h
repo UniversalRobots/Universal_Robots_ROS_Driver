@@ -28,8 +28,7 @@
 #ifndef UR_RTDE_DRIVER_ROBOT_STATE_H_INCLUDED
 #define UR_RTDE_DRIVER_ROBOT_STATE_H_INCLUDED
 
-#include <mutex>
-#include <condition_variable>
+#include <sstream>
 
 #include "ur_rtde_driver/primary/primary_package.h"
 #include "ur_rtde_driver/primary/package_header.h"

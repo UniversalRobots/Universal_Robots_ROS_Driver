@@ -26,6 +26,7 @@
 #include <cstddef>
 #include <cstring>
 #include <string>
+#include <memory>
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/types.h"
 
