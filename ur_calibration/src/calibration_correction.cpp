@@ -47,8 +47,7 @@ int main(int argc, char* argv[])
   pipeline.run();
   while (!consumer.isCalibrated())
   {
-    sleep(1);
-    // LOG_INFO("Still running");
+    ros::Duration(0.1).sleep();
   }
   pipeline.stop();
 
