@@ -151,6 +151,12 @@ public:
   {
   }
 
+  ~Pipeline()
+  {
+    LOG_INFO("Destructing pipeline");
+    stop();
+  }
+
   void run()
   {
     if (running_)
