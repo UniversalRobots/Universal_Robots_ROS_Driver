@@ -20,6 +20,8 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
+namespace ur_calibration
+{
 /*!
  * \brief An internal representation of a DH-parametrized link.
  *
@@ -152,7 +154,7 @@ public:
   {
     return robot_parameters_corrected_.toXacroProperties();
   }
-  void writeToYaml(std::ofstream& ofstream) const;
+  YAML::Node toYaml() const;
 
   std::vector<Eigen::Matrix4d> getSimplified() const;
 
@@ -169,4 +171,5 @@ private:
 
   std::vector<Eigen::Matrix4d> chain_;
 };
+}  // namespace ur_calibration
 #endif  // ifndef UR_RTDE_DRIVER_CALIBRATION_H_INCLUDED

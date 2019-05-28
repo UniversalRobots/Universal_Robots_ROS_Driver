@@ -14,6 +14,8 @@
 
 #include <ur_calibration/calibration.h>
 
+namespace ur_calibration
+{
 Calibration::Calibration(const DHRobot& robot_parameters) : robot_parameters_(robot_parameters)
 {
   buildChain();
@@ -206,7 +208,7 @@ std::vector<Eigen::Matrix4d> Calibration::getSimplified() const
   return simplified_chain;
 }
 
-void Calibration::writeToYaml(std::ofstream& ofstream) const
+YAML::Node Calibration::toYaml() const
 {
   YAML::Node node;
 
@@ -226,5 +228,6 @@ void Calibration::writeToYaml(std::ofstream& ofstream) const
     node["kinematics"][link_names_[i]] = link;
   }
 
-  ofstream << node;
+  return node;
 }
+}  // namespace ur_calibration

@@ -127,6 +127,7 @@ include_directories(
 
 add_executable(calibration_correction
   src/calibration.cpp
+  src/calibration_consumer.cpp
   src/calibration_correction.cpp
 )
 

@@ -123,7 +123,7 @@ public:
 
       default:
       {
-        LOG_WARN("Invalid robot package type recieved: %u", static_cast<uint8_t>(type));
+        LOG_DEBUG("Invalid robot package type recieved: %u", static_cast<uint8_t>(type));
         bp.consume();
         return true;
       }
