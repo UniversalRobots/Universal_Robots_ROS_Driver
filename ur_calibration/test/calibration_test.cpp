@@ -34,12 +34,10 @@ void doubleEqVec(const Eigen::Matrix<Scalar_, dim_, 1> vec1, const Eigen::Matrix
   }
 }
 
-TEST(UrRtdeDriver, ur10_fw_kinematics)
+TEST(UrRtdeDriver, ur10_fw_kinematics_ideal)
 {
   DHRobot my_robot;
   const double pi = std::atan(1) * 4;
-  // const double pi = 1.570796327 * 2.0;
-  // const double pi = M_PI;
 
   // This is an ideal UR10
   // clang-format off
@@ -74,6 +72,29 @@ TEST(UrRtdeDriver, ur10_fw_kinematics)
             my_robot.segments_[4].d_;
     doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-16);
   }
+}
+
+TEST(UrRtdeDriver, ur10_fw_kinematics_real)
+{
+  // This test compares a corrected ideal model against positions taken from a simulated robot.
+  DHRobot my_robot;
+  const double pi_2 = 1.570796327;  // This is what the simulated robot reports as pi/2
+
+  // This is an ideal UR10
+  // clang-format off
+  my_robot.segments_.push_back(DHSegment(0.1273  , 0      , 0    , pi_2));
+  my_robot.segments_.push_back(DHSegment(0       , -0.612 , 0    , 0));
+  my_robot.segments_.push_back(DHSegment(0       , -0.5723, 0    , 0.0));
+  my_robot.segments_.push_back(DHSegment(0.163941, 0      , 0    , pi_2));
+  my_robot.segments_.push_back(DHSegment(0.1157  , 0      , 0    , -pi_2));
+  my_robot.segments_.push_back(DHSegment(0.0922  , 0      , 0    , 0));
+  // clang-format on
+
+  Calibration calibration(my_robot);
+
+  Eigen::Matrix<double, 6, 1> jointvalues;
+  Eigen::Vector3d expected_position;
+  Eigen::Quaterniond expected_orientation;
   {
     jointvalues << -1.6007002035724084976209269370884, -1.7271001974688928726209269370884,
         -2.2029998938189905288709269370884, -0.80799991289247685699592693708837, 1.59510004520416259765625,
@@ -82,7 +103,7 @@ TEST(UrRtdeDriver, ur10_fw_kinematics)
 
     Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
 
-    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-10);
+    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-15);
   }
   {
     jointvalues << 1.32645022869110107421875, 2.426007747650146484375, 5.951572895050048828125,
@@ -92,7 +113,7 @@ TEST(UrRtdeDriver, ur10_fw_kinematics)
 
     Eigen::Matrix4d fk = calibration.calcForwardKinematics(jointvalues);
 
-    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-9);
+    doubleEqVec<double, 3>(expected_position, fk.topRightCorner(3, 1), 1e-15);
   }
 }
 
