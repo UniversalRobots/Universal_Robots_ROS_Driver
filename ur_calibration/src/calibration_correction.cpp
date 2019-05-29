@@ -62,7 +62,7 @@ public:
       robot_name_ = getRequiredParameter<std::string>("robot_name");
 
       // The resulting parameter file will be stored inside
-      // <output_package_name>/subfolder/<robot_name>_calibration.yaml
+      // <output_package_name>/<subfolder>/<robot_name>_calibration.yaml
       output_package_name = getRequiredParameter<std::string>("output_package_name");
     }
     catch (const ParamaterMissingException& e)
