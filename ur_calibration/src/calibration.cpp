@@ -27,9 +27,6 @@ Calibration::~Calibration()
 
 void Calibration::correctChain()
 {
-  robot_parameters_corrected_ = robot_parameters_;
-  robot_parameters_corrected_.delta_theta_correction2_ = 0.0;
-  robot_parameters_corrected_.delta_theta_correction3_ = 0.0;
   correctAxis(1);
   correctAxis(2);
 }
@@ -57,31 +54,24 @@ void Calibration::correctAxis(const size_t link_index)
     return;
   }
 
-  Eigen::Matrix<double, 6, 1> jointvalues;
-  jointvalues << 0, 0, 0, 0, 0, 0;
-  // Eigen::Matrix4d fk_current = calcForwardKinematics(jointvalues, link_index);
-  // Eigen::Vector3d current_passive = fk_current.topRightCorner(3, 1);
-  // ROS_INFO_STREAM("current passive:\n" << current_passive);
   Eigen::Matrix4d fk_current = Eigen::Matrix4d::Identity();
   Eigen::Vector3d current_passive = Eigen::Vector3d::Zero();
 
   Eigen::Matrix4d fk_next_passive = Eigen::Matrix4d::Identity();
   fk_next_passive *= chain_[link_index * 2] * chain_[link_index * 2 + 1];
   Eigen::Vector3d eigen_passive = fk_next_passive.topRightCorner(3, 1);
-  // ROS_INFO_STREAM("Eigen passive:\n" << eigen_passive);
 
   Eigen::Vector3d eigen_next = (fk_next_passive * chain_[(link_index + 1) * 2]).topRightCorner(3, 1);
-  // ROS_INFO_STREAM("Eigen next:\n" << eigen_next);
 
   // Construct a representation of the next segment's rotational axis
   Eigen::ParametrizedLine<double, 3> next_line;
   next_line = Eigen::ParametrizedLine<double, 3>::Through(eigen_passive, eigen_next);
 
-  // ROS_INFO_STREAM("next_line:" << std::endl
-  //<< "Base:" << std::endl
-  //<< next_line.origin() << std::endl
-  //<< "Direction:" << std::endl
-  //<< next_line.direction());
+  ROS_DEBUG_STREAM("next_line:" << std::endl
+                                << "Base:" << std::endl
+                                << next_line.origin() << std::endl
+                                << "Direction:" << std::endl
+                                << next_line.direction());
 
   // XY-Plane of first segment's start
   Eigen::Hyperplane<double, 3> plane(fk_current.topLeftCorner(3, 3) * Eigen::Vector3d(0, 0, 1), current_passive);
@@ -95,10 +85,10 @@ void Calibration::correctAxis(const size_t link_index)
   double new_theta = std::atan(intersection.y() / intersection.x());
   // Upper and lower arm segments on URs all have negative length due to dh params
   double new_length = -1 * intersection.norm();
-  // ROS_INFO_STREAM("Wrist line intersecting at " << std::endl << intersection);
-  // ROS_INFO_STREAM("Angle is " << new_theta);
-  // ROS_INFO_STREAM("Length is " << new_length);
-  // ROS_INFO_STREAM("Intersection param is " << intersection_param);
+  ROS_DEBUG_STREAM("Wrist line intersecting at " << std::endl << intersection);
+  ROS_DEBUG_STREAM("Angle is " << new_theta);
+  ROS_DEBUG_STREAM("Length is " << new_length);
+  ROS_DEBUG_STREAM("Intersection param is " << intersection_param);
 
   // as we move the passive segment towards the first segment, we have to move away the next segment
   // again, to keep the same kinematic structure.
@@ -107,46 +97,24 @@ void Calibration::correctAxis(const size_t link_index)
 
   // Set d parameter of the first segment to 0 and theta to the calculated new angle
   // Correct arm segment length and angle
-  // ROS_INFO_STREAM("Passive old:\n" << chain_[2 * link_index]);
   chain_[2 * link_index](2, 3) = 0.0;
-  robot_parameters_corrected_.segments_[link_index].d_ = 0.0;
   chain_[2 * link_index].topLeftCorner(3, 3) =
       Eigen::AngleAxisd(new_theta, Eigen::Vector3d::UnitZ()).toRotationMatrix();
-  robot_parameters_corrected_.segments_[link_index].theta_ = new_theta;
-  // ROS_INFO_STREAM("Passive new:\n" << chain_[2 * link_index]);
 
   // Correct arm segment length and angle
-  // ROS_INFO_STREAM("Next old:\n" << chain_[2 * link_index + 1]);
-  // ROS_INFO_STREAM("Theta correction: " << robot_parameters_.segments_[link_index].theta_ - new_theta);
-  // ROS_INFO_STREAM("Alpha correction: " << robot_parameters_.segments_[link_index].alpha_);
   chain_[2 * link_index + 1](0, 3) = new_length;
-  robot_parameters_corrected_.segments_[link_index].a_ = new_length;
   chain_[2 * link_index + 1].topLeftCorner(3, 3) =
       Eigen::AngleAxisd(robot_parameters_.segments_[link_index].theta_ - new_theta, Eigen::Vector3d::UnitZ())
           .toRotationMatrix() *
       Eigen::AngleAxisd(robot_parameters_.segments_[link_index].alpha_, Eigen::Vector3d::UnitX()).toRotationMatrix();
-  if (link_index == 1)
-  {
-    robot_parameters_corrected_.delta_theta_correction2_ = robot_parameters_.segments_[link_index].theta_ - new_theta;
-  }
-  else if (link_index == 2)
-  {
-    robot_parameters_corrected_.delta_theta_correction3_ = robot_parameters_.segments_[link_index].theta_ - new_theta;
-  }
-
-  // ROS_INFO_STREAM("Next new:\n" << chain_[2 * link_index + 1]);
 
   // Correct next joint
-  // ROS_INFO_STREAM("Second Next old:\n" << chain_[2 * link_index + 2]);
   chain_[2 * link_index + 2](2, 3) -= distance_correction;
-  robot_parameters_corrected_.segments_[link_index + 1].d_ -= distance_correction;
-  // ROS_INFO_STREAM("Second Next new:\n" << chain_[2 * link_index + 2]);
 }
 
 Eigen::Matrix4d Calibration::calcForwardKinematics(const Eigen::Matrix<double, 6, 1>& joint_values,
                                                    const size_t link_nr)
 {
-  // ROS_INFO_STREAM("Calculating forward kinematics at link " << link_nr);
   // Currently ignore input and calculate for zero vector input
   Eigen::Matrix4d output = Eigen::Matrix4d::Identity();
 
@@ -157,8 +125,6 @@ Eigen::Matrix4d Calibration::calcForwardKinematics(const Eigen::Matrix<double, 6
     rotation.topLeftCorner(3, 3) = Eigen::AngleAxisd(joint_values(i), Eigen::Vector3d::UnitZ()).toRotationMatrix();
     output *= simplified_chain[i] * rotation;
   }
-
-  // ROS_INFO_STREAM("forward_kinematics at " << link_nr << std::endl << output);
 
   return output;
 }
@@ -193,16 +159,13 @@ std::vector<Eigen::Matrix4d> Calibration::getSimplified() const
     simplified_chain.push_back(chain_[i] * chain_[i + 1]);
     Eigen::Matrix3d rot_a = chain_[i].topLeftCorner(3, 3);
     Eigen::Vector3d rpy_a = rot_a.eulerAngles(0, 1, 2);
-    // ROS_INFO_STREAM("Rotation " << i / 2 << " a: [" << rpy_a.transpose() << "]");
+
     Eigen::Matrix3d rot_b = chain_[i + 1].topLeftCorner(3, 3);
     Eigen::Vector3d rpy_b = rot_b.eulerAngles(0, 1, 2);
-    // ROS_INFO_STREAM("Rotation " << i / 2 << " b: [" << rpy_b.transpose() << "]");
-    // ROS_INFO_STREAM("Matrix " << i / 2 << ":\n" << simplified_chain.back());
+
     Eigen::Matrix3d rot = simplified_chain.back().topLeftCorner(3, 3);
     Eigen::Vector3d rpy = rot.eulerAngles(0, 1, 2);
     Eigen::Quaterniond quat(rot);
-    // ROS_INFO_STREAM("Rotation (rpy) " << i / 2 << ": [" << rpy.transpose() << "]");
-    // ROS_INFO_STREAM("Rotation (quat, [xyz], w)" << i / 2 << ": [" << quat.vec().transpose() << "], " << quat.w());
   }
   simplified_chain.push_back(chain_.back());
   return simplified_chain;
