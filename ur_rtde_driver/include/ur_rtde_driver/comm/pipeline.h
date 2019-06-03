@@ -226,7 +226,7 @@ private:
         int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
         if (ret != 0)
         {
-          ROS_ERROR_STREAM("Unsuccessful in setting producer thread realtime priority. Error code: " << ret);
+          LOG_ERROR("Unsuccessful in setting producer thread realtime priority. Error code: %d", ret);
         }
         // Now verify the change in thread priority
         int policy = 0;
@@ -239,19 +239,19 @@ private:
         // Check the correct policy was applied
         if (policy != SCHED_FIFO)
         {
-          ROS_ERROR("Producer thread: Scheduling is NOT SCHED_FIFO!");
+          LOG_ERROR("Producer thread: Scheduling is NOT SCHED_FIFO!");
         }
         else
         {
-          ROS_INFO("Producer thread: SCHED_FIFO OK");
+          LOG_INFO("Producer thread: SCHED_FIFO OK");
         }
 
         // Print thread scheduling priority
-        ROS_INFO_STREAM("Thread priority is " << params.sched_priority);
+        LOG_INFO("Thread priority is %d", params.sched_priority);
       }
       else
       {
-        ROS_ERROR("Could not get maximum thread priority for producer thread");
+        LOG_ERROR("Could not get maximum thread priority for producer thread");
       }
     }
     else
