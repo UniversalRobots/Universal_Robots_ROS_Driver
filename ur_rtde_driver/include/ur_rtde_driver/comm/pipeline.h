@@ -154,6 +154,7 @@ public:
 
   virtual ~Pipeline()
   {
+    LOG_INFO("Destructing pipeline");
     stop();
   }
 

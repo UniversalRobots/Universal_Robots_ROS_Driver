@@ -19,7 +19,6 @@ find_package(catkin REQUIRED
     roscpp
     sensor_msgs
     std_srvs
-    tf
     trajectory_msgs
     ur_controllers
     ur_msgs
@@ -43,6 +42,7 @@ catkin_package(
     trajectory_msgs
     ur_controllers
     ur_msgs
+    std_srvs
   DEPENDS
     Boost
 )
@@ -127,14 +127,3 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
 )
-
-
-#if (CATKIN_ENABLE_TESTING)
-  #set(${PROJECT_NAME}_TEST_SOURCES
-    #tests/ur/master_board.cpp
-    #tests/ur/robot_mode.cpp
-    #tests/ur/rt_state.cpp)
-
-  #catkin_add_gtest(ur_rtde_driver_test ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_TEST_SOURCES} tests/main.cpp)
-  #target_link_libraries(ur_rtde_driver_test ur_rtde_driver ${catkin_LIBRARIES})
-#endif()

@@ -31,7 +31,6 @@
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
   <depend>ur_msgs</depend>
-  <depend>tf</depend>
   <depend>std_srvs</depend>
 
   <exec_depend>force_torque_sensor_controller</exec_depend>
