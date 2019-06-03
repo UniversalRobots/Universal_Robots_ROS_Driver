@@ -44,7 +44,7 @@ static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
                               const std::string& recipe_file)
-  : servoj_time_(0.008), servoj_gain_(750), servoj_lookahead_time_(0.03)
+  : servoj_time_(0.008), servoj_gain_(2000), servoj_lookahead_time_(0.03)
 {
   LOG_INFO("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_, recipe_file));
