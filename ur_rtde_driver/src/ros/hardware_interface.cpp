@@ -37,7 +37,8 @@ HardwareInterface::HardwareInterface()
   , joint_names_(6)
   , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
-
+  , pausing_state_(PausingState::RUNNING)
+  , pausing_ramp_up_increment_(0.01)
 {
 }
 
@@ -131,7 +132,41 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
       throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
     }
 
-    speed_scaling_combined_ = speed_scaling_ * target_speed_fraction_;
+    // pausing state follows runtime state when pausing
+    if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
+    {
+      pausing_state_ = PausingState::PAUSED;
+    }
+    // When the robot resumed program execution and pausing state was PAUSED, we enter RAMPUP
+    else if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) &&
+             pausing_state_ == PausingState::PAUSED)
+    {
+      speed_scaling_combined_ = 0.0;
+      pausing_state_ = PausingState::RAMPUP;
+    }
+
+    if (pausing_state_ == PausingState::RAMPUP)
+    {
+      ROS_INFO_STREAM("Ramping up speed scaling");
+      double speed_scaling_ramp = speed_scaling_combined_ + pausing_ramp_up_increment_;
+      speed_scaling_combined_ = std::min(speed_scaling_ramp, speed_scaling_ * target_speed_fraction_);
+
+      if (speed_scaling_ramp > speed_scaling_ * target_speed_fraction_)
+      {
+        pausing_state_ = PausingState::RUNNING;
+      }
+    }
+    else if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::RESUMING))
+    {
+      // We have to keep speed scaling on ROS side at 0 during RESUMING to prevent controllers from
+      // continuing to interpolate
+      speed_scaling_combined_ = 0.0;
+    }
+    else
+    {
+      // Normal case
+      speed_scaling_combined_ = speed_scaling_ * target_speed_fraction_;
+    }
   }
   else
   {
@@ -141,7 +176,9 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  if (position_controller_running_ && (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) || runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)))
+  if (position_controller_running_ &&
+      (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
+       runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)))
   {
     // ROS_INFO_STREAM("Writing command: " << joint_position_command_);
     ur_driver_->writeJointCommand(joint_position_command_);

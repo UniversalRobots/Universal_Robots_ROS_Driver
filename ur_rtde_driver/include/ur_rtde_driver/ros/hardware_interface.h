@@ -40,6 +40,13 @@
 
 namespace ur_driver
 {
+enum class PausingState
+{
+  PAUSED,
+  RUNNING,
+  RAMPUP
+};
+
 class HardwareInterface : public hardware_interface::RobotHW
 {
 public:
@@ -76,6 +83,9 @@ protected:
 
   uint32_t runtime_state_;
   bool position_controller_running_;
+
+  PausingState pausing_state_;
+  double pausing_ramp_up_increment_;
 };
 
 }  // namespace ur_driver
