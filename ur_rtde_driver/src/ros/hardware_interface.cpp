@@ -27,6 +27,8 @@
 
 #include "ur_rtde_driver/ros/hardware_interface.h"
 
+#include <Eigen/Geometry>
+
 namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
@@ -142,6 +144,14 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find actual_TCP_force in data sent from robot. This should not happen!");
     }
+    if (!data_pkg->getData("actual_TCP_pose", tcp_pose_))
+    {
+      // This throwing should never happen unless misconfigured
+      throw std::runtime_error("Did not find actual_TCP_pose in data sent from robot. This should not happen!");
+    }
+
+    // Transform fts measurements to tool frame
+    transform_force_torque();
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
@@ -227,5 +237,30 @@ uint32_t HardwareInterface ::getControlFrequency() const
   }
   // TODO: Do this nicer than throwing an exception
   throw std::runtime_error("ur_driver is not yet initialized");
+}
+
+void HardwareInterface ::transform_force_torque()
+{
+  double tcp_angle = std::sqrt(std::pow(tcp_pose_[3], 2) + std::pow(tcp_pose_[4], 2) + std::pow(tcp_pose_[5], 2));
+
+  Eigen::Vector3d rotation_vec;
+  rotation_vec = Eigen::Vector3d(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]).normalized();
+  Eigen::AngleAxisd rotation;
+  if (tcp_angle < 1e-16)
+  {
+    rotation = Eigen::AngleAxisd::Identity();
+  }
+  else
+  {
+    rotation = Eigen::AngleAxisd(tcp_angle, rotation_vec);
+  }
+
+  Eigen::Vector3d tcp_force = Eigen::Vector3d(fts_measurements_[0], fts_measurements_[1], fts_measurements_[2]);
+  Eigen::Vector3d tcp_torque = Eigen::Vector3d(fts_measurements_[3], fts_measurements_[4], fts_measurements_[5]);
+
+  tcp_force = rotation.inverse() * tcp_force;
+  tcp_torque = rotation.inverse() * tcp_torque;
+
+  fts_measurements_ = { tcp_force[0], tcp_force[1], tcp_force[2], tcp_torque[0], tcp_torque[1], tcp_torque[2] };
 }
 }  // namespace ur_driver

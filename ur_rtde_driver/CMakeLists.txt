@@ -24,6 +24,7 @@ find_package(catkin REQUIRED
     ur_msgs
 )
 find_package(Boost REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -69,6 +70,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_library(ur_rtde_driver

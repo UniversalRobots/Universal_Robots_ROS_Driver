@@ -63,6 +63,11 @@ public:
   uint32_t getControlFrequency() const;
 
 protected:
+  /*!
+   * \brief Transforms force-torque measurements reported from the robot from base to tool frame
+   */
+  void transform_force_torque();
+
   std::unique_ptr<UrDriver> ur_driver_;
 
   hardware_interface::JointStateInterface js_interface_;
@@ -78,6 +83,7 @@ protected:
   vector6d_t joint_velocities_;
   vector6d_t joint_efforts_;
   vector6d_t fts_measurements_;
+  vector6d_t tcp_pose_;
   double speed_scaling_;
   double target_speed_fraction_;
   double speed_scaling_combined_;
