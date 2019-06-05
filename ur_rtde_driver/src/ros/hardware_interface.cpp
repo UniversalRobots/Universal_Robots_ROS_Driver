@@ -61,6 +61,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     return false;
   }
 
+  tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
+
   ROS_INFO_STREAM("Initializing urdriver");
   ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename));
 
@@ -90,11 +92,15 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   speedsc_interface_.registerHandle(
       ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
+  fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
+      "wrench", tcp_link_, fts_measurements_.begin(), fts_measurements_.begin() + 3));
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
   // registerInterface(&pj_interface_);
   registerInterface(&speedsc_interface_);
+  registerInterface(&fts_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
@@ -130,6 +136,11 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     {
       // This throwing should never happen unless misconfigured
       throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
+    }
+    if (!data_pkg->getData("actual_TCP_force", fts_measurements_))
+    {
+      // This throwing should never happen unless misconfigured
+      throw std::runtime_error("Did not find actual_TCP_force in data sent from robot. This should not happen!");
     }
 
     // pausing state follows runtime state when pausing

@@ -16,7 +16,7 @@
   <arg name="base_frame" default="$(arg prefix)base" />
   <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
   <arg name="shutdown_on_disconnect" default="true" />
-  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller"/>
+  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
   <arg name="stopped_controllers" default=""/>
   <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>

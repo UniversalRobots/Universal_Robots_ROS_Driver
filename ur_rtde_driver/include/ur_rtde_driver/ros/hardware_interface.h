@@ -70,12 +70,14 @@ protected:
   hardware_interface::PositionJointInterface pj_interface_;
   ur_controllers::SpeedScalingInterface speedsc_interface_;
   // hardware_interface::VelocityJointInterface vj_interface_;
+  hardware_interface::ForceTorqueSensorInterface fts_interface_;
 
   vector6d_t joint_position_command_;
   // std::vector<double> joint_velocity_command_;
   vector6d_t joint_positions_;
   vector6d_t joint_velocities_;
   vector6d_t joint_efforts_;
+  vector6d_t fts_measurements_;
   double speed_scaling_;
   double target_speed_fraction_;
   double speed_scaling_combined_;
@@ -86,6 +88,8 @@ protected:
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
+
+  std::string tcp_link_;
 };
 
 }  // namespace ur_driver
