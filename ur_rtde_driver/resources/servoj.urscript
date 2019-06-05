@@ -2,6 +2,7 @@ global steptime = get_steptime()
 textmsg("steptime=", steptime)
 global MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
+global SERVO_STOPPED = -2
 global SERVO_UNINITIALIZED = -1
 global SERVO_IDLE = 0
 global SERVO_RUNNING = 1
@@ -28,7 +29,7 @@ end
 
 thread servoThread():
   state = SERVO_IDLE
-  while True:
+  while state > SERVO_STOPPED:
     enter_critical
     q = cmd_servo_q
     do_extrapolate = False
@@ -36,7 +37,9 @@ thread servoThread():
       do_extrapolate = True
     end
     state = cmd_servo_state
-    cmd_servo_state = SERVO_IDLE
+    if cmd_servo_state > SERVO_UNINITIALIZED:
+      cmd_servo_state = SERVO_IDLE
+    end
     exit_critical
     if do_extrapolate:
       textmsg("No new setpoint received. Extrapolating.")
@@ -45,10 +48,10 @@ thread servoThread():
     elif state == SERVO_RUNNING:
       servoj(q, t=steptime, {{SERVO_J_REPLACE}})
     else:
-      textmsg("Should not be here")
       sync()
     end
   end
+  textmsg("servo thread ended")
   stopj(0.1)
 end
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
@@ -58,16 +61,19 @@ keepalive = -2
 params_mult = socket_read_binary_integer(6+1, "reverse_socket")
 keepalive = params_mult[7]
 while keepalive > 0:
-  params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.2) # steptime could work as well, but does not work in simulation
+  params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
   if params_mult[0] > 0:
     keepalive = params_mult[7]
     q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
     set_servo_setpoint(q)
   else:
-    # TODO: Extrapolation goes here
     keepalive = keepalive - 1
   end
 end
+textmsg("Stopping communication and servoing")
+enter_critical
+  cmd_servo_state = SERVO_STOPPED
+exit_critical
 sleep(.1)
 socket_close()
 kill thread_servo
