@@ -126,14 +126,6 @@ public:
     val = inner != 0;
   }
 
-  // Explicit parsing order of fields to avoid issues with struct layout
-  void parse(double3_t& val)
-  {
-    parse(val.x);
-    parse(val.y);
-    parse(val.z);
-  }
-
   void parse(vector3d_t& val)
   {
     for (size_t i = 0; i < val.size(); ++i)
@@ -164,13 +156,6 @@ public:
     {
       parse(val[i]);
     }
-  }
-
-  // Explicit parsing order of fields to avoid issues with struct layout
-  void parse(cartesian_coord_t& val)
-  {
-    parse(val.position);
-    parse(val.rotation);
   }
 
   void rawData(std::unique_ptr<uint8_t>& buffer, size_t& buffer_length)

@@ -24,32 +24,10 @@
 
 namespace ur_driver
 {
-// TODO:Replace
-struct double3_t
-{
-  double x, y, z;
-};
-
 using vector3d_t = std::array<double, 3>;
 using vector6d_t = std::array<double, 6>;
 using vector6int32_t = std::array<int32_t, 6>;
 using vector6uint32_t = std::array<uint32_t, 6>;
-
-struct cartesian_coord_t
-{
-  double3_t position;
-  double3_t rotation;
-};
-
-inline bool operator==(const double3_t& lhs, const double3_t& rhs)
-{
-  return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
-}
-
-inline bool operator==(const cartesian_coord_t& lhs, const cartesian_coord_t& rhs)
-{
-  return lhs.position == rhs.position && lhs.rotation == rhs.rotation;
-}
 
 template <class T, std::size_t N>
 std::ostream& operator<<(std::ostream& out, const std::array<T, N>& item)

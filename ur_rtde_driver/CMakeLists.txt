@@ -81,7 +81,6 @@ add_library(ur_rtde_driver
     #src/ur/master_board.cpp
     #src/ur/messages.cpp
     #src/ur/robot_mode.cpp
-    #src/ur/rt_state.cpp
     src/primary/primary_package.cpp
     src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
