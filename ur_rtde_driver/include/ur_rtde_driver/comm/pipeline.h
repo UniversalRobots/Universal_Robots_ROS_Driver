@@ -191,7 +191,7 @@ public:
 
   bool getLatestProduct(std::unique_ptr<URPackage<HeaderT>>& product, std::chrono::milliseconds timeout)
   {
-    return queue_.wait_dequeue_timed(product, timeout);
+    return queue_.waitDequeTimed(product, timeout);
   }
 
 private:
@@ -268,7 +268,7 @@ private:
 
       for (auto& p : products)
       {
-        if (!queue_.try_enqueue(std::move(p)))
+        if (!queue_.tryEnqueue(std::move(p)))
         {
           LOG_ERROR("Pipeline producer overflowed! <%s>", name_.c_str());
         }
@@ -294,7 +294,7 @@ private:
       // at roughly 125hz (every 8ms) and have to update
       // the controllers (i.e. the consumer) with *at least* 125Hz
       // So we update the consumer more frequently via onTimeout
-      if (!queue_.wait_dequeue_timed(product, std::chrono::milliseconds(8)))
+      if (!queue_.waitDequeTimed(product, std::chrono::milliseconds(8)))
       {
         consumer_->onTimeout();
         continue;

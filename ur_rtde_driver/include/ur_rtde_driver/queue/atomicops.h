@@ -1,4 +1,4 @@
-﻿// ©2013-2016 Cameron Desrochers.
+// ©2013-2016 Cameron Desrochers.
 // Distributed under the simplified BSD license (see the license file that
 // should have come with this header).
 // Uses Jeff Preshing's semaphore implementation (under the terms of its
@@ -108,7 +108,7 @@ enum memory_order
 
 namespace moodycamel
 {
-AE_FORCEINLINE void compiler_fence(memory_order order)
+AE_FORCEINLINE void compilerFence(memory_order order)
 {
   switch (order)
   {
@@ -199,7 +199,7 @@ AE_FORCEINLINE void fence(memory_order order)
 
 namespace moodycamel
 {
-AE_FORCEINLINE void compiler_fence(memory_order order)
+AE_FORCEINLINE void compilerFence(memory_order order)
 {
   switch (order)
   {
@@ -265,29 +265,29 @@ AE_FORCEINLINE void fence(memory_order order)
 namespace moodycamel
 {
 template <typename T>
-class weak_atomic
+class WeakAtomic
 {
 public:
-  weak_atomic()
+  WeakAtomic()
   {
   }
 #ifdef AE_VCPP
 #pragma warning(disable : 4100)  // Get rid of (erroneous) 'unreferenced formal parameter' warning
 #endif
   template <typename U>
-  weak_atomic(U&& x) : value(std::forward<U>(x))
+  WeakAtomic(U&& x) : value_(std::forward<U>(x))
   {
   }
 #ifdef __cplusplus_cli
   // Work around bug with universal reference/nullptr combination that only appears when /clr is on
-  weak_atomic(nullptr_t) : value(nullptr)
+  WeakAtomic(nullptr_t) : value_(nullptr)
   {
   }
 #endif
-  weak_atomic(weak_atomic const& other) : value(other.value)
+  WeakAtomic(WeakAtomic const& other) : value_(other.value_)
   {
   }
-  weak_atomic(weak_atomic&& other) : value(std::move(other.value))
+  WeakAtomic(WeakAtomic&& other) : value_(std::move(other.value_))
   {
   }
 #ifdef AE_VCPP
@@ -301,80 +301,80 @@ public:
 
 #ifndef AE_USE_STD_ATOMIC_FOR_WEAK_ATOMIC
   template <typename U>
-  AE_FORCEINLINE weak_atomic const& operator=(U&& x)
+  AE_FORCEINLINE WeakAtomic const& operator=(U&& x)
   {
-    value = std::forward<U>(x);
+    value_ = std::forward<U>(x);
     return *this;
   }
-  AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other)
+  AE_FORCEINLINE WeakAtomic const& operator=(WeakAtomic const& other)
   {
-    value = other.value;
+    value_ = other.value_;
     return *this;
   }
 
   AE_FORCEINLINE T load() const
   {
-    return value;
+    return value_;
   }
 
-  AE_FORCEINLINE T fetch_add_acquire(T increment)
+  AE_FORCEINLINE T fetchAddAcquire(T increment)
   {
 #if defined(AE_ARCH_X64) || defined(AE_ARCH_X86)
     if (sizeof(T) == 4)
-      return _InterlockedExchangeAdd((long volatile*)&value, (long)increment);
+      return _InterlockedExchangeAdd((long volatile*)&value_, (long)increment);
 #if defined(_M_AMD64)
     else if (sizeof(T) == 8)
-      return _InterlockedExchangeAdd64((long long volatile*)&value, (long long)increment);
+      return _InterlockedExchangeAdd64((long long volatile*)&value_, (long long)increment);
 #endif
 #else
 #error Unsupported platform
 #endif
     assert(false && "T must be either a 32 or 64 bit type");
-    return value;
+    return value_;
   }
 
-  AE_FORCEINLINE T fetch_add_release(T increment)
+  AE_FORCEINLINE T fetchAddRelease(T increment)
   {
 #if defined(AE_ARCH_X64) || defined(AE_ARCH_X86)
     if (sizeof(T) == 4)
-      return _InterlockedExchangeAdd((long volatile*)&value, (long)increment);
+      return _InterlockedExchangeAdd((long volatile*)&value_, (long)increment);
 #if defined(_M_AMD64)
     else if (sizeof(T) == 8)
-      return _InterlockedExchangeAdd64((long long volatile*)&value, (long long)increment);
+      return _InterlockedExchangeAdd64((long long volatile*)&value_, (long long)increment);
 #endif
 #else
 #error Unsupported platform
 #endif
     assert(false && "T must be either a 32 or 64 bit type");
-    return value;
+    return value_;
   }
 #else
   template <typename U>
-  AE_FORCEINLINE weak_atomic const& operator=(U&& x)
+  AE_FORCEINLINE WeakAtomic const& operator=(U&& x)
   {
-    value.store(std::forward<U>(x), std::memory_order_relaxed);
+    value_.store(std::forward<U>(x), std::memory_order_relaxed);
     return *this;
   }
 
-  AE_FORCEINLINE weak_atomic const& operator=(weak_atomic const& other)
+  AE_FORCEINLINE WeakAtomic const& operator=(WeakAtomic const& other)
   {
-    value.store(other.value.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    value_.store(other.value_.load(std::memory_order_relaxed), std::memory_order_relaxed);
     return *this;
   }
 
   AE_FORCEINLINE T load() const
   {
-    return value.load(std::memory_order_relaxed);
+    return value_.load(std::memory_order_relaxed);
   }
 
-  AE_FORCEINLINE T fetch_add_acquire(T increment)
+  AE_FORCEINLINE T fetchAddAcquire(T increment)
   {
-    return value.fetch_add(increment, std::memory_order_acquire);
+    return value_.fetch_add(increment, std::memory_order_acquire);
   }
 
-  AE_FORCEINLINE T fetch_add_release(T increment)
+  AE_FORCEINLINE T fetchAddRelease(T increment)
   {
-    return value.fetch_add(increment, std::memory_order_release);
+    return value_.fetch_add(increment, std::memory_order_release);
   }
 #endif
 
@@ -382,9 +382,9 @@ private:
 #ifndef AE_USE_STD_ATOMIC_FOR_WEAK_ATOMIC
   // No std::atomic support, but still need to circumvent compiler optimizations.
   // `volatile` will make memory access slow, but is guaranteed to be reliable.
-  volatile T value;
+  volatile T value_;
 #else
-  std::atomic<T> value;
+  std::atomic<T> value_;
 #endif
 };
 
@@ -465,13 +465,13 @@ public:
     WaitForSingleObject(m_hSema, infinite);
   }
 
-  bool try_wait()
+  bool tryWait()
   {
     const unsigned long RC_WAIT_TIMEOUT = 0x00000102;
     return WaitForSingleObject(m_hSema, 0) != RC_WAIT_TIMEOUT;
   }
 
-  bool timed_wait(std::uint64_t usecs)
+  bool timedWait(std::uint64_t usecs)
   {
     const unsigned long RC_WAIT_TIMEOUT = 0x00000102;
     return WaitForSingleObject(m_hSema, (unsigned long)(usecs / 1000)) != RC_WAIT_TIMEOUT;
@@ -490,7 +490,7 @@ public:
 class Semaphore
 {
 private:
-  semaphore_t m_sema;
+  semaphore_t sema_;
 
   Semaphore(const Semaphore& other);
   Semaphore& operator=(const Semaphore& other);
@@ -499,25 +499,25 @@ public:
   Semaphore(int initialCount = 0)
   {
     assert(initialCount >= 0);
-    semaphore_create(mach_task_self(), &m_sema, SYNC_POLICY_FIFO, initialCount);
+    semaphore_create(mach_task_self(), &sema_, SYNC_POLICY_FIFO, initialCount);
   }
 
   ~Semaphore()
   {
-    semaphore_destroy(mach_task_self(), m_sema);
+    semaphore_destroy(mach_task_self(), sema_);
   }
 
   void wait()
   {
-    semaphore_wait(m_sema);
+    semaphore_wait(sema_);
   }
 
-  bool try_wait()
+  bool tryWait()
   {
-    return timed_wait(0);
+    return timedWait(0);
   }
 
-  bool timed_wait(std::int64_t timeout_usecs)
+  bool timedWait(std::int64_t timeout_usecs)
   {
     mach_timespec_t ts;
     ts.tv_sec = timeout_usecs / 1000000;
@@ -525,21 +525,21 @@ public:
 
     // added in OSX 10.10:
     // https://developer.apple.com/library/prerelease/mac/documentation/General/Reference/APIDiffsMacOSX10_10SeedDiff/modules/Darwin.html
-    kern_return_t rc = semaphore_timedwait(m_sema, ts);
+    kern_return_t rc = semaphore_timedwait(sema_, ts);
 
     return rc != KERN_OPERATION_TIMED_OUT;
   }
 
   void signal()
   {
-    semaphore_signal(m_sema);
+    semaphore_signal(sema_);
   }
 
   void signal(int count)
   {
     while (count-- > 0)
     {
-      semaphore_signal(m_sema);
+      semaphore_signal(sema_);
     }
   }
 };
@@ -550,7 +550,7 @@ public:
 class Semaphore
 {
 private:
-  sem_t m_sema;
+  sem_t sema_;
 
   Semaphore(const Semaphore& other);
   Semaphore& operator=(const Semaphore& other);
@@ -559,12 +559,12 @@ public:
   Semaphore(int initialCount = 0)
   {
     assert(initialCount >= 0);
-    sem_init(&m_sema, 0, initialCount);
+    sem_init(&sema_, 0, initialCount);
   }
 
   ~Semaphore()
   {
-    sem_destroy(&m_sema);
+    sem_destroy(&sema_);
   }
 
   void wait()
@@ -573,21 +573,21 @@ public:
     int rc;
     do
     {
-      rc = sem_wait(&m_sema);
+      rc = sem_wait(&sema_);
     } while (rc == -1 && errno == EINTR);
   }
 
-  bool try_wait()
+  bool tryWait()
   {
     int rc;
     do
     {
-      rc = sem_trywait(&m_sema);
+      rc = sem_trywait(&sema_);
     } while (rc == -1 && errno == EINTR);
     return !(rc == -1 && errno == EAGAIN);
   }
 
-  bool timed_wait(std::uint64_t usecs)
+  bool timedWait(std::uint64_t usecs)
   {
     struct timespec ts;
     const int usecs_in_1_sec = 1000000;
@@ -606,21 +606,21 @@ public:
     int rc;
     do
     {
-      rc = sem_timedwait(&m_sema, &ts);
+      rc = sem_timedwait(&sema_, &ts);
     } while (rc == -1 && errno == EINTR);
     return !(rc == -1 && errno == ETIMEDOUT);
   }
 
   void signal()
   {
-    sem_post(&m_sema);
+    sem_post(&sema_);
   }
 
   void signal(int count)
   {
     while (count-- > 0)
     {
-      sem_post(&m_sema);
+      sem_post(&sema_);
     }
   }
 };
@@ -637,34 +637,34 @@ public:
   typedef std::make_signed<std::size_t>::type ssize_t;
 
 private:
-  weak_atomic<ssize_t> m_count;
-  Semaphore m_sema;
+  WeakAtomic<ssize_t> count_;
+  Semaphore sema_;
 
   bool waitWithPartialSpinning(std::int64_t timeout_usecs = -1)
   {
-    ssize_t oldCount;
+    ssize_t old_count;
     // Is there a better way to set the initial spin count?
     // If we lower it to 1000, testBenaphore becomes 15x slower on my Core i7-5930K Windows PC,
     // as threads start hitting the kernel semaphore.
     int spin = 10000;
     while (--spin >= 0)
     {
-      if (m_count.load() > 0)
+      if (count_.load() > 0)
       {
-        m_count.fetch_add_acquire(-1);
+        count_.fetchAddAcquire(-1);
         return true;
       }
-      compiler_fence(memory_order_acquire);  // Prevent the compiler from collapsing the loop.
+      compilerFence(memory_order_acquire);  // Prevent the compiler from collapsing the loop.
     }
-    oldCount = m_count.fetch_add_acquire(-1);
-    if (oldCount > 0)
+    old_count = count_.fetchAddAcquire(-1);
+    if (old_count > 0)
       return true;
     if (timeout_usecs < 0)
     {
-      m_sema.wait();
+      sema_.wait();
       return true;
     }
-    if (m_sema.timed_wait(timeout_usecs))
+    if (sema_.timedWait(timeout_usecs))
       return true;
     // At this point, we've timed out waiting for the semaphore, but the
     // count is still decremented indicating we may still be waiting on
@@ -673,27 +673,27 @@ private:
     // need to release the semaphore too.
     while (true)
     {
-      oldCount = m_count.fetch_add_release(1);
-      if (oldCount < 0)
+      old_count = count_.fetchAddRelease(1);
+      if (old_count < 0)
         return false;  // successfully restored things to the way they were
       // Oh, the producer thread just signaled the semaphore after all. Try again:
-      oldCount = m_count.fetch_add_acquire(-1);
-      if (oldCount > 0 && m_sema.try_wait())
+      old_count = count_.fetchAddAcquire(-1);
+      if (old_count > 0 && sema_.tryWait())
         return true;
     }
   }
 
 public:
-  LightweightSemaphore(ssize_t initialCount = 0) : m_count(initialCount)
+  LightweightSemaphore(ssize_t initialCount = 0) : count_(initialCount)
   {
     assert(initialCount >= 0);
   }
 
   bool tryWait()
   {
-    if (m_count.load() > 0)
+    if (count_.load() > 0)
     {
-      m_count.fetch_add_acquire(-1);
+      count_.fetchAddAcquire(-1);
       return true;
     }
     return false;
@@ -713,17 +713,17 @@ public:
   void signal(ssize_t count = 1)
   {
     assert(count >= 0);
-    ssize_t oldCount = m_count.fetch_add_release(count);
-    assert(oldCount >= -1);
-    if (oldCount < 0)
+    ssize_t old_count = count_.fetchAddRelease(count);
+    assert(old_count >= -1);
+    if (old_count < 0)
     {
-      m_sema.signal(1);
+      sema_.signal(1);
     }
   }
 
   ssize_t availableApprox() const
   {
-    ssize_t count = m_count.load();
+    ssize_t count = count_.load();
     return count > 0 ? count : 0;
   }
 };
