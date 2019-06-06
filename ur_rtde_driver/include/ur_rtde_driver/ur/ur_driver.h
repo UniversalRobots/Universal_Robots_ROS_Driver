@@ -24,6 +24,8 @@
  *
  */
 //----------------------------------------------------------------------
+#ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED
+#define UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_client.h"
 #include "ur_rtde_driver/comm/reverse_interface.h"
@@ -79,3 +81,4 @@ private:
   double servoj_lookahead_time_;
 };
 }  // namespace ur_driver
+#endif  // ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED
