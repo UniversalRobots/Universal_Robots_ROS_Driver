@@ -1,3 +1,5 @@
+{{BEGIN_REPLACE}}
+
 global steptime = get_steptime()
 textmsg("steptime=", steptime)
 global MULT_jointstate = {{JOINT_STATE_REPLACE}}

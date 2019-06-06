@@ -96,6 +96,7 @@ add_library(ur_rtde_driver
     src/rtde/text_message.cpp
     src/rtde/rtde_client.cpp
     src/ur/ur_driver.cpp
+    src/ur/tool_communication.cpp
 )
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------
 
 #include "ur_rtde_driver/ros/hardware_interface.h"
+#include "ur_rtde_driver/ur/tool_communication.h"
 
 #include <Eigen/Geometry>
 
@@ -66,9 +67,67 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
 
+  bool use_tool_communication = robot_hw_nh.param<bool>("use_tool_communication", "false");
+  std::unique_ptr<ToolCommSetup> tool_comm_setup;
+  if (use_tool_communication)
+  {
+    tool_comm_setup.reset(new ToolCommSetup());
+
+    using ToolVoltageT = std::underlying_type<ToolVoltage>::type;
+    ToolVoltageT tool_voltage;
+    if (!robot_hw_nh.getParam("tool_voltage", tool_voltage))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_voltage") << " not given.");
+      return false;
+    }
+    tool_comm_setup->setToolVoltage(static_cast<ToolVoltage>(tool_voltage));
+
+    using ParityT = std::underlying_type<Parity>::type;
+    ParityT parity;
+    if (!robot_hw_nh.getParam("tool_parity", parity))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_parity") << " not given.");
+      return false;
+    }
+
+    int baud_rate;
+    if (!robot_hw_nh.getParam("tool_baud_rate", baud_rate))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_baud_rate") << " not given.");
+      return false;
+    }
+    tool_comm_setup->setBaudRate(baud_rate);
+
+    int stop_bits;
+    if (!robot_hw_nh.getParam("tool_stop_bits", stop_bits))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_stop_bits") << " not given.");
+      return false;
+    }
+    tool_comm_setup->setStopBits(stop_bits);
+
+    int rx_idle_chars;
+    if (!robot_hw_nh.getParam("tool_rx_idle_chars", rx_idle_chars))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_rx_idle_chars") << " not given.");
+      return false;
+    }
+    tool_comm_setup->setRxIdleChars(rx_idle_chars);
+    tool_comm_setup->setParity(static_cast<Parity>(parity));
+
+    int tx_idle_chars;
+    if (!robot_hw_nh.getParam("tool_tx_idle_chars", tx_idle_chars))
+    {
+      ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_tx_idle_chars") << " not given.");
+      return false;
+    }
+    tool_comm_setup->setTxIdleChars(tx_idle_chars);
+  }
+
   ROS_INFO_STREAM("Initializing urdriver");
   ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
-                                std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1)));
+                                std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
+                                std::move(tool_comm_setup)));
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {

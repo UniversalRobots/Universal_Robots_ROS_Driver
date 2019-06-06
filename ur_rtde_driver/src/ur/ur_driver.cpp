@@ -38,13 +38,15 @@
 namespace ur_driver
 {
 static const int32_t MULT_JOINTSTATE = 1000000;
+static const std::string BEGIN_REPLACE("{{BEGIN_REPLACE}}");
 static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");
 static const std::string SERVO_J_REPLACE("{{SERVO_J_REPLACE}}");
 static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
 static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
-                              const std::string& recipe_file, std::function<void(bool)> handle_program_state)
+                              const std::string& recipe_file, std::function<void(bool)> handle_program_state,
+                              std::unique_ptr<ToolCommSetup> tool_comm_setup)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)
@@ -79,6 +81,20 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
+
+  std::stringstream begin_replace;
+  if (tool_comm_setup != nullptr)
+  {
+    begin_replace << "set_tool_voltage("
+                  << static_cast<std::underlying_type<ToolVoltage>::type>(tool_comm_setup->getToolVoltage()) << ")\n";
+    begin_replace << "set_tool_communication("
+                  << "True"
+                  << ", " << tool_comm_setup->getBaudRate() << ", "
+                  << static_cast<std::underlying_type<Parity>::type>(tool_comm_setup->getParity()) << ", "
+                  << tool_comm_setup->getStopBits() << ", " << tool_comm_setup->getRxIdleChars() << ", "
+                  << tool_comm_setup->getTxIdleChars() << ")";
+  }
+  prog.replace(prog.find(BEGIN_REPLACE), BEGIN_REPLACE.length(), begin_replace.str());
 
   script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
   script_sender_->start();

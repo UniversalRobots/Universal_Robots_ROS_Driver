@@ -20,8 +20,16 @@
   <arg name="stopped_controllers" default=""/>
   <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>
+  <arg name="use_tool_communication" default="true"/>
+  <arg name="tool_voltage" default="12"/>
+  <arg name="tool_parity" default="1"/>
+  <arg name="tool_baud_rate" default="57600"/>
+  <arg name="tool_stop_bits" default="1"/>
+  <arg name="tool_rx_idle_chars" default="1.5"/>
+  <arg name="tool_tx_idle_chars" default="3.5"/>
+
   <!-- robot model -->
-  <include file="$(find ur_description)/launch/ur10_upload.launch">
+  <include file="$(find ur_e_description)/launch/ur10e_upload.launch">
     <arg name="limited" value="$(arg limited)"/>
   </include>
 
@@ -31,21 +39,17 @@
     <param name="robot_ip" type="str" value="$(arg robot_ip)"/>
     <param name="script_file" value="$(arg urscript_file)"/>
     <param name="recipe_file" value="$(arg rtde_recipe_file)"/>
-    <param name="use_tool_communication" value="false"/>
-    <!--<param name="reverse_port" type="int" value="$(arg reverse_port)" />-->
-    <!--<param name="min_payload" type="double" value="$(arg min_payload)"/>-->
-    <!--<param name="max_payload" type="double" value="$(arg max_payload)"/>-->
-    <!--<param name="max_velocity" type="double" value="$(arg max_velocity)"/>-->
-    <!--<param name="use_ros_control" type="bool" value="True"/>-->
-    <!--<param name="servoj_gain" type="double" value="750" />-->
-    <!--<param name="prefix" value="$(arg prefix)" />-->
-    <!--<param name="base_frame" type="str" value="$(arg base_frame)"/>-->
-    <!--<param name="tool_frame" type="str" value="$(arg tool_frame)"/>-->
-    <!--<param name="shutdown_on_disconnect" type="bool" value="$(arg shutdown_on_disconnect)"/>-->
+    <param name="use_tool_communication" value="$(arg use_tool_communication)"/>
+    <param name="tool_voltage" value="$(arg tool_voltage)"/>
+    <param name="tool_parity" value="$(arg tool_parity)"/>
+    <param name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
+    <param name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
+    <param name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
+    <param name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
   </node>
 
   <!-- Load controller settings -->
-  <rosparam file="$(find ur_rtde_driver)/config/ur10_controllers.yaml" command="load"/>
+  <rosparam file="$(find ur_rtde_driver)/config/ur10e_controllers.yaml" command="load"/>
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"

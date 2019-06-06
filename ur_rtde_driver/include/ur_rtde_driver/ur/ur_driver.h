@@ -30,6 +30,7 @@
 #include "ur_rtde_driver/rtde/rtde_client.h"
 #include "ur_rtde_driver/comm/reverse_interface.h"
 #include "ur_rtde_driver/comm/script_sender.h"
+#include "ur_rtde_driver/ur/tool_communication.h"
 
 namespace ur_driver
 {
@@ -47,9 +48,22 @@ public:
    *
    * \param robot_ip IP-address under which the robot is reachable.
    * \param script_file URScript file that should be sent to the robot
+   * \param tool_comm_setup Configuration for using the tool communication
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
-           std::function<void(bool)> handle_program_state);
+           std::function<void(bool)> handle_program_state, std::unique_ptr<ToolCommSetup> tool_comm_setup);
+  /*!
+   * \brief Constructs a new UrDriver object.
+   *
+   * \param robot_ip IP-address under which the robot is reachable.
+   * \param script_file URScript file that should be sent to the robot
+   */
+  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
+           std::function<void(bool)> handle_program_state)
+    : UrDriver(robot_ip, script_file, recipe_file, handle_program_state, std::unique_ptr<ToolCommSetup>{})
+  {
+  }
+
   virtual ~UrDriver() = default;
 
   /*!
