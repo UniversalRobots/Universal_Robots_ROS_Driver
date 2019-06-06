@@ -75,7 +75,7 @@ public:
       }
       default:
       {
-        std::unique_ptr<RTDEPackage> package(package_from_type(type));
+        std::unique_ptr<RTDEPackage> package(packageFromType(type));
         if (!package->parseWith(bp))
         {
           LOG_ERROR("Package parsing of type %d failed!", static_cast<int>(type));
@@ -98,7 +98,7 @@ public:
 
 private:
   std::vector<std::string> recipe_;
-  RTDEPackage* package_from_type(PackageType type)
+  RTDEPackage* packageFromType(PackageType type)
   {
     switch (type)
     {

@@ -58,7 +58,7 @@ private:
   std::thread script_thread_;
   std::string program_;
 
-  const std::string PROGRAM_REQUEST = std::string("request_program\n");
+  const std::string PROGRAM_REQUEST_ = std::string("request_program\n");
 
   void runScriptSender()
   {
@@ -86,7 +86,7 @@ private:
 
     if (read_successful)
     {
-      if (std::string(buffer) == PROGRAM_REQUEST)
+      if (std::string(buffer) == PROGRAM_REQUEST_)
       {
         return true;
       }

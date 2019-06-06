@@ -70,7 +70,7 @@ public:
           RobotStateType type;
           sbp.parse(type);
 
-          std::unique_ptr<PrimaryPackage> packet(state_from_type(type));
+          std::unique_ptr<PrimaryPackage> packet(stateFromType(type));
 
           if (packet == nullptr)
           {
@@ -109,7 +109,7 @@ public:
         bp.parse(source);
         bp.parse(message_type);
 
-        std::unique_ptr<PrimaryPackage> packet(message_from_type(message_type, timestamp, source));
+        std::unique_ptr<PrimaryPackage> packet(messageFromType(message_type, timestamp, source));
         if (!packet->parseWith(bp))
         {
           LOG_ERROR("Package parsing of type %d failed!", static_cast<int>(message_type));
@@ -132,7 +132,7 @@ public:
   }
 
 private:
-  RobotState* state_from_type(RobotStateType type)
+  RobotState* stateFromType(RobotStateType type)
   {
     switch (type)
     {
@@ -149,7 +149,7 @@ private:
     }
   }
 
-  RobotMessage* message_from_type(RobotMessagePackageType type, uint64_t timestamp, uint8_t source)
+  RobotMessage* messageFromType(RobotMessagePackageType type, uint64_t timestamp, uint8_t source)
   {
     switch (type)
     {

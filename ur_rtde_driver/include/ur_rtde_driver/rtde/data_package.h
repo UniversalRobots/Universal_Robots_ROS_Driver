@@ -109,7 +109,7 @@ public:
 
 private:
   // Const would be better here
-  static std::unordered_map<std::string, _rtde_type_variant> type_list_;
+  static std::unordered_map<std::string, _rtde_type_variant> g_type_list;
   uint8_t recipe_id_;
   std::unordered_map<std::string, _rtde_type_variant> data_;
   std::vector<std::string> recipe_;

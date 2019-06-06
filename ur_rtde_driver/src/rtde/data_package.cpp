@@ -30,7 +30,7 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::type_list_{
+std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_type_list{
   { "timestamp", double() },
   { "target_q", vector6d_t() },
   { "target_qd", vector6d_t() },
@@ -193,9 +193,9 @@ bool rtde_interface::DataPackage ::parseWith(comm::BinParser& bp)
   bp.parse(recipe_id_);
   for (auto& item : recipe_)
   {
-    if (type_list_.find(item) != type_list_.end())
+    if (g_type_list.find(item) != g_type_list.end())
     {
-      _rtde_type_variant entry = type_list_[item];
+      _rtde_type_variant entry = g_type_list[item];
       auto bound_visitor = std::bind(ParseVisitor(), std::placeholders::_1, bp);
       boost::apply_visitor(bound_visitor, entry);
       data_[item] = entry;

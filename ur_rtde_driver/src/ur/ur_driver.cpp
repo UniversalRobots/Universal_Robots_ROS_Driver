@@ -36,7 +36,7 @@
 
 namespace ur_driver
 {
-static const int32_t MULT_JOINTSTATE_ = 1000000;
+static const int32_t MULT_JOINTSTATE = 1000000;
 static const std::string JOINT_STATE_REPLACE("{{JOINT_STATE_REPLACE}}");
 static const std::string SERVO_J_REPLACE("{{SERVO_J_REPLACE}}");
 static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
@@ -67,7 +67,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
 
   std::string prog = readScriptFile(script_file);
-  prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE_));
+  prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE));
   std::ostringstream out;
   out << "lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
   prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
