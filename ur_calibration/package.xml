@@ -49,6 +49,7 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <depend>eigen</depend>
   <depend>roscpp</depend>
   <depend>ur_rtde_driver</depend>
   <depend>yaml-cpp</depend>

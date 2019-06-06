@@ -28,7 +28,7 @@
   <depend>industrial_msgs</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>Eigen3</depend>
+  <depend>eigen</depend>
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
   <depend>ur_msgs</depend>
