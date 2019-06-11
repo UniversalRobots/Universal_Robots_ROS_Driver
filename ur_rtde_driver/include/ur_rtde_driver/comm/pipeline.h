@@ -185,7 +185,10 @@ public:
     running_ = false;
 
     pThread_.join();
-    cThread_.join();
+    if (cThread_.joinable())
+    {
+      cThread_.join();
+    }
     notifier_.stopped(name_);
   }
 
