@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------
 
 #include "ur_rtde_driver/rtde/rtde_client.h"
+#include "ur_rtde_driver/exceptions.h"
 
 namespace ur_driver
 {
@@ -73,9 +74,15 @@ bool RTDEClient::init()
   size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
   stream_.write(buffer, size, written);
   pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
-  rtde_interface::GetUrcontrolVersion* tmp_control_version =
+  rtde_interface::GetUrcontrolVersion* tmp_urcontrol_version =
       dynamic_cast<rtde_interface::GetUrcontrolVersion*>(package.get());
-  if (tmp_control_version->major_ < 5)
+
+  if (tmp_urcontrol_version == nullptr)
+  {
+    throw UrException("Could not get urcontrol version from robot. This should not happen!");
+  }
+  urcontrol_version_ = tmp_urcontrol_version->version_information_;
+  if (urcontrol_version_.major < 5)
   {
     max_frequency_ = CB3_MAX_FREQUENCY;
   }

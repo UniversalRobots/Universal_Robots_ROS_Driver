@@ -33,10 +33,10 @@ namespace rtde_interface
 {
 bool GetUrcontrolVersion::parseWith(comm::BinParser& bp)
 {
-  bp.parse(major_);
-  bp.parse(minor_);
-  bp.parse(bugfix_);
-  bp.parse(build_);
+  bp.parse(version_information_.major);
+  bp.parse(version_information_.minor);
+  bp.parse(version_information_.bugfix);
+  bp.parse(version_information_.build);
 
   return true;
 }

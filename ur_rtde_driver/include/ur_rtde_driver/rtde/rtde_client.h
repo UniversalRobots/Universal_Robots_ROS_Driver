@@ -62,12 +62,19 @@ public:
     return max_frequency_;
   }
 
+  VersionInformation getVersion()
+  {
+    return urcontrol_version_;
+  }
+
 private:
   comm::URStream<PackageHeader> stream_;
   std::vector<std::string> recipe_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
+
+  VersionInformation urcontrol_version_;
 
   double max_frequency_;
 

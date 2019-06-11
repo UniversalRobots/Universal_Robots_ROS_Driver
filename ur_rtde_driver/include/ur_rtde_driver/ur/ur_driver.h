@@ -31,6 +31,7 @@
 #include "ur_rtde_driver/comm/reverse_interface.h"
 #include "ur_rtde_driver/comm/script_sender.h"
 #include "ur_rtde_driver/ur/tool_communication.h"
+#include "ur_rtde_driver/primary/robot_message/version_message.h"
 
 namespace ur_driver
 {

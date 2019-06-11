@@ -29,6 +29,7 @@
 #define UR_RTDE_DRIVER_GET_URCONTROL_VERSION_H_INCLUDED
 
 #include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/ur/version_information.h"
 
 namespace ur_driver
 {
@@ -42,6 +43,8 @@ public:
 
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
+
+  VersionInformation version_information_;
 
   uint32_t major_;
   uint32_t minor_;
