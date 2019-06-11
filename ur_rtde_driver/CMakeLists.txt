@@ -107,11 +107,6 @@ add_executable(ur_rtde_driver_node
 target_link_libraries(ur_rtde_driver_node ${catkin_LIBRARIES} ur_rtde_driver)
 add_dependencies(ur_rtde_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(plain_driver
-  src/main_plain_driver.cpp
-)
-target_link_libraries(plain_driver ${catkin_LIBRARIES} ur_rtde_driver)
-add_dependencies(plain_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS ur_rtde_driver ur_rtde_driver_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
