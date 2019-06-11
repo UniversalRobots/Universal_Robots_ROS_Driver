@@ -32,6 +32,7 @@
 
 #include "ur_rtde_driver/ur/ur_driver.h"
 #include "ur_rtde_driver/primary/package_header.h"
+#include "ur_rtde_driver/exceptions.h"
 #include <memory>
 
 namespace ur_driver
@@ -51,7 +52,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   if (!rtde_client_->init())
   {
-    throw std::runtime_error("initialization went wrong");  // TODO: be less harsh
+    throw UrException("Initialization of RTDE client went wrong.");
   }
 
   rtde_frequency_ = rtde_client_->getMaxFrequency();

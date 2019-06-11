@@ -29,6 +29,7 @@
 
 #include <csignal>
 #include <ur_rtde_driver/ros/hardware_interface.h>
+#include <ur_rtde_driver/exceptions.h>
 
 std::unique_ptr<ur_driver::HardwareInterface> g_hw_interface;
 
@@ -64,9 +65,17 @@ int main(int argc, char** argv)
 
   g_hw_interface.reset(new ur_driver::HardwareInterface);
 
-  if (!g_hw_interface->init(nh, nh_priv))
+  try
   {
-    ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
+    if (!g_hw_interface->init(nh, nh_priv))
+    {
+      ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
+      exit(1);
+    }
+  }
+  catch (ur_driver::UrException& e)
+  {
+    ROS_FATAL_STREAM("Could not correctly initialize robot: " << e.what());
     exit(1);
   }
   ROS_INFO_STREAM("initialized hw interface");
