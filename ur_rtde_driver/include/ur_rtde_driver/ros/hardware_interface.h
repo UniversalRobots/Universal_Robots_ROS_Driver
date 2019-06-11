@@ -32,6 +32,7 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <algorithm>
+#include <std_msgs/Bool.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
@@ -101,6 +102,7 @@ protected:
 
   std::string tcp_link_;
   bool robot_program_running_;
+  ros::Publisher program_state_pub_;
 };
 
 }  // namespace ur_driver

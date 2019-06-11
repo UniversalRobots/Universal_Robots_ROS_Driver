@@ -64,6 +64,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
 
   tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
+  program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
 
   ROS_INFO_STREAM("Initializing urdriver");
   ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
@@ -106,6 +107,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   registerInterface(&fts_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
+
 
   return true;
 }
@@ -272,8 +274,10 @@ bool HardwareInterface ::isRobotProgramRunning() const
 
 void HardwareInterface ::handleRobotProgramStop(bool program_running)
 {
-  // TODO add ROS publisher to call for controller stop
   robot_program_running_ = program_running;
+  std_msgs::Bool msg;
+  msg.data = robot_program_running_;
+  program_state_pub_.publish(msg);
 }
 
 }  // namespace ur_driver
