@@ -139,6 +139,7 @@ int main(int argc, char** argv)
 
   double expected_cycle_time = 1.0 / (static_cast<double>(g_hw_interface->getControlFrequency()));
 
+  ROS_INFO("Starting control loop");
   // Run as fast as possible
   while (ros::ok())
   {
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
     period.fromSec(std::chrono::duration_cast<std::chrono::duration<double>>(stopwatch_now - stopwatch_last).count());
     stopwatch_last = stopwatch_now;
 
-    cm.update(timestamp, period);
+    cm.update(timestamp, period, !g_hw_interface->isRobotProgramRunning());
 
     g_hw_interface->write(timestamp, period);
     // if (!control_rate.sleep())
