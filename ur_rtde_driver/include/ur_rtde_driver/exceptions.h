@@ -16,6 +16,7 @@
 #define UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED
 
 #include <stdexcept>
+#include <sstream>
 
 namespace ur_driver
 {
@@ -39,6 +40,34 @@ public:
 
 private:
   /* data */
+};
+
+class VersionMismatch : public UrException
+{
+public:
+  explicit VersionMismatch() : VersionMismatch("", 0, 0)
+  {
+  }
+  explicit VersionMismatch(const std::string& text, const uint32_t version_req, const uint32_t version_actual)
+    : std::runtime_error(text)
+  {
+    version_required_ = version_req;
+    version_actual_ = version_actual;
+    std::stringstream ss;
+    ss << text << "(Required version: " << version_required_ << ", actual version: " << version_actual_ << ")";
+    text_ = ss.str();
+  }
+  virtual ~VersionMismatch() = default;
+
+  virtual const char* what() const noexcept override
+  {
+    return text_.c_str();
+  }
+
+private:
+  uint32_t version_required_;
+  uint32_t version_actual_;
+  std::string text_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED

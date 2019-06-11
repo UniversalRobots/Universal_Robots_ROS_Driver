@@ -82,9 +82,16 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
 
+  auto urcontrol_version = rtde_client_->getVersion();
+
   std::stringstream begin_replace;
   if (tool_comm_setup != nullptr)
   {
+    if (urcontrol_version.major < 5)
+    {
+      throw VersionMismatch("This robot version does not support using the tool communication interface.", 5,
+                            urcontrol_version.major);
+    }
     begin_replace << "set_tool_voltage("
                   << static_cast<std::underlying_type<ToolVoltage>::type>(tool_comm_setup->getToolVoltage()) << ")\n";
     begin_replace << "set_tool_communication("
