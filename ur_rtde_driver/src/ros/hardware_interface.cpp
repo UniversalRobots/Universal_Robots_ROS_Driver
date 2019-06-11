@@ -68,7 +68,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   ROS_INFO_STREAM("Initializing urdriver");
   ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
-                                std::bind(&HardwareInterface::handleRobotProgramStop, this, std::placeholders::_1)));
+                                std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1)));
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {
@@ -107,7 +107,6 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   registerInterface(&fts_interface_);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
-
 
   return true;
 }
@@ -272,7 +271,7 @@ bool HardwareInterface ::isRobotProgramRunning() const
   return robot_program_running_;
 }
 
-void HardwareInterface ::handleRobotProgramStop(bool program_running)
+void HardwareInterface ::handleRobotProgramState(bool program_running)
 {
   robot_program_running_ = program_running;
   std_msgs::Bool msg;

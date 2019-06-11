@@ -65,7 +65,7 @@ public:
 
   bool isRobotProgramRunning() const;
 
-  void handleRobotProgramStop(bool program_running);
+  void handleRobotProgramState(bool program_running);
 
 protected:
   /*!
