@@ -23,6 +23,7 @@
 #include <atomic>
 #include <mutex>
 #include <string>
+#include <memory>
 
 namespace ur_driver
 {
@@ -44,6 +45,7 @@ class TCPSocket
 private:
   std::atomic<int> socket_fd_;
   std::atomic<SocketState> state_;
+  std::unique_ptr<timeval> recv_timeout_;
 
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
@@ -111,6 +113,13 @@ public:
    * \brief Closes the connection to the socket.
    */
   void close();
+
+  /*!
+   * \brief Setup Receive timeout used for this socket.
+   *
+   * \param timeout Timeout used for setting things up
+   */
+  void setReceiveTimeout(const timeval& timeout);
 };
 }  // namespace comm
 }  // namespace ur_driver

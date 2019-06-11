@@ -44,6 +44,10 @@ public:
 
   void setupProducer()
   {
+    timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    stream_.setReceiveTimeout(tv);
     stream_.connect();
   }
   void teardownProducer()

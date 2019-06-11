@@ -44,6 +44,11 @@ void TCPSocket::setOptions(int socket_fd)
   int flag = 1;
   setsockopt(socket_fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
   setsockopt(socket_fd, IPPROTO_TCP, TCP_QUICKACK, &flag, sizeof(int));
+
+  if (recv_timeout_ != nullptr)
+  {
+    setsockopt(socket_fd, SOL_SOCKET, SO_RCVTIMEO, recv_timeout_.get(), sizeof(timeval));
+  }
 }
 
 bool TCPSocket::setup(std::string& host, int port)
@@ -188,5 +193,16 @@ bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
 
   return true;
 }
+
+void TCPSocket::setReceiveTimeout(const timeval& timeout)
+{
+  recv_timeout_.reset(new timeval(timeout));
+
+  if (state_ == SocketState::Connected)
+  {
+    setOptions(socket_fd_);
+  }
+}
+
 }  // namespace comm
 }  // namespace ur_driver
