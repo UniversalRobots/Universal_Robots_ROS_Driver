@@ -73,7 +73,7 @@ protected:
   /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame
    */
-  void transform_force_torque();
+  void transformForceTorque();
 
   std::unique_ptr<UrDriver> ur_driver_;
 

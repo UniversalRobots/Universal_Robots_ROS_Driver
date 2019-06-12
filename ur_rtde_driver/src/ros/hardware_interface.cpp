@@ -226,7 +226,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     }
 
     // Transform fts measurements to tool frame
-    transform_force_torque();
+    transformForceTorque();
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
@@ -312,7 +312,7 @@ uint32_t HardwareInterface ::getControlFrequency() const
   throw std::runtime_error("ur_driver is not yet initialized");
 }
 
-void HardwareInterface ::transform_force_torque()
+void HardwareInterface ::transformForceTorque()
 {
   double tcp_angle = std::sqrt(std::pow(tcp_pose_[3], 2) + std::pow(tcp_pose_[4], 2) + std::pow(tcp_pose_[5], 2));
 
