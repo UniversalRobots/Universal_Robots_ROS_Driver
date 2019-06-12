@@ -69,5 +69,17 @@ private:
   uint32_t version_actual_;
   std::string text_;
 };
+
+class ToolCommNotAvailable : public VersionMismatch
+{
+public:
+  explicit ToolCommNotAvailable() : ToolCommNotAvailable("", 0, 0)
+  {
+  }
+  explicit ToolCommNotAvailable(const std::string& text, const uint32_t version_req, const uint32_t version_actual)
+    : std::runtime_error(text), VersionMismatch(text, version_req, version_actual)
+  {
+  }
+};
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED

@@ -27,6 +27,7 @@
 
 #include "ur_rtde_driver/ros/hardware_interface.h"
 #include "ur_rtde_driver/ur/tool_communication.h"
+#include <ur_rtde_driver/exceptions.h>
 
 #include <Eigen/Geometry>
 
@@ -125,9 +126,22 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
 
   ROS_INFO_STREAM("Initializing urdriver");
-  ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
-                                std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                std::move(tool_comm_setup)));
+  try
+  {
+    ur_driver_.reset(new UrDriver(robot_ip, script_filename, recipe_filename,
+                                  std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
+                                  std::move(tool_comm_setup)));
+  }
+  catch (ur_driver::ToolCommNotAvailable& e)
+  {
+    ROS_FATAL_STREAM(e.what() << " See parameter '" << robot_hw_nh.resolveName("use_tool_communication") << "'.");
+    return false;
+  }
+  catch (ur_driver::UrException& e)
+  {
+    ROS_FATAL_STREAM(e.what());
+    return false;
+  }
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {

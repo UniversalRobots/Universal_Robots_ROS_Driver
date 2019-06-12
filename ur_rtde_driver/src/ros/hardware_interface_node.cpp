@@ -29,7 +29,6 @@
 
 #include <csignal>
 #include <ur_rtde_driver/ros/hardware_interface.h>
-#include <ur_rtde_driver/exceptions.h>
 
 std::unique_ptr<ur_driver::HardwareInterface> g_hw_interface;
 
@@ -65,17 +64,9 @@ int main(int argc, char** argv)
 
   g_hw_interface.reset(new ur_driver::HardwareInterface);
 
-  try
+  if (!g_hw_interface->init(nh, nh_priv))
   {
-    if (!g_hw_interface->init(nh, nh_priv))
-    {
-      ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
-      exit(1);
-    }
-  }
-  catch (ur_driver::UrException& e)
-  {
-    ROS_FATAL_STREAM("Could not correctly initialize robot: " << e.what());
+    ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
     exit(1);
   }
   ROS_INFO_STREAM("initialized hw interface");
@@ -152,7 +143,8 @@ int main(int argc, char** argv)
     period.fromSec(std::chrono::duration_cast<std::chrono::duration<double>>(stopwatch_now - stopwatch_last).count());
     stopwatch_last = stopwatch_now;
 
-    cm.update(timestamp, period, !g_hw_interface->isRobotProgramRunning());
+    // cm.update(timestamp, period, !g_hw_interface->isRobotProgramRunning());
+    cm.update(timestamp, period);
 
     g_hw_interface->write(timestamp, period);
     // if (!control_rate.sleep())

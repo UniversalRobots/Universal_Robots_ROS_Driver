@@ -89,8 +89,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   {
     if (urcontrol_version.major < 5)
     {
-      throw VersionMismatch("This robot version does not support using the tool communication interface.", 5,
-                            urcontrol_version.major);
+      throw ToolCommNotAvailable("Tool communication setup requested, but this robot version does not support using "
+                                 "the tool communication interface. Please check your configuration.",
+                                 5, urcontrol_version.major);
     }
     begin_replace << "set_tool_voltage("
                   << static_cast<std::underlying_type<ToolVoltage>::type>(tool_comm_setup->getToolVoltage()) << ")\n";
