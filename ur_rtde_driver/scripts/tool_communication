@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import os
+import subprocess
+import rospy
+
+
+def main():
+    """Starts socat"""
+    rospy.init_node("ur_tool_communication")
+
+    # IP address of the robot
+    robot_ip = rospy.get_param("~robot_ip")
+    # Port on which the remote pc (robot) publishes the interface
+    tcp_port = rospy.get_param("tcp_port", "54321")
+
+    # By default, socat will create a pty in /dev/pts/N with n being an increasing number.
+    # Additionally, a symlink at the given location will be created. Use an absolute path here.
+    local_device = rospy.get_param("~device_name")
+
+
+    rospy.loginfo("Remote device is available at '" + local_device + "'")
+
+    cfg_params = ["pty"]
+    cfg_params.append("link=" + local_device)
+    cfg_params.append("raw")
+    cfg_params.append("ignoreeof")
+    cfg_params.append("waitslave")
+
+    cmd = ["socat"]
+    cmd.append(",".join(cfg_params))
+    cmd.append(":".join(["tcp", robot_ip, tcp_port]))
+
+    rospy.loginfo("Starting socat with following command:\n" + " ".join(cmd))
+    subprocess.call(cmd)
+
+
+if __name__ == '__main__':
+    main()
