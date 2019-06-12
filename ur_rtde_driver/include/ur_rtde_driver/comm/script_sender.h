@@ -93,13 +93,13 @@ private:
       else
       {
         LOG_WARN("Received unexpected message on script request port ");
-        return false;
       }
     }
     else
     {
       LOG_WARN("Could not read on script request port");
     }
+    return false;
   }
 
   void sendProgram()
