@@ -6,9 +6,9 @@
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
-  <arg name="use_tool_communication" default="false"/>
-  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur5_controllers.yaml"/>
-  <arg name="robot_description_file" default="$(find ur_description)/launch/ur5_upload.launch"/>
+  <arg name="use_tool_communication" default="true"/>
+  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur3e_controllers.yaml"/>
+  <arg name="robot_description_file" default="$(find ur_e_description)/launch/ur3e_upload.launch"/>
   <arg name="robot_ip"/>
   <!--<arg name="reverse_port" default="50001"/>-->
   <arg name="limited" default="false"/>
@@ -17,6 +17,12 @@
   <!--<arg name="stopped_controllers" default=""/>-->
   <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>
+  <arg name="tool_voltage" default="12"/>
+  <arg name="tool_parity" default="1"/>
+  <arg name="tool_baud_rate" default="57600"/>
+  <arg name="tool_stop_bits" default="1"/>
+  <arg name="tool_rx_idle_chars" default="1.5"/>
+  <arg name="tool_tx_idle_chars" default="3.5"/>
 
   <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
     <arg name="debug" value="$(arg debug)"/>
@@ -29,6 +35,12 @@
     <arg name="controllers" value="$(arg controllers)"/>
     <arg name="urscript_file" value="$(arg urscript_file)"/>
     <arg name="rtde_recipe_file" value="$(arg rtde_recipe_file)"/>
+    <arg name="tool_voltage" value="$(arg tool_voltage)"/>
+    <arg name="tool_parity" value="$(arg tool_parity)"/>
+    <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
+    <arg name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
+    <arg name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
+    <arg name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
   </include>
 
 </launch>

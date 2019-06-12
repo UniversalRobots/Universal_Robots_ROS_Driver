@@ -6,21 +6,17 @@
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
+  <arg name="use_tool_communication" default="true"/>
+  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur10e_controllers.yaml"/>
+  <arg name="robot_description_file" default="$(find ur_e_description)/launch/ur10e_upload.launch"/>
   <arg name="robot_ip"/>
-  <arg name="reverse_port" default="50001"/>
+  <!--<arg name="reverse_port" default="50001"/>-->
   <arg name="limited" default="false"/>
-  <arg name="min_payload"  default="0.0"/>
-  <arg name="max_payload"  default="3.0"/>
   <arg name="prefix" default="" />
-  <arg name="max_velocity" default="10.0"/> <!-- [rad/s] -->
-  <arg name="base_frame" default="$(arg prefix)base" />
-  <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
-  <arg name="shutdown_on_disconnect" default="true" />
   <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
-  <arg name="stopped_controllers" default=""/>
+  <!--<arg name="stopped_controllers" default=""/>-->
   <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>
-  <arg name="use_tool_communication" default="true"/>
   <arg name="tool_voltage" default="12"/>
   <arg name="tool_parity" default="1"/>
   <arg name="tool_baud_rate" default="57600"/>
@@ -28,38 +24,23 @@
   <arg name="tool_rx_idle_chars" default="1.5"/>
   <arg name="tool_tx_idle_chars" default="3.5"/>
 
-  <!-- robot model -->
-  <include file="$(find ur_e_description)/launch/ur10e_upload.launch">
+  <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="use_tool_communication" value="$(arg use_tool_communication)"/>
+    <arg name="controller_config_file" value="$(arg controller_config_file)"/>
+    <arg name="robot_description_file" value="$(arg robot_description_file)"/>
+    <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="limited" value="$(arg limited)"/>
+    <arg name="prefix" value="$(arg prefix)"/>
+    <arg name="controllers" value="$(arg controllers)"/>
+    <arg name="urscript_file" value="$(arg urscript_file)"/>
+    <arg name="rtde_recipe_file" value="$(arg rtde_recipe_file)"/>
+    <arg name="tool_voltage" value="$(arg tool_voltage)"/>
+    <arg name="tool_parity" value="$(arg tool_parity)"/>
+    <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
+    <arg name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
+    <arg name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
+    <arg name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
   </include>
-
-
-  <!-- Load hardware interface -->
-  <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_rtde_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
-    <param name="robot_ip" type="str" value="$(arg robot_ip)"/>
-    <param name="script_file" value="$(arg urscript_file)"/>
-    <param name="recipe_file" value="$(arg rtde_recipe_file)"/>
-    <param name="use_tool_communication" value="$(arg use_tool_communication)"/>
-    <param name="tool_voltage" value="$(arg tool_voltage)"/>
-    <param name="tool_parity" value="$(arg tool_parity)"/>
-    <param name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
-    <param name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
-    <param name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
-    <param name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
-  </node>
-
-  <!-- Load controller settings -->
-  <rosparam file="$(find ur_rtde_driver)/config/ur10e_controllers.yaml" command="load"/>
-
-  <!-- spawn controller manager -->
-  <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="$(arg controllers)" />
-
-  <!-- load other controller -->
-  <!--<node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"-->
-    <!--output="screen" args="load $(arg stopped_controllers)" />-->
-
-  <!-- Convert joint states to /tf tranforms -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
 </launch>
