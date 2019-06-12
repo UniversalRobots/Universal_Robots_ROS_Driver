@@ -53,7 +53,8 @@ bool RTDEClient::init()
   size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
   stream_.write(buffer, size, written);
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
-  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
+    throw UrException("Could not get urcontrol version from robot. This should not happen!");
   rtde_interface::RequestProtocolVersion* tmp_version =
       dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
   if (!tmp_version->accepted_)
@@ -61,12 +62,12 @@ bool RTDEClient::init()
     protocol_version = 1;
     size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
     stream_.write(buffer, size, written);
-    pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+    if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
+      throw UrException("Could not get urcontrol version from robot. This should not happen!");
     tmp_version = dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
     if (!tmp_version->accepted_)
     {
-      LOG_ERROR("Could not negotiate protocol version");
-      return false;
+      throw UrException("Neither protocol version 1 nor 2 were accepted by the robot. This should not happen!");
     }
   }
 
@@ -108,7 +109,8 @@ bool RTDEClient::start()
   size = ControlPackageStartRequest::generateSerializedRequest(buffer);
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
   stream_.write(buffer, size, written);
-  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
+    throw UrException("Could not get respone to rtde communication start request from robot. This should not happen!");
   rtde_interface::ControlPackageStart* tmp = dynamic_cast<rtde_interface::ControlPackageStart*>(package.get());
   return tmp->accepted_;
 }
