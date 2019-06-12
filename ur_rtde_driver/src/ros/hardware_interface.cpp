@@ -344,10 +344,27 @@ bool HardwareInterface ::isRobotProgramRunning() const
 
 void HardwareInterface ::handleRobotProgramState(bool program_running)
 {
+  if (robot_program_running_ == false && program_running)
+  {
+    controller_reset_necessary_ = true;
+  }
   robot_program_running_ = program_running;
   std_msgs::Bool msg;
   msg.data = robot_program_running_;
   program_state_pub_.publish(msg);
+}
+
+bool HardwareInterface ::shouldResetControllers()
+{
+  if (controller_reset_necessary_)
+  {
+    controller_reset_necessary_ = false;
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 }  // namespace ur_driver

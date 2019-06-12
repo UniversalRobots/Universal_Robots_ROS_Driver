@@ -67,6 +67,8 @@ public:
 
   void handleRobotProgramState(bool program_running);
 
+  bool shouldResetControllers();
+
 protected:
   /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame
@@ -103,6 +105,8 @@ protected:
   std::string tcp_link_;
   bool robot_program_running_;
   ros::Publisher program_state_pub_;
+
+  bool controller_reset_necessary_;
 };
 
 }  // namespace ur_driver
