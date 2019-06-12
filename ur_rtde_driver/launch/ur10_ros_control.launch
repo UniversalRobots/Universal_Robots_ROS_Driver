@@ -58,4 +58,13 @@
   <!-- Convert joint states to /tf tranforms -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
+  <node name="controller_stopper" pkg="controller_stopper" type="node" respawn="false" output="screen">
+    <remap from="robot_running" to="ur_hardware_interface/robot_program_running"/>
+    <rosparam param="consistent_controllers">
+       - "joint_state_controller"
+       - "speed_scaling_state_controller"
+       - "force_torque_sensor_controller"
+    </rosparam>
+  </node>
+
 </launch>
