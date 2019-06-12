@@ -243,7 +243,6 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
     if (pausing_state_ == PausingState::RAMPUP)
     {
-      ROS_INFO_STREAM("Ramping up speed scaling");
       double speed_scaling_ramp = speed_scaling_combined_ + pausing_ramp_up_increment_;
       speed_scaling_combined_ = std::min(speed_scaling_ramp, speed_scaling_ * target_speed_fraction_);
 
