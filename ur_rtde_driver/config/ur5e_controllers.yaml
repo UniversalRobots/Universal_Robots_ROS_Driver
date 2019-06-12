@@ -1,0 +1,107 @@
+# Settings for ros_control control loop
+hardware_control_loop:
+   loop_hz: 125
+
+# Settings for ros_control hardware interface
+hardware_interface:
+   joints:
+     - shoulder_pan_joint
+     - shoulder_lift_joint
+     - elbow_joint
+     - wrist_1_joint
+     - wrist_2_joint
+     - wrist_3_joint
+
+# Publish all joint states ----------------------------------
+joint_state_controller:
+   type:         joint_state_controller/JointStateController
+   publish_rate: 125
+
+# Publish wrench ----------------------------------
+force_torque_sensor_controller:
+   type:         force_torque_sensor_controller/ForceTorqueSensorController
+   publish_rate: 125
+
+# Joint Trajectory Controller - position based -------------------------------
+# For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
+pos_based_pos_traj_controller:
+   type: position_controllers/JointTrajectoryController
+   joints:
+     - shoulder_pan_joint
+     - shoulder_lift_joint
+     - elbow_joint
+     - wrist_1_joint
+     - wrist_2_joint
+     - wrist_3_joint
+   constraints:
+      goal_time: 0.6
+      stopped_velocity_tolerance: 0.05
+      shoulder_pan_joint: {trajectory: 0.1, goal: 0.1}
+      shoulder_lift_joint: {trajectory: 0.1, goal: 0.1}
+      elbow_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_1_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_2_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_3_joint: {trajectory: 0.1, goal: 0.1}
+   stop_trajectory_duration: 0.5
+   state_publish_rate:  125
+   action_monitor_rate: 10
+
+   # state_publish_rate:  50 # Defaults to 50
+   # action_monitor_rate: 20 # Defaults to 20
+   #stop_trajectory_duration: 0 # Defaults to 0.0
+   
+# Joint Trajectory Controller - velocity based -------------------------------
+# For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
+vel_based_pos_traj_controller:
+   type: velocity_controllers/JointTrajectoryController
+   joints:
+     - shoulder_pan_joint
+     - shoulder_lift_joint
+     - elbow_joint
+     - wrist_1_joint
+     - wrist_2_joint
+     - wrist_3_joint
+   constraints:
+      goal_time: 0.6
+      stopped_velocity_tolerance: 0.05
+      shoulder_pan_joint: {trajectory: 0.1, goal: 0.1}
+      shoulder_lift_joint: {trajectory: 0.1, goal: 0.1}
+      elbow_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_1_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_2_joint: {trajectory: 0.1, goal: 0.1}
+      wrist_3_joint: {trajectory: 0.1, goal: 0.1}
+   stop_trajectory_duration: 0.5
+   state_publish_rate:  125
+   action_monitor_rate: 10
+   gains:
+      #!!These values have not been optimized!!
+      shoulder_pan_joint:  {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      shoulder_lift_joint: {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      elbow_joint:         {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_1_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_2_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+      wrist_3_joint:       {p: 1.2,  i: 0.01, d: 0.1, i_clamp: 1}
+
+   # Use a feedforward term to reduce the size of PID gains
+   velocity_ff:
+      shoulder_pan_joint: 1.0
+      shoulder_lift_joint: 1.0
+      elbow_joint: 1.0
+      wrist_1_joint: 1.0
+      wrist_2_joint: 1.0
+      wrist_3_joint: 1.0
+
+   # state_publish_rate:  50 # Defaults to 50
+   # action_monitor_rate: 20 # Defaults to 20
+   #stop_trajectory_duration: 0 # Defaults to 0.0
+
+# Pass an array of joint velocities directly to the joints
+joint_group_vel_controller:
+   type: velocity_controllers/JointGroupVelocityController
+   joints:
+     - shoulder_pan_joint
+     - shoulder_lift_joint
+     - elbow_joint
+     - wrist_1_joint
+     - wrist_2_joint
+     - wrist_3_joint
