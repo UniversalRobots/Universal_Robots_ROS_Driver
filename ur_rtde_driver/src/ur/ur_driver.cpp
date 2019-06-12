@@ -53,7 +53,8 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   , reverse_interface_active_(false)
   , handle_program_state_(handle_program_state)
 {
-  LOG_INFO("Initializing RTDE client");
+  LOG_DEBUG("Initializing urdriver");
+  LOG_DEBUG("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_, recipe_file));
 
   if (!rtde_client_->init())
@@ -106,13 +107,13 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
   script_sender_->start();
-  LOG_INFO("Created script sender");
+  LOG_DEBUG("Created script sender");
 
   reverse_port_ = reverse_port;
   watchdog_thread_ = std::thread(&UrDriver::startWatchdog, this);
 
   rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
-  LOG_INFO("Initialization done");
+  LOG_DEBUG("Initialization done");
 }
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
@@ -152,7 +153,7 @@ void UrDriver::startWatchdog()
   handle_program_state_(false);
   reverse_interface_.reset(new comm::ReverseInterface(reverse_port_));
   reverse_interface_active_ = true;
-  LOG_INFO("Created reverse interface");
+  LOG_DEBUG("Created reverse interface");
 
   while (true)
   {

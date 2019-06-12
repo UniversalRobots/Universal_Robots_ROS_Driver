@@ -69,9 +69,8 @@ int main(int argc, char** argv)
     ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
     exit(1);
   }
-  ROS_INFO_STREAM("initialized hw interface");
+  ROS_DEBUG_STREAM("initialized hw interface");
   controller_manager::ControllerManager cm(g_hw_interface.get(), nh);
-  ROS_INFO_STREAM("started controller manager");
 
   // Get current time and elapsed time since last read
   timestamp = ros::Time::now();
@@ -130,7 +129,6 @@ int main(int argc, char** argv)
 
   double expected_cycle_time = 1.0 / (static_cast<double>(g_hw_interface->getControlFrequency()));
 
-  ROS_INFO("Starting control loop");
   // Run as fast as possible
   while (ros::ok())
   {

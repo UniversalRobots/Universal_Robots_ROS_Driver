@@ -154,7 +154,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // Create ros_control interfaces
   for (std::size_t i = 0; i < joint_positions_.size(); ++i)
   {
-    ROS_INFO_STREAM("Registing handles for joint " << joint_names_[i]);
+    ROS_DEBUG_STREAM("Registing handles for joint " << joint_names_[i]);
     // Create joint state interface for all joints
     js_interface_.registerHandle(hardware_interface::JointStateHandle(joint_names_[i], &joint_positions_[i],
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
@@ -275,7 +275,6 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
       (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
        runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)))
   {
-    // ROS_INFO_STREAM("Writing command: " << joint_position_command_);
     ur_driver_->writeJointCommand(joint_position_command_);
   }
 }

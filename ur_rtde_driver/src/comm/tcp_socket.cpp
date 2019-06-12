@@ -56,7 +56,7 @@ bool TCPSocket::setup(std::string& host, int port)
   if (state_ == SocketState::Connected)
     return false;
 
-  LOG_INFO("Setting up connection: %s:%d", host.c_str(), port);
+  LOG_DEBUG("Setting up connection: %s:%d", host.c_str(), port);
 
   // gethostbyname() is deprecated so use getadderinfo() as described in:
   // http://www.beej.us/guide/bgnet/output/html/multipage/syscalls.html#getaddrinfo
@@ -100,7 +100,7 @@ bool TCPSocket::setup(std::string& host, int port)
   {
     setOptions(socket_fd_);
     state_ = SocketState::Connected;
-    LOG_INFO("Connection established for %s:%d", host.c_str(), port);
+    LOG_DEBUG("Connection established for %s:%d", host.c_str(), port);
   }
   return connected;
 }

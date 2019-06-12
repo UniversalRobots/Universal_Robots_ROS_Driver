@@ -154,7 +154,7 @@ public:
 
   virtual ~Pipeline()
   {
-    LOG_INFO("Destructing pipeline");
+    LOG_DEBUG("Destructing pipeline");
     stop();
   }
 
@@ -176,7 +176,7 @@ public:
     if (!running_)
       return;
 
-    LOG_INFO("Stopping pipeline! <%s>", name_.c_str());
+    LOG_DEBUG("Stopping pipeline! <%s>", name_.c_str());
 
     if (consumer_ != nullptr)
       consumer_->stopConsumer();
@@ -208,7 +208,7 @@ private:
 
   void runProducer()
   {
-    LOG_INFO("Starting up producer");
+    LOG_DEBUG("Starting up producer");
     std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
     bool has_realtime;
     realtime_file >> has_realtime;
