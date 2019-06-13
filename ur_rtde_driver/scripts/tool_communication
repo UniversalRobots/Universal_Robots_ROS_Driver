@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+"""Small helper script to start the tool communication interface"""
 
-import os
 import subprocess
 import rospy
 
@@ -17,7 +17,6 @@ def main():
     # By default, socat will create a pty in /dev/pts/N with n being an increasing number.
     # Additionally, a symlink at the given location will be created. Use an absolute path here.
     local_device = rospy.get_param("~device_name")
-
 
     rospy.loginfo("Remote device is available at '" + local_device + "'")
 
