@@ -24,7 +24,6 @@ find_package(catkin REQUIRED
     tf2_msgs
     trajectory_msgs
     ur_controllers
-    ur_msgs
 )
 find_package(Boost REQUIRED)
 
@@ -47,7 +46,6 @@ catkin_package(
     tf2_msgs
     trajectory_msgs
     ur_controllers
-    ur_msgs
     std_srvs
   DEPENDS
     Boost
