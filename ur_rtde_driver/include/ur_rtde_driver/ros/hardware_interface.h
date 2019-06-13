@@ -33,6 +33,8 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <algorithm>
 #include <std_msgs/Bool.h>
+#include "tf2_msgs/TFMessage.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
@@ -71,10 +73,18 @@ public:
 
 protected:
   /*!
-   * \brief Transforms force-torque measurements reported from the robot from base to tool frame
+   * \brief Transforms force-torque measurements reported from the robot from base to tool frame.
+   *
+   * Requires extractToolPose() to be run first.
    */
   void transformForceTorque();
 
+  /*!
+   * \brief Stores the raw tool pose data from the robot in a transformation msg
+   *
+   * \param timestamp Timestamp of read data
+   */
+  void extractToolPose(const ros::Time& timestamp);
   std::unique_ptr<UrDriver> ur_driver_;
 
   hardware_interface::JointStateInterface js_interface_;
@@ -91,6 +101,9 @@ protected:
   vector6d_t joint_efforts_;
   vector6d_t fts_measurements_;
   vector6d_t tcp_pose_;
+  tf2::Vector3 tcp_force_;
+  tf2::Vector3 tcp_torque_;
+  geometry_msgs::TransformStamped tcp_transform_;
   double speed_scaling_;
   double target_speed_fraction_;
   double speed_scaling_combined_;

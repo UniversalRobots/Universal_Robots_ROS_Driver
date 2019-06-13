@@ -19,12 +19,13 @@ find_package(catkin REQUIRED
     roscpp
     sensor_msgs
     std_srvs
+    tf2_geometry_msgs
+    tf2_msgs
     trajectory_msgs
     ur_controllers
     ur_msgs
 )
 find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -40,6 +41,8 @@ catkin_package(
     industrial_msgs
     roscpp
     sensor_msgs
+    tf2_geometry_msgs
+    tf2_msgs
     trajectory_msgs
     ur_controllers
     ur_msgs
@@ -70,7 +73,6 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_library(ur_rtde_driver

@@ -67,6 +67,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
+  tcp_transform_.header.frame_id = "base";
+  tcp_transform_.child_frame_id = "tool_0_controller";
 
   bool use_tool_communication = robot_hw_nh.param<bool>("use_tool_communication", "false");
   std::unique_ptr<ToolCommSetup> tool_comm_setup;
@@ -226,6 +228,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     }
 
     // Transform fts measurements to tool frame
+    extractToolPose(time);
     transformForceTorque();
 
     // pausing state follows runtime state when pausing
@@ -314,27 +317,16 @@ uint32_t HardwareInterface ::getControlFrequency() const
 
 void HardwareInterface ::transformForceTorque()
 {
-  double tcp_angle = std::sqrt(std::pow(tcp_pose_[3], 2) + std::pow(tcp_pose_[4], 2) + std::pow(tcp_pose_[5], 2));
+  tcp_force_.setValue(fts_measurements_[0], fts_measurements_[1], fts_measurements_[2]);
+  tcp_torque_.setValue(fts_measurements_[3], fts_measurements_[4], fts_measurements_[5]);
 
-  Eigen::Vector3d rotation_vec;
-  rotation_vec = Eigen::Vector3d(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]).normalized();
-  Eigen::AngleAxisd rotation;
-  if (tcp_angle < 1e-16)
-  {
-    rotation = Eigen::AngleAxisd::Identity();
-  }
-  else
-  {
-    rotation = Eigen::AngleAxisd(tcp_angle, rotation_vec);
-  }
+  tf2::Quaternion rotation_quat;
+  tf2::fromMsg(tcp_transform_.transform.rotation, rotation_quat);
+  tcp_force_ = tf2::quatRotate(rotation_quat.inverse(), tcp_force_);
+  tcp_torque_ = tf2::quatRotate(rotation_quat.inverse(), tcp_torque_);
 
-  Eigen::Vector3d tcp_force = Eigen::Vector3d(fts_measurements_[0], fts_measurements_[1], fts_measurements_[2]);
-  Eigen::Vector3d tcp_torque = Eigen::Vector3d(fts_measurements_[3], fts_measurements_[4], fts_measurements_[5]);
-
-  tcp_force = rotation.inverse() * tcp_force;
-  tcp_torque = rotation.inverse() * tcp_torque;
-
-  fts_measurements_ = { tcp_force[0], tcp_force[1], tcp_force[2], tcp_torque[0], tcp_torque[1], tcp_torque[2] };
+  fts_measurements_ = { tcp_force_.x(),  tcp_force_.y(),  tcp_force_.z(),
+                        tcp_torque_.x(), tcp_torque_.y(), tcp_torque_.z() };
 }
 
 bool HardwareInterface ::isRobotProgramRunning() const
@@ -367,4 +359,21 @@ bool HardwareInterface ::shouldResetControllers()
   }
 }
 
+void HardwareInterface ::extractToolPose(const ros::Time& timestamp)
+{
+  double tcp_angle = std::sqrt(std::pow(tcp_pose_[3], 2) + std::pow(tcp_pose_[4], 2) + std::pow(tcp_pose_[5], 2));
+
+  tf2::Vector3 rotation_vec(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+  tf2::Quaternion rotation;
+  if (tcp_angle > 1e-16)
+  {
+    rotation.setRotation(rotation_vec.normalized(), tcp_angle);
+  }
+  tcp_transform_.header.stamp = timestamp;
+  tcp_transform_.transform.translation.x = tcp_pose_[0];
+  tcp_transform_.transform.translation.y = tcp_pose_[1];
+  tcp_transform_.transform.translation.z = tcp_pose_[2];
+
+  tcp_transform_.transform.rotation = tf2::toMsg(rotation);
+}
 }  // namespace ur_driver
