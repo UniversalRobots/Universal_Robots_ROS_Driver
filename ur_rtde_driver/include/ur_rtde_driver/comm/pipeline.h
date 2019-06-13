@@ -184,7 +184,10 @@ public:
 
     running_ = false;
 
-    pThread_.join();
+    if (pThread_.joinable())
+    {
+      pThread_.join();
+    }
     if (cThread_.joinable())
     {
       cThread_.join();

@@ -24,6 +24,7 @@
 #include "ur_rtde_driver/comm/parser.h"
 #include "ur_rtde_driver/comm/stream.h"
 #include "ur_rtde_driver/comm/package.h"
+#include "ur_rtde_driver/exceptions.h"
 
 namespace ur_driver
 {
@@ -48,7 +49,10 @@ public:
     tv.tv_sec = 1;
     tv.tv_usec = 0;
     stream_.setReceiveTimeout(tv);
-    stream_.connect();
+    if(!stream_.connect())
+    {
+      throw UrException("Failed to connect to robot. Please check if the robot is booted and connected.");
+    }
   }
   void teardownProducer()
   {
