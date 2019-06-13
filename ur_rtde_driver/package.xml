@@ -42,5 +42,4 @@
   <exec_depend>ur_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
-  <test_depend>rosunit</test_depend>
 </package>
