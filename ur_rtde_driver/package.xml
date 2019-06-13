@@ -28,6 +28,7 @@
   <depend>industrial_msgs</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
+  <depend>tf</depend>
   <depend>tf2_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>trajectory_msgs</depend>

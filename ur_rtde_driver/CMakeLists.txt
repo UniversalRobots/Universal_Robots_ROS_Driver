@@ -19,6 +19,7 @@ find_package(catkin REQUIRED
     roscpp
     sensor_msgs
     std_srvs
+    tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
@@ -41,6 +42,7 @@ catkin_package(
     industrial_msgs
     roscpp
     sensor_msgs
+    tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
@@ -99,6 +101,7 @@ add_library(ur_rtde_driver
     src/rtde/rtde_client.cpp
     src/ur/ur_driver.cpp
     src/ur/tool_communication.cpp
+    src/ros/tcp_accuracy_checker.cpp
 )
 target_link_libraries(ur_rtde_driver ${catkin_LIBRARIES})
 add_dependencies(ur_rtde_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

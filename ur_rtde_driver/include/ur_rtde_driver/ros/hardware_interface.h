@@ -41,6 +41,7 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_rtde_driver/ur/ur_driver.h"
+#include "ur_rtde_driver/ros/tcp_accuracy_checker.h"
 
 namespace ur_driver
 {
@@ -131,6 +132,8 @@ protected:
   ros::Publisher program_state_pub_;
 
   bool controller_reset_necessary_;
+
+  std::unique_ptr<TcpAccuracyChecker> tcp_accuracy_checker_;
 };
 
 }  // namespace ur_driver

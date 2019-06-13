@@ -65,10 +65,10 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     return false;
   }
 
-  tcp_link_ = robot_hw_nh.param<std::string>("tcp_link", "tool0");
+  std::string tf_prefix = robot_hw_nh.param<std::string>("tf_prefix", "");
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
   tcp_transform_.header.frame_id = "base";
-  tcp_transform_.child_frame_id = "tool_0_controller";
+  tcp_transform_.child_frame_id = "tool0_controller";
 
   bool use_tool_communication = robot_hw_nh.param<bool>("use_tool_communication", "false");
   std::unique_ptr<ToolCommSetup> tool_comm_setup;
@@ -172,7 +172,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
       ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
   fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
-      "wrench", tcp_link_, fts_measurements_.begin(), fts_measurements_.begin() + 3));
+      "wrench", "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
   // Register interfaces
   registerInterface(&js_interface_);
@@ -184,6 +184,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
+  tcp_accuracy_checker_.reset(new TcpAccuracyChecker("tool0", "tool0_controller", 1e-9));
 
   return true;
 }
