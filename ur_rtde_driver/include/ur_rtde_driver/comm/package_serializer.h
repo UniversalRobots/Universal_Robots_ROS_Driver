@@ -1,6 +1,6 @@
 // this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
 
-// -- htobeGIN LICENSE BLOCK ----------------------------------------------
+// -- BEGIN LICENSE BLOCK ----------------------------------------------
 // Copyright 2019 FZI Forschungszentrum Informatik
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (refactor)
+ *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
  *
  * Copyright 2015, 2016 Thomas Timm Andersen (original version)

@@ -1,4 +1,6 @@
 /*
+ * Copyright 2019, FZI Forschungszentrum Informatik (refactor)
+ *
  * Copyright 2017, 2018 Jarek Potiuk (low bandwidth trajectory follower)
  *
  * Copyright 2017, 2018 Simon Rasmussen (refactor)
