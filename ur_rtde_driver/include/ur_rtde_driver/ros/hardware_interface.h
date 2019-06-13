@@ -33,6 +33,7 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <algorithm>
 #include <std_msgs/Bool.h>
+#include <realtime_tools/realtime_publisher.h>
 #include "tf2_msgs/TFMessage.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -85,6 +86,14 @@ protected:
    * \param timestamp Timestamp of read data
    */
   void extractToolPose(const ros::Time& timestamp);
+
+  /*!
+   * \brief Publishes the tool pose to the tf system
+   *
+   * Requires extractToolPose() to be run first.
+   */
+  void publishPose();
+
   std::unique_ptr<UrDriver> ur_driver_;
 
   hardware_interface::JointStateInterface js_interface_;
@@ -108,6 +117,8 @@ protected:
   double target_speed_fraction_;
   double speed_scaling_combined_;
   std::vector<std::string> joint_names_;
+
+  std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
 
   uint32_t runtime_state_;
   bool position_controller_running_;

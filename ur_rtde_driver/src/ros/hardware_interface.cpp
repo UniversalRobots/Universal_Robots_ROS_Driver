@@ -181,6 +181,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
+  tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
+
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
   return true;
@@ -230,6 +232,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     // Transform fts measurements to tool frame
     extractToolPose(time);
     transformForceTorque();
+    publishPose();
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
@@ -376,4 +379,18 @@ void HardwareInterface ::extractToolPose(const ros::Time& timestamp)
 
   tcp_transform_.transform.rotation = tf2::toMsg(rotation);
 }
+
+void HardwareInterface ::publishPose()
+{
+  if (tcp_pose_pub_)
+  {
+    if (tcp_pose_pub_->trylock())
+    {
+      tcp_pose_pub_->msg_.transforms.clear();
+      tcp_pose_pub_->msg_.transforms.push_back(tcp_transform_);
+      tcp_pose_pub_->unlockAndPublish();
+    }
+  }
+}
+
 }  // namespace ur_driver
