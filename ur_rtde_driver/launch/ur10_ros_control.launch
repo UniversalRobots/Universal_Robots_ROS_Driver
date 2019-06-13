@@ -6,7 +6,6 @@
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
   <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
-  <arg name="use_tool_communication" default="false"/>
   <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur10_controllers.yaml"/>
   <arg name="robot_description_file" default="$(find ur_description)/launch/ur10_upload.launch"/>
   <arg name="robot_ip"/>
@@ -20,7 +19,7 @@
 
   <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
     <arg name="debug" value="$(arg debug)"/>
-    <arg name="use_tool_communication" value="$(arg use_tool_communication)"/>
+    <arg name="use_tool_communication" value="false"/>
     <arg name="controller_config_file" value="$(arg controller_config_file)"/>
     <arg name="robot_description_file" value="$(arg robot_description_file)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
