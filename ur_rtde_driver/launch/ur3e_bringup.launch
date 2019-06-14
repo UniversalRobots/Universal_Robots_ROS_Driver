@@ -3,20 +3,16 @@
 
   <!-- GDB functionality -->
   <arg name="debug" default="false" />
-  <arg unless="$(arg debug)" name="launch_prefix" value="" />
-  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
 
   <arg name="use_tool_communication" default="true"/>
-  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur5e_controllers.yaml"/>
-  <arg name="robot_description_file" default="$(find ur_e_description)/launch/ur5e_upload.launch"/>
+  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur3e_controllers.yaml"/>
+  <arg name="robot_description_file" default="$(find ur_e_description)/launch/ur3e_upload.launch"/>
+  <arg name="kinematics_config" default="$(find ur_e_description)/config/ur3e_default.yaml"/>
   <arg name="robot_ip"/>
-  <!--<arg name="reverse_port" default="50001"/>-->
   <arg name="limited" default="false"/>
-  <arg name="prefix" default="" />
+  <arg name="tf_prefix" default="" />
   <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
-  <!--<arg name="stopped_controllers" default=""/>-->
-  <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
-  <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>
+  <arg name="stopped_controllers" default=""/>
   <arg name="tool_voltage" default="12"/>
   <arg name="tool_parity" default="0"/>
   <arg name="tool_baud_rate" default="115200"/>
@@ -31,12 +27,11 @@
     <arg name="use_tool_communication" value="$(arg use_tool_communication)"/>
     <arg name="controller_config_file" value="$(arg controller_config_file)"/>
     <arg name="robot_description_file" value="$(arg robot_description_file)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="limited" value="$(arg limited)"/>
-    <arg name="prefix" value="$(arg prefix)"/>
+    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>
-    <arg name="urscript_file" value="$(arg urscript_file)"/>
-    <arg name="rtde_recipe_file" value="$(arg rtde_recipe_file)"/>
     <arg name="tool_voltage" value="$(arg tool_voltage)"/>
     <arg name="tool_parity" value="$(arg tool_parity)"/>
     <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>

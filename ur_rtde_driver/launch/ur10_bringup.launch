@@ -1,54 +1,28 @@
 <?xml version="1.0"?>
-<!--
-  Universal robot ur10 launch.  Loads ur10 robot description (see ur_common.launch
-  for more info)
-
-  Usage:
-    ur10_bringup.launch robot_ip:=<value>
--->
 <launch>
 
-  <!-- robot_ip: IP-address of the robot's socket-messaging server -->
-  <arg name="robot_ip"/>
-  <arg name="reverse_port" default="50001"/>
-  <arg name="limited" default="false"/>
-  <arg name="min_payload"  default="0.0"/>
-  <arg name="max_payload"  default="10.0"/>
-  <arg name="prefix" default="" />
-  <arg name="use_lowbandwidth_trajectory_follower" default="false"/>
-  <arg name="time_interval" default="0.008"/>
-  <arg name="servoj_time" default="0.008" />
-  <arg name="servoj_time_waiting" default="0.001" />
-  <arg name="max_waiting_time" default="2.0" />
-  <arg name="servoj_gain" default="100." />
-  <arg name="servoj_lookahead_time" default="1." />
-  <arg name="max_joint_difference" default="0.01" />
-  <arg name="base_frame" default="$(arg prefix)base" />
-  <arg name="tool_frame" default="$(arg prefix)tool0_controller" />
-  <arg name="shutdown_on_disconnect" default="true" />
-  <!-- robot model -->
-  <include file="$(find ur_description)/launch/ur10_upload.launch">
-    <arg name="limited" value="$(arg limited)"/>
-  </include>
+  <!-- GDB functionality -->
+  <arg name="debug" default="false" />
 
-  <!-- ur common -->
+  <arg name="controller_config_file" default="$(find ur_rtde_driver)/config/ur10_controllers.yaml"/>
+  <arg name="robot_description_file" default="$(find ur_description)/launch/ur10_upload.launch"/>
+  <arg name="kinematics_config" default="$(find ur_description)/config/ur10_default.yaml"/>
+  <arg name="robot_ip"/>
+  <arg name="limited" default="false"/>
+  <arg name="tf_prefix" default="" />
+  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
+  <arg name="stopped_controllers" default=""/>
+
   <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="use_tool_communication" value="false"/>
+    <arg name="controller_config_file" value="$(arg controller_config_file)"/>
+    <arg name="robot_description_file" value="$(arg robot_description_file)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
-    <arg name="reverse_port" value="$(arg reverse_port)"/>
-    <arg name="min_payload"  value="$(arg min_payload)"/>
-    <arg name="max_payload"  value="$(arg max_payload)"/>
-    <arg name="prefix" default="" />
-    <arg name="use_lowbandwidth_trajectory_follower" value="$(arg use_lowbandwidth_trajectory_follower)"/>
-    <arg name="time_interval" value="$(arg time_interval)"/>
-    <arg name="servoj_time" value="$(arg servoj_time)" />
-    <arg name="servoj_time_waiting" default="$(arg servoj_time_waiting)" />
-    <arg name="max_waiting_time" value="$(arg max_waiting_time)" />
-    <arg name="servoj_gain" value="$(arg servoj_gain)" />
-    <arg name="servoj_lookahead_time" value="$(arg servoj_lookahead_time)" />
-    <arg name="max_joint_difference" value="$(arg max_joint_difference)" />
-    <arg name="base_frame" value="$(arg base_frame)" />
-    <arg name="tool_frame" value="$(arg tool_frame)" />
-    <arg name="shutdown_on_disconnect" value="$(arg shutdown_on_disconnect)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
+    <arg name="limited" value="$(arg limited)"/>
+    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
+    <arg name="controllers" value="$(arg controllers)"/>
   </include>
 
 </launch>
