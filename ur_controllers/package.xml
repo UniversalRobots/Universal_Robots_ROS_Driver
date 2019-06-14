@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ur_controllers</name>
-  <version>0.0.0</version>
-  <description>The ur_controllers package</description>
+  <version>0.0.1</version>
+  <description>Provides controllers that use the speed scaling interface of Universal Robots.</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -13,7 +13,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>FZI</license>
+  <license>Apache 2.0</license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
