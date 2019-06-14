@@ -38,6 +38,7 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+static const int UR_PRIMARY_PORT = 30001;
 enum class RobotPackageType : int8_t
 {
   DISCONNECT = -1,

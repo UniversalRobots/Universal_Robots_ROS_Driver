@@ -41,7 +41,6 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_rtde_driver/ur/ur_driver.h"
-#include "ur_rtde_driver/ros/tcp_accuracy_checker.h"
 
 namespace ur_driver
 {
@@ -95,6 +94,8 @@ protected:
    */
   void publishPose();
 
+  void checkCalibration(const std::string& checksum);
+
   std::unique_ptr<UrDriver> ur_driver_;
 
   hardware_interface::JointStateInterface js_interface_;
@@ -133,7 +134,7 @@ protected:
 
   bool controller_reset_necessary_;
 
-  std::unique_ptr<TcpAccuracyChecker> tcp_accuracy_checker_;
+  std::string robot_ip_;
 };
 
 }  // namespace ur_driver

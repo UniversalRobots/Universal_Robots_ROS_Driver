@@ -46,8 +46,6 @@ using namespace ur_driver;
 using namespace primary_interface;
 using namespace ur_calibration;
 
-static const int UR_PRIMARY_PORT = 30001;
-
 class ParamaterMissingException : public ros::Exception
 {
 public:

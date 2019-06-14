@@ -51,6 +51,8 @@ public:
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
 
+  std::string toHash() const;
+
   vector6uint32_t checksum_;
   vector6d_t dh_theta_;
   vector6d_t dh_a_;

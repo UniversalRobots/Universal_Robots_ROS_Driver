@@ -50,6 +50,7 @@ bool CalibrationConsumer::consume(
     calibration.correctChain();
 
     calibration_parameters_ = calibration.toYaml();
+    calibration_parameters_["kinematics"]["hash"] = kin_info->toHash();
     calibrated_ = true;
   }
   return true;

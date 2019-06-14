@@ -33,6 +33,7 @@
     <arg name="use_tool_communication" value="$(arg use_tool_communication)"/>
     <arg name="controller_config_file" value="$(arg controller_config_file)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>
     <arg name="tool_voltage" value="$(arg tool_voltage)"/>

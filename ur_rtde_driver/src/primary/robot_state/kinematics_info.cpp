@@ -87,5 +87,19 @@ std::string KinematicsInfo::toString() const
 
   return os.str();
 }
+
+std::string KinematicsInfo ::toHash() const
+{
+  std::stringstream ss;
+  for (size_t i = 0; i < 6; ++i)
+  {
+    ss << dh_theta_[i];
+    ss << dh_d_[i];
+    ss << dh_a_[i];
+    ss << dh_alpha_[i];
+  }
+  std::hash<std::string> hash_fn;
+  return "calib_" + std::to_string(hash_fn(ss.str()));
+}
 }  // namespace primary_interface
 }  // namespace ur_driver
