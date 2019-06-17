@@ -1,8 +1,38 @@
-include:
-  - project: 'continuous_integration/ci_scripts'
-    ref: master
-    file: '/gitlab-ci-yml/catkin_pipeline.yml'
+image: ros:kinetic-robot
 
-variables:
-  BUILD_INDIGO: "false"
-  BUILD_MELODIC: "false"
+cache:
+  paths:
+    - ccache/
+
+before_script:
+ - git clone https://gitlab.com/VictorLamoine/ros_gitlab_ci.git
+ - source ros_gitlab_ci/gitlab-ci.bash >/dev/null
+
+# catkin_lint
+catkin lint:
+  tags:
+    - docker
+  stage: build
+  image: ros:kinetic-ros-core
+  before_script:
+    - apt update  >/dev/null 2>&1
+    - apt install -y python-catkin-lint >/dev/null 2>&1
+  script:
+    - catkin_lint -W3 .
+
+# catkin_make
+catkin_make:
+  tags:
+    - docker
+  stage: build
+  script:
+    - catkin_make
+
+catkin_make tests:
+  tags:
+    - docker
+  stage: test
+  script:
+    - catkin_make run_tests
+    - catkin_test_results # Check if one of the tests failed!
+
