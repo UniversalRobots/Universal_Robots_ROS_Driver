@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="robot_ip"/>
+  <arg name="robot_name"/>
+  <arg name="output_package_name" default="ur_calibration"/>
+  <arg name="subfolder_name" default="etc"/>
+
+  <node name="calibration_correction" pkg="ur_calibration" type="calibration_correction" respawn="false" output="screen">
+    <param name="robot_ip" value="$(arg robot_ip)"/>
+    <param name="robot_name" value="$(arg robot_name)"/>
+    <param name="output_package_name" value="$(arg output_package_name)"/>
+    <param name="subfolder_name" value="$(arg subfolder_name)"/>
+  </node>
+</launch>
