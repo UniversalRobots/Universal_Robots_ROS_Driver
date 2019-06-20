@@ -1,9 +1,20 @@
-# UR_RTDE_Driver
+# Universal_Robots_ROS_Driver
+Universal Robots have become a dominant supplier lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
+
+<center><img src="ur_rtde_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Serie familie" style="width: 45%;"/></center>
+
+With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control have increased further increase. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
+
+It is the core value of Universal Robots, to empower people to achieve any goal within automation. The success criteria of this driver release is to follow this vision, by providing the ROS community with an easy to use, stable and powerful driver, that empowers the community to reach their goals in research and automation without struggling with unimportant technical challenges, instability or lacking features.
+
+### Acknowledgement
 This driver is forked from the [ur_modern_driver](https://github.com/ros-industrial/ur_modern_driver).
 
-It works for all CB3 and eSeries robots and uses the RTDE interface for communication, whenever possible.
+## How to report a Issue
+Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues) and use [Issue #1 as a template](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues/1).
 
 ## Features
+ * Works for all **CB3 and eSeries** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
    targets precisely.
  * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (TODO: Write tutorial on how to compile a realtime kernel for Ubuntu)
@@ -165,7 +176,7 @@ It is recommended to adapt the new package's *package.xml* with a meaningful des
 To actually start the robot driver use one of the existing launchfiles
 
     $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
-    kinematics_config:=$(rospack find ur_calibrations)/etc/ur10_example_calibration.yaml
+    kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
 
 where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example". If the parameters in that file don't
