@@ -15,4 +15,5 @@ clang-format:
 build_kinetic:
   variables:
     ROS_DISTRO: "kinetic"
+    CATKIN_LINT: "true"
   script: .industrial_ci/gitlab.sh
