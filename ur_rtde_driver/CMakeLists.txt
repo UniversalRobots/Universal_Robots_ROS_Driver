@@ -119,7 +119,7 @@ install(TARGETS ur_rtde_driver ur_rtde_driver_node
 )
 
 install(PROGRAMS scripts/tool_communication
-  DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION})
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY config launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
