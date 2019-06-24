@@ -1,16 +1,22 @@
 {{BEGIN_REPLACE}}
 
-global steptime = get_steptime()
+steptime = get_steptime()
 textmsg("steptime=", steptime)
-global MULT_jointstate = {{JOINT_STATE_REPLACE}}
+MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
-global SERVO_STOPPED = -2
-global SERVO_UNINITIALIZED = -1
-global SERVO_IDLE = 0
-global SERVO_RUNNING = 1
+#Constants
+SERVO_STOPPED = -2
+SERVO_UNINITIALIZED = -1
+SERVO_IDLE = 0
+SERVO_RUNNING = 1
+
+#Global variables are also showed in the Teach pendants variable list
 global cmd_servo_state = SERVO_UNINITIALIZED
 global cmd_servo_q = get_actual_joint_positions()
 global cmd_servo_q_last = get_actual_joint_positions()
+global extrapolate_count = 0
+global extrapolate_max_count = 0
+
 def set_servo_setpoint(q):
   cmd_servo_state = SERVO_RUNNING
   cmd_servo_q_last = cmd_servo_q
@@ -38,13 +44,22 @@ thread servoThread():
     if cmd_servo_state > SERVO_UNINITIALIZED:
       cmd_servo_state = SERVO_IDLE
     end
+
     if do_extrapolate:
-      textmsg("No new setpoint received. Extrapolating.")
+      extrapolate_count = extrapolate_count + 1
+      if extrapolate_count > extrapolate_max_count:
+        extrapolate_max_count = extrapolate_count
+      end
+
       q = extrapolate()
       servoj(q, t=steptime, {{SERVO_J_REPLACE}})
+
     elif state == SERVO_RUNNING:
+      extrapolate_count = 0
       servoj(q, t=steptime, {{SERVO_J_REPLACE}})
+
     else:
+      extrapolate_count = 0
       sync()
     end
     exit_critical
@@ -71,6 +86,7 @@ while keepalive > 0:
   end
   exit_critical
 end
+
 textmsg("Stopping communication and servoing")
 cmd_servo_state = SERVO_STOPPED
 sleep(.1)
