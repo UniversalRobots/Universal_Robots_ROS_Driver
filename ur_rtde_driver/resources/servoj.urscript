@@ -12,19 +12,15 @@ global cmd_servo_state = SERVO_UNINITIALIZED
 global cmd_servo_q = get_actual_joint_positions()
 global cmd_servo_q_last = get_actual_joint_positions()
 def set_servo_setpoint(q):
-  enter_critical
   cmd_servo_state = SERVO_RUNNING
   cmd_servo_q_last = cmd_servo_q
   cmd_servo_q = q
-  exit_critical
 end
 
 def extrapolate():
-  enter_critical
   diff = [cmd_servo_q[0] - cmd_servo_q_last[0], cmd_servo_q[1] - cmd_servo_q_last[1], cmd_servo_q[2] - cmd_servo_q_last[2], cmd_servo_q[3] - cmd_servo_q_last[3], cmd_servo_q[4] - cmd_servo_q_last[4], cmd_servo_q[5] - cmd_servo_q_last[5]]
   cmd_servo_q_last = cmd_servo_q
   cmd_servo_q = [cmd_servo_q[0] + diff[0], cmd_servo_q[1] + diff[1], cmd_servo_q[2] + diff[2], cmd_servo_q[3] + diff[3], cmd_servo_q[4] + diff[4], cmd_servo_q[5] + diff[5]]
-  exit_critical
 
   return cmd_servo_q
 end
@@ -42,7 +38,6 @@ thread servoThread():
     if cmd_servo_state > SERVO_UNINITIALIZED:
       cmd_servo_state = SERVO_IDLE
     end
-    exit_critical
     if do_extrapolate:
       textmsg("No new setpoint received. Extrapolating.")
       q = extrapolate()
@@ -52,6 +47,7 @@ thread servoThread():
     else:
       sync()
     end
+    exit_critical
   end
   textmsg("servo thread ended")
   stopj(0.1)
@@ -63,6 +59,7 @@ keepalive = -2
 params_mult = socket_read_binary_integer(6+1, "reverse_socket")
 keepalive = params_mult[7]
 while keepalive > 0:
+  enter_critical
   socket_send_line(1, "reverse_socket")
   params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
   if params_mult[0] > 0:
@@ -72,11 +69,10 @@ while keepalive > 0:
   else:
     keepalive = keepalive - 1
   end
+  exit_critical
 end
 textmsg("Stopping communication and servoing")
-enter_critical
-  cmd_servo_state = SERVO_STOPPED
-exit_critical
+cmd_servo_state = SERVO_STOPPED
 sleep(.1)
 socket_close()
 kill thread_servo
