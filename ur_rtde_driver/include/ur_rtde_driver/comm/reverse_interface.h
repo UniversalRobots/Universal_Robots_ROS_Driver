@@ -57,20 +57,23 @@ public:
     server_.disconnectClient();
   }
 
-  bool write(const vector6d_t& positions)
+  bool write(const vector6d_t* positions, const int32_t type = 2)
   {
     uint8_t buffer[sizeof(uint32_t) * 7];
     uint8_t* b_pos = buffer;
-    for (auto const& pos : positions)
-    {
-      int32_t val = static_cast<int32_t>(pos * MULT_JOINTSTATE);
-      val = htobe32(val);
-      b_pos += append(b_pos, val);
-    }
 
-    // TODO: Make this a parameter: Number of allowed missed packages
-    int32_t val = htobe32(5);
-    append(b_pos, val);
+    int32_t val = htobe32(type);
+    b_pos += append(b_pos, val);
+
+    if (positions != nullptr)
+    {
+      for (auto const& pos : *positions)
+      {
+        int32_t val = static_cast<int32_t>(pos * MULT_JOINTSTATE);
+        val = htobe32(val);
+        b_pos += append(b_pos, val);
+      }
+    }
 
     size_t written;
 
