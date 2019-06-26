@@ -292,6 +292,10 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
   {
     ur_driver_->writeJointCommand(joint_position_command_);
   }
+  else
+  {
+    ur_driver_->writeKeepalive();
+  }
 }
 
 bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
