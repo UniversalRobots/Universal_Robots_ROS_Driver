@@ -44,28 +44,26 @@
 
 #include <hardware_interface/internal/hardware_resource_manager.h>
 #include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/joint_command_interface.h>
 
 namespace ur_controllers
 {
-class ScaledJointHandle : public hardware_interface::JointStateHandle
+class ScaledJointHandle : public hardware_interface::JointHandle
 {
 public:
-  ScaledJointHandle() : cmd_(0), scaling_factor_(0)
+  ScaledJointHandle() : hardware_interface::JointHandle(), scaling_factor_(0)
+
   {
   }
 
   /**
    * \param js This joint's state handle
    * \param cmd A pointer to the storage for this joint's output command
+   * \param scaling_factor A pointer to the storage for this joint's scaling factor
    */
   ScaledJointHandle(const hardware_interface::JointStateHandle& js, double* cmd, double* scaling_factor)
-    : hardware_interface::JointStateHandle(js), cmd_(cmd), scaling_factor_(scaling_factor)
+    : hardware_interface::JointHandle(js, cmd), scaling_factor_(scaling_factor)
   {
-    if (cmd_ == nullptr)
-    {
-      throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() +
-                                                           "'. Command data pointer is null.");
-    }
     if (scaling_factor_ == nullptr)
     {
       throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() +
@@ -75,16 +73,6 @@ public:
 
   virtual ~ScaledJointHandle() = default;
 
-  void setCommand(double command)
-  {
-    assert(cmd_);
-    *cmd_ = command;
-  }
-  double getCommand() const
-  {
-    assert(cmd_);
-    return *cmd_;
-  }
   void setScalingFactor(double scaling_factor)
   {
     assert(scaling_factor_);
@@ -97,7 +85,6 @@ public:
   }
 
 private:
-  double* cmd_;
   double* scaling_factor_;
 };
 
