@@ -171,8 +171,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
 
     // Create joint position control interface
-    // pj_interface_.registerHandle(
-    // hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    pj_interface_.registerHandle(
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
   }
@@ -186,7 +186,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
-  // registerInterface(&pj_interface_);
+  registerInterface(&pj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
@@ -314,6 +314,10 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
     for (auto& resource_it : controller_it.claimed_resources)
     {
       if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+      {
+        position_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
       {
         position_controller_running_ = true;
       }
