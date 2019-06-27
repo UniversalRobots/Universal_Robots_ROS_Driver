@@ -81,7 +81,25 @@ public:
     return rtde_frequency_;
   }
 
+  /*!
+   * \brief Writes a joint command together with a keepalive signal onto the socket being sent to
+   * the robot.
+   *
+   * \param values Desired joint positions
+   *
+   * \returns True on successful write.
+   */
   bool writeJointCommand(const vector6d_t& values);
+
+  /*!
+   * \brief Write a keepalive signal only.
+   *
+   * This signals the robot that the connection is still
+   * active in times when no commands are to be sent (e.g. no controller is active.)
+   *
+   * \returns True on successful write.
+   */
+  bool writeKeepalive();
 
   void startWatchdog();
 

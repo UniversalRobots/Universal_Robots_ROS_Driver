@@ -138,14 +138,19 @@ bool UrDriver::writeJointCommand(const vector6d_t& values)
 {
   if (reverse_interface_active_)
   {
-    reverse_interface_->write(values);
+    return reverse_interface_->write(&values);
   }
-  else
-  {
-    return false;
-  }
+  return false;
+}
 
-  return true;
+bool UrDriver::writeKeepalive()
+{
+  if (reverse_interface_active_)
+  {
+    vector6d_t* fake = nullptr;
+    return reverse_interface_->write(fake, 1);
+  }
+  return false;
 }
 
 void UrDriver::startWatchdog()

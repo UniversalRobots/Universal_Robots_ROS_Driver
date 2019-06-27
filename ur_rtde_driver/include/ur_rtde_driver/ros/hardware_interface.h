@@ -133,6 +133,7 @@ protected:
   ros::Publisher program_state_pub_;
 
   bool controller_reset_necessary_;
+  bool controllers_initialized_;
 
   std::string robot_ip_;
 };

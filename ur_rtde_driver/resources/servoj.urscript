@@ -71,16 +71,20 @@ socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
 thread_servo = run servoThread()
 keepalive = -2
-params_mult = socket_read_binary_integer(6+1, "reverse_socket")
-keepalive = params_mult[7]
+params_mult = socket_read_binary_integer(1+6, "reverse_socket")
+keepalive = params_mult[1]
 while keepalive > 0:
   enter_critical
   socket_send_line(1, "reverse_socket")
-  params_mult = socket_read_binary_integer(6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
+  params_mult = socket_read_binary_integer(1+6, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
   if params_mult[0] > 0:
-    keepalive = params_mult[7]
-    q = [params_mult[1] / MULT_jointstate, params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate]
-    set_servo_setpoint(q)
+    if params_mult[1] > 1:
+      keepalive = params_mult[1]
+      q = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
+      set_servo_setpoint(q)
+    else:
+      keepalive = 1
+    end
   else:
     keepalive = keepalive - 1
   end
