@@ -14,7 +14,7 @@ This driver is forked from the [ur_modern_driver](https://github.com/ros-industr
 Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues) and use [Issue #1 as a template](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues/1).
 
 ## Features
- * Works for all **CB3 and eSeries** robots and uses the RTDE interface for communication, whenever possible.
+ * Works for all **CB3 (with software version >= 3.6) and eSeries** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
    targets precisely.
  * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (TODO: Write tutorial on how to compile a realtime kernel for Ubuntu)
@@ -67,6 +67,9 @@ $ source devel/setup.bash
 ### Prepare the robot
 For using the *ur_rtde_driver* with a real robot you need to install the
 **externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
+
+**Note**: For installing this URCap a minimal PolyScope version of 3.6 or 5.0 (in case of eSeries) is
+necessary.
 
 To install it you first have to copy it to the robot's **programs** folder which can be done either
 via scp or using a USB stick. The installation process is similar for CB3 and eSeries robots and
