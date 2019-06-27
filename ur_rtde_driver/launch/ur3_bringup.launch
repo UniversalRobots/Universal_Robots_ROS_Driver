@@ -10,8 +10,8 @@
   <arg name="robot_ip"/>
   <arg name="limited" default="false"/>
   <arg name="tf_prefix" default="" />
-  <arg name="controllers" default="joint_state_controller pos_based_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
-  <arg name="stopped_controllers" default=""/>
+  <arg name="controllers" default="joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller"/>
+  <arg name="stopped_controllers" default="pos_traj_controller"/>
 
   <include file="$(find ur_rtde_driver)/launch/ur_common.launch">
     <arg name="debug" value="$(arg debug)"/>

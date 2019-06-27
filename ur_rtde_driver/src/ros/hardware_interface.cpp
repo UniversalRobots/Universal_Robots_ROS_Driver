@@ -47,6 +47,7 @@ HardwareInterface::HardwareInterface()
   , position_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
+  , controllers_initialized_(false)
 {
 }
 
@@ -171,8 +172,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
 
     // Create joint position control interface
-    // pj_interface_.registerHandle(
-    // hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    pj_interface_.registerHandle(
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
   }
@@ -186,7 +187,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
-  // registerInterface(&pj_interface_);
+  registerInterface(&pj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
@@ -292,13 +293,32 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
   {
     ur_driver_->writeJointCommand(joint_position_command_);
   }
+  else
+  {
+    ur_driver_->writeKeepalive();
+  }
 }
 
 bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                                        const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
-  // TODO: Implement
-  return true;
+  bool ret_val = true;
+  if (controllers_initialized_ && !isRobotProgramRunning() && !start_list.empty())
+  {
+    for (auto& controller : start_list)
+    {
+      if (!controller.claimed_resources.empty())
+      {
+        ROS_ERROR_STREAM("Robot control is currently inactive. Starting controllers that claim resources is currently "
+                         "not possible. Not starting controller '"
+                         << controller.name << "'");
+        ret_val = false;
+      }
+    }
+  }
+
+  controllers_initialized_ = true;
+  return ret_val;
 }
 
 void HardwareInterface ::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
@@ -310,6 +330,10 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
     for (auto& resource_it : controller_it.claimed_resources)
     {
       if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+      {
+        position_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
       {
         position_controller_running_ = true;
       }
