@@ -47,6 +47,7 @@ HardwareInterface::HardwareInterface()
   , position_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
+  , controllers_initialized_(false)
 {
 }
 
@@ -301,8 +302,23 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
 bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                                        const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
-  // TODO: Implement
-  return true;
+  bool ret_val = true;
+  if (controllers_initialized_ && !isRobotProgramRunning() && !start_list.empty())
+  {
+    for (auto& controller : start_list)
+    {
+      if (!controller.claimed_resources.empty())
+      {
+        ROS_ERROR_STREAM("Robot control is currently inactive. Starting controllers that claim resources is currently "
+                         "not possible. Not starting controller '"
+                         << controller.name << "'");
+        ret_val = false;
+      }
+    }
+  }
+
+  controllers_initialized_ = true;
+  return ret_val;
 }
 
 void HardwareInterface ::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
