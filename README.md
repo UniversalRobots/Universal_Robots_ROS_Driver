@@ -26,10 +26,13 @@ Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_ro
    control from ROS side. Expect this to come in future releases.
  * Use the robot's **speed-scaling**. When speed scaling is active due to safety constraints or the
    speed slider is used, this gets correctly handled on the ROS side, as well slowing down
-   trajectory execution accordingly. **Note**: Due to the speed scaling interface, other controllers
-   than the scaled controllers provided, currently cannot be used. We plan to change this in
-   upcoming releases.
+   trajectory execution accordingly.<br/>
+   **Note**: Other ros-controllers based on a position interface
+   can be used with this driver, but may behave wrong if the speed slider isn't set to 100% or if
+   speed scaling slows down the robot. Also, the pausing function can only be used, if the default
+   scaled trajectory controller is used.
 
+## Contents
 This repository contains the new **ur_rtde_driver** and a couple of helper packages, such as:
 
   * **controller_stopper**: A small external tool that stops and restarts ros-controllers based on
@@ -191,3 +194,18 @@ Once the robot driver is started, load the previously generated program on the r
 execute it. From that moment on the robot is fully functional. You can make use of the pause
 function or even stop the program. Simply press the play button again and the ROS driver will
 reconnect.
+
+#### Use the action server
+After starting up the robot as described in the last section a scaled position based trajectory
+controller is started. It's action-server is located at
+
+```bash
+/scaled_pos_traj_controller/follow_joint_trajectory
+```
+
+Use this with any client interface such as MoveIt! or simply the joint_trajectory_controller rqt
+gui:
+
+```
+rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
+```
