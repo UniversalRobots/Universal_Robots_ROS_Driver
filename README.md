@@ -76,7 +76,10 @@ necessary.
 
 For installing the necessary URCap and creating a program, please see the individual tutorials on
 how to [setup a CB3 robot](ur_rtde_driver/doc/install_urcap_cb3.md) or how to [setup an e-Series
-robot](ur_rtde_driver/doc/install_urcap_e_series.md)
+robot](ur_rtde_driver/doc/install_urcap_e_series.md).
+
+To setup the tool communication on an e-Series robot, please consider the [tool communication setup
+guide](ur_rtde_driver/doc/setup_tool_communication.md).
 
 ### Prepare the ROS PC
 For using the driver make sure it is installed (either by the debian package or built from source
