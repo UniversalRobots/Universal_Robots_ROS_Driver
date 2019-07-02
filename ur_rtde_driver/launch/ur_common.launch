@@ -42,5 +42,7 @@
     <arg name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
     <arg name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
     <arg name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
+    <arg name="tool_device_name" value="$(arg tool_device_name)"/>
+    <arg name="tool_tcp_port" value="$(arg tool_tcp_port)"/>
   </include>
 </launch>

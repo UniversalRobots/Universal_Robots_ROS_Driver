@@ -45,7 +45,7 @@
   <node if="$(arg use_tool_communication)" name="ur_tool_communication_bridge" pkg="ur_rtde_driver" type="tool_communication" respawn="false" output="screen">
     <param name="robot_ip" value="$(arg robot_ip)"/>
     <param name="device_name" value="$(arg tool_device_name)"/>
-    <param name="tool_tcp_port" value="$(arg tool_tcp_port)"/>
+    <param name="tcp_port" value="$(arg tool_tcp_port)"/>
   </node>
 
   <!-- Load controller settings -->
