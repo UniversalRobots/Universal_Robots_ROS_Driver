@@ -15,7 +15,7 @@
   <arg name="stopped_controllers" default="pos_traj_controller"/>
   <arg name="urscript_file" default="$(find ur_rtde_driver)/resources/servoj.urscript"/>
   <arg name="rtde_recipe_file" default="$(find ur_rtde_driver)/resources/rtde_recipe.txt"/>
-  <arg name="tool_voltage" default="12"/>
+  <arg name="tool_voltage" default="0"/>
   <arg name="tool_parity" default="0"/>
   <arg name="tool_baud_rate" default="115200"/>
   <arg name="tool_stop_bits" default="1"/>
