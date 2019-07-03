@@ -287,15 +287,17 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  if (position_controller_running_ &&
-      (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
-       runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)))
+  if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
+      runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING))
   {
-    ur_driver_->writeJointCommand(joint_position_command_);
-  }
-  else
-  {
-    ur_driver_->writeKeepalive();
+    if (position_controller_running_)
+    {
+      ur_driver_->writeJointCommand(joint_position_command_);
+    }
+    else
+    {
+      ur_driver_->writeKeepalive();
+    }
   }
 }
 
