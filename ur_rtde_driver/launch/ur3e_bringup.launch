@@ -32,6 +32,7 @@
     <arg name="limited" value="$(arg limited)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>
+    <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
     <arg name="tool_voltage" value="$(arg tool_voltage)"/>
     <arg name="tool_parity" value="$(arg tool_parity)"/>
     <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
