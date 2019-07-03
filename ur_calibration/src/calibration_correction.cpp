@@ -183,13 +183,20 @@ int main(int argc, char* argv[])
   ros::init(argc, argv, "ur_calibration");
   ros::NodeHandle nh("~");
 
-  CalibrationCorrection my_calibration_correction(nh);
-  my_calibration_correction.run();
-  if (!my_calibration_correction.writeCalibrationData())
+  try
   {
-    ROS_ERROR_STREAM("Failed writing calibration data. See errors above for details.");
-    return -1;
+    CalibrationCorrection my_calibration_correction(nh);
+    my_calibration_correction.run();
+    if (!my_calibration_correction.writeCalibrationData())
+    {
+      ROS_ERROR_STREAM("Failed writing calibration data. See errors above for details.");
+      return -1;
+    }
+    ROS_INFO("Calibration correction done");
   }
-  ROS_INFO("Calibration correction done");
+  catch (const UrException& e)
+  {
+    ROS_ERROR_STREAM(e.what());
+  }
   return 0;
 }
