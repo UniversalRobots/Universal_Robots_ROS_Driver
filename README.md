@@ -131,15 +131,24 @@ To create a new package, go to your catkin_workspace's src folder and call
 
 It is recommended to adapt the new package's *package.xml* with a meaningful description.
 
-#### Start the robot driver
+#### Quick start
+Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
+to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
+
 To actually start the robot driver use one of the existing launchfiles
+
+    $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
+
+where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
+load the calibration parameters for the robot "ur10_example".
+
+If you calibrated your robot before, pass that calibration to the launch file:
 
     $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
     kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
 
-where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
-load the calibration parameters for the robot "ur10_example". If the parameters in that file don't
-match the ones reported from the robot, the driver will output an error during startup.
+If the parameters in that file don't match the ones reported from the robot, the driver will output
+an error during startup, but will remain usable.
 
 For more information on the launchfile's parameters see its own documentation.
 
@@ -148,16 +157,14 @@ execute it. From that moment on the robot is fully functional. You can make use 
 function or even stop the program. Simply press the play button again and the ROS driver will
 reconnect.
 
-#### Use the action server
-After starting up the robot as described in the last section a scaled position based trajectory
-controller is started. It's action-server is located at
+To control the robot using ROS, use the action server on
 
 ```bash
 /scaled_pos_traj_controller/follow_joint_trajectory
 ```
 
-Use this with any client interface such as MoveIt! or simply the joint_trajectory_controller rqt
-gui:
+Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the
+`rqt_joint_trajectory_controller` gui:
 
 ```
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
