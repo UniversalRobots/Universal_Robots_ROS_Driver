@@ -63,13 +63,7 @@ pos_traj_controller:
 
 vel_based_pos_traj_controller:
    type: velocity_controllers/JointTrajectoryController
-   joints:
-     - shoulder_pan_joint
-     - shoulder_lift_joint
-     - elbow_joint
-     - wrist_1_joint
-     - wrist_2_joint
-     - wrist_3_joint
+   joints: *robot_joints
    constraints:
       goal_time: 0.6
       stopped_velocity_tolerance: 0.05
@@ -107,11 +101,4 @@ vel_based_pos_traj_controller:
 # Pass an array of joint velocities directly to the joints
 joint_group_vel_controller:
    type: velocity_controllers/JointGroupVelocityController
-   joints:
-     - shoulder_pan_joint
-     - shoulder_lift_joint
-     - elbow_joint
-     - wrist_1_joint
-     - wrist_2_joint
-     - wrist_3_joint
-
+   joints: *robot_joints

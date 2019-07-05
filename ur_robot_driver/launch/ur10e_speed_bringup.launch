@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- GDB functionality -->
+  <arg name="debug" default="false" />
+
+  <arg name="use_tool_communication" default="false"/>
+  <arg name="controller_config_file" default="$(find ur_robot_driver)/config/ur10e_controllers.yaml"/>
+  <arg name="robot_description_file" default="$(find ur_e_description)/launch/ur10e_upload.launch"/>
+  <arg name="kinematics_config" default="$(find ur_e_description)/config/ur10e_default.yaml"/>
+  <arg name="robot_ip"/>
+  <arg name="limited" default="false"/>
+  <arg name="tf_prefix" default="" />
+  <arg name="controllers" default="joint_state_controller joint_group_vel_controller force_torque_sensor_controller"/>
+  <arg name="stopped_controllers" default="vel_based_pos_traj_controller"/>
+  <arg name="tool_voltage" default="0"/>
+  <arg name="tool_parity" default="0"/>
+  <arg name="tool_baud_rate" default="115200"/>
+  <arg name="tool_stop_bits" default="1"/>
+  <arg name="tool_rx_idle_chars" default="1.5"/>
+  <arg name="tool_tx_idle_chars" default="3.5"/>
+  <arg name="tool_device_name" default="/tmp/ttyUR"/>
+  <arg name="tool_tcp_port" default="54321"/>
+
+  <include file="$(find ur_robot_driver)/launch/ur_common.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="use_tool_communication" value="$(arg use_tool_communication)"/>
+    <arg name="controller_config_file" value="$(arg controller_config_file)"/>
+    <arg name="robot_description_file" value="$(arg robot_description_file)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
+    <arg name="robot_ip" value="$(arg robot_ip)"/>
+    <arg name="limited" value="$(arg limited)"/>
+    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
+    <arg name="controllers" value="$(arg controllers)"/>
+    <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
+    <arg name="tool_voltage" value="$(arg tool_voltage)"/>
+    <arg name="tool_parity" value="$(arg tool_parity)"/>
+    <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
+    <arg name="tool_stop_bits" value="$(arg tool_stop_bits)"/>
+    <arg name="tool_rx_idle_chars" value="$(arg tool_rx_idle_chars)"/>
+    <arg name="tool_tx_idle_chars" value="$(arg tool_tx_idle_chars)"/>
+    <arg name="tool_device_name" value="$(arg tool_device_name)"/>
+    <arg name="tool_tcp_port" value="$(arg tool_tcp_port)"/>
+  </include>
+
+</launch>
