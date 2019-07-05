@@ -203,11 +203,11 @@ protected:
   ur_controllers::ScaledPositionJointInterface spj_interface_;
   hardware_interface::PositionJointInterface pj_interface_;
   ur_controllers::SpeedScalingInterface speedsc_interface_;
-  // hardware_interface::VelocityJointInterface vj_interface_;
+  hardware_interface::VelocityJointInterface vj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
 
   vector6d_t joint_position_command_;
-  // std::vector<double> joint_velocity_command_;
+  vector6d_t joint_velocity_command_;
   vector6d_t joint_positions_;
   vector6d_t joint_velocities_;
   vector6d_t joint_efforts_;
@@ -247,6 +247,7 @@ protected:
 
   uint32_t runtime_state_;
   bool position_controller_running_;
+  bool velocity_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;

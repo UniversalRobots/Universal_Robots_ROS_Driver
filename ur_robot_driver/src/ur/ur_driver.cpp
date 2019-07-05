@@ -87,13 +87,27 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   std::string local_ip = rtde_client_->getIP();
 
   std::string prog = readScriptFile(script_file);
-  prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE));
+  while (prog.find(JOINT_STATE_REPLACE) != std::string::npos)
+  {
+    prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE));
+  }
+
   std::ostringstream out;
   out << "lookahead_time=" << servoj_lookahead_time_ << ", gain=" << servoj_gain_;
-  prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
-  prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
-  prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
-  prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
+  while (prog.find(SERVO_J_REPLACE) != std::string::npos)
+  {
+    prog.replace(prog.find(SERVO_J_REPLACE), SERVO_J_REPLACE.length(), out.str());
+  }
+
+  while (prog.find(SERVER_IP_REPLACE) != std::string::npos)
+  {
+    prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
+  }
+
+  while (prog.find(SERVER_PORT_REPLACE) != std::string::npos)
+  {
+    prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
+  }
 
   robot_version_ = rtde_client_->getVersion();
 

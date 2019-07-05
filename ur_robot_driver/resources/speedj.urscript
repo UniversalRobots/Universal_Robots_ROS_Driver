@@ -1,0 +1,62 @@
+{{BEGIN_REPLACE}}
+
+global steptime = get_steptime()
+global speedj_time = steptime - 0.1*steptime
+textmsg("steptime=", steptime)
+MULT_jointstate = {{JOINT_STATE_REPLACE}}
+
+global cmd_servo_qd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+cmd_speedj_active = True
+keepalive = -2
+
+def set_speed(qd):
+  enter_critical
+  cmd_servo_qd = qd
+  cmd_speedj_active = True
+  exit_critical
+end
+
+thread speedThread():
+  while True:
+    enter_critical
+    qd = cmd_servo_qd
+    exit_critical
+    #textmsg("loop")
+    if cmd_speedj_active:
+      # Having this shortly under steptime seems to help
+      speedj(qd, 40.0, speedj_time)
+    else:
+      stopj(5.0)
+    end
+    sync()
+  end
+  stopj(5.0)
+end
+
+socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
+
+thread_speed = run speedThread()
+
+params_mult = socket_read_binary_integer(1+6, "reverse_socket")
+keepalive = params_mult[1]
+while keepalive > 0:
+  params_mult = socket_read_binary_integer(1+6, "reverse_socket", 0.02)
+  if params_mult[0] > 0:
+    keepalive = params_mult[1]
+    if keepalive > 1:
+      qd = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
+      set_speed(qd)
+      #speedj(qd, 40.0, 0.007)
+    else:
+      cmd_speedj_active = False
+      keepalive = 1
+    end
+  else:
+    textmsg("Missing package from remote pc")
+    keepalive = keepalive - 1
+  end
+end
+sleep(.1)
+socket_close()
+kill thread_speed
+
