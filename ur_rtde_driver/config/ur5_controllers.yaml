@@ -4,7 +4,7 @@ hardware_control_loop:
 
 # Settings for ros_control hardware interface
 hardware_interface:
-   joints:
+   joints: &robot_joints
      - shoulder_pan_joint
      - shoulder_lift_joint
      - elbow_joint
@@ -31,13 +31,7 @@ speed_scaling_state_controller:
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
 scaled_pos_traj_controller:
    type: position_controllers/ScaledJointTrajectoryController
-   joints:
-     - shoulder_pan_joint
-     - shoulder_lift_joint
-     - elbow_joint
-     - wrist_1_joint
-     - wrist_2_joint
-     - wrist_3_joint
+   joints: *robot_joints
    constraints:
       goal_time: 0.6
       stopped_velocity_tolerance: 0.05
@@ -53,13 +47,7 @@ scaled_pos_traj_controller:
 
 pos_traj_controller:
    type: position_controllers/JointTrajectoryController
-   joints:
-     - shoulder_pan_joint
-     - shoulder_lift_joint
-     - elbow_joint
-     - wrist_1_joint
-     - wrist_2_joint
-     - wrist_3_joint
+   joints: *robot_joints
    constraints:
       goal_time: 0.6
       stopped_velocity_tolerance: 0.05
