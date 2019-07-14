@@ -67,7 +67,7 @@ bool RTDEClient::init()
     tmp_version = dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
     if (!tmp_version->accepted_)
     {
-      throw UrException("Neither protocol version 1 nor 2 were accepted by the robot. This should not happen!");
+      throw UrException("Neither protocol version 1 nor 2 was accepted by the robot. This should not happen!");
     }
   }
 
@@ -110,7 +110,7 @@ bool RTDEClient::start()
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
   stream_.write(buffer, size, written);
   if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
-    throw UrException("Could not get respone to rtde communication start request from robot. This should not happen!");
+    throw UrException("Could not get response to RTDE communication start request from robot. This should not happen!");
   rtde_interface::ControlPackageStart* tmp = dynamic_cast<rtde_interface::ControlPackageStart*>(package.get());
   return tmp->accepted_;
 }
