@@ -132,5 +132,10 @@ bool RTDEClient::getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>&
 {
   return pipeline_.getLatestProduct(data_package, timeout);
 }
+
+std::string RTDEClient::getIP() const
+{
+  return stream_.getIP();
+}
 }  // namespace rtde_interface
 }  // namespace ur_driver

@@ -125,7 +125,7 @@ void TCPSocket::close()
   socket_fd_ = -1;
 }
 
-std::string TCPSocket::getIP()
+std::string TCPSocket::getIP() const
 {
   sockaddr_in name;
   socklen_t len = sizeof(name);

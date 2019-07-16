@@ -78,7 +78,7 @@ public:
    *
    * \returns The IP address of the local machine.
    */
-  std::string getIP();
+  std::string getIP() const;
 
   /*!
    * \brief Reads one byte from the socket

@@ -67,6 +67,13 @@ public:
     return urcontrol_version_;
   }
 
+  /*!
+   * \brief Returns the IP address (of the machine running this driver) used for the socket connection.
+   *
+   * \returns The IP address as a string (e.g. "192.168.0.1")
+   */
+  std::string getIP() const;
+
 private:
   comm::URStream<PackageHeader> stream_;
   std::vector<std::string> recipe_;

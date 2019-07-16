@@ -31,7 +31,6 @@
 //----------------------------------------------------------------------
 
 #include "ur_rtde_driver/ur/ur_driver.h"
-#include "ur_rtde_driver/primary/package_header.h"
 #include "ur_rtde_driver/exceptions.h"
 #include <memory>
 
@@ -65,11 +64,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   rtde_frequency_ = rtde_client_->getMaxFrequency();
   servoj_time_ = 1.0 / rtde_frequency_;
 
-  // Open Stream to get own IP
-  // TODO: Open Primary interface to query version and calibration
-  comm::URStream<primary_interface::PackageHeader> stream(robot_ip, 30001);
-  stream.connect();
-  std::string local_ip = stream.getIP();
+  std::string local_ip = rtde_client_->getIP();
 
   uint32_t reverse_port = 50001;        // TODO: Make this a parameter
   uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
