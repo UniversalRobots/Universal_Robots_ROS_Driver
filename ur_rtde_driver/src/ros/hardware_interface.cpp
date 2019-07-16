@@ -193,6 +193,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
 
+  deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
+
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
 
   return true;
@@ -287,16 +289,21 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
 
 void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
 {
-  if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
-      runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING))
+  if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
+       runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
+      robot_program_running_)
   {
     if (position_controller_running_)
     {
       ur_driver_->writeJointCommand(joint_position_command_);
     }
-    else
+    else if (robot_program_running_)
     {
       ur_driver_->writeKeepalive();
+    }
+    else
+    {
+      ur_driver_->stopControl();
     }
   }
 }
@@ -447,5 +454,21 @@ void HardwareInterface ::checkCalibration(const std::string& checksum)
     ros::Duration(1).sleep();
   }
   ROS_DEBUG_STREAM("Got calibration information from robot.");
+}
+
+bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  if (isRobotProgramRunning())
+  {
+    robot_program_running_ = false;
+    res.success = true;
+    res.message = "Deactivated control";
+  }
+  else
+  {
+    res.success = true;
+    res.message = "No control active. Nothing to do.";
+  }
+  return true;
 }
 }  // namespace ur_driver

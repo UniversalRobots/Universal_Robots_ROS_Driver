@@ -33,6 +33,7 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <algorithm>
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_publisher.h>
 #include "tf2_msgs/TFMessage.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -96,7 +97,11 @@ protected:
 
   void checkCalibration(const std::string& checksum);
 
+  bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+
   std::unique_ptr<UrDriver> ur_driver_;
+
+  ros::ServiceServer deactivate_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
   ur_controllers::ScaledPositionJointInterface spj_interface_;

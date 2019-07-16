@@ -153,6 +153,16 @@ bool UrDriver::writeKeepalive()
   return false;
 }
 
+bool UrDriver::stopControl()
+{
+  if (reverse_interface_active_)
+  {
+    vector6d_t* fake = nullptr;
+    return reverse_interface_->write(fake, 0);
+  }
+  return false;
+}
+
 void UrDriver::startWatchdog()
 {
   handle_program_state_(false);
