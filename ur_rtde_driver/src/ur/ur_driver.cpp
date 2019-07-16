@@ -172,6 +172,7 @@ void UrDriver::startWatchdog()
 
   while (true)
   {
+    LOG_INFO("Robot ready to receive control commands.");
     handle_program_state_(true);
     while (reverse_interface_active_ == true)
     {
