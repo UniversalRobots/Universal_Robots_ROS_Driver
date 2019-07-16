@@ -32,7 +32,10 @@
 
 #include "ur_rtde_driver/ur/ur_driver.h"
 #include "ur_rtde_driver/exceptions.h"
+#include "ur_rtde_driver/primary/primary_parser.h"
 #include <memory>
+
+#include <ur_rtde_driver/ur/calibration_checker.h>
 
 namespace ur_driver
 {
@@ -45,16 +48,17 @@ static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
                               const std::string& recipe_file, std::function<void(bool)> handle_program_state,
-                              std::unique_ptr<ToolCommSetup> tool_comm_setup)
+                              std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)
   , reverse_interface_active_(false)
   , handle_program_state_(handle_program_state)
+  , robot_ip_(robot_ip)
 {
   LOG_DEBUG("Initializing urdriver");
   LOG_DEBUG("Initializing RTDE client");
-  rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip, notifier_, recipe_file));
+  rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, recipe_file));
 
   if (!rtde_client_->init())
   {
@@ -65,6 +69,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   servoj_time_ = 1.0 / rtde_frequency_;
 
   std::string local_ip = rtde_client_->getIP();
+
+  LOG_INFO("Checking if calibration data matches connected robot.");
+  checkCalibration(calibration_checksum);
 
   uint32_t reverse_port = 50001;        // TODO: Make this a parameter
   uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
@@ -205,4 +212,26 @@ std::string UrDriver::readKeepalive()
     return std::string("");
   }
 }
+
+void UrDriver::checkCalibration(const std::string& checksum)
+{
+  comm::URStream<ur_driver::primary_interface::PackageHeader> stream(robot_ip_,
+                                                                     ur_driver::primary_interface::UR_PRIMARY_PORT);
+  primary_interface::PrimaryParser parser;
+  comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(stream, parser);
+
+  CalibrationChecker consumer(checksum);
+
+  comm::INotifier notifier;
+
+  comm::Pipeline<ur_driver::primary_interface::PackageHeader> pipeline(prod, consumer, "Pipeline", notifier);
+  pipeline.run();
+
+  while (!consumer.isChecked())
+  {
+    ros::Duration(1).sleep();
+  }
+  ROS_DEBUG_STREAM("Got calibration information from robot.");
+}
+
 }  // namespace ur_driver

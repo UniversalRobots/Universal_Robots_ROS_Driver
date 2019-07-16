@@ -95,8 +95,6 @@ protected:
    */
   void publishPose();
 
-  void checkCalibration(const std::string& checksum);
-
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
   std::unique_ptr<UrDriver> ur_driver_;

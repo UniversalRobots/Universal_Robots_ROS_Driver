@@ -31,10 +31,6 @@
 
 #include <Eigen/Geometry>
 
-#include <ur_rtde_driver/primary/package_header.h>
-#include <ur_rtde_driver/primary/primary_parser.h>
-#include <ur_rtde_driver/ur/calibration_checker.h>
-
 namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
@@ -71,10 +67,6 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
 
   std::string tf_prefix = robot_hw_nh.param<std::string>("tf_prefix", "");
-
-  ROS_INFO_STREAM("Checking if calibration data matches connected robot.");
-  std::string calibration_checksum = robot_hw_nh.param<std::string>("kinematics/hash", "");
-  checkCalibration(calibration_checksum);
 
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
   tcp_transform_.header.frame_id = "base";
@@ -137,12 +129,13 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     tool_comm_setup->setTxIdleChars(tx_idle_chars);
   }
 
+  std::string calibration_checksum = robot_hw_nh.param<std::string>("kinematics/hash", "");
   ROS_INFO_STREAM("Initializing urdriver");
   try
   {
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                  std::move(tool_comm_setup)));
+                                  std::move(tool_comm_setup), calibration_checksum));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
@@ -433,27 +426,6 @@ void HardwareInterface ::publishPose()
       tcp_pose_pub_->unlockAndPublish();
     }
   }
-}
-
-void HardwareInterface ::checkCalibration(const std::string& checksum)
-{
-  comm::URStream<ur_driver::primary_interface::PackageHeader> stream(robot_ip_,
-                                                                     ur_driver::primary_interface::UR_PRIMARY_PORT);
-  primary_interface::PrimaryParser parser;
-  comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(stream, parser);
-
-  CalibrationChecker consumer(checksum);
-
-  comm::INotifier notifier;
-
-  comm::Pipeline<ur_driver::primary_interface::PackageHeader> pipeline(prod, consumer, "Pipeline", notifier);
-  pipeline.run();
-
-  while (!consumer.isChecked())
-  {
-    ros::Duration(1).sleep();
-  }
-  ROS_DEBUG_STREAM("Got calibration information from robot.");
 }
 
 bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)

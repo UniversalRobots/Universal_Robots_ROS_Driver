@@ -52,7 +52,8 @@ public:
    * \param tool_comm_setup Configuration for using the tool communication
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
-           std::function<void(bool)> handle_program_state, std::unique_ptr<ToolCommSetup> tool_comm_setup);
+           std::function<void(bool)> handle_program_state, std::unique_ptr<ToolCommSetup> tool_comm_setup,
+           const std::string& calibration_checksum = "");
   /*!
    * \brief Constructs a new UrDriver object.
    *
@@ -60,8 +61,9 @@ public:
    * \param script_file URScript file that should be sent to the robot
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
-           std::function<void(bool)> handle_program_state)
-    : UrDriver(robot_ip, script_file, recipe_file, handle_program_state, std::unique_ptr<ToolCommSetup>{})
+           std::function<void(bool)> handle_program_state, const std::string& calibration_checksum = "")
+    : UrDriver(robot_ip, script_file, recipe_file, handle_program_state, std::unique_ptr<ToolCommSetup>{},
+               calibration_checksum)
   {
   }
 
@@ -111,6 +113,8 @@ public:
 
   void startWatchdog();
 
+  void checkCalibration(const std::string& checksum);
+
 private:
   std::string readScriptFile(const std::string& filename);
   std::string readKeepalive();
@@ -129,6 +133,8 @@ private:
   bool reverse_interface_active_;
   uint32_t reverse_port_;
   std::function<void(bool)> handle_program_state_;
+
+  std::string robot_ip_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED
