@@ -56,7 +56,7 @@ public:
   }
   void teardownProducer()
   {
-    stream_.disconnect();
+    stopProducer();
   }
   void stopProducer()
   {

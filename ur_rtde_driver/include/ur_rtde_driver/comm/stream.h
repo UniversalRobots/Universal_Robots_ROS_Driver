@@ -68,7 +68,7 @@ public:
    */
   void disconnect()
   {
-    LOG_INFO("Disconnecting from %s:%d", host_.c_str(), port_);
+    LOG_DEBUG("Disconnecting from %s:%d", host_.c_str(), port_);
     TCPSocket::close();
   }
 

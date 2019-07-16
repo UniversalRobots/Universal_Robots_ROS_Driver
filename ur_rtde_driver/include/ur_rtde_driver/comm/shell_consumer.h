@@ -43,19 +43,6 @@ public:
   ShellConsumer() = default;
   virtual ~ShellConsumer() = default;
 
-  virtual void setupConsumer()
-  {
-  }
-  virtual void teardownConsumer()
-  {
-  }
-  virtual void stopConsumer()
-  {
-  }
-  virtual void onTimeout()
-  {
-  }
-
   virtual bool consume(std::shared_ptr<URPackage<HeaderT>> product)
   {
     LOG_INFO("%s", product->toString().c_str());

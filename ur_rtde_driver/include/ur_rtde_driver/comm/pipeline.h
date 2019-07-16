@@ -45,6 +45,7 @@ public:
   }
   virtual void teardownConsumer()
   {
+    stopConsumer();
   }
   virtual void stopConsumer()
   {
@@ -117,6 +118,7 @@ public:
   }
   virtual void teardownProducer()
   {
+    stopProducer();
   }
   virtual void stopProducer()
   {
@@ -177,10 +179,6 @@ public:
       return;
 
     LOG_DEBUG("Stopping pipeline! <%s>", name_.c_str());
-
-    if (consumer_ != nullptr)
-      consumer_->stopConsumer();
-    producer_.stopProducer();
 
     running_ = false;
 
@@ -284,8 +282,6 @@ private:
     }
     producer_.teardownProducer();
     LOG_DEBUG("Pipeline producer ended! <%s>", name_.c_str());
-    if (consumer_ != nullptr)
-      consumer_->stopConsumer();
     running_ = false;
     notifier_.stopped(name_);
   }
@@ -311,7 +307,6 @@ private:
     }
     consumer_->teardownConsumer();
     LOG_DEBUG("Pipeline consumer ended! <%s>", name_.c_str());
-    producer_.stopProducer();
     running_ = false;
     notifier_.stopped(name_);
   }

@@ -42,19 +42,6 @@ public:
   CalibrationConsumer();
   virtual ~CalibrationConsumer() = default;
 
-  virtual void setupConsumer()
-  {
-  }
-  virtual void teardownConsumer()
-  {
-  }
-  virtual void stopConsumer()
-  {
-  }
-  virtual void onTimeout()
-  {
-  }
-
   virtual bool
   consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
 
