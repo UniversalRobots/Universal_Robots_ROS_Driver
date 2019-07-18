@@ -6,3 +6,5 @@ target_speed_fraction
 runtime_state
 actual_TCP_force
 actual_TCP_pose
+actual_digital_input_bits
+actual_digital_output_bits

@@ -38,6 +38,8 @@
 #include "tf2_msgs/TFMessage.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <ur_msgs/IOStates.h>
+
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
 
@@ -95,10 +97,15 @@ protected:
    */
   void publishPose();
 
+  void publishIOData();
+
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
   template <typename T>
   void readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name, T& data);
+  template <typename T, size_t N>
+  void readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
+                      std::bitset<N>& data);
 
   std::unique_ptr<UrDriver> ur_driver_;
 
@@ -118,6 +125,8 @@ protected:
   vector6d_t joint_efforts_;
   vector6d_t fts_measurements_;
   vector6d_t tcp_pose_;
+  std::bitset<18> actual_dig_out_bits_;
+  std::bitset<18> actual_dig_in_bits_;
   tf2::Vector3 tcp_force_;
   tf2::Vector3 tcp_torque_;
   geometry_msgs::TransformStamped tcp_transform_;
@@ -127,6 +136,7 @@ protected:
   std::vector<std::string> joint_names_;
 
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
 
   uint32_t runtime_state_;
   bool position_controller_running_;

@@ -73,7 +73,6 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   std::string local_ip = rtde_client_->getIP();
 
-
   uint32_t reverse_port = 50001;        // TODO: Make this a parameter
   uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
 

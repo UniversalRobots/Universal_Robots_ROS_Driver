@@ -185,6 +185,17 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   registerInterface(&fts_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
+  io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
+  io_pub_->msg_.digital_in_states.resize(actual_dig_in_bits_.size());
+  io_pub_->msg_.digital_out_states.resize(actual_dig_out_bits_.size());
+  for (size_t i = 0; i < actual_dig_in_bits_.size(); ++i)
+  {
+    io_pub_->msg_.digital_in_states[i].pin = i;
+  }
+  for (size_t i = 0; i < actual_dig_out_bits_.size(); ++i)
+  {
+    io_pub_->msg_.digital_out_states[i].pin = i;
+  }
 
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
@@ -205,6 +216,18 @@ void HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPacka
   }
 }
 
+template <typename T, size_t N>
+void HardwareInterface::readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
+                                       const std::string& var_name, std::bitset<N>& data)
+{
+  if (!data_pkg->getData<T, N>(var_name, data))
+  {
+    // This throwing should never happen unless misconfigured
+    std::string error_msg = "Did not find '" + var_name + "' in data sent from robot. This should not happen!";
+    throw std::runtime_error(error_msg);
+  }
+}
+
 void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period)
 {
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
@@ -217,6 +240,10 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     readData(data_pkg, "runtime_state", runtime_state_);
     readData(data_pkg, "actual_TCP_force", fts_measurements_);
     readData(data_pkg, "actual_TCP_pose", tcp_pose_);
+    readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
+    readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
+
+    publishIOData();
 
     // Transform fts measurements to tool frame
     extractToolPose(time);
@@ -408,6 +435,25 @@ void HardwareInterface ::publishPose()
       tcp_pose_pub_->msg_.transforms.clear();
       tcp_pose_pub_->msg_.transforms.push_back(tcp_transform_);
       tcp_pose_pub_->unlockAndPublish();
+    }
+  }
+}
+
+void HardwareInterface::publishIOData()
+{
+  if (io_pub_)
+  {
+    if (io_pub_->trylock())
+    {
+      for (size_t i = 0; i < actual_dig_in_bits_.size(); ++i)
+      {
+        io_pub_->msg_.digital_in_states[i].state = actual_dig_in_bits_[i];
+      }
+      for (size_t i = 0; i < actual_dig_out_bits_.size(); ++i)
+      {
+        io_pub_->msg_.digital_out_states[i].state = actual_dig_out_bits_[i];
+      }
+      io_pub_->unlockAndPublish();
     }
   }
 }
