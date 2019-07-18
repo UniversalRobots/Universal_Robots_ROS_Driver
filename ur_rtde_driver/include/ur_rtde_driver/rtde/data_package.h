@@ -82,7 +82,6 @@ public:
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
 
-  template <typename T>
   /*!
    * \brief Get a data field from the DataPackage.
    *
@@ -93,12 +92,39 @@ public:
    *
    * \returns True on success, false if the field cannot be found inside the package.
    */
+  template <typename T>
   bool getData(const std::string& name, T& val)
   {
     if (data_.find(name) != data_.end())
     {
       // TODO: Can we check this somehow?
       val = boost::strict_get<T>(data_[name]);
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+
+  /*!
+   * \brief Get a data field from the DataPackage as bitset
+   *
+   * The data package contains a lot of different data fields, depending on the recipe.
+   *
+   * \param name The string identifier for the data field as used in the documentation.
+   * \param val Target variable. Make sure, it's the correct type.
+   *
+   * \returns True on success, false if the field cannot be found inside the package.
+   */
+  template <typename T, size_t N>
+  bool getData(const std::string& name, std::bitset<N>& val)
+  {
+    static_assert(sizeof(T) * 8 >= N, "Bitset is too large for underlying variable");
+
+    if (data_.find(name) != data_.end())
+    {
+      val = std::bitset<N>(boost::strict_get<T>(data_[name]));
     }
     else
     {
