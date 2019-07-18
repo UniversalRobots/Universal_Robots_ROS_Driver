@@ -193,46 +193,30 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   return true;
 }
 
+template <typename T>
+void HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
+                                 const std::string& var_name, T& data)
+{
+  if (!data_pkg->getData(var_name, data))
+  {
+    // This throwing should never happen unless misconfigured
+    std::string error_msg = "Did not find '" + var_name + "' in data sent from robot. This should not happen!";
+    throw std::runtime_error(error_msg);
+  }
+}
+
 void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period)
 {
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
-    if (!data_pkg->getData("actual_q", joint_positions_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find joint position in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("actual_qd", joint_velocities_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find joint velocity in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("target_speed_fraction", target_speed_fraction_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find target_speed_fraction_ in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("speed_scaling", speed_scaling_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("runtime_state", runtime_state_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find speed_scaling in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("actual_TCP_force", fts_measurements_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find actual_TCP_force in data sent from robot. This should not happen!");
-    }
-    if (!data_pkg->getData("actual_TCP_pose", tcp_pose_))
-    {
-      // This throwing should never happen unless misconfigured
-      throw std::runtime_error("Did not find actual_TCP_pose in data sent from robot. This should not happen!");
-    }
+    readData(data_pkg, "actual_q", joint_positions_);
+    readData(data_pkg, "actual_qd", joint_velocities_);
+    readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
+    readData(data_pkg, "speed_scaling", speed_scaling_);
+    readData(data_pkg, "runtime_state", runtime_state_);
+    readData(data_pkg, "actual_TCP_force", fts_measurements_);
+    readData(data_pkg, "actual_TCP_pose", tcp_pose_);
 
     // Transform fts measurements to tool frame
     extractToolPose(time);

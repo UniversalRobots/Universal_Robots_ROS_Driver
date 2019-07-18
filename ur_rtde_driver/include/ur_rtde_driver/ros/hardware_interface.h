@@ -97,6 +97,9 @@ protected:
 
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
+  template <typename T>
+  void readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name, T& data);
+
   std::unique_ptr<UrDriver> ur_driver_;
 
   ros::ServiceServer deactivate_srv_;
