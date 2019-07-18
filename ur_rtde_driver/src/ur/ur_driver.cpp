@@ -60,6 +60,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   LOG_DEBUG("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, recipe_file));
 
+  LOG_INFO("Checking if calibration data matches connected robot.");
+  checkCalibration(calibration_checksum);
+
   if (!rtde_client_->init())
   {
     throw UrException("Initialization of RTDE client went wrong.");
@@ -70,8 +73,6 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   std::string local_ip = rtde_client_->getIP();
 
-  LOG_INFO("Checking if calibration data matches connected robot.");
-  checkCalibration(calibration_checksum);
 
   uint32_t reverse_port = 50001;        // TODO: Make this a parameter
   uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
