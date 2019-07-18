@@ -8,3 +8,8 @@ actual_TCP_force
 actual_TCP_pose
 actual_digital_input_bits
 actual_digital_output_bits
+standard_analog_input0
+standard_analog_input1
+standard_analog_output0
+standard_analog_output1
+analog_io_types

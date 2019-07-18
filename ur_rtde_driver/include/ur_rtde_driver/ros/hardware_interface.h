@@ -127,6 +127,9 @@ protected:
   vector6d_t tcp_pose_;
   std::bitset<18> actual_dig_out_bits_;
   std::bitset<18> actual_dig_in_bits_;
+  std::array<double, 2> standard_analog_input_;
+  std::array<double, 2> standard_analog_output_;
+  std::bitset<4> analog_io_types_;
   tf2::Vector3 tcp_force_;
   tf2::Vector3 tcp_torque_;
   geometry_msgs::TransformStamped tcp_transform_;

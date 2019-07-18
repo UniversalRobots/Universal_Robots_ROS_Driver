@@ -38,6 +38,8 @@ HardwareInterface::HardwareInterface()
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
+  , standard_analog_input_{ { 0, 0 } }
+  , standard_analog_output_{ { 0, 0 } }
   , joint_names_(6)
   , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
@@ -188,6 +190,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
   io_pub_->msg_.digital_in_states.resize(actual_dig_in_bits_.size());
   io_pub_->msg_.digital_out_states.resize(actual_dig_out_bits_.size());
+  io_pub_->msg_.analog_in_states.resize(standard_analog_input_.size());
+  io_pub_->msg_.analog_out_states.resize(standard_analog_output_.size());
   for (size_t i = 0; i < actual_dig_in_bits_.size(); ++i)
   {
     io_pub_->msg_.digital_in_states[i].pin = i;
@@ -195,6 +199,14 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   for (size_t i = 0; i < actual_dig_out_bits_.size(); ++i)
   {
     io_pub_->msg_.digital_out_states[i].pin = i;
+  }
+  for (size_t i = 0; i < standard_analog_input_.size(); ++i)
+  {
+    io_pub_->msg_.analog_in_states[i].pin = i;
+  }
+  for (size_t i = 0; i < standard_analog_output_.size(); ++i)
+  {
+    io_pub_->msg_.analog_out_states[i].pin = i;
   }
 
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
@@ -240,8 +252,13 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     readData(data_pkg, "runtime_state", runtime_state_);
     readData(data_pkg, "actual_TCP_force", fts_measurements_);
     readData(data_pkg, "actual_TCP_pose", tcp_pose_);
+    readData(data_pkg, "standard_analog_input0", standard_analog_input_[0]);
+    readData(data_pkg, "standard_analog_input1", standard_analog_input_[1]);
+    readData(data_pkg, "standard_analog_output0", standard_analog_output_[0]);
+    readData(data_pkg, "standard_analog_output1", standard_analog_output_[1]);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
+    readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
 
     publishIOData();
 
@@ -453,6 +470,16 @@ void HardwareInterface::publishIOData()
       {
         io_pub_->msg_.digital_out_states[i].state = actual_dig_out_bits_[i];
       }
+      for (size_t i = 0; i < standard_analog_input_.size(); ++i)
+      {
+        io_pub_->msg_.analog_in_states[i].state = standard_analog_input_[i];
+      }
+      for (size_t i = 0; i < standard_analog_output_.size(); ++i)
+      {
+        io_pub_->msg_.analog_out_states[i].state = standard_analog_output_[i];
+      }
+      // TODO: Handle analog domain
+      // TODO: Handle tool IO
       io_pub_->unlockAndPublish();
     }
   }
