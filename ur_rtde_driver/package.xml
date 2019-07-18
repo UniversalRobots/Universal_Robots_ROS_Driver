@@ -33,6 +33,7 @@
   <depend>tf2_geometry_msgs</depend>
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
+  <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
 
   <exec_depend>force_torque_sensor_controller</exec_depend>
