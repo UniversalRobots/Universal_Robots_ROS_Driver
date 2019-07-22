@@ -58,14 +58,11 @@ public:
   virtual ~PackageHeader() = default;
 
   using _package_size_type = int32_t;
+
   static size_t getPackageLength(uint8_t* buf)
   {
     return be32toh(*(reinterpret_cast<_package_size_type*>(buf)));
   }
-
-private:
-  _package_size_type package_size_;
-  RobotPackageType package_type_;
 };
 }  // namespace primary_interface
 }  // namespace ur_driver

@@ -37,7 +37,9 @@ namespace rtde_interface
 class ControlPackagePause : public RTDEPackage
 {
 public:
-  ControlPackagePause() = default;
+  ControlPackagePause() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_PAUSE)
+  {
+  }
   virtual ~ControlPackagePause() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -49,7 +51,9 @@ public:
 class ControlPackagePauseRequest : public RTDEPackage
 {
 public:
-  ControlPackagePauseRequest() = default;
+  ControlPackagePauseRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_PAUSE)
+  {
+  }
   virtual ~ControlPackagePauseRequest() = default;
 };
 

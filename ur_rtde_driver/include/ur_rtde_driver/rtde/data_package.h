@@ -74,7 +74,7 @@ public:
                                             vector6int32_t, vector6uint32_t, std::string>;
 
   DataPackage() = delete;
-  DataPackage(const std::vector<std::string>& recipe) : recipe_(recipe)
+  DataPackage(const std::vector<std::string>& recipe) : RTDEPackage(PackageType::RTDE_DATA_PACKAGE), recipe_(recipe)
   {
   }
   virtual ~DataPackage() = default;

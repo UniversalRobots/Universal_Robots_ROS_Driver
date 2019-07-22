@@ -38,7 +38,9 @@ namespace rtde_interface
 class GetUrcontrolVersion : public RTDEPackage
 {
 public:
-  GetUrcontrolVersion() = default;
+  GetUrcontrolVersion() : RTDEPackage(PackageType::RTDE_GET_URCONTROL_VERSION)
+  {
+  }
   virtual ~GetUrcontrolVersion() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -55,14 +57,15 @@ public:
 class GetUrcontrolVersionRequest : public RTDEPackage
 {
 public:
-  GetUrcontrolVersionRequest() = default;
+  GetUrcontrolVersionRequest() : RTDEPackage(PackageType::RTDE_GET_URCONTROL_VERSION)
+  {
+  }
   virtual ~GetUrcontrolVersionRequest() = default;
 
   static size_t generateSerializedRequest(uint8_t* buffer);
 
 private:
   static const uint16_t PAYLOAD_SIZE = 0;
-  static const PackageType PACKAGE_TYPE = PackageType::RTDE_GET_URCONTROL_VERSION;
 };
 
 }  // namespace rtde_interface

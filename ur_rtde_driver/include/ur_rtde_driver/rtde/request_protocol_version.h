@@ -38,7 +38,9 @@ namespace rtde_interface
 class RequestProtocolVersion : public RTDEPackage
 {
 public:
-  RequestProtocolVersion() = default;
+  RequestProtocolVersion() : RTDEPackage(PackageType::RTDE_REQUEST_PROTOCOL_VERSION)
+  {
+  }
   virtual ~RequestProtocolVersion() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -50,7 +52,10 @@ public:
 class RequestProtocolVersionRequest : public RTDEPackage
 {
 public:
-  RequestProtocolVersionRequest() = default;
+  RequestProtocolVersionRequest() : RTDEPackage(PackageType::RTDE_REQUEST_PROTOCOL_VERSION)
+  {
+  }
+
   virtual ~RequestProtocolVersionRequest() = default;
 
   static size_t generateSerializedRequest(uint8_t* buffer, uint16_t version);
@@ -59,7 +64,6 @@ public:
 
 private:
   static const uint16_t PAYLOAD_SIZE = sizeof(uint16_t);
-  static const PackageType PACKAGE_TYPE = PackageType::RTDE_REQUEST_PROTOCOL_VERSION;
 };
 
 }  // namespace rtde_interface

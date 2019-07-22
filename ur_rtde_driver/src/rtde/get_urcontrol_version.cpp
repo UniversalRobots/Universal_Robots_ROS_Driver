@@ -51,7 +51,7 @@ std::string GetUrcontrolVersion::toString() const
 
 size_t GetUrcontrolVersionRequest::generateSerializedRequest(uint8_t* buffer)
 {
-  return PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, PAYLOAD_SIZE);
+  return PackageHeader::serializeHeader(buffer, PackageType::RTDE_GET_URCONTROL_VERSION, PAYLOAD_SIZE);
 }
 }  // namespace rtde_interface
 }  // namespace ur_driver

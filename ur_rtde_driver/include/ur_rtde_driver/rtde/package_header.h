@@ -57,9 +57,6 @@ public:
   virtual ~PackageHeader() = default;
   using _package_size_type = uint16_t;
 
-  PackageHeader(PackageType& type) : package_type_(type){};
-  PackageHeader(_package_size_type& size, PackageType& type) : package_size_(size), package_type_(type){};
-
   static size_t getPackageLength(uint8_t* buf)
   {
     return be16toh(*(reinterpret_cast<_package_size_type*>(buf)));
@@ -73,10 +70,6 @@ public:
     comm::PackageSerializer::serialize(buffer + sizeof(size), package_type);
     return header_size;
   }
-
-private:
-  _package_size_type package_size_;
-  PackageType package_type_;
 };
 
 }  // namespace rtde_interface

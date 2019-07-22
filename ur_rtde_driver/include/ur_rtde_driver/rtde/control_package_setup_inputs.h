@@ -37,7 +37,9 @@ namespace rtde_interface
 class ControlPackageSetupInputs : public RTDEPackage
 {
 public:
-  ControlPackageSetupInputs() = default;
+  ControlPackageSetupInputs() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_INPUTS)
+  {
+  }
   virtual ~ControlPackageSetupInputs() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -50,7 +52,9 @@ public:
 class ControlPackageSetupInputsRequest : public RTDEPackage
 {
 public:
-  ControlPackageSetupInputsRequest() = default;
+  ControlPackageSetupInputsRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_INPUTS)
+  {
+  }
   virtual ~ControlPackageSetupInputsRequest() = default;
 
   std::string variable_names_;

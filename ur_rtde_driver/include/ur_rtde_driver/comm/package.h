@@ -49,8 +49,6 @@ public:
   URPackage() = default;
   virtual ~URPackage() = default;
 
-  using _header_type = HeaderT;
-
   virtual bool parseWith(BinParser& bp) = 0;
 
   virtual std::string toString() const = 0;

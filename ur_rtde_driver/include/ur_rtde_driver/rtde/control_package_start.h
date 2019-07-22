@@ -37,7 +37,9 @@ namespace rtde_interface
 class ControlPackageStart : public RTDEPackage
 {
 public:
-  ControlPackageStart() = default;
+  ControlPackageStart() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_START)
+  {
+  }
   virtual ~ControlPackageStart() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -49,14 +51,15 @@ public:
 class ControlPackageStartRequest : public RTDEPackage
 {
 public:
-  ControlPackageStartRequest() = default;
+  ControlPackageStartRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_START)
+  {
+  }
   virtual ~ControlPackageStartRequest() = default;
 
   static size_t generateSerializedRequest(uint8_t* buffer);
 
 private:
   static const uint16_t PAYLOAD_SIZE = 0;
-  static const PackageType PACKAGE_TYPE = PackageType::RTDE_CONTROL_PACKAGE_START;
 };
 
 }  // namespace rtde_interface

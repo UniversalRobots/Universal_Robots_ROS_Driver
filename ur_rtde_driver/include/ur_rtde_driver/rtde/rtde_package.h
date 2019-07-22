@@ -45,7 +45,7 @@ public:
   /*!
    * \brief Creates a new RTDEPackage object.
    */
-  RTDEPackage() = default;
+  RTDEPackage() = delete;
   RTDEPackage(const PackageType type) : type_(type)
   {
   }

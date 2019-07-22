@@ -47,7 +47,7 @@ std::string RequestProtocolVersion::toString() const
 size_t RequestProtocolVersionRequest::generateSerializedRequest(uint8_t* buffer, uint16_t version)
 {
   size_t size = 0;
-  size += PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, PAYLOAD_SIZE);
+  size += PackageHeader::serializeHeader(buffer, PackageType::RTDE_REQUEST_PROTOCOL_VERSION, PAYLOAD_SIZE);
 
   size += comm::PackageSerializer::serialize(buffer + size, version);
 

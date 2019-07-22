@@ -38,7 +38,9 @@ namespace rtde_interface
 class ControlPackageSetupOutputs : public RTDEPackage
 {
 public:
-  ControlPackageSetupOutputs() = default;
+  ControlPackageSetupOutputs() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS)
+  {
+  }
   virtual ~ControlPackageSetupOutputs() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
@@ -51,7 +53,9 @@ public:
 class ControlPackageSetupOutputsRequest : public RTDEPackage
 {
 public:
-  ControlPackageSetupOutputsRequest() = default;
+  ControlPackageSetupOutputsRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS)
+  {
+  }
   virtual ~ControlPackageSetupOutputsRequest() = default;
 
   static size_t generateSerializedRequest(uint8_t* buffer, double output_frequency,

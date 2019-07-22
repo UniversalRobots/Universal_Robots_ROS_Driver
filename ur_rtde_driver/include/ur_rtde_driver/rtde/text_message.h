@@ -37,7 +37,9 @@ namespace rtde_interface
 class TextMessage : public RTDEPackage
 {
 public:
-  TextMessage() = default;
+  TextMessage() : RTDEPackage(PackageType::RTDE_TEXT_MESSAGE)
+  {
+  }
   virtual ~TextMessage() = default;
 
   virtual bool parseWith(comm::BinParser& bp);
