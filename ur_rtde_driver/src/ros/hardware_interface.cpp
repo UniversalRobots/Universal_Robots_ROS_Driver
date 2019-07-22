@@ -208,6 +208,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   {
     io_pub_->msg_.analog_out_states[i].pin = i;
   }
+  tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
@@ -256,11 +257,19 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
     readData(data_pkg, "standard_analog_input1", standard_analog_input_[1]);
     readData(data_pkg, "standard_analog_output0", standard_analog_output_[0]);
     readData(data_pkg, "standard_analog_output1", standard_analog_output_[1]);
+    readData(data_pkg, "tool_mode", tool_mode_);
+    readData(data_pkg, "tool_analog_input0", tool_analog_input_[0]);
+    readData(data_pkg, "tool_analog_input1", tool_analog_input_[1]);
+    readData(data_pkg, "tool_output_voltage", tool_output_voltage_);
+    readData(data_pkg, "tool_output_current", tool_output_current_);
+    readData(data_pkg, "tool_temperature", tool_temperature_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
+    readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
 
     publishIOData();
+    publishToolData();
 
     // Transform fts measurements to tool frame
     extractToolPose(time);
@@ -479,8 +488,26 @@ void HardwareInterface::publishIOData()
         io_pub_->msg_.analog_out_states[i].state = standard_analog_output_[i];
       }
       // TODO: Handle analog domain
-      // TODO: Handle tool IO
       io_pub_->unlockAndPublish();
+    }
+  }
+}
+
+void HardwareInterface::publishToolData()
+{
+  if (tool_data_pub_)
+  {
+    if (tool_data_pub_->trylock())
+    {
+      tool_data_pub_->msg_.tool_mode = tool_mode_;
+      tool_data_pub_->msg_.analog_input_range2 = tool_analog_input_types_[0];
+      tool_data_pub_->msg_.analog_input_range3 = tool_analog_input_types_[1];
+      tool_data_pub_->msg_.analog_input2 = tool_analog_input_[0];
+      tool_data_pub_->msg_.analog_input2 = tool_analog_input_[1];
+      tool_data_pub_->msg_.tool_output_voltage = tool_output_voltage_;
+      tool_data_pub_->msg_.tool_current = tool_output_current_;
+      tool_data_pub_->msg_.tool_temperature = tool_temperature_;
+      tool_data_pub_->unlockAndPublish();
     }
   }
 }

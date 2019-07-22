@@ -39,6 +39,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <ur_msgs/IOStates.h>
+#include <ur_msgs/ToolDataMsg.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
@@ -98,6 +99,7 @@ protected:
   void publishPose();
 
   void publishIOData();
+  void publishToolData();
 
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
@@ -130,6 +132,12 @@ protected:
   std::array<double, 2> standard_analog_input_;
   std::array<double, 2> standard_analog_output_;
   std::bitset<4> analog_io_types_;
+  uint32_t tool_mode_;
+  std::bitset<2> tool_analog_input_types_;
+  std::array<double, 2> tool_analog_input_;
+  int32_t tool_output_voltage_;
+  double tool_output_current_;
+  double tool_temperature_;
   tf2::Vector3 tcp_force_;
   tf2::Vector3 tcp_torque_;
   geometry_msgs::TransformStamped tcp_transform_;
@@ -140,6 +148,7 @@ protected:
 
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
 
   uint32_t runtime_state_;
   bool position_controller_running_;
