@@ -57,7 +57,12 @@ public:
   }
   virtual ~ControlPackageSetupInputsRequest() = default;
 
+  static size_t generateSerializedRequest(uint8_t* buffer, std::vector<std::string> variable_names);
+
   std::string variable_names_;
+
+private:
+  static const PackageType PACKAGE_TYPE = PackageType::RTDE_CONTROL_PACKAGE_SETUP_INPUTS;
 };
 
 }  // namespace rtde_interface

@@ -32,6 +32,7 @@
 #include "ur_rtde_driver/comm/script_sender.h"
 #include "ur_rtde_driver/ur/tool_communication.h"
 #include "ur_rtde_driver/primary/robot_message/version_message.h"
+#include "ur_rtde_driver/rtde/rtde_writer.h"
 
 namespace ur_driver
 {
@@ -51,19 +52,20 @@ public:
    * \param script_file URScript file that should be sent to the robot
    * \param tool_comm_setup Configuration for using the tool communication
    */
-  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
-           std::function<void(bool)> handle_program_state, std::unique_ptr<ToolCommSetup> tool_comm_setup,
-           const std::string& calibration_checksum = "");
+  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
+           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
+           std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "");
   /*!
    * \brief Constructs a new UrDriver object.
    *
    * \param robot_ip IP-address under which the robot is reachable.
    * \param script_file URScript file that should be sent to the robot
    */
-  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& recipe_file,
-           std::function<void(bool)> handle_program_state, const std::string& calibration_checksum = "")
-    : UrDriver(robot_ip, script_file, recipe_file, handle_program_state, std::unique_ptr<ToolCommSetup>{},
-               calibration_checksum)
+  UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
+           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
+           const std::string& calibration_checksum = "")
+    : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state,
+               std::unique_ptr<ToolCommSetup>{}, calibration_checksum)
   {
   }
 
@@ -114,6 +116,8 @@ public:
   void startWatchdog();
 
   void checkCalibration(const std::string& checksum);
+
+  rtde_interface::RTDEWriter& getRTDEWriter();
 
 private:
   std::string readScriptFile(const std::string& filename);

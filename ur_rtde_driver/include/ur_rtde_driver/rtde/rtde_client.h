@@ -39,6 +39,7 @@
 #include "ur_rtde_driver/rtde/control_package_setup_outputs.h"
 #include "ur_rtde_driver/rtde/control_package_start.h"
 #include "ur_rtde_driver/log.h"
+#include "ur_rtde_driver/rtde/rtde_writer.h"
 
 static const int UR_RTDE_PORT = 30004;
 static const std::string PIPELINE_NAME = "RTDE Data Pipeline";
@@ -51,7 +52,8 @@ class RTDEClient
 {
 public:
   RTDEClient() = delete;
-  RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& recipe_file);
+  RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& output_recipe_file,
+             const std::string& input_recipe_file);
   ~RTDEClient() = default;
   bool init();
   bool start();
@@ -74,12 +76,15 @@ public:
    */
   std::string getIP() const;
 
+  RTDEWriter& getWriter();
+
 private:
   comm::URStream<PackageHeader> stream_;
   std::vector<std::string> recipe_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;
+  RTDEWriter writer_;
 
   VersionInformation urcontrol_version_;
 

@@ -20,51 +20,50 @@
 /*!\file
  *
  * \author  Tristan Schnell schnell@fzi.de
- * \date    2019-04-09
+ * \date    2019-07-25
  *
  */
 //----------------------------------------------------------------------
 
-#include "ur_rtde_driver/rtde/control_package_setup_inputs.h"
+#include "ur_rtde_driver/rtde/rtde_writer.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-bool ControlPackageSetupInputs::parseWith(comm::BinParser& bp)
+RTDEWriter::RTDEWriter(comm::URStream<PackageHeader>* stream, const std::string& recipe_file) : stream_(stream)
 {
-  bp.parse(input_recipe_id_);
-  bp.parseRemainder(variable_types_);
-
-  return true;
-}
-std::string ControlPackageSetupInputs::toString() const
-{
-  std::stringstream ss;
-  ss << "input recipe id: " << static_cast<int>(input_recipe_id_) << std::endl;
-  ss << "variable types: " << variable_types_;
-
-  return ss.str();
 }
 
-size_t ControlPackageSetupInputsRequest::generateSerializedRequest(uint8_t* buffer,
-                                                                   std::vector<std::string> variable_names)
+bool RTDEWriter::init(uint8_t recipe_id)
 {
-  if (variable_names.size() == 0)
-  {
-    return 0;
-  }
-  std::string variables;
-  for (const auto& piece : variable_names)
-    variables += (piece + ",");
-  variables.pop_back();
-  uint16_t payload_size = sizeof(double) + variables.size();
-
-  size_t size = 0;
-  size += PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, payload_size);
-  size += comm::PackageSerializer::serialize(buffer + size, variables);
-
-  return size;
+  return false;
 }
+bool RTDEWriter::start()
+{
+  return false;
+}
+
+bool RTDEWriter::sendSpeedSlider(double speed_slider_fraction)
+{
+  return false;
+}
+bool RTDEWriter::sendStandardDigitalOutput(uint8_t output_pin, bool value)
+{
+  return false;
+}
+bool RTDEWriter::sendConfigurableDigitalOutput(uint8_t output_pin, bool value)
+{
+  return false;
+}
+bool RTDEWriter::sendToolDigitalOutput(bool value)
+{
+  return false;
+}
+bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, bool value)
+{
+  return false;
+}
+
 }  // namespace rtde_interface
 }  // namespace ur_driver

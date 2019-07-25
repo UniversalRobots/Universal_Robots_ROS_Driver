@@ -1,0 +1,2 @@
+speed_slider_mask
+speed_slider_fraction

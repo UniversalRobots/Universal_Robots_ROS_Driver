@@ -20,51 +20,44 @@
 /*!\file
  *
  * \author  Tristan Schnell schnell@fzi.de
- * \date    2019-04-09
+ * \date    2019-07-25
  *
  */
 //----------------------------------------------------------------------
 
-#include "ur_rtde_driver/rtde/control_package_setup_inputs.h"
+#ifndef UR_RTDE_DRIVER_RTDE_WRITER_H_INCLUDED
+#define UR_RTDE_DRIVER_RTDE_WRITER_H_INCLUDED
+
+#include "ur_rtde_driver/rtde/package_header.h"
+#include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/comm/stream.h"
 
 namespace ur_driver
 {
 namespace rtde_interface
 {
-bool ControlPackageSetupInputs::parseWith(comm::BinParser& bp)
+class RTDEWriter
 {
-  bp.parse(input_recipe_id_);
-  bp.parseRemainder(variable_types_);
+public:
+  RTDEWriter() = delete;
+  RTDEWriter(comm::URStream<PackageHeader>* stream, const std::string& recipe_file);
+  ~RTDEWriter() = default;
+  bool init(uint8_t recipe_id);
+  bool start();
 
-  return true;
-}
-std::string ControlPackageSetupInputs::toString() const
-{
-  std::stringstream ss;
-  ss << "input recipe id: " << static_cast<int>(input_recipe_id_) << std::endl;
-  ss << "variable types: " << variable_types_;
+  bool sendSpeedSlider(double speed_slider_fraction);
+  bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
+  bool sendConfigurableDigitalOutput(uint8_t output_pin, bool value);
+  bool sendToolDigitalOutput(bool value);
+  bool sendStandardAnalogOuput(uint8_t output_pin, bool value);
 
-  return ss.str();
-}
+private:
+  comm::URStream<PackageHeader>* stream_;
+  std::vector<std::string> recipe_;
+  uint8_t recipe_id_;
+};
 
-size_t ControlPackageSetupInputsRequest::generateSerializedRequest(uint8_t* buffer,
-                                                                   std::vector<std::string> variable_names)
-{
-  if (variable_names.size() == 0)
-  {
-    return 0;
-  }
-  std::string variables;
-  for (const auto& piece : variable_names)
-    variables += (piece + ",");
-  variables.pop_back();
-  uint16_t payload_size = sizeof(double) + variables.size();
-
-  size_t size = 0;
-  size += PackageHeader::serializeHeader(buffer, PACKAGE_TYPE, payload_size);
-  size += comm::PackageSerializer::serialize(buffer + size, variables);
-
-  return size;
-}
 }  // namespace rtde_interface
 }  // namespace ur_driver
+
+#endif  // UR_RTDE_DRIVER_RTDE_WRITER_H_INCLUDED

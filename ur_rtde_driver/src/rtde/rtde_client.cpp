@@ -32,12 +32,14 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& recipe_file)
+RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& output_recipe_file,
+                       const std::string& input_recipe_file)
   : stream_(robot_ip, UR_RTDE_PORT)
-  , recipe_(readRecipe(recipe_file))
+  , recipe_(readRecipe(output_recipe_file))
   , parser_(recipe_)
   , prod_(stream_, parser_)
   , pipeline_(prod_, PIPELINE_NAME, notifier)
+  , writer_(&stream_, input_recipe_file)
   , max_frequency_(URE_MAX_FREQUENCY)
 {
 }
@@ -136,6 +138,11 @@ bool RTDEClient::getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>&
 std::string RTDEClient::getIP() const
 {
   return stream_.getIP();
+}
+
+RTDEWriter& RTDEClient::getWriter()
+{
+  return writer_;
 }
 }  // namespace rtde_interface
 }  // namespace ur_driver

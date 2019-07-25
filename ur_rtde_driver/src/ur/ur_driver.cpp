@@ -47,7 +47,8 @@ static const std::string SERVER_IP_REPLACE("{{SERVER_IP_REPLACE}}");
 static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
-                              const std::string& recipe_file, std::function<void(bool)> handle_program_state,
+                              const std::string& output_recipe_file, const std::string& input_recipe_file,
+                              std::function<void(bool)> handle_program_state,
                               std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
@@ -58,7 +59,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 {
   LOG_DEBUG("Initializing urdriver");
   LOG_DEBUG("Initializing RTDE client");
-  rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, recipe_file));
+  rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, output_recipe_file, input_recipe_file));
 
   LOG_INFO("Checking if calibration data matches connected robot.");
   checkCalibration(calibration_checksum);
@@ -232,6 +233,11 @@ void UrDriver::checkCalibration(const std::string& checksum)
     ros::Duration(1).sleep();
   }
   ROS_DEBUG_STREAM("Got calibration information from robot.");
+}
+
+rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
+{
+  return rtde_client_->getWriter();
 }
 
 }  // namespace ur_driver
