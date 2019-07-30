@@ -81,6 +81,7 @@ public:
 private:
   comm::URStream<PackageHeader> stream_;
   std::vector<std::string> recipe_;
+  std::vector<std::string> input_recipe_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
   comm::Pipeline<PackageHeader> pipeline_;

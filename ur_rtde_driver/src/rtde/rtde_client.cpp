@@ -36,6 +36,7 @@ RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier, const st
                        const std::string& input_recipe_file)
   : stream_(robot_ip, UR_RTDE_PORT)
   , recipe_(readRecipe(output_recipe_file))
+  , input_recipe_(readRecipe(input_recipe_file))
   , parser_(recipe_)
   , prod_(stream_, parser_)
   , pipeline_(prod_, PIPELINE_NAME, notifier)
@@ -101,7 +102,22 @@ bool RTDEClient::init()
     size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, recipe_);
   }
   stream_.write(buffer, size, written);
-  return pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+
+  // sending input recipe
+  size = ControlPackageSetupInputsRequest::generateSerializedRequest(buffer, input_recipe_);
+  stream_.write(buffer, size, written);
+  bool success = pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+  rtde_interface::ControlPackageSetupInputs* tmp_input =
+      dynamic_cast<rtde_interface::ControlPackageSetupInputs*>(package.get());
+  if (tmp_input == nullptr)
+  {
+    throw UrException("Could not setup RTDE inputs.");
+  }
+  writer_.init(tmp_input->input_recipe_id_);
+  pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
+
+  return success;
 }
 bool RTDEClient::start()
 {
@@ -125,7 +141,6 @@ std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
   {
     recipe.push_back(line);
   }
-  recipe_ = recipe;
   return recipe;
 }
 
