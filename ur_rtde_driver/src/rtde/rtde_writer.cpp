@@ -31,35 +31,63 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-RTDEWriter::RTDEWriter(comm::URStream<PackageHeader>* stream, const std::string& recipe_file) : stream_(stream)
+RTDEWriter::RTDEWriter(comm::URStream<PackageHeader>* stream, const std::vector<std::string>& recipe)
+  : stream_(stream), recipe_(recipe), queue_{ 32 }
 {
 }
 
-bool RTDEWriter::init(uint8_t recipe_id)
+void RTDEWriter::init(uint8_t recipe_id)
 {
-  return false;
+  recipe_id_ = recipe_id;
+  writer_thread_ = std::thread(&RTDEWriter::run, this);
 }
-bool RTDEWriter::start()
+
+void RTDEWriter::run()
 {
-  return false;
+  uint8_t buffer[4096];
+  size_t size;
+  size_t written;
+  std::unique_ptr<DataPackage> package;
+  while (true)
+  {
+    queue_.waitDequeue(package);
+    package->setRecipeID(recipe_id_);
+    size = package->serializePackage(buffer);
+    stream_->write(buffer, size, written);
+  }
 }
 
 bool RTDEWriter::sendSpeedSlider(double speed_slider_fraction)
 {
-  return false;
+  std::unique_ptr<DataPackage> package;
+  package.reset(new DataPackage(recipe_));
+  package->initEmpty();
+  uint32_t mask = 1;
+  package->setData("speed_slider_mask", mask);
+  package->setData("speed_slider_fraction", speed_slider_fraction);
+
+  if (!queue_.tryEnqueue(std::move(package)))
+  {
+    return false;
+  }
+  return true;
 }
+
 bool RTDEWriter::sendStandardDigitalOutput(uint8_t output_pin, bool value)
 {
   return false;
 }
+
 bool RTDEWriter::sendConfigurableDigitalOutput(uint8_t output_pin, bool value)
 {
   return false;
 }
+
 bool RTDEWriter::sendToolDigitalOutput(bool value)
 {
   return false;
 }
+
 bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, bool value)
 {
   return false;

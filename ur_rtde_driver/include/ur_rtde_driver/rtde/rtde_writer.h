@@ -30,7 +30,10 @@
 
 #include "ur_rtde_driver/rtde/package_header.h"
 #include "ur_rtde_driver/rtde/rtde_package.h"
+#include "ur_rtde_driver/rtde/data_package.h"
 #include "ur_rtde_driver/comm/stream.h"
+#include "ur_rtde_driver/queue/readerwriterqueue.h"
+#include <thread>
 
 namespace ur_driver
 {
@@ -40,10 +43,10 @@ class RTDEWriter
 {
 public:
   RTDEWriter() = delete;
-  RTDEWriter(comm::URStream<PackageHeader>* stream, const std::string& recipe_file);
+  RTDEWriter(comm::URStream<PackageHeader>* stream, const std::vector<std::string>& recipe);
   ~RTDEWriter() = default;
-  bool init(uint8_t recipe_id);
-  bool start();
+  void init(uint8_t recipe_id);
+  void run();
 
   bool sendSpeedSlider(double speed_slider_fraction);
   bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
@@ -55,6 +58,8 @@ private:
   comm::URStream<PackageHeader>* stream_;
   std::vector<std::string> recipe_;
   uint8_t recipe_id_;
+  moodycamel::BlockingReaderWriterQueue<std::unique_ptr<DataPackage>> queue_;
+  std::thread writer_thread_;
 };
 
 }  // namespace rtde_interface

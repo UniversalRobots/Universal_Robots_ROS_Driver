@@ -216,6 +216,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
+  speed_slider_sub_ = robot_hw_nh.subscribe("set_speed_slider", 10, &HardwareInterface::speedScalingCallback, this);
+
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
@@ -532,5 +534,10 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
     res.message = "No control active. Nothing to do.";
   }
   return true;
+}
+
+void HardwareInterface::speedScalingCallback(const std_msgs::Float64::ConstPtr& msg)
+{
+  ur_driver_->getRTDEWriter().sendSpeedSlider(msg->data);
 }
 }  // namespace ur_driver

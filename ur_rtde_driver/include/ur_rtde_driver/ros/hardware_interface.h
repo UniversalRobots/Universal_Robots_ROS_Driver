@@ -33,6 +33,7 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <algorithm>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float64.h>
 #include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_publisher.h>
 #include "tf2_msgs/TFMessage.h"
@@ -109,6 +110,8 @@ protected:
   void readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
                       std::bitset<N>& data);
 
+  void speedScalingCallback(const std_msgs::Float64::ConstPtr& msg);
+
   std::unique_ptr<UrDriver> ur_driver_;
 
   ros::ServiceServer deactivate_srv_;
@@ -149,6 +152,8 @@ protected:
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
+
+  ros::Subscriber speed_slider_sub_;
 
   uint32_t runtime_state_;
   bool position_controller_running_;
