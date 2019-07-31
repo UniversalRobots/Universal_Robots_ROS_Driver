@@ -108,12 +108,60 @@ bool RTDEWriter::sendStandardDigitalOutput(uint8_t output_pin, bool value)
 
 bool RTDEWriter::sendConfigurableDigitalOutput(uint8_t output_pin, bool value)
 {
-  return false;
+  std::unique_ptr<DataPackage> package;
+  package.reset(new DataPackage(recipe_));
+  package->initEmpty();
+  uint8_t mask = pinToMask(output_pin);
+  bool success = true;
+  uint8_t digital_output;
+  if (value)
+  {
+    digital_output = 255;
+  }
+  else
+  {
+    digital_output = 0;
+  }
+  success = package->setData("configurable_digital_output_mask", mask);
+  success = success && package->setData("configurable_digital_output", digital_output);
+
+  if (success)
+  {
+    if (!queue_.tryEnqueue(std::move(package)))
+    {
+      return false;
+    }
+  }
+  return success;
 }
 
-bool RTDEWriter::sendToolDigitalOutput(bool value)
+bool RTDEWriter::sendToolDigitalOutput(uint8_t output_pin, bool value)
 {
-  return false;
+  std::unique_ptr<DataPackage> package;
+  package.reset(new DataPackage(recipe_));
+  package->initEmpty();
+  uint8_t mask = pinToMask(output_pin);
+  bool success = true;
+  uint8_t digital_output;
+  if (value)
+  {
+    digital_output = 255;
+  }
+  else
+  {
+    digital_output = 0;
+  }
+  success = package->setData("tooldigital_output_mask", mask);
+  success = success && package->setData("tooldigital_output", digital_output);
+
+  if (success)
+  {
+    if (!queue_.tryEnqueue(std::move(package)))
+    {
+      return false;
+    }
+  }
+  return success;
 }
 
 bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, double value)

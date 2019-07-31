@@ -51,7 +51,7 @@ public:
   bool sendSpeedSlider(double speed_slider_fraction);
   bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
   bool sendConfigurableDigitalOutput(uint8_t output_pin, bool value);
-  bool sendToolDigitalOutput(bool value);
+  bool sendToolDigitalOutput(uint8_t output_pin, bool value);
   bool sendStandardAnalogOuput(uint8_t output_pin, double value);
 
 private:
