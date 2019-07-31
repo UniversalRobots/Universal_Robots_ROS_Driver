@@ -41,6 +41,7 @@
 
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
+#include <ur_msgs/SetIO.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
@@ -111,6 +112,7 @@ protected:
                       std::bitset<N>& data);
 
   void speedScalingCallback(const std_msgs::Float64::ConstPtr& msg);
+  bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
 
   std::unique_ptr<UrDriver> ur_driver_;
 
@@ -154,6 +156,7 @@ protected:
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
 
   ros::Subscriber speed_slider_sub_;
+  ros::ServiceServer set_io_srv_;
 
   uint32_t runtime_state_;
   bool position_controller_running_;

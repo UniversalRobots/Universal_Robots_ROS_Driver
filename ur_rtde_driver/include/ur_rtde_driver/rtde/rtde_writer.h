@@ -52,9 +52,10 @@ public:
   bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
   bool sendConfigurableDigitalOutput(uint8_t output_pin, bool value);
   bool sendToolDigitalOutput(bool value);
-  bool sendStandardAnalogOuput(uint8_t output_pin, bool value);
+  bool sendStandardAnalogOuput(uint8_t output_pin, double value);
 
 private:
+  uint8_t pinToMask(uint8_t pin);
   comm::URStream<PackageHeader>* stream_;
   std::vector<std::string> recipe_;
   uint8_t recipe_id_;

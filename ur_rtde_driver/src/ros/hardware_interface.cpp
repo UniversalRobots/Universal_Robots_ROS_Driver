@@ -218,6 +218,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   speed_slider_sub_ = robot_hw_nh.subscribe("set_speed_slider", 10, &HardwareInterface::speedScalingCallback, this);
 
+  set_io_srv_ = robot_hw_nh.advertiseService("set_io", &HardwareInterface::setIO, this);
+
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
@@ -539,5 +541,23 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
 void HardwareInterface::speedScalingCallback(const std_msgs::Float64::ConstPtr& msg)
 {
   ur_driver_->getRTDEWriter().sendSpeedSlider(msg->data);
+}
+
+bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res)
+{
+  if (req.fun == req.FUN_SET_DIGITAL_OUT)
+  {
+    res.success = ur_driver_->getRTDEWriter().sendStandardDigitalOutput(req.pin, req.state);
+  }
+  else if (req.fun == req.FUN_SET_ANALOG_OUT)
+  {
+    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOuput(req.pin, req.state);
+  }
+  else
+  {
+    res.success = false;
+  }
+
+  return true;
 }
 }  // namespace ur_driver

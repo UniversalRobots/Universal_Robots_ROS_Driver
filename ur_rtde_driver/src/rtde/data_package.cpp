@@ -220,6 +220,8 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "tool_digital_output", uint8_t() },
   { "standard_analog_output_mask", uint8_t() },
   { "standard_analog_output_type", uint8_t() },
+  { "standard_analog_output_0", double() },
+  { "standard_analog_output_1", double() },
 };
 
 void rtde_interface::DataPackage::initEmpty()

@@ -63,19 +63,47 @@ bool RTDEWriter::sendSpeedSlider(double speed_slider_fraction)
   package.reset(new DataPackage(recipe_));
   package->initEmpty();
   uint32_t mask = 1;
-  package->setData("speed_slider_mask", mask);
-  package->setData("speed_slider_fraction", speed_slider_fraction);
+  bool success = true;
+  success = package->setData("speed_slider_mask", mask);
+  success = success && package->setData("speed_slider_fraction", speed_slider_fraction);
 
-  if (!queue_.tryEnqueue(std::move(package)))
+  if (success)
   {
-    return false;
+    if (!queue_.tryEnqueue(std::move(package)))
+    {
+      return false;
+    }
   }
-  return true;
+  return success;
 }
 
 bool RTDEWriter::sendStandardDigitalOutput(uint8_t output_pin, bool value)
 {
-  return false;
+  std::unique_ptr<DataPackage> package;
+  package.reset(new DataPackage(recipe_));
+  package->initEmpty();
+  uint8_t mask = pinToMask(output_pin);
+  bool success = true;
+  uint8_t digital_output;
+  if (value)
+  {
+    digital_output = 255;
+  }
+  else
+  {
+    digital_output = 0;
+  }
+  success = package->setData("standard_digital_output_mask", mask);
+  success = success && package->setData("standard_digital_output", digital_output);
+
+  if (success)
+  {
+    if (!queue_.tryEnqueue(std::move(package)))
+    {
+      return false;
+    }
+  }
+  return success;
 }
 
 bool RTDEWriter::sendConfigurableDigitalOutput(uint8_t output_pin, bool value)
@@ -88,9 +116,38 @@ bool RTDEWriter::sendToolDigitalOutput(bool value)
   return false;
 }
 
-bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, bool value)
+bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, double value)
 {
-  return false;
+  std::unique_ptr<DataPackage> package;
+  package.reset(new DataPackage(recipe_));
+  package->initEmpty();
+  uint8_t mask = pinToMask(output_pin);
+  // default to current for now, as no functionality to choose included in set io service
+  uint8_t output_type = 0;
+  bool success = true;
+  success = package->setData("standard_analog_output_mask", mask);
+  success = success && package->setData("standard_analog_output_type", output_type);
+  success = success && package->setData("standard_analog_output_0", value);
+  success = success && package->setData("standard_analog_output_1", value);
+
+  if (success)
+  {
+    if (!queue_.tryEnqueue(std::move(package)))
+    {
+      return false;
+    }
+  }
+  return success;
+}
+
+uint8_t RTDEWriter::pinToMask(uint8_t pin)
+{
+  if (pin > 7)
+  {
+    return 0;
+  }
+
+  return 1 << pin;
 }
 
 }  // namespace rtde_interface
