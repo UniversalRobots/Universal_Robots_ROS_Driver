@@ -66,6 +66,22 @@ struct StringVisitor : public boost::static_visitor<std::string>
     return ss.str();
   }
 };
+struct SizeVisitor : public boost::static_visitor<uint16_t>
+{
+  template <typename T>
+  uint16_t operator()(T& d) const
+  {
+    return sizeof(d);
+  }
+};
+struct SerializeVisitor : public boost::static_visitor<size_t>
+{
+  template <typename T>
+  size_t operator()(T& d, uint8_t* buffer) const
+  {
+    return comm::PackageSerializer::serialize(buffer, d);
+  }
+};
 
 class DataPackage : public RTDEPackage
 {
@@ -79,8 +95,12 @@ public:
   }
   virtual ~DataPackage() = default;
 
+  void initEmpty();
+
   virtual bool parseWith(comm::BinParser& bp);
   virtual std::string toString() const;
+
+  size_t serializePackage(uint8_t* buffer);
 
   /*!
    * \brief Get a data field from the DataPackage.
@@ -131,6 +151,35 @@ public:
       return false;
     }
     return true;
+  }
+
+  /*!
+   * \brief Set a data field in the DataPackage.
+   *
+   * The data package contains a lot of different data fields, depending on the recipe.
+   *
+   * \param name The string identifier for the data field as used in the documentation.
+   * \param val Value to set. Make sure, it's the correct type.
+   *
+   * \returns True on success, false if the field cannot be found inside the package.
+   */
+  template <typename T>
+  bool setData(const std::string& name, T& val)
+  {
+    if (data_.find(name) != data_.end())
+    {
+      data_[name] = val;
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+
+  void setRecipeID(const uint8_t& recipe_id)
+  {
+    recipe_id_ = recipe_id;
   }
 
 private:

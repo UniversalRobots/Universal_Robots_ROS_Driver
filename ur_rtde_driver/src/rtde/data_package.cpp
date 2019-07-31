@@ -138,6 +138,30 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "output_double_register_23", double() },
   { "input_bit_registers0_to_31", uint32_t() },
   { "input_bit_registers32_to_63", uint32_t() },
+  { "input_bit_register_0", bool() },
+  { "input_bit_register_1", bool() },
+  { "input_bit_register_2", bool() },
+  { "input_bit_register_3", bool() },
+  { "input_bit_register_4", bool() },
+  { "input_bit_register_5", bool() },
+  { "input_bit_register_6", bool() },
+  { "input_bit_register_7", bool() },
+  { "input_bit_register_8", bool() },
+  { "input_bit_register_9", bool() },
+  { "input_bit_register_10", bool() },
+  { "input_bit_register_11", bool() },
+  { "input_bit_register_12", bool() },
+  { "input_bit_register_13", bool() },
+  { "input_bit_register_14", bool() },
+  { "input_bit_register_15", bool() },
+  { "input_bit_register_16", bool() },
+  { "input_bit_register_17", bool() },
+  { "input_bit_register_18", bool() },
+  { "input_bit_register_19", bool() },
+  { "input_bit_register_20", bool() },
+  { "input_bit_register_21", bool() },
+  { "input_bit_register_22", bool() },
+  { "input_bit_register_23", bool() },
   { "input_int_register_0", int32_t() },
   { "input_int_register_1", int32_t() },
   { "input_int_register_2", int32_t() },
@@ -185,8 +209,30 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "input_double_register_20", double() },
   { "input_double_register_21", double() },
   { "input_double_register_22", double() },
-  { "input_double_register_23", double() }
+  { "input_double_register_23", double() },
+  { "speed_slider_mask", uint32_t() },
+  { "speed_slider_fraction", double() },
+  { "standard_digital_output_mask", uint8_t() },
+  { "standard_digital_output", uint8_t() },
+  { "configurable_digital_output_mask", uint8_t() },
+  { "configurable_digital_output", uint8_t() },
+  { "tool_digital_output_mask", uint8_t() },
+  { "tool_digital_output", uint8_t() },
+  { "standard_analog_output_mask", uint8_t() },
+  { "standard_analog_output_type", uint8_t() },
 };
+
+void rtde_interface::DataPackage::initEmpty()
+{
+  for (auto& item : recipe_)
+  {
+    if (g_type_list.find(item) != g_type_list.end())
+    {
+      _rtde_type_variant entry = g_type_list[item];
+      data_[item] = entry;
+    }
+  }
+}
 
 bool rtde_interface::DataPackage ::parseWith(comm::BinParser& bp)
 {
@@ -217,6 +263,26 @@ std::string rtde_interface::DataPackage::toString() const
     ss << boost::apply_visitor(StringVisitor{}, item.second) << std::endl;
   }
   return ss.str();
+}
+
+size_t rtde_interface::DataPackage::serializePackage(uint8_t* buffer)
+{
+  uint16_t payload_size = sizeof(recipe_id_);
+
+  for (auto& item : data_)
+  {
+    payload_size += boost::apply_visitor(SizeVisitor{}, item.second);
+  }
+  size_t size = 0;
+  size += PackageHeader::serializeHeader(buffer, PackageType::RTDE_DATA_PACKAGE, payload_size);
+  size += comm::PackageSerializer::serialize(buffer + size, recipe_id_);
+  for (auto& item : recipe_)
+  {
+    auto bound_visitor = std::bind(SerializeVisitor(), std::placeholders::_1, buffer + size);
+    size += boost::apply_visitor(bound_visitor, data_[item]);
+  }
+
+  return size;
 }
 }  // namespace rtde_interface
 }  // namespace ur_driver
