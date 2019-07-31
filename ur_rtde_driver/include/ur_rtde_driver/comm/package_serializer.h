@@ -47,6 +47,16 @@ public:
     return size;
   }
 
+  static size_t serialize(uint8_t* buffer, double val)
+  {
+    size_t size = sizeof(double);
+    uint64_t inner;
+    std::memcpy(&inner, &val, size);
+    inner = encode(inner);
+    std::memcpy(buffer, &inner, size);
+    return size;
+  }
+
   static size_t serialize(uint8_t* buffer, std::string val)
   {
     const uint8_t* c_val = reinterpret_cast<const uint8_t*>(val.c_str());
