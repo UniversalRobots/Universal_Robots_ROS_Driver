@@ -47,6 +47,7 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_rtde_driver/ur/ur_driver.h"
+#include "ur_rtde_driver/SetSpeedSlider.h"
 
 namespace ur_driver
 {
@@ -111,7 +112,7 @@ protected:
   void readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
                       std::bitset<N>& data);
 
-  void speedScalingCallback(const std_msgs::Float64::ConstPtr& msg);
+  bool setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& req, ur_rtde_driver::SetSpeedSliderResponse& res);
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
 
   std::unique_ptr<UrDriver> ur_driver_;
@@ -155,7 +156,7 @@ protected:
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
 
-  ros::Subscriber speed_slider_sub_;
+  ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;
 
   uint32_t runtime_state_;

@@ -216,8 +216,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
-  speed_slider_sub_ = robot_hw_nh.subscribe("set_speed_slider", 10, &HardwareInterface::speedScalingCallback, this);
-
+  set_speed_slider_srv_ = robot_hw_nh.advertiseService("set_speed_slider", &HardwareInterface::setSpeedSlider, this);
   set_io_srv_ = robot_hw_nh.advertiseService("set_io", &HardwareInterface::setIO, this);
 
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
@@ -538,9 +537,18 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
   return true;
 }
 
-void HardwareInterface::speedScalingCallback(const std_msgs::Float64::ConstPtr& msg)
+bool HardwareInterface::setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& req,
+                                       ur_rtde_driver::SetSpeedSliderResponse& res)
 {
-  ur_driver_->getRTDEWriter().sendSpeedSlider(msg->data);
+  if (req.data >= 0.01 && req.data <= 1.0)
+  {
+    res.success = ur_driver_->getRTDEWriter().sendSpeedSlider(req.data);
+  }
+  else
+  {
+    res.success = false;
+  }
+  return true;
 }
 
 bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res)
@@ -550,11 +558,14 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
     if (req.pin <= 7)
     {
       res.success = ur_driver_->getRTDEWriter().sendStandardDigitalOutput(req.pin, req.state);
-    } else if (req.pin <= 15)
+    }
+    else if (req.pin <= 15)
     {
-      res.success = ur_driver_->getRTDEWriter().sendConfigurableDigitalOutput(req.pin-8, req.state);
-    } else {
-      res.success = ur_driver_->getRTDEWriter().sendToolDigitalOutput(req.pin-16, req.state);
+      res.success = ur_driver_->getRTDEWriter().sendConfigurableDigitalOutput(req.pin - 8, req.state);
+    }
+    else
+    {
+      res.success = ur_driver_->getRTDEWriter().sendToolDigitalOutput(req.pin - 16, req.state);
     }
   }
   else if (req.fun == req.FUN_SET_ANALOG_OUT)
