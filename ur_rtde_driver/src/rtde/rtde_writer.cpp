@@ -151,8 +151,8 @@ bool RTDEWriter::sendToolDigitalOutput(uint8_t output_pin, bool value)
   {
     digital_output = 0;
   }
-  success = package->setData("tooldigital_output_mask", mask);
-  success = success && package->setData("tooldigital_output", digital_output);
+  success = package->setData("tool_digital_output_mask", mask);
+  success = success && package->setData("tool_digital_output", digital_output);
 
   if (success)
   {

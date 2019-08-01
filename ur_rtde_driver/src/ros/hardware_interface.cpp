@@ -547,7 +547,15 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
 {
   if (req.fun == req.FUN_SET_DIGITAL_OUT)
   {
-    res.success = ur_driver_->getRTDEWriter().sendStandardDigitalOutput(req.pin, req.state);
+    if (req.pin <= 7)
+    {
+      res.success = ur_driver_->getRTDEWriter().sendStandardDigitalOutput(req.pin, req.state);
+    } else if (req.pin <= 15)
+    {
+      res.success = ur_driver_->getRTDEWriter().sendConfigurableDigitalOutput(req.pin-8, req.state);
+    } else {
+      res.success = ur_driver_->getRTDEWriter().sendToolDigitalOutput(req.pin-16, req.state);
+    }
   }
   else if (req.fun == req.FUN_SET_ANALOG_OUT)
   {
