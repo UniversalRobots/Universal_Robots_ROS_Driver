@@ -537,8 +537,8 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
   return true;
 }
 
-bool HardwareInterface::setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& req,
-                                       ur_rtde_driver::SetSpeedSliderResponse& res)
+bool HardwareInterface::setSpeedSlider(ur_rtde_msgs::SetSpeedSliderRequest& req,
+                                       ur_rtde_msgs::SetSpeedSliderResponse& res)
 {
   if (req.data >= 0.01 && req.data <= 1.0 && ur_driver_ != nullptr)
   {

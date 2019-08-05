@@ -25,17 +25,9 @@ find_package(catkin REQUIRED
     trajectory_msgs
     ur_controllers
     ur_msgs
-    message_generation
+    ur_rtde_msgs
 )
 find_package(Boost REQUIRED)
-
-## Generate services in the 'srv' folder
-add_service_files(
-   FILES
-   SetSpeedSlider.srv
-)
-
-generate_messages()
 
 catkin_package(
   INCLUDE_DIRS
@@ -58,7 +50,7 @@ catkin_package(
     ur_controllers
     ur_msgs
     std_srvs
-    message_runtime
+    ur_rtde_msgs
   DEPENDS
     Boost
 )

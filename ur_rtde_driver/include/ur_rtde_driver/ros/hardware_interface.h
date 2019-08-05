@@ -47,7 +47,7 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_rtde_driver/ur/ur_driver.h"
-#include "ur_rtde_driver/SetSpeedSlider.h"
+#include "ur_rtde_msgs/SetSpeedSlider.h"
 
 namespace ur_driver
 {
@@ -112,7 +112,7 @@ protected:
   void readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
                       std::bitset<N>& data);
 
-  bool setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& req, ur_rtde_driver::SetSpeedSliderResponse& res);
+  bool setSpeedSlider(ur_rtde_msgs::SetSpeedSliderRequest& req, ur_rtde_msgs::SetSpeedSliderResponse& res);
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
 
   std::unique_ptr<UrDriver> ur_driver_;
