@@ -540,7 +540,7 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
 bool HardwareInterface::setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& req,
                                        ur_rtde_driver::SetSpeedSliderResponse& res)
 {
-  if (req.data >= 0.01 && req.data <= 1.0)
+  if (req.data >= 0.01 && req.data <= 1.0 && ur_driver_ != nullptr)
   {
     res.success = ur_driver_->getRTDEWriter().sendSpeedSlider(req.data);
   }
@@ -553,7 +553,7 @@ bool HardwareInterface::setSpeedSlider(ur_rtde_driver::SetSpeedSliderRequest& re
 
 bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res)
 {
-  if (req.fun == req.FUN_SET_DIGITAL_OUT)
+  if (req.fun == req.FUN_SET_DIGITAL_OUT && ur_driver_ != nullptr)
   {
     if (req.pin <= 7)
     {
@@ -568,7 +568,7 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
       res.success = ur_driver_->getRTDEWriter().sendToolDigitalOutput(req.pin - 16, req.state);
     }
   }
-  else if (req.fun == req.FUN_SET_ANALOG_OUT)
+  else if (req.fun == req.FUN_SET_ANALOG_OUT && ur_driver_ != nullptr)
   {
     res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOuput(req.pin, req.state);
   }
