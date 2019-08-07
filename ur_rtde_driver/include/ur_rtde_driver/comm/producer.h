@@ -60,7 +60,6 @@ public:
   }
   void stopProducer()
   {
-    stream_.disconnect();
   }
 
   bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products)
