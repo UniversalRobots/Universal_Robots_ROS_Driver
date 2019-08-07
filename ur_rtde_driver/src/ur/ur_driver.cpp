@@ -61,6 +61,8 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   LOG_DEBUG("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, output_recipe_file, input_recipe_file));
 
+  primary_stream_.reset(new comm::URStream<ur_driver::primary_interface::PackageHeader>(
+      robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
   LOG_INFO("Checking if calibration data matches connected robot.");
   checkCalibration(calibration_checksum);
 
@@ -216,10 +218,12 @@ std::string UrDriver::readKeepalive()
 
 void UrDriver::checkCalibration(const std::string& checksum)
 {
-  comm::URStream<ur_driver::primary_interface::PackageHeader> stream(robot_ip_,
-                                                                     ur_driver::primary_interface::UR_PRIMARY_PORT);
+  if (primary_stream_ == nullptr)
+  {
+    throw std::runtime_error("checkCalibration() called without a primary interface connection being established.");
+  }
   primary_interface::PrimaryParser parser;
-  comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(stream, parser);
+  comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(*primary_stream_, parser);
 
   CalibrationChecker consumer(checksum);
 
@@ -240,4 +244,23 @@ rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
   return rtde_client_->getWriter();
 }
 
+bool UrDriver::sendScript(const std::string& program)
+{
+  if (primary_stream_ == nullptr)
+  {
+    throw std::runtime_error("Sending script to robot requested while there is no primary interface established. This "
+                             "should not happen.");
+  }
+  size_t len = program.size();
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(program.c_str());
+  size_t written;
+
+  if (primary_stream_->write(data, len, written))
+  {
+    LOG_DEBUG("Sent program to robot");
+    return true;
+  }
+  LOG_ERROR("Could not send program to robot");
+  return false;
+}
 }  // namespace ur_driver

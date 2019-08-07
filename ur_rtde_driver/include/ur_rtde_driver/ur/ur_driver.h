@@ -119,6 +119,17 @@ public:
 
   rtde_interface::RTDEWriter& getRTDEWriter();
 
+  /*!
+   * \brief Sends a custom script program to the robot.
+   *
+   * The given code must be valid according the UR Scripting Manual.
+   *
+   * \param program URScript code that shall be executed by the robot.
+   *
+   * \returns true on successful upload, false otherwise.
+   */
+  bool sendScript(const std::string& program);
+
 private:
   std::string readScriptFile(const std::string& filename);
   std::string readKeepalive();
@@ -128,6 +139,7 @@ private:
   std::unique_ptr<rtde_interface::RTDEClient> rtde_client_;
   std::unique_ptr<comm::ReverseInterface> reverse_interface_;
   std::unique_ptr<comm::ScriptSender> script_sender_;
+  std::unique_ptr<comm::URStream<ur_driver::primary_interface::PackageHeader>> primary_stream_;
 
   double servoj_time_;
   uint32_t servoj_gain_;

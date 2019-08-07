@@ -77,6 +77,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   std::string tf_prefix = robot_hw_nh.param<std::string>("tf_prefix", "");
 
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
+  command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
   tcp_transform_.header.frame_id = "base";
   tcp_transform_.child_frame_id = "tool0_controller";
 
@@ -578,5 +579,25 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
   }
 
   return true;
+}
+
+void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
+{
+  std::string str = msg->data;
+  if (str.back() != '\n')
+  {
+    str.append("\n");
+  }
+
+  // TODO: Check whether we can currently send code
+
+  if (ur_driver_->sendScript(str))
+  {
+    ROS_DEBUG_STREAM("Sent script to robot");
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Error sending script to robot");
+  }
 }
 }  // namespace ur_driver
