@@ -1,8 +1,20 @@
-include:
-  - project: 'continuous_integration/ci_scripts'
-    ref: master
-    file: '/gitlab-ci-yml/catkin_pipeline.yml'
+image: docker:git
+services:
+  - docker:dind
+before_script:
+  - apk add --update bash coreutils tar
+  - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci .industrial_ci
 
-variables:
-  BUILD_INDIGO: "false"
-  BUILD_MELODIC: "false"
+clang-format:
+  variables:
+    CLANG_FORMAT_CHECK: "file"
+    CLANG_FORMAT_VERSION: "6.0"
+    ROS_DISTRO: "kinetic"
+  script: .industrial_ci/gitlab.sh
+
+build_kinetic:
+  variables:
+    ROS_DISTRO: "kinetic"
+    CATKIN_LINT: "true"
+  script: .industrial_ci/gitlab.sh
+
