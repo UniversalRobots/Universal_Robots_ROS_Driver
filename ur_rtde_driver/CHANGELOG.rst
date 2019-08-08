@@ -1,3 +1,10 @@
+0.0.3 (2019-08-09)
+------------------
+* Added a service to end ROS control from ROS side
+* Publish IO state on ROS topics
+* Added write channel through RTDE with speed slider and IO services
+* Added subscriber to send arbitrary URScript commands to the robot
+
 0.0.2 (2019-07-03)
 ------------------
 * Fixed dependencies and installation
