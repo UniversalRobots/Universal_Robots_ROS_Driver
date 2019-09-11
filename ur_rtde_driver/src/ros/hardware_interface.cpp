@@ -589,7 +589,11 @@ void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
     str.append("\n");
   }
 
-  // TODO: Check whether we can currently send code
+  if (ur_driver_ == nullptr)
+  {
+    throw std::runtime_error("Trying to use the ur_driver_ member before it is initialized. This should not happen, "
+                             "please contact the package maintainer.");
+  }
 
   if (ur_driver_->sendScript(str))
   {
