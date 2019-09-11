@@ -77,7 +77,6 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   std::string tf_prefix = robot_hw_nh.param<std::string>("tf_prefix", "");
 
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
-  command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
   tcp_transform_.header.frame_id = "base";
   tcp_transform_.child_frame_id = "tool0_controller";
 
@@ -156,6 +155,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     ROS_FATAL_STREAM(e.what());
     return false;
   }
+  command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
 
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {
