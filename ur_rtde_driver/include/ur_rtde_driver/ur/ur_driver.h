@@ -140,6 +140,7 @@ private:
   std::unique_ptr<comm::ReverseInterface> reverse_interface_;
   std::unique_ptr<comm::ScriptSender> script_sender_;
   std::unique_ptr<comm::URStream<ur_driver::primary_interface::PackageHeader>> primary_stream_;
+  std::unique_ptr<comm::URStream<ur_driver::primary_interface::PackageHeader>> secondary_stream_;
 
   double servoj_time_;
   uint32_t servoj_gain_;

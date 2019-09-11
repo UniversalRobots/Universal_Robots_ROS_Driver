@@ -63,6 +63,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   primary_stream_.reset(new comm::URStream<ur_driver::primary_interface::PackageHeader>(
       robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
+  secondary_stream_.reset(new comm::URStream<ur_driver::primary_interface::PackageHeader>(
+      robot_ip_, ur_driver::primary_interface::UR_SECONDARY_PORT));
+  secondary_stream_->connect();
   LOG_INFO("Checking if calibration data matches connected robot.");
   checkCalibration(calibration_checksum);
 
@@ -246,16 +249,17 @@ rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
 
 bool UrDriver::sendScript(const std::string& program)
 {
-  if (primary_stream_ == nullptr)
+  if (secondary_stream_ == nullptr)
   {
     throw std::runtime_error("Sending script to robot requested while there is no primary interface established. This "
                              "should not happen.");
   }
+
   size_t len = program.size();
   const uint8_t* data = reinterpret_cast<const uint8_t*>(program.c_str());
   size_t written;
 
-  if (primary_stream_->write(data, len, written))
+  if (secondary_stream_->write(data, len, written))
   {
     LOG_DEBUG("Sent program to robot");
     return true;
