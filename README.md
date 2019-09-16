@@ -169,3 +169,11 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 ```
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
+
+## Acknowledgments
+This project was developed inside and funded by the [ROSin project](https://rosin-project.eu/) as a
+*Focused Technical Project*: http://rosin-project.eu/ftp/universal-robots-ros-industrial-driver.
+
+It was developed in collaboration between [Universal Robots](https://www.universal-robots.com/) and
+the [FZI Research Center for Information Technology](https://www.fzi.de).
+
