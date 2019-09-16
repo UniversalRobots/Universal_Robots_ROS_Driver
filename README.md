@@ -74,59 +74,12 @@ For using the *ur_rtde_driver* with a real robot you need to install the
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of eSeries) is
 necessary.
 
-To install it you first have to copy it to the robot's **programs** folder which can be done either
-via scp or using a USB stick. The installation process is similar for CB3 and eSeries robots and
-will be shown side-to-side in this guide.
+For installing the necessary URCap and creating a program, please see the individual tutorials on
+how to [setup a CB3 robot](ur_rtde_driver/doc/install_urcap_cb3.md) or how to [setup an e-Series
+robot](ur_rtde_driver/doc/install_urcap_e_series.md).
 
-<tr>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/cb3_01_welcome.png" alt="Welcome screen of CB3" style="width: 45%;"/> </td>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/es_01_welcome.png" alt="Welcome screen of eSeries" style="width: 45%;"/> </td>
-</tr>
-
-On the welcome screen select *Setup Robot* and then *URCaps* to enter the URCaps installation screen
-(For eSeries click on the hamburger menu in the top-right corner to get to the setup menu). There,
-click the little plus sign at the bottom to open the file selector. There you should see all urcap
-files stored inside the robot's programs folder or a plugged USB drive.  Select and open the
-**externalcontrol-1.0.urcap** file and click *open*. Your URCaps view should now show the
-**External Control** in the list of active URCaps and a notification to restart the robot. Do that
-now.
-
-<tr>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/cb3_05_urcaps_installed.png" alt="URCaps screen with installed
-urcaps" style="width: 45%;"/> </td>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/es_05_urcaps_installed.png" alt="URCaps screen with installed
-urcaps" style="width: 45%;"/> </td>
-</tr>
-
-After the reboot you should find the **External Control** URCaps inside the *Installation* section.
-For this select *Program Robot* on the welcome screen, select the *Installation* tab and select
-**External control** from the list.
-
-<tr>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/cb3_07_installation_excontrol.png" alt="Installation screen of URCaps" style="width: 45%;"/> </td>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/es_07_installation_excontrol.png" alt="Installation screen of URCaps" style="width: 45%;"/> </td>
-</tr>
-
-Here you'll have to setup the IP address of the external PC which will be running the ROS driver.
-Note that the robot and the external PC have to be in the same network, ideally in a direct
-connection with each other to minimize network disturbances. The custom port should be left
-untouched for now.
-
-To use the new URCaps, create a new program and insert the **External Control** program node into
-the program tree:
-
-<tr>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/cb3_10_prog_structure_urcaps.png" alt="Insert the external control node" style="width: 45%;"/> </td>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/es_10_prog_structure_urcaps.png" alt="Insert the external control node" style="width: 45%;"/> </td>
-</tr>
-
-If you click on the *command* tab again, you'll see the settings entered inside the *Installation*.
-Check that they are correct, then save the program.
-
-<tr>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/cb3_11_program_view_excontrol.png" alt="Program view of external control" style="width: 45%;"/> </td>
-<td> <img src="ur_rtde_driver/doc/initial_setup_images/es_11_program_view_excontrol.png" alt="Program view of external control" style="width: 45%;"/> </td>
-</tr>
+To setup the tool communication on an e-Series robot, please consider the [tool communication setup
+guide](ur_rtde_driver/doc/setup_tool_communication.md).
 
 ### Prepare the ROS PC
 For using the driver make sure it is installed (either by the debian package or built from source
@@ -178,15 +131,24 @@ To create a new package, go to your catkin_workspace's src folder and call
 
 It is recommended to adapt the new package's *package.xml* with a meaningful description.
 
-#### Start the robot driver
+#### Quick start
+Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
+to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
+
 To actually start the robot driver use one of the existing launchfiles
+
+    $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
+
+where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
+load the calibration parameters for the robot "ur10_example".
+
+If you calibrated your robot before, pass that calibration to the launch file:
 
     $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
     kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
 
-where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
-load the calibration parameters for the robot "ur10_example". If the parameters in that file don't
-match the ones reported from the robot, the driver will output an error during startup.
+If the parameters in that file don't match the ones reported from the robot, the driver will output
+an error during startup, but will remain usable.
 
 For more information on the launchfile's parameters see its own documentation.
 
@@ -195,16 +157,14 @@ execute it. From that moment on the robot is fully functional. You can make use 
 function or even stop the program. Simply press the play button again and the ROS driver will
 reconnect.
 
-#### Use the action server
-After starting up the robot as described in the last section a scaled position based trajectory
-controller is started. It's action-server is located at
+To control the robot using ROS, use the action server on
 
 ```bash
 /scaled_pos_traj_controller/follow_joint_trajectory
 ```
 
-Use this with any client interface such as MoveIt! or simply the joint_trajectory_controller rqt
-gui:
+Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the
+`rqt_joint_trajectory_controller` gui:
 
 ```
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
