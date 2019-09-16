@@ -10,6 +10,29 @@ It is the core value of Universal Robots, to empower people to achieve any goal 
 ### Acknowledgement
 This driver is forked from the [ur_modern_driver](https://github.com/ros-industrial/ur_modern_driver).
 
+<!-- 
+    ROSIN acknowledgement from the ROSIN press kit
+    @ https://github.com/rosin-project/press_kit
+-->
+
+<a href="http://rosin-project.eu">
+  <img src="http://rosin-project.eu/wp-content/uploads/rosin_ack_logo_wide.png" 
+       alt="rosin_logo" height="60" >
+</a>
+
+Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.  
+More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
+
+<img src="http://rosin-project.eu/wp-content/uploads/rosin_eu_flag.jpg" 
+     alt="eu_flag" height="45" align="left" >  
+
+This project has received funding from the European Union’s Horizon 2020  
+research and innovation programme under grant agreement no. 732287. 
+
+It was developed in collaboration between [Universal Robots](https://www.universal-robots.com/) and
+the [FZI Research Center for Information Technology](https://www.fzi.de).
+
+
 ## How to report a Issue
 Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues) and use [Issue #1 as a template](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues/1).
 
@@ -169,11 +192,4 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 ```
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
-
-## Acknowledgments
-This project was developed inside and funded by the [ROSin project](https://rosin-project.eu/) as a
-*Focused Technical Project*: http://rosin-project.eu/ftp/universal-robots-ros-industrial-driver.
-
-It was developed in collaboration between [Universal Robots](https://www.universal-robots.com/) and
-the [FZI Research Center for Information Technology](https://www.fzi.de).
 
