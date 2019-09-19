@@ -164,7 +164,7 @@ bool RTDEWriter::sendToolDigitalOutput(uint8_t output_pin, bool value)
   return success;
 }
 
-bool RTDEWriter::sendStandardAnalogOuput(uint8_t output_pin, double value)
+bool RTDEWriter::sendStandardAnalogOutput(uint8_t output_pin, double value)
 {
   std::unique_ptr<DataPackage> package;
   package.reset(new DataPackage(recipe_));

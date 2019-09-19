@@ -52,7 +52,7 @@ public:
   bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
   bool sendConfigurableDigitalOutput(uint8_t output_pin, bool value);
   bool sendToolDigitalOutput(uint8_t output_pin, bool value);
-  bool sendStandardAnalogOuput(uint8_t output_pin, double value);
+  bool sendStandardAnalogOutput(uint8_t output_pin, double value);
 
 private:
   uint8_t pinToMask(uint8_t pin);

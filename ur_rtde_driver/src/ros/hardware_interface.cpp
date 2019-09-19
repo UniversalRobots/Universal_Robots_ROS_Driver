@@ -571,7 +571,7 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
   }
   else if (req.fun == req.FUN_SET_ANALOG_OUT && ur_driver_ != nullptr)
   {
-    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOuput(req.pin, req.state);
+    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOutput(req.pin, req.state);
   }
   else
   {
