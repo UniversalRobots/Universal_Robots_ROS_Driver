@@ -42,23 +42,6 @@ private:
   uint8_t *buf_pos_, *buf_end_;
   BinParser& parent_;
 
-public:
-  BinParser(uint8_t* buffer, size_t buf_len) : buf_pos_(buffer), buf_end_(buffer + buf_len), parent_(*this)
-  {
-    assert(buf_pos_ <= buf_end_);
-  }
-
-  BinParser(BinParser& parent, size_t sub_len)
-    : buf_pos_(parent.buf_pos_), buf_end_(parent.buf_pos_ + sub_len), parent_(parent)
-  {
-    assert(buf_pos_ <= buf_end_);
-  }
-
-  ~BinParser()
-  {
-    parent_.buf_pos_ = buf_pos_;
-  }
-
   // Decode from network encoding (big endian) to host encoding
   template <typename T>
   T decode(T val)
@@ -90,6 +73,22 @@ public:
     return be64toh(val);
   }
 
+public:
+  BinParser(uint8_t* buffer, size_t buf_len) : buf_pos_(buffer), buf_end_(buffer + buf_len), parent_(*this)
+  {
+    assert(buf_pos_ <= buf_end_);
+  }
+
+  BinParser(BinParser& parent, size_t sub_len)
+    : buf_pos_(parent.buf_pos_), buf_end_(parent.buf_pos_ + sub_len), parent_(parent)
+  {
+    assert(buf_pos_ <= buf_end_);
+  }
+
+  ~BinParser()
+  {
+    parent_.buf_pos_ = buf_pos_;
+  }
   template <typename T>
   T peek()
   {
