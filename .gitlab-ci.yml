@@ -16,5 +16,7 @@ build_kinetic:
   variables:
     ROS_DISTRO: "kinetic"
     CATKIN_LINT: "true"
+    UPSTREAM_WORKSPACE: "file"
+    ROSINSTALL_FILENAME: ".ci.rosinstall"
   script: .industrial_ci/gitlab.sh
 
