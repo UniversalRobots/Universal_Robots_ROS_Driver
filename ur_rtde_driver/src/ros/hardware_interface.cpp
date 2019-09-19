@@ -492,12 +492,13 @@ void HardwareInterface::publishIOData()
       for (size_t i = 0; i < standard_analog_input_.size(); ++i)
       {
         io_pub_->msg_.analog_in_states[i].state = standard_analog_input_[i];
+        io_pub_->msg_.analog_in_states[i].domain = analog_io_types_[i];
       }
       for (size_t i = 0; i < standard_analog_output_.size(); ++i)
       {
         io_pub_->msg_.analog_out_states[i].state = standard_analog_output_[i];
+        io_pub_->msg_.analog_out_states[i].domain = analog_io_types_[i + 2];
       }
-      // TODO: Handle analog domain
       io_pub_->unlockAndPublish();
     }
   }
