@@ -49,8 +49,21 @@ public:
   URPackage() = default;
   virtual ~URPackage() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns true, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(BinParser& bp) = 0;
 
+  /*!
+   * \brief Produces a human readable representation of the package obejct.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const = 0;
 
 private:

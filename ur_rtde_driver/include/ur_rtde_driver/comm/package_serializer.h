@@ -35,9 +35,22 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief A helper class to serialize packages. Contains methods for serializing all relevant
+ * datatypes.
+ */
 class PackageSerializer
 {
 public:
+  /*!
+   * \brief A generalized serialization method for arbitrary datatypes.
+   *
+   * @tparam T The type to serialize
+   * \param buffer The buffer to write the serialization into
+   * \param val The value to serialize
+   *
+   * \returns Size in byte of the serialization
+   */
   template <typename T>
   static size_t serialize(uint8_t* buffer, T val)
   {
@@ -47,6 +60,14 @@ public:
     return size;
   }
 
+  /*!
+   * \brief A serialization method for double values.
+   *
+   * \param buffer The buffer to write the serialization into.
+   * \param val The value to serialize.
+   *
+   * \returns Size in byte of the serialization.
+   */
   static size_t serialize(uint8_t* buffer, double val)
   {
     size_t size = sizeof(double);
@@ -57,6 +78,14 @@ public:
     return size;
   }
 
+  /*!
+   * \brief A serialization method for strings.
+   *
+   * \param buffer The buffer to write the serialization into.
+   * \param val The string to serialize.
+   *
+   * \returns Size in byte of the serialization.
+   */
   static size_t serialize(uint8_t* buffer, std::string val)
   {
     const uint8_t* c_val = reinterpret_cast<const uint8_t*>(val.c_str());
