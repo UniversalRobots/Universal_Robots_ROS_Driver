@@ -25,7 +25,6 @@ find_package(catkin REQUIRED
     trajectory_msgs
     ur_controllers
     ur_msgs
-    ur_rtde_msgs
 )
 find_package(Boost REQUIRED)
 
@@ -50,7 +49,6 @@ catkin_package(
     ur_controllers
     ur_msgs
     std_srvs
-    ur_rtde_msgs
   DEPENDS
     Boost
 )

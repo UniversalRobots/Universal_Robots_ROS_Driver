@@ -35,7 +35,6 @@
   <depend>ur_controllers</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
-  <depend>ur_rtde_msgs</depend>
 
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
