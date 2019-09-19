@@ -31,6 +31,7 @@
 #include <memory>
 #include "ur_rtde_driver/log.h"
 #include "ur_rtde_driver/types.h"
+#include "ur_rtde_driver/exceptions.h"
 
 namespace ur_driver
 {
@@ -93,7 +94,10 @@ public:
   template <typename T>
   T peek()
   {
-    assert(buf_pos_ + sizeof(T) <= buf_end_);
+    if (buf_pos_ + sizeof(T) > buf_end_)
+      throw UrException("Could not parse received package. This can occur if the driver is started while the robot is "
+                        "booting - please restart the driver once the robot has finished booting. "
+                        "If the problem persists after the robot has booted, please contact the package maintainer.");
     T val;
     std::memcpy(&val, buf_pos_, sizeof(T));
     return decode(val);
