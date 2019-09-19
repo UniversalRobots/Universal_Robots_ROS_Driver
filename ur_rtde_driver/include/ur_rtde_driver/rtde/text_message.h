@@ -37,7 +37,8 @@ namespace rtde_interface
 class TextMessage : public RTDEPackage
 {
 public:
-  TextMessage() : RTDEPackage(PackageType::RTDE_TEXT_MESSAGE)
+  TextMessage(uint16_t protocol_version)
+    : RTDEPackage(PackageType::RTDE_TEXT_MESSAGE), protocol_version_(protocol_version)
   {
   }
   virtual ~TextMessage() = default;
@@ -50,6 +51,10 @@ public:
   uint8_t source_length_;
   std::string source_;
   uint8_t warning_level_;
+
+  uint8_t message_type_;
+
+  uint16_t protocol_version_;
 };
 
 }  // namespace rtde_interface

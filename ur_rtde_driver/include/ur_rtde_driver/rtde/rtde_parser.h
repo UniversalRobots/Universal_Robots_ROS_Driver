@@ -42,7 +42,7 @@ class RTDEParser : public comm::Parser<PackageHeader>
 {
 public:
   RTDEParser() = delete;
-  RTDEParser(const std::vector<std::string>& recipe) : recipe_(recipe)
+  RTDEParser(const std::vector<std::string>& recipe) : recipe_(recipe), protocol_version_(1)
   {
   }
   virtual ~RTDEParser() = default;
@@ -98,6 +98,11 @@ public:
     return true;
   }
 
+  void setProtocolVersion(uint16_t protocol_version)
+  {
+    protocol_version_ = protocol_version;
+  }
+
 private:
   std::vector<std::string> recipe_;
   RTDEPackage* packageFromType(PackageType type)
@@ -105,7 +110,7 @@ private:
     switch (type)
     {
       case PackageType::RTDE_TEXT_MESSAGE:
-        return new TextMessage;
+        return new TextMessage(protocol_version_);
         break;
       case PackageType::RTDE_GET_URCONTROL_VERSION:
         return new GetUrcontrolVersion;
@@ -129,6 +134,7 @@ private:
         return new RTDEPackage(type);
     }
   }
+  uint16_t protocol_version_;
 };
 
 }  // namespace rtde_interface

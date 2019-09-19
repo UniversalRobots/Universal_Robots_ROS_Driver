@@ -74,6 +74,8 @@ bool RTDEClient::init()
     }
   }
 
+  parser_.setProtocolVersion(protocol_version);
+
   // determine maximum frequency from ur-control version
   size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
   stream_.write(buffer, size, written);

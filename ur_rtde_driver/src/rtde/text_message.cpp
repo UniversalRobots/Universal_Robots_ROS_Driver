@@ -33,11 +33,19 @@ namespace rtde_interface
 {
 bool TextMessage::parseWith(comm::BinParser& bp)
 {
-  bp.parse(message_length_);
-  bp.parse(message_, message_length_);
-  bp.parse(source_length_);
-  bp.parse(source_, source_length_);
-  bp.parse(warning_level_);
+  if (protocol_version_ == 2)
+  {
+    bp.parse(message_length_);
+    bp.parse(message_, message_length_);
+    bp.parse(source_length_);
+    bp.parse(source_, source_length_);
+    bp.parse(warning_level_);
+  }
+  else if (protocol_version_ == 1)
+  {
+    bp.parse(message_type_);
+    bp.parseRemainder(message_);
+  }
 
   return true;
 }
