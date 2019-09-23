@@ -53,33 +53,50 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 {
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
-  robot_ip_ = robot_hw_nh.param<std::string>("robot_ip", "192.168.56.101");
   std::string script_filename;
   std::string output_recipe_filename;
   std::string input_recipe_filename;
+
+  // The robot's IP address. This parameter is required.
+  if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
+  {
+    ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("robot_ip_") << " not given.");
+    return false;
+  }
+
+  // Path to the urscript code that will be sent to the robot. This is a required parameter.
   if (!robot_hw_nh.getParam("script_file", script_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("script_file") << " not given.");
     return false;
   }
 
+  // Path to the file containing the recipe used for requesting RTDE outputs. This is a required
+  // parameter.
   if (!robot_hw_nh.getParam("output_recipe_file", output_recipe_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("output_recipe_file") << " not given.");
     return false;
   }
 
+  // Path to the file containing the recipe used for requesting RTDE inputs. This is a required
+  // parameter.
   if (!robot_hw_nh.getParam("input_recipe_file", input_recipe_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("input_recipe_file") << " not given.");
     return false;
   }
-  std::string tf_prefix = robot_hw_nh.param<std::string>("tf_prefix", "");
 
+  // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
+  // message gets published here. So this is equivalent to the information whether the robot accepts
+  // commands from ROS side.
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
   tcp_transform_.header.frame_id = "base";
   tcp_transform_.child_frame_id = "tool0_controller";
 
+  // Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on
+  // e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as
+  // well.
   bool use_tool_communication = robot_hw_nh.param<bool>("use_tool_communication", "false");
   std::unique_ptr<ToolCommSetup> tool_comm_setup;
   if (use_tool_communication)
@@ -88,6 +105,9 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
     using ToolVoltageT = std::underlying_type<ToolVoltage>::type;
     ToolVoltageT tool_voltage;
+    // Tool voltage that will be set as soon as the UR-Program on the robot is started. Note: This
+    // parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.
+    // Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_voltage", tool_voltage))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_voltage") << " not given.");
@@ -97,6 +117,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
     using ParityT = std::underlying_type<Parity>::type;
     ParityT parity;
+    // Parity used for tool communication. Will be set as soon as the UR-Program on the robot is
+    // started. Can be 0 (None), 1 (odd) and 2 (even).
+    //
+    // Note: This parameter is only evaluated, when the parameter "use_tool_communication"
+    // is set to TRUE.  Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_parity", parity))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_parity") << " not given.");
@@ -104,6 +129,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     }
 
     int baud_rate;
+    // Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is
+    // started. See UR documentation for valid baud rates.
+    //
+    // Note: This parameter is only evaluated, when the parameter "use_tool_communication"
+    // is set to TRUE.  Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_baud_rate", baud_rate))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_baud_rate") << " not given.");
@@ -112,6 +142,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     tool_comm_setup->setBaudRate(baud_rate);
 
     int stop_bits;
+    // Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is
+    // started. Can be 1 or 2.
+    //
+    // Note: This parameter is only evaluated, when the parameter "use_tool_communication"
+    // is set to TRUE.  Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_stop_bits", stop_bits))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_stop_bits") << " not given.");
@@ -120,6 +155,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     tool_comm_setup->setStopBits(stop_bits);
 
     int rx_idle_chars;
+    // Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the
+    // robot is started. Valid values: min=1.0, max=40.0
+    //
+    // Note: This parameter is only evaluated, when the parameter "use_tool_communication"
+    // is set to TRUE.  Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_rx_idle_chars", rx_idle_chars))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_rx_idle_chars") << " not given.");
@@ -129,6 +169,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     tool_comm_setup->setParity(static_cast<Parity>(parity));
 
     int tx_idle_chars;
+    // Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the
+    // robot is started. Valid values: min=0.0, max=40.0
+    //
+    // Note: This parameter is only evaluated, when the parameter "use_tool_communication"
+    // is set to TRUE.  Then, this parameter is required.
     if (!robot_hw_nh.getParam("tool_tx_idle_chars", tx_idle_chars))
     {
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_tx_idle_chars") << " not given.");
@@ -137,6 +182,11 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     tool_comm_setup->setTxIdleChars(tx_idle_chars);
   }
 
+  // Hash of the calibration reported by the robot. This is used for validating the robot
+  // description is using the correct calibration. If the robot's calibration doesn't match this
+  // hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the
+  // endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your
+  // own hash matching your actual robot.
   std::string calibration_checksum = robot_hw_nh.param<std::string>("kinematics/hash", "");
   ROS_INFO_STREAM("Initializing urdriver");
   try
@@ -155,8 +205,18 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     ROS_FATAL_STREAM(e.what());
     return false;
   }
+
+  // Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in
+  // remote-control mode.
+  //
+  // Sending scripts to this will stop program execution unless wrapped in a secondary program:
+  //
+  // sec myProgram():
+  //   set_digital_out(0, True)
+  // end
   command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
 
+  // Names of the joints. Usually, this is given in the controller config file.
   if (!root_nh.getParam("hardware_interface/joints", joint_names_))
   {
     ROS_ERROR_STREAM("Cannot find required parameter " << root_nh.resolveName("hardware_interface/joints")
@@ -217,9 +277,15 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
+  // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
+  // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
+  // doing. Using this with other controllers might lead to unexpected behaviors.
   set_speed_slider_srv_ = robot_hw_nh.advertiseService("set_speed_slider", &HardwareInterface::setSpeedSlider, this);
+
+  // Service to set any of the robot's IOs
   set_io_srv_ = robot_hw_nh.advertiseService("set_io", &HardwareInterface::setIO, this);
 
+  // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_rtde_driver hardware_interface");
