@@ -59,18 +59,38 @@ protected:
   bool setup(std::string& host, int port);
 
 public:
+  /*!
+   * \brief Creates a TCPSocket object
+   */
   TCPSocket();
   virtual ~TCPSocket();
 
+  /*!
+   * \brief Getter for the state of the socket.
+   *
+   * \returns Returns the current state of the socket
+   */
   SocketState getState()
   {
     return state_;
   }
 
+  /*!
+   * \brief Getter for the file descriptor of the socket.
+   *
+   * \returns The file descriptor of the socket
+   */
   int getSocketFD()
   {
     return socket_fd_;
   }
+  /*!
+   * \brief Setter for the file descriptor of the socket.
+   *
+   * \param socket_fd The new value
+   *
+   * \returns False, if the socket is in state connected
+   */
   bool setSocketFD(int socket_fd);
 
   /*!

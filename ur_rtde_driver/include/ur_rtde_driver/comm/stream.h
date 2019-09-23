@@ -56,7 +56,7 @@ public:
   /*!
    * \brief Connects to the configured socket.
    *
-   * \returns True on success, false if connection could not be established.
+   * \returns True on success, false if connection could not be established
    */
   bool connect()
   {
@@ -89,7 +89,7 @@ public:
    * \param[in] buf_len Number of bytes allocated for the buffer
    * \param[out] read Number of bytes actually read from the socket
    *
-   * \returns True on success, false on error, e.g. the buffer is smaller than the package size.
+   * \returns True on success, false on error, e.g. the buffer is smaller than the package size
    */
   bool read(uint8_t* buf, const size_t buf_len, size_t& read);
 
@@ -98,9 +98,9 @@ public:
    *
    * \param[in] buf Byte stream that should be sent
    * \param[in] buf_len Number of bytes in buffer
-   * \param[out] written Number of bytes actually written to the socket.
+   * \param[out] written Number of bytes actually written to the socket
    *
-   * \returns false if sending went wrong
+   * \returns False if sending went wrong
    */
   bool write(const uint8_t* buf, const size_t buf_len, size_t& written);
 

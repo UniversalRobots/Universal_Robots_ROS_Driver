@@ -36,6 +36,12 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The ShellConsumer class is a simple consumer that writes a readable representation to
+ * the logging info channel.
+ *
+ * @tparam HeaderT Header type of the packages to consume
+ */
 template <typename HeaderT>
 class ShellConsumer : public IConsumer<URPackage<HeaderT>>
 {
@@ -43,6 +49,13 @@ public:
   ShellConsumer() = default;
   virtual ~ShellConsumer() = default;
 
+  /*!
+   * \brief Consumes a package, writing a human readable representation to the logging.
+   *
+   * \param product The package to consume
+   *
+   * \returns True if the output was successful
+   */
   virtual bool consume(std::shared_ptr<URPackage<HeaderT>> product)
   {
     LOG_INFO("%s", product->toString().c_str());
