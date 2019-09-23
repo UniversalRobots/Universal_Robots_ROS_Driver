@@ -36,10 +36,20 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The ScriptSender class starts a URServer for a robot to connect to and waits for a
+ * request to receive a program. This program is then delivered to the requesting robot.
+ */
 class ScriptSender
 {
 public:
   ScriptSender() = delete;
+  /*!
+   * \brief Creates a ScriptSender object, including a new URServer and not yet started thread.
+   *
+   * \param port Port to start the server on
+   * \param program Program to send to the robot upon request
+   */
   ScriptSender(uint32_t port, const std::string& program) : server_(port), script_thread_(), program_(program)
   {
     if (!server_.bind())
@@ -48,6 +58,9 @@ public:
     }
   }
 
+  /*!
+   * \brief Starts the thread that handles program requests by a robot.
+   */
   void start()
   {
     script_thread_ = std::thread(&ScriptSender::runScriptSender, this);

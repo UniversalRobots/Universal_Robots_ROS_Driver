@@ -37,10 +37,19 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The ReverseInterface class handles communication to the robot. It starts a server and
+ * waits for the robot to connect via its URCaps program.
+ */
 class ReverseInterface
 {
 public:
   ReverseInterface() = delete;
+  /*!
+   * \brief Creates a ReverseInterface object including a URServer.
+   *
+   * \param port Port the Server is started on
+   */
   ReverseInterface(uint32_t port) : server_(port)
   {
     if (!server_.bind())
@@ -52,11 +61,22 @@ public:
       throw std::runtime_error("Failed to accept robot connection");
     }
   }
+  /*!
+   * \brief Disconnects possible clients so the reverse interface object can be safely destroyed.
+   */
   ~ReverseInterface()
   {
     server_.disconnectClient();
   }
 
+  /*!
+   * \brief Writes needed information to the robot to be read by the URCaps program.
+   *
+   * \param positions A vector of joint position targets for the robot
+   * \param type An additional integer used to command the program to end when needed
+   *
+   * \returns True, if the write was performed successfully, false otherwise.
+   */
   bool write(const vector6d_t* positions, const int32_t type = 2)
   {
     uint8_t buffer[sizeof(uint32_t) * 7];
@@ -80,6 +100,11 @@ public:
     return server_.write(buffer, sizeof(buffer), written);
   }
 
+  /*!
+   * \brief Reads a keepalive signal from the robot.
+   *
+   * \returns The received keepalive string or the empty string, if nothing was received
+   */
   std::string readKeepalive()
   {
     size_t buf_len = 16;

@@ -30,6 +30,12 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief A general producer for URPackages. Implements funcionality to produce packages by
+ * reading and parsing from a byte stream.
+ *
+ * @tparam HeaderT Header type of packages to produce.
+ */
 template <typename HeaderT>
 class URProducer : public IProducer<HeaderT>
 {
@@ -39,10 +45,19 @@ private:
   std::chrono::seconds timeout_;
 
 public:
+  /*!
+   * \brief Creates a URProducer object, registering a stream and a parser.
+   *
+   * \param stream The stream to read from
+   * \param parser The parser to use to interpret received byte information
+   */
   URProducer(URStream<HeaderT>& stream, Parser<HeaderT>& parser) : stream_(stream), parser_(parser), timeout_(1)
   {
   }
 
+  /*!
+   * \brief Triggers the stream to connect to the robot.
+   */
   void setupProducer()
   {
     timeval tv;
@@ -54,14 +69,27 @@ public:
       throw UrException("Failed to connect to robot. Please check if the robot is booted and connected.");
     }
   }
+  /*!
+   * \brief Tears down the producer. Currently no special handling needed.
+   */
   void teardownProducer()
   {
     stopProducer();
   }
+  /*!
+   * \brief Stops the producer. Currently no functionality needed.
+   */
   void stopProducer()
   {
   }
 
+  /*!
+   * \brief Attempts to read byte stream from the robot and parse it as a URPackage.
+   *
+   * \param products Unique pointer to hold the produced package
+   *
+   * \returns Success of reading and parsing the package
+   */
   bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products)
   {
     // 4KB should be enough to hold any packet received from UR
