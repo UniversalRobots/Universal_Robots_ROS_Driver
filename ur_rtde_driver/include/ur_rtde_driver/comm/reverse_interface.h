@@ -97,6 +97,10 @@ public:
     }
   }
 
+private:
+  URServer server_;
+  static const int32_t MULT_JOINTSTATE = 1000000;
+
   template <typename T>
   size_t append(uint8_t* buffer, T& val)
   {
@@ -104,10 +108,6 @@ public:
     std::memcpy(buffer, &val, s);
     return s;
   }
-
-private:
-  URServer server_;
-  static const int32_t MULT_JOINTSTATE = 1000000;
 };
 
 }  // namespace comm
