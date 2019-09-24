@@ -17,7 +17,7 @@ To build the kernel, you will need a couple of tools available on your system. Y
 using
 
 ``` bash
-sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget
+$ sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget gawk
 ```
 
 Before you download the sources of a real-time-enabled kernel, check the kernel version that is currently installed:
@@ -26,6 +26,20 @@ Before you download the sources of a real-time-enabled kernel, check the kernel 
 $ uname -r
 4.15.0-62-generic 
 ```
+
+To continue with this tutorial, please create a temporary folder and navigate into it. You should
+have sufficient space (around 25GB) there, as the extracted kernel sources take much space. After
+the new kernel is installed, you can delete this folder again.
+
+In this example we will use a temporary folder inside our home folder:
+
+```bash
+$ mkdir -p ${HOME}/rt_kernel_build
+$ cd ${HOME}/rt_kernel_build
+```
+
+All future commands are expected to be run inside this folder. If the folder is different, the `$`
+sign will be prefixed with a path relative to the above folder.
 
 ## Getting the sources for a real-time kernel
 To build a real-time kernel, we first need to get the kernel sources and the real-time patch.
@@ -62,7 +76,7 @@ author. For the kernel sources use (as suggested on
 [kernel.org](https://www.kernel.org/signature.html))
 
 ```bash
-gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
+$ gpg2 --locate-keys torvalds@kernel.org gregkh@kernel.org
 ```
 
 and for the patch search for a key of the author listed on 
@@ -125,15 +139,15 @@ Before we can compile the sources, we have to extract the tar archive and apply 
 ```bash
 $ tar xf linux-4.14.139.tar
 $ cd linux-4.14.139
-$ xzcat ../patch-4.14.139-rt66.patch.xz | patch -p1 
+linux-4.14.139$ xzcat ../patch-4.14.139-rt66.patch.xz | patch -p1 
 ```
 
 Now to configure your kernel, just type
 ```bash
-$ make oldconfig
+linux-4.14.139$ make oldconfig
 ```
 
-This will ask for kernel options. For everyting else then the `Pereemption Model` use the default
+This will ask for kernel options. For everything else then the `Preemption Model` use the default
 value (just press Enter) or adapt to your preferences. For the preemption model select `Fully Preemptible Kernel`:
 
 ```bash
@@ -149,29 +163,21 @@ choice[1-5]: 5
 Now you can build the kernel. This will take some time...
 
 ```bash
-$ make -j `getconf _NPROCESSORS_ONLN` deb-pkg
+linux-4.14.139$ make -j `getconf _NPROCESSORS_ONLN` deb-pkg
 ```
 
 After building, install the `linux-headers` and `linux-image` packages in the parent folder (only
 the ones without the `-dbg` in the name)
 
 ```bash
-$ sudo apt install ../linux-headers-4.14.139-rt66_*.deb ../linux-image-4.14.139-rt66_*.deb
+linux-4.14.139$ sudo apt install ../linux-headers-4.14.139-rt66_*.deb ../linux-image-4.14.139-rt66_*.deb
 ```
 
-## Check for preemption capabilities
-After you have built your custom kernel, boot into it and make sure that the kernel has indeed
-
-```bash
-$ uname -v | cut -d" " -f1-4 
-#1 SMP PREEMPT RT
-```
-
-## Setup user priviliges to use real-time scheduling
+## Setup user privileges to use real-time scheduling
 To be able to schedule threads with user privileges (what the driver will do) you'll have to change
 the user's limits by changing `/etc/security/limits.conf` (See [the manpage](https://manpages.ubuntu.com/manpages/bionic/man5/limits.conf.5.html) for details)
 
-We recommend to setup a group for realtime users instead of writing a fixed username into the config
+We recommend to setup a group for real-time users instead of writing a fixed username into the config
 file:
 
 ```bash
@@ -189,12 +195,15 @@ Then, make sure `/etc/security/limits.conf` contains
 @realtime hard memlock 102400
 ```
 
-Note: You will have to log out and log back in (Not only close your terminal window) so these
-changes will take effect.
+Note: You will have to log out and log back in (Not only close your terminal window) for these
+changes to take effect. No need to do this now, as we will reboot later on, anyway.
 
-## Setup GRUB to always boot the realtime kernel
+## Setup GRUB to always boot the real-time kernel
 To make the new kernel the default kernel that the system will boot into every time, you'll have to
 change the grub config file inside `/etc/default/grub`.
+
+Note: This works for ubuntu, but might not be working for other linux systems. It might be necessary
+to use another menuentry name there.
 
 But first, let's find out the name of the entry that we will want to make the default. You can list
 all available kernels using
@@ -231,3 +240,16 @@ With this, we can setup the default grub entry and then update the grub menu ent
 $ sudo sed -i 's/^GRUB_DEFAULT=.*/GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 4.14.139-rt66"/' /etc/default/grub
 $ sudo update-grub
 ```
+
+## Reboot the PC
+After having performed the above mentioned steps, reboot the PC. It should boot into the correct
+kernel automatically.
+
+# Check for preemption capabilities
+Make sure that the kernel does indeed support real-time scheduling:
+
+```bash
+$ uname -v | cut -d" " -f1-4 
+#1 SMP PREEMPT RT
+```
+
