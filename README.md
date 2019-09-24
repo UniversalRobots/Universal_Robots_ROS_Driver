@@ -67,6 +67,14 @@ This repository contains the new **ur_rtde_driver** and a couple of helper packa
     controllers.
   * **ur_rtde_driver**: The actual driver package.
 
+## Requirements
+This driver requires a system setup with ROS. It is recommended to use **Ubuntu 18.04 with ROS
+melodic**, however using Ubuntu 16.04 with ROS kinetic should also work.
+
+To make sure that robot control isn't affected by system latencies, it is highly recommended to use
+a real-time kernel with the system. See the [real-time setup guide](ur_rtde_driver/doc/real_time.md)
+on information how to set this up.
+
 ## Building
 
 ```bash
