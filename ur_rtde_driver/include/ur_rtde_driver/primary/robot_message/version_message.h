@@ -34,9 +34,9 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-  /*!
-   * \brief The VersionMessage class handles the version messages sent via the primary UR interface.
-   */
+/*!
+ * \brief The VersionMessage class handles the version messages sent via the primary UR interface.
+ */
 class VersionMessage : public RobotMessage
 {
 public:

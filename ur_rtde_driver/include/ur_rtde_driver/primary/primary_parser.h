@@ -35,10 +35,10 @@ namespace ur_driver
 {
 namespace primary_interface
 {
-  /*!
-   * \brief The primary specific parser. Interprets a given byte stream as serialized primary
-   * packages and parses it accordingly.
-   */
+/*!
+ * \brief The primary specific parser. Interprets a given byte stream as serialized primary
+ * packages and parses it accordingly.
+ */
 class PrimaryParser : public comm::Parser<PackageHeader>
 {
 public:
