@@ -55,6 +55,9 @@ private:
   /* data */
 };
 
+/*!
+ * \brief A specialized exception representing detection of a not supported UR control version.
+ */
 class VersionMismatch : public UrException
 {
 public:
@@ -83,6 +86,9 @@ private:
   std::string text_;
 };
 
+/*!
+ * \brief A specialized exception representing that communication to the tool is not possible.
+ */
 class ToolCommNotAvailable : public VersionMismatch
 {
 public:
