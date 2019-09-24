@@ -113,10 +113,24 @@ public:
    */
   bool stopControl();
 
+  /*!
+   * \brief Starts the watchdog checking if the URCaps program is running on the robot and it is
+   * ready to receive control commands.
+   */
   void startWatchdog();
 
+  /*!
+   * \brief Checks if the kinematics information in the used model fits the actual robot.
+   *
+   * \param checksum Hash of the used kinematics information
+   */
   void checkCalibration(const std::string& checksum);
 
+  /*!
+   * \brief Getter for the RTDE writer used to write to the robot's RTDE interface.
+   *
+   * \returns The active RTDE writer
+   */
   rtde_interface::RTDEWriter& getRTDEWriter();
 
   /*!
