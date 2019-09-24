@@ -41,7 +41,7 @@ ToolCommSetup::ToolCommSetup()
 
 void ToolCommSetup::setBaudRate(const uint32_t baud_rate)
 {
-  if (baud_rates_.find(baud_rate) != baud_rates_.end())
+  if (baud_rates_allowed_.find(baud_rate) != baud_rates_allowed_.end())
   {
     baud_rate_ = baud_rate;
   }
