@@ -34,29 +34,62 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief This class handles the robot's response to a requested input recipe setup.
+ */
 class ControlPackageSetupInputs : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new ControlPackageSetupInputs object.
+   */
   ControlPackageSetupInputs() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_INPUTS)
   {
   }
   virtual ~ControlPackageSetupInputs() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   uint8_t input_recipe_id_;
   std::string variable_types_;
 };
 
+/*!
+ * \brief This class is used to setup the input recipe as part of the initial RTDE handshake.
+ */
 class ControlPackageSetupInputsRequest : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new ControlPackageSetupInputsRequest object.
+   */
   ControlPackageSetupInputsRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_INPUTS)
   {
   }
   virtual ~ControlPackageSetupInputsRequest() = default;
 
+  /*!
+   * \brief Generates a serialized package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   * \param variable_names The input recipe to set
+   *
+   * \returns The total size of the serialized package
+   */
   static size_t generateSerializedRequest(uint8_t* buffer, std::vector<std::string> variable_names);
 
   std::string variable_names_;

@@ -34,15 +34,34 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief This class handles RTDE text messages sent by the robot.
+ */
 class TextMessage : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new TextMessage object.
+   */
   TextMessage() : RTDEPackage(PackageType::RTDE_TEXT_MESSAGE)
   {
   }
   virtual ~TextMessage() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   uint8_t message_length_;

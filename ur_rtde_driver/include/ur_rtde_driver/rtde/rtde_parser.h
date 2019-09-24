@@ -38,15 +38,33 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief The RTDE specific parser. Interprets a given byte stream as serialized RTDE packages
+ * and parses it accordingly.
+ */
 class RTDEParser : public comm::Parser<PackageHeader>
 {
 public:
   RTDEParser() = delete;
+  /*!
+   * \brief Creates a new RTDEParser object, registering the used recipe.
+   *
+   * \param recipe The recipe used in RTDE data communication
+   */
   RTDEParser(const std::vector<std::string>& recipe) : recipe_(recipe)
   {
   }
   virtual ~RTDEParser() = default;
 
+  /*!
+   * \brief Uses the given BinParser to create package objects from the contained serialization.
+   *
+   * \param bp A BinParser holding one or more serialized RTDE packages
+   * \param results A vector of pointers to created RTDE package objects
+   *
+   * \returns True, if the byte stream could successfully be parsed as RTDE packages, false
+   * otherwise
+   */
   bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
 
   {

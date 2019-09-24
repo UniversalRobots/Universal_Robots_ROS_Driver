@@ -35,15 +35,34 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief This class handles the package detailing the UR control version sent by the robot.
+ */
 class GetUrcontrolVersion : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new GetUrcontrolVersion object.
+   */
   GetUrcontrolVersion() : RTDEPackage(PackageType::RTDE_GET_URCONTROL_VERSION)
   {
   }
   virtual ~GetUrcontrolVersion() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   VersionInformation version_information_;
@@ -54,14 +73,27 @@ public:
   uint32_t build_;
 };
 
+/*!
+ * \brief This class is used to request the used UR control version from the robot.
+ */
 class GetUrcontrolVersionRequest : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new GetUrcontrolVersionRequest object.
+   */
   GetUrcontrolVersionRequest() : RTDEPackage(PackageType::RTDE_GET_URCONTROL_VERSION)
   {
   }
   virtual ~GetUrcontrolVersionRequest() = default;
 
+  /*!
+   * \brief Generates a serialized package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   *
+   * \returns The total size of the serialized package
+   */
   static size_t generateSerializedRequest(uint8_t* buffer);
 
 private:

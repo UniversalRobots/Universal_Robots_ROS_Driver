@@ -50,6 +50,9 @@ enum class PackageType : uint8_t
   RTDE_CONTROL_PACKAGE_PAUSE = 80           // ascii P
 };
 
+/*!
+ * \brief This class represents the header for RTDE packages.
+ */
 class PackageHeader
 {
 public:
@@ -57,11 +60,27 @@ public:
   virtual ~PackageHeader() = default;
   using _package_size_type = uint16_t;
 
+  /*!
+   * \brief Reads a buffer, interpreting the next bytes as the size of the contained package.
+   *
+   * \param buf The given byte stream containing a serialized package
+   *
+   * \returns The size of the given serialized package
+   */
   static size_t getPackageLength(uint8_t* buf)
   {
     return be16toh(*(reinterpret_cast<_package_size_type*>(buf)));
   }
 
+  /*!
+   * \brief Creates a serialization of a header based on given values.
+   *
+   * \param buffer The buffer to write the serialization to
+   * \param package_type The type of the package
+   * \param payload_length The length of the package's payload
+   *
+   * \returns
+   */
   static size_t serializeHeader(uint8_t* buffer, PackageType package_type, uint16_t payload_length)
   {
     uint16_t header_size = sizeof(_package_size_type) + sizeof(PackageType);

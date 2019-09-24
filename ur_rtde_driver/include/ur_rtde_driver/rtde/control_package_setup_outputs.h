@@ -35,32 +35,74 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief This class handles the robot's response to a requested output recipe setup.
+ */
 class ControlPackageSetupOutputs : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new ControlPackageSetupOutputs object.
+   */
   ControlPackageSetupOutputs() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS)
   {
   }
   virtual ~ControlPackageSetupOutputs() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   uint8_t output_recipe_id_;
   std::string variable_types_;
 };
 
+/*!
+ * \brief This class is used to setup the output recipe as part of the initial RTDE handshake.
+ */
 class ControlPackageSetupOutputsRequest : public RTDEPackage
 {
 public:
+  /*!
+   * \brief Creates a new ControlPackageSetupOutputsRequest object.
+   */
   ControlPackageSetupOutputsRequest() : RTDEPackage(PackageType::RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS)
   {
   }
   virtual ~ControlPackageSetupOutputsRequest() = default;
 
+  /*!
+   * \brief Generates a serialized package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   * \param output_frequency Frequency of data packages to be sent by the robot
+   * \param variable_names The output recipe to set
+   *
+   * \returns The total size of the serialized package
+   */
   static size_t generateSerializedRequest(uint8_t* buffer, double output_frequency,
                                           std::vector<std::string> variable_names);
 
+  /*!
+   * \brief Generates a serialized package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   * \param variable_names The output recipe to set
+   *
+   * \returns The total size of the serialized package
+   */
   static size_t generateSerializedRequest(uint8_t* buffer, std::vector<std::string> variable_names);
 
   double output_frequency_;

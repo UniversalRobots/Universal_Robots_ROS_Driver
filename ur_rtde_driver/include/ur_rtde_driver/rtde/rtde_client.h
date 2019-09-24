@@ -48,22 +48,64 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief The RTDEClient class manages communication over the RTDE interface. It contains the RTDE
+ * handshake and read and write functionality to and from the robot.
+ */
 class RTDEClient
 {
 public:
   RTDEClient() = delete;
+  /*!
+   * \brief Creates a new RTDEClient object, including a used URStream and Pipeline to handle the
+   * communication with the robot.
+   *
+   * \param robot_ip The IP of the robot
+   * \param notifier The notifier to use in the pipeline
+   * \param output_recipe_file Path to the file containing the output recipe
+   * \param input_recipe_file Path to the file containing the input recipe
+   */
   RTDEClient(std::string robot_ip, comm::INotifier& notifier, const std::string& output_recipe_file,
              const std::string& input_recipe_file);
   ~RTDEClient() = default;
+  /*!
+   * \brief Sets up RTDE communication with the robot. The handshake includes negotiation of the
+   * used protocol version and setting of input and output recipes.
+   *
+   * \returns Success of the handshake
+   */
   bool init();
+  /*!
+   * \brief Triggers the robot to start sending RTDE data packages in the negotiated format.
+   *
+   * \returns Success of the requested start
+   */
   bool start();
+  /*!
+   * \brief Reads the pipeline to fetch the next data package.
+   *
+   * \param data_package Pointer to set to the next data package
+   * \param timeout Time to wait if no data package is currently in the queue
+   *
+   * \returns True, if a package was fetched successfully
+   */
   bool getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package, std::chrono::milliseconds timeout);
 
+  /*!
+   * \brief Getter for the frequency the robot will publish RTDE data packages with.
+   *
+   * \returns The used frequency
+   */
   double getMaxFrequency() const
   {
     return max_frequency_;
   }
 
+  /*!
+   * \brief Getter for the UR control version received from the robot.
+   *
+   * \returns The VersionInformation received from the robot
+   */
   VersionInformation getVersion()
   {
     return urcontrol_version_;
@@ -76,6 +118,12 @@ public:
    */
   std::string getIP() const;
 
+  /*!
+   * \brief Getter for the RTDE writer, which is used to send data via the RTDE interface to the
+   * robot.
+   *
+   * \returns A reference to the used RTDEWriter
+   */
   RTDEWriter& getWriter();
 
 private:

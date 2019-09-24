@@ -83,6 +83,10 @@ struct SerializeVisitor : public boost::static_visitor<size_t>
   }
 };
 
+/*!
+ * \brief The DataPackage class handles communication in the form of RTDE data packages both to and
+ * from the robot. It contains functionality to parse and serialize packages for arbitrary recipes.
+ */
 class DataPackage : public RTDEPackage
 {
 public:
@@ -90,16 +94,44 @@ public:
                                             vector6int32_t, vector6uint32_t, std::string>;
 
   DataPackage() = delete;
+  /*!
+   * \brief Creates a new DataPackage object, based on a given recipe.
+   *
+   * \param recipe The used recipe
+   */
   DataPackage(const std::vector<std::string>& recipe) : RTDEPackage(PackageType::RTDE_DATA_PACKAGE), recipe_(recipe)
   {
   }
   virtual ~DataPackage() = default;
 
+  /*!
+   * \brief Initializes to contained list with empty values based on the recipe.
+   */
   void initEmpty();
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
+  /*!
+   * \brief Serializes the package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   *
+   * \returns The total size of the serialized package
+   */
   size_t serializePackage(uint8_t* buffer);
 
   /*!
@@ -177,6 +209,11 @@ public:
     return true;
   }
 
+  /*!
+   * \brief Setter of the recipe id value used to identify the used recipe to the robot.
+   *
+   * \param recipe_id The new value
+   */
   void setRecipeID(const uint8_t& recipe_id)
   {
     recipe_id_ = recipe_id;
