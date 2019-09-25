@@ -33,9 +33,6 @@ namespace ur_driver
 {
 namespace comm
 {
-// TODO: Remove these!!!
-using namespace moodycamel;
-
 /*!
  * \brief Parent class for for arbitrary consumers.
  *
@@ -328,7 +325,7 @@ private:
   IConsumer<_package_type>* consumer_;
   std::string name_;
   INotifier& notifier_;
-  BlockingReaderWriterQueue<std::unique_ptr<_package_type>> queue_;
+  moodycamel::BlockingReaderWriterQueue<std::unique_ptr<_package_type>> queue_;
   std::atomic<bool> running_;
   std::thread pThread_, cThread_;
 
