@@ -51,41 +51,6 @@ enum class RUNTIME_STATE : uint32_t
   RESUMING = 5
 };
 
-struct ParseVisitor : public boost::static_visitor<>
-{
-  template <typename T>
-  void operator()(T& d, comm::BinParser& bp) const
-  {
-    bp.parse(d);
-  }
-};
-struct StringVisitor : public boost::static_visitor<std::string>
-{
-  template <typename T>
-  std::string operator()(T& d) const
-  {
-    std::stringstream ss;
-    ss << d;
-    return ss.str();
-  }
-};
-struct SizeVisitor : public boost::static_visitor<uint16_t>
-{
-  template <typename T>
-  uint16_t operator()(T& d) const
-  {
-    return sizeof(d);
-  }
-};
-struct SerializeVisitor : public boost::static_visitor<size_t>
-{
-  template <typename T>
-  size_t operator()(T& d, uint8_t* buffer) const
-  {
-    return comm::PackageSerializer::serialize(buffer, d);
-  }
-};
-
 /*!
  * \brief The DataPackage class handles communication in the form of RTDE data packages both to and
  * from the robot. It contains functionality to parse and serialize packages for arbitrary recipes.
@@ -230,6 +195,41 @@ private:
   uint8_t recipe_id_;
   std::unordered_map<std::string, _rtde_type_variant> data_;
   std::vector<std::string> recipe_;
+
+  struct ParseVisitor : public boost::static_visitor<>
+  {
+    template <typename T>
+    void operator()(T& d, comm::BinParser& bp) const
+    {
+      bp.parse(d);
+    }
+  };
+  struct StringVisitor : public boost::static_visitor<std::string>
+  {
+    template <typename T>
+    std::string operator()(T& d) const
+    {
+      std::stringstream ss;
+      ss << d;
+      return ss.str();
+    }
+  };
+  struct SizeVisitor : public boost::static_visitor<uint16_t>
+  {
+    template <typename T>
+    uint16_t operator()(T& d) const
+    {
+      return sizeof(d);
+    }
+  };
+  struct SerializeVisitor : public boost::static_visitor<size_t>
+  {
+    template <typename T>
+    size_t operator()(T& d, uint8_t* buffer) const
+    {
+      return comm::PackageSerializer::serialize(buffer, d);
+    }
+  };
 };
 
 }  // namespace rtde_interface
