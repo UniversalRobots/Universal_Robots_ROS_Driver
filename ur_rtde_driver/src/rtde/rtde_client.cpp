@@ -146,10 +146,19 @@ std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
   return recipe;
 }
 
-bool RTDEClient::getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package,
-                                std::chrono::milliseconds timeout)
+std::unique_ptr<rtde_interface::DataPackage> RTDEClient::getDataPackage(std::chrono::milliseconds timeout)
 {
-  return pipeline_.getLatestProduct(data_package, timeout);
+  std::unique_ptr<comm::URPackage<rtde_interface::PackageHeader>> urpackage;
+  if (pipeline_.getLatestProduct(urpackage, timeout))
+  {
+    rtde_interface::DataPackage* tmp = dynamic_cast<rtde_interface::DataPackage*>(urpackage.get());
+    if (tmp != nullptr)
+    {
+      urpackage.release();
+      return std::unique_ptr<rtde_interface::DataPackage>(tmp);
+    }
+  }
+  return std::unique_ptr<rtde_interface::DataPackage>(nullptr);
 }
 
 std::string RTDEClient::getIP() const

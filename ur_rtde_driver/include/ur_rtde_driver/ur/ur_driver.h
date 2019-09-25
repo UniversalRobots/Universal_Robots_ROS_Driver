@@ -85,8 +85,8 @@ public:
    * \brief Access function to receive the latest data package sent from the robot through RTDE
    * interface.
    *
-   * \returns The latest data package on success, a nullptr if no package can be found inside the
-   * interface's cycle time. See the private parameter #rtde_frequency_
+   * \returns The latest data package on success, a nullptr if no package can be found inside a preconfigured time
+   * window.
    */
   std::unique_ptr<rtde_interface::DataPackage> getDataPackage();
 

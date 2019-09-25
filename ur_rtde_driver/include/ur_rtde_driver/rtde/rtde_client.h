@@ -84,12 +84,11 @@ public:
   /*!
    * \brief Reads the pipeline to fetch the next data package.
    *
-   * \param data_package Pointer to set to the next data package
    * \param timeout Time to wait if no data package is currently in the queue
    *
-   * \returns True, if a package was fetched successfully
+   * \returns Unique ptr to the package, if a package was fetched successfully, nullptr otherwise
    */
-  bool getDataPackage(std::unique_ptr<comm::URPackage<PackageHeader>>& data_package, std::chrono::milliseconds timeout);
+  std::unique_ptr<rtde_interface::DataPackage> getDataPackage(std::chrono::milliseconds timeout);
 
   /*!
    * \brief Getter for the frequency the robot will publish RTDE data packages with.
