@@ -48,7 +48,7 @@
   <exec_depend>velocity_controllers</exec_depend>
 
   <export>
-    <rosdoc config="rosdoc.yaml" />
+    <rosdoc config="doc/rosdoc.yaml" />
   </export>
 
 </package>
