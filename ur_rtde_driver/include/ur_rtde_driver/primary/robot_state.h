@@ -37,6 +37,9 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief Possible RobotState types
+ */
 enum class RobotStateType : uint8_t
 {
   ROBOT_MODE_DATA = 0,

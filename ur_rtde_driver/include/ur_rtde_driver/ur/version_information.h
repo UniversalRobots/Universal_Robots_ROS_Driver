@@ -28,8 +28,13 @@
 #ifndef UR_RTDE_DRIVER_UR_VERSION_INFORMATION_H_INCLUDED
 #define UR_RTDE_DRIVER_UR_VERSION_INFORMATION_H_INCLUDED
 
+#include <ur_rtde_driver/types.h>
+
 namespace ur_driver
 {
+/*!
+ * \brief Struct containing a robot's version information
+ */
 struct VersionInformation
 {
   VersionInformation()
@@ -39,10 +44,10 @@ struct VersionInformation
     bugfix = 0;
     build = 0;
   }
-  uint32_t major;
-  uint32_t minor;
-  uint32_t bugfix;
-  uint32_t build;
+  uint32_t major;   ///< Major version number
+  uint32_t minor;   ///< Minor version number
+  uint32_t bugfix;  ///< Bugfix version number
+  uint32_t build;   ///< Build number
 };
 }  // namespace ur_driver
 

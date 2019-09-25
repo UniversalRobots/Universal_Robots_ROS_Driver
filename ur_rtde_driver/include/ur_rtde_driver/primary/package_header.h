@@ -40,6 +40,9 @@ namespace primary_interface
 {
 static const int UR_PRIMARY_PORT = 30001;
 static const int UR_SECONDARY_PORT = 30002;
+/*!
+ * \brief Possible RobotPackage types
+ */
 enum class RobotPackageType : int8_t
 {
   DISCONNECT = -1,

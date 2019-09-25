@@ -52,6 +52,9 @@
 
 namespace ur_driver
 {
+/*!
+ * \brief Possible states for robot control
+ */
 enum class PausingState
 {
   PAUSED,

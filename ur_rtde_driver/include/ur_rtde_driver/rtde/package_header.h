@@ -38,6 +38,9 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief Possible package types
+ */
 enum class PackageType : uint8_t
 {
   RTDE_REQUEST_PROTOCOL_VERSION = 86,       // ascii V

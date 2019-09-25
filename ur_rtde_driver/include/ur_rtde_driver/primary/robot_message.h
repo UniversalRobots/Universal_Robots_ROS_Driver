@@ -34,6 +34,9 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief Possible RobotMessage types
+ */
 enum class RobotMessagePackageType : uint8_t
 {
   ROBOT_MESSAGE_TEXT = 0,

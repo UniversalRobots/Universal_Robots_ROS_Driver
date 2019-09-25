@@ -31,12 +31,15 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief State the socket can be in
+ */
 enum class SocketState
 {
-  Invalid,
-  Connected,
-  Disconnected,
-  Closed
+  Invalid,       ///< Socket is initialized or setup failed
+  Connected,     ///< Socket is connected and ready to use
+  Disconnected,  ///< Socket is disconnected and cannot be used
+  Closed         ///< Connection to socket got closed
 };
 
 /*!

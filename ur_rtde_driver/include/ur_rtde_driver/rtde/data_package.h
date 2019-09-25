@@ -38,6 +38,9 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief Possible values for the runtime state
+ */
 enum class RUNTIME_STATE : uint32_t
 {
   STOPPING = 0,
