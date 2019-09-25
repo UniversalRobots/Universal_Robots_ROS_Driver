@@ -49,7 +49,7 @@ public:
 
 private:
   std::vector<SpeedScalingHandle> sensors_;
-  // TODO: We should use a better datatype later on
+  // TODO: We should use a custom message for this
   typedef std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64> > RtPublisherPtr;
   std::vector<RtPublisherPtr> realtime_pubs_;
   std::vector<ros::Time> last_publish_times_;
