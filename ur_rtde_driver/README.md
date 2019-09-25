@@ -11,7 +11,7 @@ The following image shows a very coarse overview of the driver's architecture.
 
 Upon connection to the primary interface the robot sends version and calibration information which
 is consumed by the *calibration_check*. If the calibration reported by the robot doesn't match the
-one configured (See TODO: Insert Link) an error will be printed to Roslog.
+one configured (See [calibration guide](../ur_calibration/README.md)) an error will be printed to Roslog.
 
 Real-time data from the robot is read through the RTDE interface. This is done automatically as soon
 as a connection to the robot could be established. Thus joint states and IO data will be immediately
