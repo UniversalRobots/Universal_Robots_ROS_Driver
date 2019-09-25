@@ -118,7 +118,6 @@ public:
   {
     if (data_.find(name) != data_.end())
     {
-      // TODO: Can we check this somehow?
       val = boost::strict_get<T>(data_[name]);
     }
     else

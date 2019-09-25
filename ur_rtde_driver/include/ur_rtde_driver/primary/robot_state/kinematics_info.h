@@ -85,7 +85,6 @@ public:
   uint32_t calibration_status_;  // According to the docs this should be uint8_t, but then I have 3 bytes left.
 };
 
-// TODO: Handle pre-3.6 as they don't have kinematics info
 }  // namespace primary_interface
 }  // namespace ur_driver
 

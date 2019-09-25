@@ -74,7 +74,7 @@ public:
   uint8_t major_version_;
   uint8_t minor_version_;
   int32_t svn_version_;
-  int32_t build_number_;  // TODO Exists in version 3.3 above only
+  int32_t build_number_;
   std::string build_date_;
 };
 }  // namespace primary_interface

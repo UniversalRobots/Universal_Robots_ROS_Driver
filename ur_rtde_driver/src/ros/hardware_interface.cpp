@@ -396,7 +396,6 @@ uint32_t HardwareInterface ::getControlFrequency() const
   {
     return ur_driver_->getControlFrequency();
   }
-  // TODO: Do this nicer than throwing an exception
   throw std::runtime_error("ur_driver is not yet initialized");
 }
 
