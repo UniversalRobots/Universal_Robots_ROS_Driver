@@ -33,11 +33,11 @@
 
 namespace ur_driver
 {
-  /*!
-   * \brief The CalibrationChecker class consumes primary packages ignoring all but KinematicsInfo
-   * packages. These are then checked against the used kinematics to see if the correct calibration
-   * is used.
-   */
+/*!
+ * \brief The CalibrationChecker class consumes primary packages ignoring all but KinematicsInfo
+ * packages. These are then checked against the used kinematics to see if the correct calibration
+ * is used.
+ */
 class CalibrationChecker : public comm::IConsumer<comm::URPackage<primary_interface::PackageHeader>>
 {
 public:
