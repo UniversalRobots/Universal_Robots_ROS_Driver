@@ -40,7 +40,9 @@ Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_ro
  * Works for all **CB3 (with software version >= 3.7) and eSeries (software >= 5.1)** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
    targets precisely.
- * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (TODO: Write tutorial on how to compile a realtime kernel for Ubuntu)
+ * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the
+   eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (See
+   the [Real-time setup guide](ur_rtde_driver/doc/real_time.md) on how to achieve this)
  * Transparent **integration of the teach-pendant**. Using the URCaps system, a program is running
    on the robot that handles control commands sent from ROS side. With this, the robot can be
    **paused**, **stopped** and **resumed** without restarting the ROS driver.
