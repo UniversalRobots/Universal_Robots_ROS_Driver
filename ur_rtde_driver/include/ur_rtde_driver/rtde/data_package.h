@@ -141,6 +141,7 @@ public:
    *
    * \param name The string identifier for the data field as used in the documentation.
    * \param val Target variable. Make sure, it's the correct type.
+   * \exception boost::bad_get if the type under given \p name does not match the template type T.
    *
    * \returns True on success, false if the field cannot be found inside the package.
    */
@@ -166,6 +167,7 @@ public:
    *
    * \param name The string identifier for the data field as used in the documentation.
    * \param val Target variable. Make sure, it's the correct type.
+   * \exception boost::bad_get if the type under given \p name does not match the template type T.
    *
    * \returns True on success, false if the field cannot be found inside the package.
    */
