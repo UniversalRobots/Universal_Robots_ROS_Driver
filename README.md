@@ -3,7 +3,7 @@ Universal Robots have become a dominant supplier lightweight, robotic manipulato
 
 <center><img src="ur_rtde_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Serie familie" style="width: 45%;"/></center>
 
-With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control have increased further increase. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
+With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
 It is the core value of Universal Robots, to empower people to achieve any goal within automation. The success criteria of this driver release is to follow this vision, by providing the ROS community with an easy to use, stable and powerful driver, that empowers the community to reach their goals in research and automation without struggling with unimportant technical challenges, instability or lacking features.
 
@@ -33,7 +33,7 @@ It was developed in collaboration between [Universal Robots](https://www.univers
 the [FZI Research Center for Information Technology](https://www.fzi.de).
 
 
-## How to report a Issue
+## How to report an issue
 Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues) and use [Issue #1 as a template](https://gitlab.com/ur_ros_beta/universal_robots_ros_driver/issues/1).
 
 ## Features
@@ -125,44 +125,39 @@ make use of this in ROS, you first have to extract the calibration information f
 Though this step is not necessary, to control the robot using this driver, it is highly recommended
 to do so, as endeffector positions might be off in the magnitude of centimeters.
 
+
 For this, there exists a helper script:
 
     $ roslaunch ur_calibration calibration_correction.launch \
-    robot_ip:=192.168.56.101 \
-    robot_name:=ur10_example \
+    robot_ip:=<robot_ip> \
+    robot_name:=<robot_name> \
     output_package_name:=ur_calibration \
     subfolder_name:=etc
 
-As soon as you see the output
+
+As soon as you see the output:
     
     [ INFO] [1560953586.352160902]: Calibration correction done
 
 you can exit the roslaunch by bressing `CTRL+C`.
 
-For the parameter **robot_ip** insert the ip on which the ROS pc can reach the robot. The
-**robot_name** is an arbitrary name you can give to the robot. It is recommended, to choose a unique
-name that can be easily matched to the physical robot.
 
-The script will then extract the calibration information from the robot and convert it to a yaml
-syntax that can be used by the robot_description.
+For the parameter **<robot_ip>** insert the ip on which the ROS pc can reach the robot. The
+**<robot_name>** is an arbitrary name you can give to the robot. It is recommended, to choose a unique
+name that can be easily matched to the physical robot.
 
 The resulting yaml file is stored in the package specified in the **output_package_name** parameter
 inside the folder **subfolder_name** with the name **robot_name***_calibration.yaml*. The parameter
 **subfolder_name** is optional and defaults to *etc* if not given.
 
-In the example above, we use the **ur_calibration** package from this repository. This won't work,
-if you use a binary installation of this driver. In that case please create an own ROS package as
-described below.
 
-**Note:** You'll have to provide the name of an existing package. It is recommended to have a
-package storing all calibrations of all UR robots inside your organization. This way, the extraction
-as described in this package has only to be performed once and the calibration can be reused by
-other users.
-To create a new package, go to your catkin_workspace's src folder and call
+In the example above, we use the **ur_calibration** package from this repository. This won't work,
+if you use a binary installation of this driver. In that case please create a new ROS package (before performing the calibration) by 
+going to your catkin_workspace's src folder and calling:
 
     catkin_create_pkg my_calibrations
 
-It is recommended to adapt the new package's *package.xml* with a meaningful description.
+
 
 #### Quick start
 Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
