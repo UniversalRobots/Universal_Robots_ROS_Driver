@@ -213,7 +213,7 @@ public:
    * \brief Setup the tool communication number of idle chars for the tx channel that will be configured on the robot.
    * This will not immediately change values on the robot, it will only be stored inside the ToolCommSetup object.
    *
-   * \param rx_idle_chars must be inside [0.0, 40] or this will throw an exception.
+   * \param tx_idle_chars must be inside [0.0, 40] or this will throw an exception.
    */
   void setTxIdleChars(const TxIdleCharsT::Datatype tx_idle_chars)
   {

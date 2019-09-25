@@ -103,7 +103,7 @@ public:
   /*!
    * \brief Reads one byte from the socket
    *
-   * \param character[out] Target buffer
+   * \param[out] character Target buffer
    *
    * \returns True on success, false otherwise
    */
