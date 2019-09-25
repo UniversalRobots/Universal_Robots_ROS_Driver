@@ -34,17 +34,39 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief The VersionMessage class handles the version messages sent via the primary UR interface.
+ */
 class VersionMessage : public RobotMessage
 {
 public:
   VersionMessage() = delete;
+  /*!
+   * \brief Creates a new VersionMessage object to be filled from a package.
+   *
+   * \param timestamp Timestamp of the package
+   * \param source The package's source
+   */
   VersionMessage(uint64_t timestamp, uint8_t source) : RobotMessage(timestamp, source)
   {
   }
   virtual ~VersionMessage() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
 
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   int8_t project_name_length_;

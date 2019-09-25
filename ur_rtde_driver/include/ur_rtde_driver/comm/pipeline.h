@@ -36,27 +36,57 @@ namespace comm
 // TODO: Remove these!!!
 using namespace moodycamel;
 
+/*!
+ * \brief Parent class for for arbitrary consumers.
+ *
+ * @tparam T Type of the consumed products
+ */
 template <typename T>
 class IConsumer
 {
 public:
+  /*!
+   * \brief Set-up functionality of the consumer.
+   */
   virtual void setupConsumer()
   {
   }
+  /*!
+   * \brief Fully tears down the consumer - by default no difference to stopping it.
+   */
   virtual void teardownConsumer()
   {
     stopConsumer();
   }
+  /*!
+   * \brief Stops the consumer.
+   */
   virtual void stopConsumer()
   {
   }
+  /*!
+   * \brief Functionality for handling consumer timeouts.
+   */
   virtual void onTimeout()
   {
   }
 
+  /*!
+   * \brief Consumes a product, utilizing it's contents.
+   *
+   * \param product Shared pointer to the product to be consumed.
+   *
+   * \returns Success of the consumption.
+   */
   virtual bool consume(std::shared_ptr<T> product) = 0;
 };
 
+/*!
+ * \brief Consumer, that allows one product to be consumed by multiple arbitrary
+ * conusmers.
+ *
+ * @tparam T Type of the consumed products
+ */
 template <typename T>
 class MultiConsumer : public IConsumer<T>
 {
@@ -64,10 +94,18 @@ private:
   std::vector<IConsumer<T>*> consumers_;
 
 public:
+  /*!
+   * \brief Creates a new MultiConsumer object.
+   *
+   * \param consumers The list of consumers that should all consume given products
+   */
   MultiConsumer(std::vector<IConsumer<T>*> consumers) : consumers_(consumers)
   {
   }
 
+  /*!
+   * \brief Sets up all registered consumers.
+   */
   virtual void setupConsumer()
   {
     for (auto& con : consumers_)
@@ -75,6 +113,9 @@ public:
       con->setupConsumer();
     }
   }
+  /*!
+   * \brief Tears down all registered consumers.
+   */
   virtual void teardownConsumer()
   {
     for (auto& con : consumers_)
@@ -82,6 +123,9 @@ public:
       con->teardownConsumer();
     }
   }
+  /*!
+   * \brief Stops all registered consumers.
+   */
   virtual void stopConsumer()
   {
     for (auto& con : consumers_)
@@ -89,6 +133,9 @@ public:
       con->stopConsumer();
     }
   }
+  /*!
+   * \brief Triggers timeout functionality for all registered consumers.
+   */
   virtual void onTimeout()
   {
     for (auto& con : consumers_)
@@ -97,6 +144,13 @@ public:
     }
   }
 
+  /*!
+   * \brief Consumes a given product with all registered consumers.
+   *
+   * \param product Shared pointer to the product to be consumed.
+   *
+   * \returns Success of the consumption.
+   */
   bool consume(std::shared_ptr<T> product)
   {
     bool res = true;
@@ -109,35 +163,72 @@ public:
   }
 };
 
+/*!
+ * \brief Parent class for arbitrary producers of packages.
+ *
+ * @tparam HeaderT Header type of the produced packages
+ */
 template <typename HeaderT>
 class IProducer
 {
 public:
+  /*!
+   * \brief Set-up functionality of the producers.
+   */
   virtual void setupProducer()
   {
   }
+  /*!
+   * \brief Fully tears down the producer - by default no difference to stopping it.
+   */
   virtual void teardownProducer()
   {
     stopProducer();
   }
+  /*!
+   * \brief Stops the producer.
+   */
   virtual void stopProducer()
   {
   }
 
+  /*!
+   * \brief Reads packages from some source and produces corresponding objects.
+   *
+   * \param products Vector of unique pointers to be filled with produced packages.
+   *
+   * \returns Success of the package production.
+   */
   virtual bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products) = 0;
 };
 
+/*!
+ * \brief Parent class for notifiers.
+ */
 class INotifier
 {
 public:
+  /*!
+   * \brief Start notification.
+   */
   virtual void started(std::string name)
   {
   }
+  /*!
+   * \brief Stop notification.
+   */
   virtual void stopped(std::string name)
   {
   }
 };
 
+/*!
+ * \brief The Pipepline manages the production and optionally consumption of packages. Cyclically
+ * the producer is called and returned packages are saved in a queue. This queue is then either also
+ * cyclically utilized by the registered consumer or can be externally used.
+ *
+ * @tparam HeaderT Header type of the managed packages
+ */
 template <typename HeaderT>
 class Pipeline
 {
@@ -145,21 +236,44 @@ public:
   typedef std::chrono::high_resolution_clock Clock;
   typedef Clock::time_point Time;
   using _package_type = URPackage<HeaderT>;
+  /*!
+   * \brief Creates a new Pipeline object, registering producer, consumer and notifier.
+   * Additionally, an empty queue is initialized.
+   *
+   * \param producer The producer to run in the pipeline
+   * \param consumer The consumer to run in the pipeline
+   * \param name The pipeline's name
+   * \param notifier The notifier to use
+   */
   Pipeline(IProducer<HeaderT>& producer, IConsumer<_package_type>& consumer, std::string name, INotifier& notifier)
     : producer_(producer), consumer_(&consumer), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
   {
   }
+  /*!
+   * \brief Creates a new Pipeline object, registering producer and notifier while no consumer is
+   * used. Additionally, an empty queue is initialized.
+   *
+   * \param producer The producer to run in the pipeline
+   * \param name The pipeline's name
+   * \param notifier The notifier to use
+   */
   Pipeline(IProducer<HeaderT>& producer, std::string name, INotifier& notifier)
     : producer_(producer), consumer_(nullptr), name_(name), notifier_(notifier), queue_{ 32 }, running_{ false }
   {
   }
 
+  /*!
+   * \brief The Pipeline object's destructor, stopping the pipeline and joining all running threads.
+   */
   virtual ~Pipeline()
   {
     LOG_DEBUG("Destructing pipeline");
     stop();
   }
 
+  /*!
+   * \brief Starts the producer and, if existing, the consumer in new threads.
+   */
   void run()
   {
     if (running_)
@@ -173,6 +287,9 @@ public:
     notifier_.started(name_);
   }
 
+  /*!
+   * \brief Stops the pipeline and all running threads.
+   */
   void stop()
   {
     if (!running_)
@@ -193,6 +310,14 @@ public:
     notifier_.stopped(name_);
   }
 
+  /*!
+   * \brief Returns the next package in the queue. Can be used instead of registering a consumer.
+   *
+   * \param product Unique pointer to be set to the package
+   * \param timeout Time to wait if no package is in the queue before returning
+   *
+   * \returns
+   */
   bool getLatestProduct(std::unique_ptr<URPackage<HeaderT>>& product, std::chrono::milliseconds timeout)
   {
     return queue_.waitDequeTimed(product, timeout);

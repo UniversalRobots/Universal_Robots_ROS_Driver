@@ -33,27 +33,63 @@
 
 namespace ur_driver
 {
+/*!
+ * \brief The CalibrationChecker class consumes primary packages ignoring all but KinematicsInfo
+ * packages. These are then checked against the used kinematics to see if the correct calibration
+ * is used.
+ */
 class CalibrationChecker : public comm::IConsumer<comm::URPackage<primary_interface::PackageHeader>>
 {
 public:
+  /*!
+   * \brief Creates a new CalibrationChecker object with an expected hash calculated from the used
+   * kinematics.
+   *
+   * \param expected_hash The expected kinematics hash
+   */
   CalibrationChecker(const std::string& expected_hash);
   virtual ~CalibrationChecker() = default;
 
+  /*!
+   * \brief Empty setup function, as no setup is needed.
+   */
   virtual void setupConsumer()
   {
   }
+  /*!
+   * \brief Tears down the consumer.
+   */
   virtual void teardownConsumer()
   {
   }
+  /*!
+   * \brief Stops the consumer.
+   */
   virtual void stopConsumer()
   {
   }
+  /*!
+   * \brief Handles timeouts.
+   */
   virtual void onTimeout()
   {
   }
 
+  /*!
+   * \brief Consumes a package, checking its hash if it is a KinematicsInfo package. If the hash
+   * does not match the expected hash, an error is logged.
+   *
+   * \param product The package to consume
+   *
+   * \returns True, if the package was consumed correctly
+   */
   virtual bool consume(std::shared_ptr<comm::URPackage<primary_interface::PackageHeader>> product);
 
+  /*!
+   * \brief Used to make sure the calibration check is not performed several times.
+   *
+   * \returns True, if the calibration was already checked, false otherwise
+   */
   bool isChecked()
   {
     return checked_;

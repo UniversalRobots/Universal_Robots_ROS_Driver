@@ -37,28 +37,15 @@ namespace ur_driver
 {
 namespace comm
 {
+/*!
+ * \brief The BinParser class handles a byte buffer and functionality to iteratively parse the
+ * content.
+ */
 class BinParser
 {
 private:
   uint8_t *buf_pos_, *buf_end_;
   BinParser& parent_;
-
-public:
-  BinParser(uint8_t* buffer, size_t buf_len) : buf_pos_(buffer), buf_end_(buffer + buf_len), parent_(*this)
-  {
-    assert(buf_pos_ <= buf_end_);
-  }
-
-  BinParser(BinParser& parent, size_t sub_len)
-    : buf_pos_(parent.buf_pos_), buf_end_(parent.buf_pos_ + sub_len), parent_(parent)
-  {
-    assert(buf_pos_ <= buf_end_);
-  }
-
-  ~BinParser()
-  {
-    parent_.buf_pos_ = buf_pos_;
-  }
 
   // Decode from network encoding (big endian) to host encoding
   template <typename T>
@@ -91,6 +78,45 @@ public:
     return be64toh(val);
   }
 
+public:
+  /*!
+   * \brief Creates a new BinParser object from a given buffer.
+   *
+   * \param buffer The byte buffer to parse
+   * \param buf_len Size of the buffer
+   */
+  BinParser(uint8_t* buffer, size_t buf_len) : buf_pos_(buffer), buf_end_(buffer + buf_len), parent_(*this)
+  {
+    assert(buf_pos_ <= buf_end_);
+  }
+
+  /*!
+   * \brief Creates a new BinParser object for part of a buffer from a parent BinParser.
+   *
+   * \param parent Parent BinParser
+   * \param sub_len Size of the sub-buffer to parse
+   */
+  BinParser(BinParser& parent, size_t sub_len)
+    : buf_pos_(parent.buf_pos_), buf_end_(parent.buf_pos_ + sub_len), parent_(parent)
+  {
+    assert(buf_pos_ <= buf_end_);
+  }
+
+  /*!
+   * \brief Deconstructor for the BinParser.
+   */
+  ~BinParser()
+  {
+    parent_.buf_pos_ = buf_pos_;
+  }
+
+  /*!
+   * \brief Parses the next bytes as given type without moving the buffer pointer.
+   *
+   * @tparam T Type to parse as
+   *
+   * \returns Value of the next bytes as type T
+   */
   template <typename T>
   T peek()
   {
@@ -103,6 +129,12 @@ public:
     return decode(val);
   }
 
+  /*!
+   * \brief Parses the next bytes as given type.
+   *
+   * @tparam T Type to parse as
+   * \param val Reference to write the parsed value to
+   */
   template <typename T>
   void parse(T& val)
   {
@@ -110,12 +142,22 @@ public:
     buf_pos_ += sizeof(T);
   }
 
+  /*!
+   * \brief Parses the next bytes as a double.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(double& val)
   {
     uint64_t inner;
     parse<uint64_t>(inner);
     std::memcpy(&val, &inner, sizeof(double));
   }
+  /*!
+   * \brief Parses the next bytes as a float.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(float& val)
   {
     uint32_t inner;
@@ -123,8 +165,15 @@ public:
     std::memcpy(&val, &inner, sizeof(float));
   }
 
-  // UR uses 1 byte for boolean values but sizeof(bool) is implementation
-  // defined so we must ensure they're parsed as uint8_t on all compilers
+  /*!
+   * \brief Parses the next byte as a bool.
+   *
+   * UR uses 1 byte for boolean values but sizeof(bool) is implementation defined, so we must ensure
+   * they're parsed as uint8_t on all compilers
+   *
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(bool& val)
   {
     uint8_t inner;
@@ -132,6 +181,11 @@ public:
     val = inner != 0;
   }
 
+  /*!
+   * \brief Parses the next bytes as a vector of 3 doubles.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(vector3d_t& val)
   {
     for (size_t i = 0; i < val.size(); ++i)
@@ -140,6 +194,11 @@ public:
     }
   }
 
+  /*!
+   * \brief Parses the next bytes as a vector of 6 doubles.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(vector6d_t& val)
   {
     for (size_t i = 0; i < val.size(); ++i)
@@ -148,6 +207,11 @@ public:
     }
   }
 
+  /*!
+   * \brief Parses the next bytes as a vector of 6 32 bit integers.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(vector6int32_t& val)
   {
     for (size_t i = 0; i < val.size(); ++i)
@@ -156,6 +220,11 @@ public:
     }
   }
 
+  /*!
+   * \brief Parses the next bytes as a vector of 6 unsigned 32 bit integers.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(vector6uint32_t& val)
   {
     for (size_t i = 0; i < val.size(); ++i)
@@ -164,6 +233,12 @@ public:
     }
   }
 
+  /*!
+   * \brief Writes the remaining bytes into a given buffer without parsing them.
+   *
+   * \param buffer The buffer to copy the remaining bytes to.
+   * \param buffer_length Reference to write the number of remaining bytes to.
+   */
   void rawData(std::unique_ptr<uint8_t>& buffer, size_t& buffer_length)
   {
     buffer_length = buf_end_ - buf_pos_;
@@ -172,18 +247,33 @@ public:
     consume();
   }
 
+  /*!
+   * \brief Parses the remaining bytes as a string.
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parseRemainder(std::string& val)
   {
     parse(val, size_t(buf_end_ - buf_pos_));
   }
 
+  /*!
+   * \brief Parses a given number of bytes as a string.
+   *
+   * \param val Reference to write the parsed value to
+   * \param len Number of bytes to parse
+   */
   void parse(std::string& val, size_t len)
   {
     val.assign(reinterpret_cast<char*>(buf_pos_), len);
     buf_pos_ += len;
   }
 
-  // Special string parse function that assumes uint8_t len followed by chars
+  /*!
+   * \brief Special string parse function that assumes uint8_t len followed by chars
+   *
+   * \param val Reference to write the parsed value to
+   */
   void parse(std::string& val)
   {
     uint8_t len;
@@ -191,6 +281,13 @@ public:
     parse(val, size_t(len));
   }
 
+  /*!
+   * \brief Parses the next bytes as an array of a given type and size.
+   *
+   * @tparam T Type of the array
+   * @tparam N Number of elements in the array
+   * \param array Reference of an array to parse to.
+   */
   template <typename T, size_t N>
   void parse(std::array<T, N>& array)
   {
@@ -200,6 +297,13 @@ public:
     }
   }
 
+  /*!
+   * \brief Parses the next bytes as a value of a given type, but also copies it to a bitset.
+   *
+   * @tparam T Type to parse as
+   * @tparam N Size of the bitset to copy to
+   * \param set Reference to the bitset to copy the value to.
+   */
   template <typename T, size_t N>
   void parse(std::bitset<N>& set)
   {
@@ -208,30 +312,60 @@ public:
     set = std::bitset<N>(val);
   }
 
+  /*!
+   * \brief Sets the current buffer position to the end of the buffer, finishing parsing.
+   */
   void consume()
   {
     buf_pos_ = buf_end_;
   }
+  /*!
+   * \brief Moves the current buffer position ahead by a given amount.
+   *
+   * \param bytes Number of bytes to move the buffer position
+   */
   void consume(size_t bytes)
   {
     buf_pos_ += bytes;
   }
 
+  /*!
+   * \brief Checks if at least a given number of bytes is still remaining unparsed in the buffer.
+   *
+   * \param bytes Number of bytes to check for
+   *
+   * \returns True, if at least the given number of bytes are unparsed, false otherwise.
+   */
   bool checkSize(size_t bytes)
   {
     return bytes <= size_t(buf_end_ - buf_pos_);
   }
+  /*!
+   * \brief Checks if enough bytes for a given type remain unparsed in the buffer.
+   *
+   * @tparam T The type to check for
+   *
+   * \returns True, if enough bytes are unparsed, false otherwise.
+   */
   template <typename T>
   bool checkSize(void)
   {
     return checkSize(T::SIZE);
   }
 
+  /*!
+   * \brief Checks if no unparsed bytes remain in the buffer.
+   *
+   * \returns True, if all bytes were parsed, false otherwise.
+   */
   bool empty()
   {
     return buf_pos_ == buf_end_;
   }
 
+  /*!
+   * \brief Logs debugging information about the BinParser object.
+   */
   void debug()
   {
     LOG_DEBUG("BinParser: %p - %p (%zu bytes)", buf_pos_, buf_end_, buf_end_ - buf_pos_);

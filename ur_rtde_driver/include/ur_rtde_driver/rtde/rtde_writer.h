@@ -39,19 +39,78 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief The RTDEWriter class offers an abstraction layer to send data to the robot via the RTDE
+ * interface. Several simple to use functions to create data packages to send exist, which are
+ * then sent to the robot in an additional thread.
+ */
 class RTDEWriter
 {
 public:
   RTDEWriter() = delete;
+  /*!
+   * \brief Creates a new RTDEWriter object using a given URStream and recipe.
+   *
+   * \param stream The URStream to use for communication with the robot
+   * \param recipe The recipe to use for communication
+   */
   RTDEWriter(comm::URStream<PackageHeader>* stream, const std::vector<std::string>& recipe);
   ~RTDEWriter() = default;
+  /*!
+   * \brief Starts the writer thread, which periodically clears the queue to write packages to the
+   * robot.
+   *
+   * \param recipe_id The recipe id to use, so the robot correctly identifies the used recipe
+   */
   void init(uint8_t recipe_id);
+  /*!
+   * \brief The writer thread loop, continually serializing and sending packages to the robot.
+   */
   void run();
 
+  /*!
+   * \brief Creates a package to request setting a new value for the speed slider.
+   *
+   * \param speed_slider_fraction The new speed slider fraction as a value between 0.0 and 1.0
+   *
+   * \returns Success of the package creation
+   */
   bool sendSpeedSlider(double speed_slider_fraction);
+  /*!
+   * \brief Creates a package to request setting a new value for one of the standard digital output pins.
+   *
+   * \param output_pin The pin to change
+   * \param value The new value
+   *
+   * \returns Success of the package creation
+   */
   bool sendStandardDigitalOutput(uint8_t output_pin, bool value);
+  /*!
+   * \brief Creates a package to request setting a new value for one of the configurable digital output pins.
+   *
+   * \param output_pin The pin to change
+   * \param value The new value
+   *
+   * \returns Success of the package creation
+   */
   bool sendConfigurableDigitalOutput(uint8_t output_pin, bool value);
+  /*!
+   * \brief Creates a package to request setting a new value for one of the tool output pins.
+   *
+   * \param output_pin The pin to change
+   * \param value The new value
+   *
+   * \returns Success of the package creation
+   */
   bool sendToolDigitalOutput(uint8_t output_pin, bool value);
+  /*!
+   * \brief Creates a package to request setting a new value for one of the standard analog output pins.
+   *
+   * \param output_pin The pin to change
+   * \param value The new value
+   *
+   * \returns Success of the package creation
+   */
   bool sendStandardAnalogOutput(uint8_t output_pin, double value);
 
 private:

@@ -35,12 +35,25 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief The primary specific parser. Interprets a given byte stream as serialized primary
+ * packages and parses it accordingly.
+ */
 class PrimaryParser : public comm::Parser<PackageHeader>
 {
 public:
   PrimaryParser() = default;
   virtual ~PrimaryParser() = default;
 
+  /*!
+   * \brief Uses the given BinParser to create package objects from the contained serialization.
+   *
+   * \param bp A BinParser holding one or more serialized primary packages
+   * \param results A vector of pointers to created primary package objects
+   *
+   * \returns True, if the byte stream could successfully be parsed as primary packages, false
+   * otherwise
+   */
   bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
   {
     int32_t packet_size;

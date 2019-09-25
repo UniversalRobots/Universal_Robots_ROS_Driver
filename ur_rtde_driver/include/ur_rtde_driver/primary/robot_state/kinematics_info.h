@@ -43,14 +43,38 @@ class KinematicsInfo : public RobotState
 {
 public:
   KinematicsInfo() = delete;
+  /*!
+   * \brief Creates a new KinematicsInfo object.
+   *
+   * \param type The type of RobotState message received
+   */
   KinematicsInfo(const RobotStateType type) : RobotState(type)
   {
   }
   virtual ~KinematicsInfo() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
+  /*!
+   * \brief Calculates a hash value of the parameters to allow for identification of a calibration.
+   *
+   * \returns A hash value of the parameters
+   */
   std::string toHash() const;
 
   vector6uint32_t checksum_;

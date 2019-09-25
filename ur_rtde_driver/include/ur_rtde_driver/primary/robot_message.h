@@ -34,6 +34,9 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief Possible RobotMessage types
+ */
 enum class RobotMessagePackageType : uint8_t
 {
   ROBOT_MESSAGE_TEXT = 0,
@@ -46,16 +49,39 @@ enum class RobotMessagePackageType : uint8_t
   ROBOT_MESSAGE_REQUEST_VALUE = 9,
   ROBOT_MESSAGE_RUNTIME_EXCEPTION = 10
 };
-class RobotMessage : public PrimaryPackage
 
+/*!
+ * \brief The RobotMessage class is a parent class for the different received robot messages.
+ */
+class RobotMessage : public PrimaryPackage
 {
 public:
+  /*!
+   * \brief Creates a new RobotMessage object to be filled from a package.
+   *
+   * \param timestamp Timestamp of the package
+   * \param source The package's source
+   */
   RobotMessage(const uint64_t timestamp, const uint8_t source) : timestamp_(timestamp), source_(source)
   {
   }
   virtual ~RobotMessage() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
   uint64_t timestamp_;

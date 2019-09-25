@@ -38,6 +38,9 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+/*!
+ * \brief Possible values for the runtime state
+ */
 enum class RUNTIME_STATE : uint32_t
 {
   STOPPING = 0,
@@ -48,41 +51,10 @@ enum class RUNTIME_STATE : uint32_t
   RESUMING = 5
 };
 
-struct ParseVisitor : public boost::static_visitor<>
-{
-  template <typename T>
-  void operator()(T& d, comm::BinParser& bp) const
-  {
-    bp.parse(d);
-  }
-};
-struct StringVisitor : public boost::static_visitor<std::string>
-{
-  template <typename T>
-  std::string operator()(T& d) const
-  {
-    std::stringstream ss;
-    ss << d;
-    return ss.str();
-  }
-};
-struct SizeVisitor : public boost::static_visitor<uint16_t>
-{
-  template <typename T>
-  uint16_t operator()(T& d) const
-  {
-    return sizeof(d);
-  }
-};
-struct SerializeVisitor : public boost::static_visitor<size_t>
-{
-  template <typename T>
-  size_t operator()(T& d, uint8_t* buffer) const
-  {
-    return comm::PackageSerializer::serialize(buffer, d);
-  }
-};
-
+/*!
+ * \brief The DataPackage class handles communication in the form of RTDE data packages both to and
+ * from the robot. It contains functionality to parse and serialize packages for arbitrary recipes.
+ */
 class DataPackage : public RTDEPackage
 {
 public:
@@ -90,16 +62,44 @@ public:
                                             vector6int32_t, vector6uint32_t, std::string>;
 
   DataPackage() = delete;
+  /*!
+   * \brief Creates a new DataPackage object, based on a given recipe.
+   *
+   * \param recipe The used recipe
+   */
   DataPackage(const std::vector<std::string>& recipe) : RTDEPackage(PackageType::RTDE_DATA_PACKAGE), recipe_(recipe)
   {
   }
   virtual ~DataPackage() = default;
 
+  /*!
+   * \brief Initializes to contained list with empty values based on the recipe.
+   */
   void initEmpty();
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp);
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const;
 
+  /*!
+   * \brief Serializes the package.
+   *
+   * \param buffer Buffer to fill with the serialization
+   *
+   * \returns The total size of the serialized package
+   */
   size_t serializePackage(uint8_t* buffer);
 
   /*!
@@ -109,6 +109,7 @@ public:
    *
    * \param name The string identifier for the data field as used in the documentation.
    * \param val Target variable. Make sure, it's the correct type.
+   * \exception boost::bad_get if the type under given \p name does not match the template type T.
    *
    * \returns True on success, false if the field cannot be found inside the package.
    */
@@ -134,6 +135,7 @@ public:
    *
    * \param name The string identifier for the data field as used in the documentation.
    * \param val Target variable. Make sure, it's the correct type.
+   * \exception boost::bad_get if the type under given \p name does not match the template type T.
    *
    * \returns True on success, false if the field cannot be found inside the package.
    */
@@ -177,6 +179,11 @@ public:
     return true;
   }
 
+  /*!
+   * \brief Setter of the recipe id value used to identify the used recipe to the robot.
+   *
+   * \param recipe_id The new value
+   */
   void setRecipeID(const uint8_t& recipe_id)
   {
     recipe_id_ = recipe_id;
@@ -188,6 +195,41 @@ private:
   uint8_t recipe_id_;
   std::unordered_map<std::string, _rtde_type_variant> data_;
   std::vector<std::string> recipe_;
+
+  struct ParseVisitor : public boost::static_visitor<>
+  {
+    template <typename T>
+    void operator()(T& d, comm::BinParser& bp) const
+    {
+      bp.parse(d);
+    }
+  };
+  struct StringVisitor : public boost::static_visitor<std::string>
+  {
+    template <typename T>
+    std::string operator()(T& d) const
+    {
+      std::stringstream ss;
+      ss << d;
+      return ss.str();
+    }
+  };
+  struct SizeVisitor : public boost::static_visitor<uint16_t>
+  {
+    template <typename T>
+    uint16_t operator()(T& d) const
+    {
+      return sizeof(d);
+    }
+  };
+  struct SerializeVisitor : public boost::static_visitor<size_t>
+  {
+    template <typename T>
+    size_t operator()(T& d, uint8_t* buffer) const
+    {
+      return comm::PackageSerializer::serialize(buffer, d);
+    }
+  };
 };
 
 }  // namespace rtde_interface

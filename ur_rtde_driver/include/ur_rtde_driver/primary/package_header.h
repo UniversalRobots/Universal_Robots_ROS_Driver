@@ -40,6 +40,9 @@ namespace primary_interface
 {
 static const int UR_PRIMARY_PORT = 30001;
 static const int UR_SECONDARY_PORT = 30002;
+/*!
+ * \brief Possible RobotPackage types
+ */
 enum class RobotPackageType : int8_t
 {
   DISCONNECT = -1,
@@ -52,6 +55,9 @@ enum class RobotPackageType : int8_t
   PROGRAM_STATE_MESSAGE = 25
 };
 
+/*!
+ * \brief This class represents the header for primary packages.
+ */
 class PackageHeader
 {
 public:
@@ -60,6 +66,13 @@ public:
 
   using _package_size_type = int32_t;
 
+  /*!
+   * \brief Reads a buffer, interpreting the next bytes as the size of the contained package.
+   *
+   * \param buf The given byte stream containing a serialized package
+   *
+   * \returns The size of the given serialized package
+   */
   static size_t getPackageLength(uint8_t* buf)
   {
     return be32toh(*(reinterpret_cast<_package_size_type*>(buf)));

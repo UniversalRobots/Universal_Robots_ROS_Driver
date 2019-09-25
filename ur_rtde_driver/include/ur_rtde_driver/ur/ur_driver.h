@@ -49,8 +49,13 @@ public:
    * \brief Constructs a new UrDriver object.
    *
    * \param robot_ip IP-address under which the robot is reachable.
-   * \param script_file URScript file that should be sent to the robot
-   * \param tool_comm_setup Configuration for using the tool communication
+   * \param script_file URScript file that should be sent to the robot.
+   * \param output_recipe_file Filename where the output recipe is stored in.
+   * \param input_recipe_file Filename where the input recipe is stored in.
+   * \param handle_program_state Function handle to a callback on program state changes.
+   * \param tool_comm_setup Configuration for using the tool communication.
+   * \param calibration_checksum Expected checksum of calibration. Will be matched against the
+   * calibration reported by the robot.
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
@@ -59,7 +64,12 @@ public:
    * \brief Constructs a new UrDriver object.
    *
    * \param robot_ip IP-address under which the robot is reachable.
-   * \param script_file URScript file that should be sent to the robot
+   * \param script_file URScript file that should be sent to the robot.
+   * \param output_recipe_file Filename where the output recipe is stored in.
+   * \param input_recipe_file Filename where the input recipe is stored in.
+   * \param handle_program_state Function handle to a callback on program state changes.
+   * \param calibration_checksum Expected checksum of calibration. Will be matched against the
+   * calibration reported by the robot.
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
@@ -113,10 +123,24 @@ public:
    */
   bool stopControl();
 
+  /*!
+   * \brief Starts the watchdog checking if the URCaps program is running on the robot and it is
+   * ready to receive control commands.
+   */
   void startWatchdog();
 
+  /*!
+   * \brief Checks if the kinematics information in the used model fits the actual robot.
+   *
+   * \param checksum Hash of the used kinematics information
+   */
   void checkCalibration(const std::string& checksum);
 
+  /*!
+   * \brief Getter for the RTDE writer used to write to the robot's RTDE interface.
+   *
+   * \returns The active RTDE writer
+   */
   rtde_interface::RTDEWriter& getRTDEWriter();
 
   /*!

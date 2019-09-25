@@ -41,10 +41,10 @@ public:
   virtual ~Parser() = default;
 
   /*!
-   * \brief declares the parse function.
+   * \brief Declares the parse function.
    *
-   * \param bp instant of class binaryParser
-   * \param results unique pointer
+   * \param bp Instance of class binaryParser
+   * \param results A unique pointer
    */
   virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<HeaderT>>>& results) = 0;
   using _header_type = HeaderT;

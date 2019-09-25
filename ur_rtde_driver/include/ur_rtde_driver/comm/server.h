@@ -34,6 +34,10 @@ namespace comm
 {
 #define MAX_SERVER_BUF_LEN 50
 
+/*!
+ * \brief The URServer class abstracts communication with the robot. It opens a socket on a given
+ * port and waits for a robot to connect, at which point two way communication can be established.
+ */
 class URServer : private comm::TCPSocket
 {
 private:
@@ -44,13 +48,56 @@ protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len);
 
 public:
+  /*!
+   * \brief Creates a URServer object with a given port.
+   *
+   * \param port The port to open a socket on
+   */
   URServer(int port);
+  /*!
+   * \brief Closes the socket to allow for destruction of the object.
+   */
   ~URServer();
+  /*!
+   * \brief Getter for the server IP.
+   *
+   * \returns The IP of the server
+   */
   std::string getIP();
+  /*!
+   * \brief Binds to server's port, setting up a socket if possible.
+   *
+   * \returns Success of setting up the socket
+   */
   bool bind();
+  /*!
+   * \brief Waits for a robot to connect to the socket.
+   *
+   * \returns True, if a robot successfully connected, false otherwise.
+   */
   bool accept();
+  /*!
+   * \brief Triggers a disconnect of the currently connected robot.
+   */
   void disconnectClient();
+  /*!
+   * \brief Reads the byte-stream from the robot to the next linebreak.
+   *
+   * \param buffer The buffer to write the received bytes to
+   * \param buf_len Size of the buffer
+   *
+   * \returns True if a successful read occurred, false otherwise
+   */
   bool readLine(char* buffer, size_t buf_len);
+  /*!
+   * \brief Writes a buffer to the robot.
+   *
+   * \param buf The buffer to write from
+   * \param buf_len The length to write
+   * \param written A reference used to indicate how many bytes were written
+   *
+   * \returns Success of the write
+   */
   bool write(const uint8_t* buf, size_t buf_len, size_t& written);
 };
 }  // namespace comm

@@ -37,6 +37,9 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief Possible RobotState types
+ */
 enum class RobotStateType : uint8_t
 {
   ROBOT_MODE_DATA = 0,
@@ -58,15 +61,34 @@ class RobotState : public PrimaryPackage
 {
 public:
   RobotState() = delete;
+  /*!
+   * \brief Creates a new RobotState object, setting the type of state message.
+   *
+   * \param type The type of state message
+   */
   RobotState(const RobotStateType type) : state_type_(type)
   {
   }
   virtual ~RobotState() = default;
 
+  /*!
+   * \brief Sets the attributes of the package by parsing a serialized representation of the
+   * package.
+   *
+   * \param bp A parser containing a serialized version of the package
+   *
+   * \returns True, if the package was parsed successfully, false otherwise
+   */
   virtual bool parseWith(comm::BinParser& bp)
   {
     return PrimaryPackage::parseWith(bp);
   }
+
+  /*!
+   * \brief Produces a human readable representation of the package object.
+   *
+   * \returns A string representing the object
+   */
   virtual std::string toString() const
   {
     std::stringstream ss;
