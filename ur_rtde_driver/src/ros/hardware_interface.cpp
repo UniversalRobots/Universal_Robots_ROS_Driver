@@ -294,6 +294,12 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // Service to set any of the robot's IOs
   set_io_srv_ = robot_hw_nh.advertiseService("set_io", &HardwareInterface::setIO, this);
 
+  if (headless_mode)
+  {
+    resend_robot_program_srv_ =
+        robot_hw_nh.advertiseService("resend_robot_program", &HardwareInterface::resendRobotProgram, this);
+  }
+
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
@@ -652,6 +658,21 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
   {
     LOG_ERROR("Cannot execute function %u. This is not (yet) supported.", req.fun);
     res.success = false;
+  }
+
+  return true;
+}
+
+bool HardwareInterface::resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = ur_driver_->sendRobotProgram();
+  if (res.success)
+  {
+    res.message = "Successfully resent robot program";
+  }
+  else
+  {
+    res.message = "Could not resend robot program";
   }
 
   return true;

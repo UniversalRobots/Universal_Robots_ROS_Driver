@@ -184,6 +184,7 @@ protected:
 
   bool setSpeedSlider(ur_msgs::SetSpeedSliderFractionRequest& req, ur_msgs::SetSpeedSliderFractionResponse& res);
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
+  bool resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
 
   std::unique_ptr<UrDriver> ur_driver_;
@@ -229,6 +230,7 @@ protected:
 
   ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;
+  ros::ServiceServer resend_robot_program_srv_;
   ros::Subscriber command_sub_;
 
   uint32_t runtime_state_;
