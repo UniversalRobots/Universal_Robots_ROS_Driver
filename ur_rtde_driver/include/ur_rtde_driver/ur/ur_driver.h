@@ -53,12 +53,13 @@ public:
    * \param output_recipe_file Filename where the output recipe is stored in.
    * \param input_recipe_file Filename where the input recipe is stored in.
    * \param handle_program_state Function handle to a callback on program state changes.
+   * \param headless_mode Parameter to control if the driver should be started in headless mode.
    * \param tool_comm_setup Configuration for using the tool communication.
    * \param calibration_checksum Expected checksum of calibration. Will be matched against the
    * calibration reported by the robot.
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
-           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
+           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "");
   /*!
    * \brief Constructs a new UrDriver object.
@@ -68,13 +69,14 @@ public:
    * \param output_recipe_file Filename where the output recipe is stored in.
    * \param input_recipe_file Filename where the input recipe is stored in.
    * \param handle_program_state Function handle to a callback on program state changes.
+   * \param headless_mode Parameter to control if the driver should be started in headless mode.
    * \param calibration_checksum Expected checksum of calibration. Will be matched against the
    * calibration reported by the robot.
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
-           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state,
+           const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            const std::string& calibration_checksum = "")
-    : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state,
+    : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state, headless_mode,
                std::unique_ptr<ToolCommSetup>{}, calibration_checksum)
   {
   }
@@ -154,6 +156,15 @@ public:
    */
   bool sendScript(const std::string& program);
 
+  /*!
+   * \brief Sends the external control program to the robot.
+   *
+   * Only for use in headless mode, as it replaces the use of the URCaps program.
+   *
+   * \returns true on successful upload, false otherwise
+   */
+  bool sendRobotProgram();
+
 private:
   std::string readScriptFile(const std::string& filename);
   std::string readKeepalive();
@@ -176,6 +187,8 @@ private:
   std::function<void(bool)> handle_program_state_;
 
   std::string robot_ip_;
+  bool in_headless_mode_;
+  std::string full_robot_program_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED

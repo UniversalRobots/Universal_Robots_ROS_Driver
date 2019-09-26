@@ -24,6 +24,7 @@
   <arg name="tool_tx_idle_chars" default="3.5" doc="Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true."/>
   <arg name="tool_device_name" default="/tmp/ttyUR" doc="Local device name used for tool communication. Only used, when `use_tool_communication` is set to true."/>
   <arg name="tool_tcp_port" default="54321" doc="Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true."/>
+  <arg name="headless_mode" default="false"/>
 
   <!-- Load hardware interface -->
   <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_rtde_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
@@ -32,6 +33,7 @@
     <param name="script_file" value="$(arg urscript_file)"/>
     <param name="output_recipe_file" value="$(arg rtde_output_recipe_file)"/>
     <param name="input_recipe_file" value="$(arg rtde_input_recipe_file)"/>
+    <param name="headless_mode" value="$(arg headless_mode)"/>
     <param name="tf_prefix" value="$(arg tf_prefix)"/>
     <param name="use_tool_communication" value="$(arg use_tool_communication)"/>
     <!--<param name="reverse_port" type="int" value="$(arg reverse_port)" />-->

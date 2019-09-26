@@ -34,6 +34,7 @@
 #include "ur_rtde_driver/exceptions.h"
 #include "ur_rtde_driver/primary/primary_parser.h"
 #include <memory>
+#include <sstream>
 
 #include <ur_rtde_driver/ur/calibration_checker.h>
 
@@ -48,7 +49,7 @@ static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
                               const std::string& output_recipe_file, const std::string& input_recipe_file,
-                              std::function<void(bool)> handle_program_state,
+                              std::function<void(bool)> handle_program_state, bool headless_mode,
                               std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
@@ -113,9 +114,25 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   }
   prog.replace(prog.find(BEGIN_REPLACE), BEGIN_REPLACE.length(), begin_replace.str());
 
-  script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
-  script_sender_->start();
-  LOG_DEBUG("Created script sender");
+  in_headless_mode_ = headless_mode;
+  if (in_headless_mode_)
+  {
+    full_robot_program_ = "def externalControl():\n";
+    std::istringstream prog_stream(prog);
+    std::string line;
+    while (std::getline(prog_stream, line))
+    {
+      full_robot_program_ += "\t" + line + "\n";
+    }
+    full_robot_program_ += "end\n";
+    sendRobotProgram();
+  }
+  else
+  {
+    script_sender_.reset(new comm::ScriptSender(script_sender_port, prog));
+    script_sender_->start();
+    LOG_DEBUG("Created script sender");
+  }
 
   reverse_port_ = reverse_port;
   watchdog_thread_ = std::thread(&UrDriver::startWatchdog, this);
@@ -255,5 +272,18 @@ bool UrDriver::sendScript(const std::string& program)
   }
   LOG_ERROR("Could not send program to robot");
   return false;
+}
+
+bool UrDriver::sendRobotProgram()
+{
+  if (in_headless_mode_)
+  {
+    return sendScript(full_robot_program_);
+  }
+  else
+  {
+    LOG_ERROR("Tried to send robot program directly while not in headless mode");
+    return false;
+  }
 }
 }  // namespace ur_driver

@@ -18,6 +18,7 @@
   <arg name="tool_tcp_port" default="54321" doc="Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true."/>
   <arg name="robot_description_file" doc="Robot description launch file."/>
   <arg name="limited" default="false" doc="Use the description in limited mode (Every axis rotates from -PI to PI)"/>
+  <arg name="headless_mode" default="false"/>
 
   <!-- robot model -->
   <include file="$(arg robot_description_file)">
@@ -37,6 +38,7 @@
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>
     <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
+    <arg name="headless_mode" value="$(arg headless_mode)"/>
     <arg name="tool_voltage" value="$(arg tool_voltage)"/>
     <arg name="tool_parity" value="$(arg tool_parity)"/>
     <arg name="tool_baud_rate" value="$(arg tool_baud_rate)"/>
