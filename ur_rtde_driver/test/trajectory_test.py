@@ -26,7 +26,7 @@ class TrajectoryTest(unittest.TestCase):
                 "Could not reach controller action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
-        rospy.sleep(5)
+        # rospy.sleep(5)
 
     def test_trajectory(self):
         """Test robot movement"""
