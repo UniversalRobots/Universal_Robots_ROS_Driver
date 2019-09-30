@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find ur_rtde_driver)/launch/ur10_bringup.launch">
+    <arg name="robot_ip" value="192.168.56.101"/>
+  </include>
+
+  <test test-name="io_test" pkg="ur_rtde_driver" type="io_test.py" name="io_test1"/>
+  <test test-name="trajectory_test" pkg="ur_rtde_driver" type="trajectory_test.py" name="traj_test1"/>
+</launch>
