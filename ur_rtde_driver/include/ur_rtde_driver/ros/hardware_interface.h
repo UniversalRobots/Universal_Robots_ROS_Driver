@@ -245,6 +245,7 @@ protected:
   bool controllers_initialized_;
 
   std::string robot_ip_;
+  std::string tf_prefix_;
 };
 
 }  // namespace ur_driver

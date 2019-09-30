@@ -64,6 +64,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
     return false;
   }
 
+  robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
+
   // Path to the urscript code that will be sent to the robot. This is a required parameter.
   if (!robot_hw_nh.getParam("script_file", script_filename))
   {
@@ -91,8 +93,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
-  tcp_transform_.header.frame_id = "base";
-  tcp_transform_.child_frame_id = "tool0_controller";
+  tcp_transform_.header.frame_id = tf_prefix_ + "base";
+  tcp_transform_.child_frame_id = tf_prefix_ + "tool0_controller";
 
   // Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on
   // e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as
@@ -244,7 +246,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
       ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
   fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
-      "wrench", "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
+      "wrench", tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
   // Register interfaces
   registerInterface(&js_interface_);
