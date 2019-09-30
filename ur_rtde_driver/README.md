@@ -4,6 +4,10 @@ This package contains the actual driver for UR robots. It is part of the *univer
 repository and requires other packages from that repository. Also, see the [main repository's
 README](../README.md) for information on how to install and startup this driver.
 
+## ROS-API
+The ROS API is documented in a [standalone document](doc/ROS_INTERFACE.md). It is auto-generated
+using [catkin_doc](https://github.com/fzi-forschungszentrum-informatik/catkin_doc).
+
 ## Technical details
 The following image shows a very coarse overview of the driver's architecture.
 
