@@ -90,6 +90,9 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   }
 
   bool headless_mode;
+  // Start robot in headless mode. This does not require the 'External Control' URCap to be running
+  // on the robot, but this will send the URScript to the robot directly. On e-Series robots this
+  // requires the robot to run in 'remote-control' mode.
   if (!robot_hw_nh.getParam("headless_mode", headless_mode))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("headless_mode") << " not given.");
@@ -296,6 +299,8 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   if (headless_mode)
   {
+    // When in headless mode, this sends the URScript program to the robot for execution. Use this
+    // after the program has been interrupted, e.g. by a protective- or EM-stop.
     resend_robot_program_srv_ =
         robot_hw_nh.advertiseService("resend_robot_program", &HardwareInterface::resendRobotProgram, this);
   }

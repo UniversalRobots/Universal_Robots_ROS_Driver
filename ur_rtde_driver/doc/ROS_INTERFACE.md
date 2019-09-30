@@ -20,6 +20,10 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Debug flag that will get passed on to ur_common.launch
 
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+
  * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur3e_default.yaml")
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
@@ -97,6 +101,10 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 
     Debug flag that will get passed on to ur_common.launch
 
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+
  * "**kinematics_config**" (default: "$(find ur_description)/config/ur10_default.yaml")
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
@@ -137,6 +145,10 @@ Robot bringup launchfile without the robot description. Include this, if you wan
  * "**debug**" (default: "false")
 
     If set to true, will start the driver inside gdb
+
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
  * "**kinematics_config**"
 
@@ -223,6 +235,10 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Debug flag that will get passed on to ur_control.launch
 
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+
  * "**kinematics_config**"
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
@@ -300,6 +316,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Debug flag that will get passed on to ur_common.launch
 
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+
  * "**kinematics_config**" (default: "$(find ur_description)/config/ur5_default.yaml")
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
@@ -340,6 +360,10 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
  * "**debug**" (default: "false")
 
     Debug flag that will get passed on to ur_common.launch
+
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
  * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur5e_default.yaml")
 
@@ -418,6 +442,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Debug flag that will get passed on to ur_common.launch
 
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+
  * "**kinematics_config**" (default: "$(find ur_description)/config/ur3_default.yaml")
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
@@ -458,6 +486,10 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
  * "**debug**" (default: "false")
 
     Debug flag that will get passed on to ur_common.launch
+
+ * "**headless_mode**" (default: "false")
+
+    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
  * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur10e_default.yaml")
 
@@ -529,6 +561,11 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Calling this service will make the "External Control" program node on the UR-Program return.
 
+ * "**resend_robot_program**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    When in headless mode, this sends the URScript program to the robot for execution. Use this
+    after the program has been interrupted, e.g. by a protective- or EM-stop.
+
  * "**set_io**" (ur_msgs/SetIO)
 
     Service to set any of the robot's IOs
@@ -541,6 +578,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
  * "**hardware_interface/joints**"
 
     Names of the joints. Usually, this is given in the controller config file.
+
+ * "**headless_mode**"
+
+    Start robot in headless mode. This does not require the 'External Control' URCap to be running on the robot, but this will send the URScript to the robot directly. On e-Series robots this requires the robot to run in 'remote-control' mode.
 
  * "**input_recipe_file**"
 

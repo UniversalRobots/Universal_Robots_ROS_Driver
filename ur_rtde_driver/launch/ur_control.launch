@@ -24,7 +24,7 @@
   <arg name="tool_tx_idle_chars" default="3.5" doc="Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true."/>
   <arg name="tool_device_name" default="/tmp/ttyUR" doc="Local device name used for tool communication. Only used, when `use_tool_communication` is set to true."/>
   <arg name="tool_tcp_port" default="54321" doc="Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true."/>
-  <arg name="headless_mode" default="false"/>
+  <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
 
   <!-- Load hardware interface -->
   <node name="ur_hardware_interface" pkg="ur_rtde_driver" type="ur_rtde_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
