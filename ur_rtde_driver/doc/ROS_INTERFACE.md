@@ -36,7 +36,7 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -44,7 +44,7 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -80,7 +80,7 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -117,7 +117,7 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -125,7 +125,7 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -134,7 +134,7 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 Robot bringup launchfile without the robot description. Include this, if you want to include robot control into a larger launchfile structure.
 
 #### Arguments
- * "**controller_config_file**"
+ * "**controller_config_file**" (Required)
 
     Config file used for defining the ROS-Control controllers.
 
@@ -150,15 +150,15 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
- * "**kinematics_config**"
+ * "**kinematics_config**" (Required)
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description. Pass the same config file that is passed to the robot_description.
 
- * "**launch_prefix**"
+ * "**launch_prefix**" (Required)
 
     Please add description. See file "launch/ur_control.launch".
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -174,7 +174,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -214,7 +214,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Path to URScript that will be sent to the robot and that forms the main control program.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -223,7 +223,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 Launchfile that starts a robot description with robot_state publisher and the driver for a given robot. It is recommended to use the individual launch files instead such as `ur10_bringup.launch`. Additionally, this launchfile can be used as a template to include this driver into a larger launch file structure.
 
 #### Arguments
- * "**controller_config_file**"
+ * "**controller_config_file**" (Required)
 
     Config file used for defining the ROS-Control controllers.
 
@@ -239,7 +239,7 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
- * "**kinematics_config**"
+ * "**kinematics_config**" (Required)
 
     Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -247,11 +247,11 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
- * "**robot_description_file**"
+ * "**robot_description_file**" (Required)
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -259,7 +259,7 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -295,7 +295,7 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -332,7 +332,7 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -340,7 +340,7 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -377,7 +377,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -385,7 +385,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -421,7 +421,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -458,7 +458,7 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -466,7 +466,7 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -503,7 +503,7 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
     Robot description launch file.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
 
@@ -511,7 +511,7 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
     Controllers that are initally loaded, but not started.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     tf_prefix used for the robot.
 
@@ -547,7 +547,7 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -563,8 +563,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**resend_robot_program**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
-    When in headless mode, this sends the URScript program to the robot for execution. Use this
-    after the program has been interrupted, e.g. by a protective- or EM-stop.
+    When in headless mode, this sends the URScript program to the robot for execution. Use this after the program has been interrupted, e.g. by a protective- or EM-stop.
 
  * "**set_io**" (ur_msgs/SetIO)
 
@@ -575,35 +574,35 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
     Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
 #### Parameters
- * "**hardware_interface/joints**"
+ * "**hardware_interface/joints**" (Required)
 
     Names of the joints. Usually, this is given in the controller config file.
 
- * "**headless_mode**"
+ * "**headless_mode**" (Required)
 
     Start robot in headless mode. This does not require the 'External Control' URCap to be running on the robot, but this will send the URScript to the robot directly. On e-Series robots this requires the robot to run in 'remote-control' mode.
 
- * "**input_recipe_file**"
+ * "**input_recipe_file**" (Required)
 
-    Path to the file containing the recipe used for requesting RTDE inputs. This is a required parameter.
+    Path to the file containing the recipe used for requesting RTDE inputs.
 
- * "**kinematics/hash**"
+ * "**kinematics/hash**" (Required)
 
     Hash of the calibration reported by the robot. This is used for validating the robot description is using the correct calibration. If the robot's calibration doesn't match this hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your own hash matching your actual robot.
 
- * "**output_recipe_file**"
+ * "**output_recipe_file**" (Required)
 
-    Path to the file containing the recipe used for requesting RTDE outputs. This is a required parameter.
+    Path to the file containing the recipe used for requesting RTDE outputs.
 
- * "**robot_ip**"
+ * "**robot_ip**" (Required)
 
-    The robot's IP address. This parameter is required.
+    The robot's IP address.
 
- * "**script_file**"
+ * "**script_file**" (Required)
 
-    Path to the urscript code that will be sent to the robot. This is a required parameter.
+    Path to the urscript code that will be sent to the robot.
 
- * "**tf_prefix**"
+ * "**tf_prefix**" (default: "")
 
     Please add description. See hardware_interface.cpp line number: 67
 
@@ -619,31 +618,31 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     	int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
 
- * "**tool_baud_rate**"
+ * "**tool_baud_rate**" (Required)
 
     Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_parity**"
+ * "**tool_parity**" (Required)
 
     Parity used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 0 (None), 1 (odd) and 2 (even).  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_rx_idle_chars**"
+ * "**tool_rx_idle_chars**" (Required)
 
     Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=1.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_stop_bits**"
+ * "**tool_stop_bits**" (Required)
 
     Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 1 or 2.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_tx_idle_chars**"
+ * "**tool_tx_idle_chars**" (Required)
 
     Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=0.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_voltage**"
+ * "**tool_voltage**" (Required)
 
     Tool voltage that will be set as soon as the UR-Program on the robot is started. Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
- * "**use_tool_communication**"
+ * "**use_tool_communication**" (Required)
 
     Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as well.
 
@@ -662,11 +661,11 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 This node is used to start the RS485 tunneling interface on the ROS machine. This requires that the RS485 daemon is running on the robot controller and tool communication is enabled on the robot.
 
 #### Parameters
- * "**~device_name**"
+ * "**~device_name**" (Required)
 
     By default, socat will create a pty in /dev/pts/N with n being an increasing number. Additionally, a symlink at the given location will be created. Use an absolute path here.
 
- * "**~robot_ip**"
+ * "**~robot_ip**" (Required)
 
     IP address of the robot
 

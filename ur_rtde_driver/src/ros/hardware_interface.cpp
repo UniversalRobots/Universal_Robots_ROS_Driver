@@ -57,7 +57,7 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
   std::string output_recipe_filename;
   std::string input_recipe_filename;
 
-  // The robot's IP address. This parameter is required.
+  // The robot's IP address.
   if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("robot_ip_") << " not given.");
@@ -66,23 +66,21 @@ bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_h
 
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
-  // Path to the urscript code that will be sent to the robot. This is a required parameter.
+  // Path to the urscript code that will be sent to the robot.
   if (!robot_hw_nh.getParam("script_file", script_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("script_file") << " not given.");
     return false;
   }
 
-  // Path to the file containing the recipe used for requesting RTDE outputs. This is a required
-  // parameter.
+  // Path to the file containing the recipe used for requesting RTDE outputs.
   if (!robot_hw_nh.getParam("output_recipe_file", output_recipe_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("output_recipe_file") << " not given.");
     return false;
   }
 
-  // Path to the file containing the recipe used for requesting RTDE inputs. This is a required
-  // parameter.
+  // Path to the file containing the recipe used for requesting RTDE inputs.
   if (!robot_hw_nh.getParam("input_recipe_file", input_recipe_filename))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("input_recipe_file") << " not given.");
