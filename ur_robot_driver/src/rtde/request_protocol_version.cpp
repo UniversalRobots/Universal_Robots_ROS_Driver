@@ -19,42 +19,39 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Felix Mauch mauch@fzi.de
- * \date    2019-05-28
+ * \author  Tristan Schnell schnell@fzi.de
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_robot_driver/comm/pipeline.h>
+#include "ur_robot_driver/rtde/request_protocol_version.h"
 
-#include <ur_robot_driver/primary/robot_state/kinematics_info.h>
-
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+namespace ur_driver
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+namespace rtde_interface
 {
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
+bool RequestProtocolVersion::parseWith(comm::BinParser& bp)
+{
+  bp.parse(accepted_);
 
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
+  return true;
+}
+std::string RequestProtocolVersion::toString() const
+{
+  std::stringstream ss;
+  ss << "accepted: " << static_cast<int>(accepted_);
+  return ss.str();
+}
 
-  bool isCalibrated() const
-  {
-    return calibrated_;
-  }
+size_t RequestProtocolVersionRequest::generateSerializedRequest(uint8_t* buffer, uint16_t version)
+{
+  size_t size = 0;
+  size += PackageHeader::serializeHeader(buffer, PackageType::RTDE_REQUEST_PROTOCOL_VERSION, PAYLOAD_SIZE);
 
-  YAML::Node getCalibrationParameters() const;
+  size += comm::PackageSerializer::serialize(buffer + size, version);
 
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+  return size;
+}
+}  // namespace rtde_interface
+}  // namespace ur_driver

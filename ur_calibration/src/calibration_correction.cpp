@@ -27,12 +27,12 @@
 
 #include <ur_calibration/calibration_consumer.h>
 
-#include <ur_rtde_driver/comm/parser.h>
-#include <ur_rtde_driver/comm/pipeline.h>
-#include <ur_rtde_driver/comm/producer.h>
-#include <ur_rtde_driver/comm/stream.h>
-#include <ur_rtde_driver/primary/package_header.h>
-#include <ur_rtde_driver/primary/primary_parser.h>
+#include <ur_robot_driver/comm/parser.h>
+#include <ur_robot_driver/comm/pipeline.h>
+#include <ur_robot_driver/comm/producer.h>
+#include <ur_robot_driver/comm/stream.h>
+#include <ur_robot_driver/primary/package_header.h>
+#include <ur_robot_driver/primary/primary_parser.h>
 
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>

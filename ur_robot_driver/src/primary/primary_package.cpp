@@ -20,41 +20,35 @@
 /*!\file
  *
  * \author  Felix Mauch mauch@fzi.de
- * \date    2019-05-28
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_robot_driver/comm/pipeline.h>
+#include "ur_robot_driver/primary/primary_package.h"
 
-#include <ur_robot_driver/primary/robot_state/kinematics_info.h>
-
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+namespace ur_driver
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+namespace primary_interface
 {
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
+bool PrimaryPackage::parseWith(comm::BinParser& bp)
+{
+  bp.rawData(buffer_, buffer_length_);
+  return true;
+}
 
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
-
-  bool isCalibrated() const
+std::string PrimaryPackage::toString() const
+{
+  std::stringstream ss;
+  ss << "Raw byte stream: ";
+  for (size_t i = 0; i < buffer_length_; ++i)
   {
-    return calibrated_;
+    uint8_t* buf = buffer_.get();
+    ss << std::hex << static_cast<int>(buf[i]) << " ";
   }
+  ss << std::endl;
+  return ss.str();
+}
 
-  YAML::Node getCalibrationParameters() const;
-
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+}  // namespace primary_interface
+}  // namespace ur_driver

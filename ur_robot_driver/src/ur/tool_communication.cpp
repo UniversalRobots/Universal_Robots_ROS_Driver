@@ -20,41 +20,34 @@
 /*!\file
  *
  * \author  Felix Mauch mauch@fzi.de
- * \date    2019-05-28
+ * \date    2019-06-06
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_robot_driver/comm/pipeline.h>
+#include "ur_robot_driver/ur/tool_communication.h"
 
-#include <ur_robot_driver/primary/robot_state/kinematics_info.h>
-
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+namespace ur_driver
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+ToolCommSetup::ToolCommSetup()
+  : tool_voltage_(ToolVoltage::OFF)
+  , parity_(Parity::ODD)
+  , baud_rate_(9600)
+  , stop_bits_(1, 2)
+  , rx_idle_chars_(1.0, 40.0)
+  , tx_idle_chars_(0.0, 40.0)
 {
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
+}
 
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
-
-  bool isCalibrated() const
+void ToolCommSetup::setBaudRate(const uint32_t baud_rate)
+{
+  if (baud_rates_allowed_.find(baud_rate) != baud_rates_allowed_.end())
   {
-    return calibrated_;
+    baud_rate_ = baud_rate;
   }
-
-  YAML::Node getCalibrationParameters() const;
-
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+  else
+  {
+    throw std::runtime_error("Provided baud rate is not allowed");
+  }
+}
+}  // namespace ur_driver

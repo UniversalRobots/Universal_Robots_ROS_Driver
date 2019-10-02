@@ -1,7 +1,7 @@
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
-<center><img src="ur_rtde_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Serie familie" style="width: 45%;"/></center>
+<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Serie familie" style="width: 45%;"/></center>
 
 With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
@@ -42,7 +42,7 @@ Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_ro
    targets precisely.
  * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the
    eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (See
-   the [Real-time setup guide](ur_rtde_driver/doc/real_time.md) on how to achieve this)
+   the [Real-time setup guide](ur_robot_driver/doc/real_time.md) on how to achieve this)
  * Transparent **integration of the teach-pendant**. Using the URCaps system, a program is running
    on the robot that handles control commands sent from ROS side. With this, the robot can be
    **paused**, **stopped** and **resumed** without restarting the ROS driver.
@@ -57,10 +57,10 @@ Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_ro
    speed scaling slows down the robot. Also, the pausing function can only be used, if the default
    scaled trajectory controller is used.
 
-Please see the external [feature list](ur_rtde_driver/doc/features.md) for a listing of all features supported by this driver.
+Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 
 ## Contents
-This repository contains the new **ur_rtde_driver** and a couple of helper packages, such as:
+This repository contains the new **ur_robot_driver** and a couple of helper packages, such as:
 
   * **controller_stopper**: A small external tool that stops and restarts ros-controllers based on
     the robot's state. This can be helpful, when the robot is in a state, where it won't accept
@@ -69,14 +69,14 @@ This repository contains the new **ur_rtde_driver** and a couple of helper packa
     information to make it usable by the robot_description.
   * **ur_controllers**: Controllers introduced with this driver, such as speed-scaling-aware
     controllers.
-  * **ur_rtde_driver**: The actual driver package.
+  * **ur_robot_driver**: The actual driver package.
 
 ## Requirements
 This driver requires a system setup with ROS. It is recommended to use **Ubuntu 18.04 with ROS
 melodic**, however using Ubuntu 16.04 with ROS kinetic should also work.
 
 To make sure that robot control isn't affected by system latencies, it is highly recommended to use
-a real-time kernel with the system. See the [real-time setup guide](ur_rtde_driver/doc/real_time.md)
+a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
 ## Building
@@ -101,20 +101,20 @@ $ catkin_make
 $ source devel/setup.bash
 ```
 
-## Setting up a UR robot for ur_rtde_driver
+## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
-For using the *ur_rtde_driver* with a real robot you need to install the
+For using the *ur_robot_driver* with a real robot you need to install the
 **externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of eSeries) is
 necessary.
 
 For installing the necessary URCap and creating a program, please see the individual tutorials on
-how to [setup a CB3 robot](ur_rtde_driver/doc/install_urcap_cb3.md) or how to [setup an e-Series
-robot](ur_rtde_driver/doc/install_urcap_e_series.md).
+how to [setup a CB3 robot](ur_robot_driver/doc/install_urcap_cb3.md) or how to [setup an e-Series
+robot](ur_robot_driver/doc/install_urcap_e_series.md).
 
 To setup the tool communication on an e-Series robot, please consider the [tool communication setup
-guide](ur_rtde_driver/doc/setup_tool_communication.md).
+guide](ur_robot_driver/doc/setup_tool_communication.md).
 
 ### Prepare the ROS PC
 For using the driver make sure it is installed (either by the debian package or built from source
@@ -145,14 +145,14 @@ to go ahead starting the driver. (**Note**: We do recommend, though, to calibrat
 
 To actually start the robot driver use one of the existing launchfiles
 
-    $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
+    $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
 
 where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example".
 
 If you calibrated your robot before, pass that calibration to the launch file:
 
-    $ roslaunch ur_rtde_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
+    $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
     kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
 
 If the parameters in that file don't match the ones reported from the robot, the driver will output

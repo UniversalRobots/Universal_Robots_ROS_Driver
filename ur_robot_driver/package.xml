@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>ur_robot_driver</name>
+  <version>0.0.3</version>
+  <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controllers and the e-series.</description>
+  <author>Thomas Timm Andersen</author>
+  <author>Simon Rasmussen</author>
+  <author>Felix Mauch</author>
+  <author>Lea Steffen</author>
+  <author>Tristan Schnell</author>
+  <maintainer email="mauch@fzi.de">Felix Mauch</maintainer>
+  <license>Apache 2.0</license>
+  <license>BSD 2-clause</license>
+  <license>Zlib</license>
+
+  <url type="website">http://wiki.ros.org/ur_robot_driver</url>
+  <url type="bugtracker">https://github.com/ros-industrial/ur_robot_driver/issues</url>
+  <url type="repository">https://github.com/ros-industrial/ur_robot_driver</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>boost</build_depend>
+
+  <depend>actionlib</depend>
+  <depend>control_msgs</depend>
+  <depend>controller_manager</depend>
+  <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
+  <depend>industrial_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>tf</depend>
+  <depend>tf2_msgs</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>ur_controllers</depend>
+  <depend>ur_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <exec_depend>force_torque_sensor_controller</exec_depend>
+  <exec_depend>joint_state_controller</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>socat</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+  <exec_depend>velocity_controllers</exec_depend>
+
+  <export>
+    <rosdoc config="doc/rosdoc.yaml" />
+  </export>
+
+</package>

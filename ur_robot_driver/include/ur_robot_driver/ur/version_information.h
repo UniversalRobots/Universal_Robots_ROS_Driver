@@ -20,41 +20,35 @@
 /*!\file
  *
  * \author  Felix Mauch mauch@fzi.de
- * \date    2019-05-28
+ * \date    2019-06-11
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_robot_driver/comm/pipeline.h>
+#ifndef UR_RTDE_DRIVER_UR_VERSION_INFORMATION_H_INCLUDED
+#define UR_RTDE_DRIVER_UR_VERSION_INFORMATION_H_INCLUDED
 
-#include <ur_robot_driver/primary/robot_state/kinematics_info.h>
+#include <ur_robot_driver/types.h>
 
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+namespace ur_driver
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+/*!
+ * \brief Struct containing a robot's version information
+ */
+struct VersionInformation
 {
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
-
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
-
-  bool isCalibrated() const
+  VersionInformation()
   {
-    return calibrated_;
+    major = 0;
+    minor = 0;
+    bugfix = 0;
+    build = 0;
   }
-
-  YAML::Node getCalibrationParameters() const;
-
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
+  uint32_t major;   ///< Major version number
+  uint32_t minor;   ///< Minor version number
+  uint32_t bugfix;  ///< Bugfix version number
+  uint32_t build;   ///< Build number
 };
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+}  // namespace ur_driver
+
+#endif  // ifndef UR_RTDE_DRIVER_UR_VERSION_INFORMATION_H_INCLUDED

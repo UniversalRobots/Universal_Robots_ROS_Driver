@@ -19,42 +19,44 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Felix Mauch mauch@fzi.de
- * \date    2019-05-28
+ * \author  Tristan Schnell schnell@fzi.de
+ * \date    2019-04-09
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_robot_driver/comm/pipeline.h>
+#include "ur_robot_driver/rtde/text_message.h"
 
-#include <ur_robot_driver/primary/robot_state/kinematics_info.h>
-
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+namespace ur_driver
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+namespace rtde_interface
 {
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
-
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
-
-  bool isCalibrated() const
+bool TextMessage::parseWith(comm::BinParser& bp)
+{
+  if (protocol_version_ == 2)
   {
-    return calibrated_;
+    bp.parse(message_length_);
+    bp.parse(message_, message_length_);
+    bp.parse(source_length_);
+    bp.parse(source_, source_length_);
+    bp.parse(warning_level_);
+  }
+  else if (protocol_version_ == 1)
+  {
+    bp.parse(message_type_);
+    bp.parseRemainder(message_);
   }
 
-  YAML::Node getCalibrationParameters() const;
+  return true;
+}
+std::string TextMessage::toString() const
+{
+  std::stringstream ss;
+  ss << "message: " << message_ << std::endl;
+  ss << "source: " << source_ << std::endl;
+  ss << "warning level: " << static_cast<int>(warning_level_);
 
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+  return ss.str();
+}
+}  // namespace rtde_interface
+}  // namespace ur_driver

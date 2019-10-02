@@ -9,7 +9,7 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  ur_rtde_driver
+  ur_robot_driver
 )
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -108,7 +108,7 @@ catkin_package(
 #  LIBRARIES ur_calibration
   CATKIN_DEPENDS
     roscpp
-    ur_rtde_driver
+    ur_robot_driver
   DEPENDS
     yaml-cpp
 )
