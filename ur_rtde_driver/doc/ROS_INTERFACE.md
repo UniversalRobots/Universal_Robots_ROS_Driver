@@ -80,7 +80,7 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**" (Required)
+ * "**use_tool_communication**" (default: "false")
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -421,7 +421,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**" (Required)
+ * "**use_tool_communication**" (default: "false")
 
     On e-Series robots tool communication can be enabled with this argument
 
@@ -547,7 +547,7 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**use_tool_communication**" (Required)
+ * "**use_tool_communication**" (default: "false")
 
     On e-Series robots tool communication can be enabled with this argument
 
