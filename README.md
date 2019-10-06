@@ -57,6 +57,8 @@ Create an issue on the [Issue Board](https://gitlab.com/ur_ros_beta/universal_ro
    speed scaling slows down the robot. Also, the pausing function can only be used, if the default
    scaled trajectory controller is used.
 
+Please see the external [feature list](ur_rtde_driver/doc/features.md) for a listing of all features supported by this driver.
+
 ## Contents
 This repository contains the new **ur_rtde_driver** and a couple of helper packages, such as:
 
