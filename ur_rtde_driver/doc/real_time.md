@@ -245,7 +245,7 @@ $ sudo update-grub
 After having performed the above mentioned steps, reboot the PC. It should boot into the correct
 kernel automatically.
 
-# Check for preemption capabilities
+## Check for preemption capabilities
 Make sure that the kernel does indeed support real-time scheduling:
 
 ```bash
