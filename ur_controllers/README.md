@@ -10,3 +10,9 @@ robot family. Currently this contains
   to a topic interface.
   * A **scaled_joint_trajectory_controller** that is similar to the *joint_trajectory_controller*,
   but it uses the speed scaling reported by the robot to reduce progress in the trajectory.
+
+## About this package
+This package contains controllers not being available in the default ROS-Control set. They are
+created to support more features offered by the UR robot family. Any of these controllers are
+example implementations for certain features and are intended to be generalized and merged
+into the default ROS-Control controller set at some future point.
