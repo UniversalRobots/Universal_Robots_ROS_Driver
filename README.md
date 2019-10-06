@@ -159,7 +159,8 @@ going to your catkin_workspace's src folder and calling:
 
     catkin_create_pkg my_calibrations
 
-
+For further information on the calibration extraction, please see the [documentation of package
+`ur_calibration`](ur_calibration/README.md).
 
 #### Quick start
 Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
