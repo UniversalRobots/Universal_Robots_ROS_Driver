@@ -23,7 +23,8 @@ available.
 
 To actually control the robot, a program node from the **External Control** URCap must be running on
 the robot interpreting commands sent from an external source. When this program is not running, no
-controllers moving the robot around will be available. Please see the [initial setup
+controllers moving the robot around will be available, which is handled by the
+[controller_stopper](../controller_stopper/README.md). Please see the [initial setup
 guide](../README.md) on how to install and start this on the robot.
 
 The URScript that will be running on the robot is requested by the **External Control** program node
@@ -48,3 +49,8 @@ For using the **tool communication interface** on e-Series robots, a `socat` scr
 forward the robot's tool communication interface to a local device on the ROS PC. See [the tool
 communication setup guide](doc/setup_tool_communication.md) for details.
 
+This driver is using [ROS-Control](https://wiki.ros.org/ros_control) for any control statements.
+Therefor, it can be used with all position-based controllers available in ROS-Control. However, we
+recommend using the controllers from the `ur_controllers` package. See it's
+[documentation](../ur_controllers/README.md) for details. **Note: Speed scaling support will only be
+available using the controllers from `ur_controllers`**
