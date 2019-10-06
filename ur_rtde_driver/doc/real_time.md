@@ -253,3 +253,30 @@ $ uname -v | cut -d" " -f1-4
 #1 SMP PREEMPT RT
 ```
 
+## Optional: Disable CPU speed scaling
+Many modern CPUs support changing their clock frequency dynamically depending on the currently
+requested computation resources. In some cases this can lead to small interruptions in execution.
+While the real-time scheduled controller thread should be unaffected by this, any external
+components such as a visual servoing system might be interrupted for a short period on scaling
+changes.
+
+To check and modify the power saving mode, install cpufrequtils:
+```bash
+$ sudo apt install cpufrequtils
+```
+
+Run `cpufreq-info` to check available "governors" and the current CPU Frequency (`current CPU
+frequency is XXX MHZ`). In the following we will set the governor to "performance".
+
+```bash
+$ sudo systemctl disable ondemand
+$ sudo systemctl enable cpufrequtils
+$ sudo sh -c 'echo "GOVERNOR=performance" > /etc/default/cpufrequtils'
+$ sudo systemctl daemon-reload && sudo systemctl restart cpufrequtils
+```
+
+This disables the `ondemand` CPU scaling daemon, creates a `cpufrequtils` config file and restarts
+the `cpufrequtils` service. Check with `cpufreq-info`.
+
+For further information about governors, please see the [kernel
+documentation](https://www.kernel.org/doc/Documentation/cpu-freq/governors.txt).
