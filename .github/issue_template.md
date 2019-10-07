@@ -1,40 +1,49 @@
+# Summary
+
 Your issue may already be reported!
 Please search on the [issue track](../) before creating one.
 
+*Introduction to the issue*
+
+# Versions
+ - ROS Driver version:
+ - Affected Robot Software Version(s):
+ - Affected Robot Hardware Version(s):
+ - Robot Serial Number:
+ - UR+ product(s) installed:
+ - URCaps Software version(s):
+
+# Impact
+*What is the impact of the issue. Try to describe it well enough, in order for us to prioritise the issues.*
+
+
+# Issue details
+*This part is important in order to clarify the severity of the issue.*
+
+
+## Use Case and Setup
+*What does the setup look like and what are the objectives?*
+
+
+## Project status at point of discovered
+*When did you first observe the issue?*
+ - *Before I started?*
+ - *In first couple of tries?*
+ - *In normal use?*
+ - *etc...*
+
+
+## Steps to Reproduce
+*Make simple example to reproduce the issue. Try to remove dependencies to other hardware and software components, if it is possible.*
+
+
 ## Expected Behavior
-<!--- If you're describing a bug, tell us what should happen -->
-<!--- If you're suggesting a change/improvement, tell us how it should work -->
+*What did you expect and why?*
 
-## Current Behavior
-<!--- If describing a bug, tell us what happens instead of the expected behavior -->
-<!--- If suggesting a change/improvement, explain the difference from current behavior -->
 
-## Possible Solution
-<!--- Not obligatory, but suggest a fix/reason for the bug, -->
-<!--- or ideas how to implement the addition or change -->
+## Actual Behavior
+*What did you observe? If possible please attach relevant information.*
 
-## Steps to Reproduce (for bugs)
-<!--- Provide a link to a live example, or an unambiguous set of steps to -->
-<!--- reproduce this bug. Include code to reproduce, if relevant -->
-1.
-2.
-3.
-4.
 
-## Context
-<!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
-
-## Your Environment
-<!--- Include as many relevant details about the environment you experienced the bug in -->
-* Operating System and version:
-* Platform (ie: PC or embedded arm):
-* Version used:
-* ROS version:
-* UR CB version:
-* Connection setup (wired or wireless):
-
-## Log file
-```
-Paste your DEBUG logfile content here
-```
+## Workaround Suggestion
+*If a workaround has been found, you are welcome to share.*
