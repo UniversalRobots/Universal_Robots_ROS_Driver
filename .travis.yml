@@ -1,6 +1,6 @@
-sudo: required
-dist: trusty
 language: generic
+services:
+  - docker
 
 cache:
   directories:
@@ -10,19 +10,9 @@ env:
   global:
     - CCACHE_DIR=$HOME/.ccache
   matrix:
-    - ROS_DISTRO="indigo"  ROS_REPO=ros              NOT_TEST_INSTALL=true
-    - ROS_DISTRO="indigo"  ROS_REPO=ros-shadow-fixed NOT_TEST_INSTALL=true
-    - ROS_DISTRO="kinetic" ROS_REPO=ros              NOT_TEST_INSTALL=true
-    - ROS_DISTRO="kinetic" ROS_REPO=ros-shadow-fixed NOT_TEST_INSTALL=true
-    - ROS_DISTRO="kinetic" ROS_REPO=ros              NOT_TEST_INSTALL=true UPSTREAM_WORKSPACE=file
-    - ROS_DISTRO="kinetic" ROS_REPO=ros-shadow-fixed NOT_TEST_INSTALL=true UPSTREAM_WORKSPACE=file
+    - ROS_DISTRO="kinetic" ROS_REPO=ros UPSTREAM_WORKSPACE=file
+    - ROS_DISTRO="melodic" ROS_REPO=ros UPSTREAM_WORKSPACE=file
     - ROS_DISTRO="kinetic" CLANG_FORMAT_CHECK=file
-matrix:
-  allow_failures:
-    - env: ROS_DISTRO="indigo"  ROS_REPO=ros              NOT_TEST_INSTALL=true
-    - env: ROS_DISTRO="indigo"  ROS_REPO=ros-shadow-fixed NOT_TEST_INSTALL=true
-    - env: ROS_DISTRO="kinetic" ROS_REPO=ros              NOT_TEST_INSTALL=true
-    - env: ROS_DISTRO="kinetic" ROS_REPO=ros-shadow-fixed NOT_TEST_INSTALL=true
 
 install:
   - git clone --depth=1 https://github.com/ros-industrial/industrial_ci.git .ci_config
