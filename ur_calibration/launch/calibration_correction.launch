@@ -1,14 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="robot_ip"/>
-  <arg name="robot_name"/>
-  <arg name="output_package_name" default="ur_calibration"/>
-  <arg name="subfolder_name" default="etc"/>
+  <arg name="robot_ip" doc="The IP address at which the robot is reachable."/>
+  <arg name="target_filename" default="robot_calibration.yaml" doc="The extracted calibration information will be written to this target file."/>
 
   <node name="calibration_correction" pkg="ur_calibration" type="calibration_correction" respawn="false" output="screen">
     <param name="robot_ip" value="$(arg robot_ip)"/>
-    <param name="robot_name" value="$(arg robot_name)"/>
-    <param name="output_package_name" value="$(arg output_package_name)"/>
-    <param name="subfolder_name" value="$(arg subfolder_name)"/>
+    <param name="output_filename" value="$(arg target_filename)"/>
   </node>
 </launch>

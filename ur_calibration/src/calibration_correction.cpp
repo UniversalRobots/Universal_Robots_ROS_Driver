@@ -60,31 +60,18 @@ class CalibrationCorrection
 public:
   CalibrationCorrection(const ros::NodeHandle& nh) : nh_(nh)
   {
-    subfolder_ = nh_.param<std::string>("subfolder_name", "etc");
     std::string output_package_name;
     try
     {
       // The robot's IP address
       robot_ip_ = getRequiredParameter<std::string>("robot_ip");
 
-      // Name with which the robot will be referenced. Will be used for the filename the calibration
-      // data is stored in. This can be any arbitrary name. If left empty, the robot's serial number
-      // will be used.
-      robot_name_ = getRequiredParameter<std::string>("robot_name");
-
-      // The resulting parameter file will be stored inside
-      // <output_package_name>/<subfolder>/<robot_name>_calibration.yaml
-      output_package_name = getRequiredParameter<std::string>("output_package_name");
+      // The target file where the calibration data is written to
+      output_filename_ = getRequiredParameter<std::string>("output_filename");
     }
     catch (const ParamaterMissingException& e)
     {
       ROS_FATAL_STREAM(e.what());
-      exit(1);
-    }
-    package_path_ = ros::package::getPath(output_package_name);
-    if (package_path_ == "")
-    {
-      ROS_FATAL_STREAM("Could not find package " << output_package_name << ". Cannot save output file there.");
       exit(1);
     }
   }
@@ -118,26 +105,20 @@ public:
       return false;
     }
 
-    ROS_INFO_STREAM("Writing calibration data");
-    fs::path dst_path = fs::path(package_path_) / fs::path(subfolder_);
+    fs::path out_path = fs::complete(output_filename_);
+
+    fs::path dst_path = out_path.parent_path();
     if (!fs::exists(dst_path))
     {
-      try
-      {
-        fs::create_directory(dst_path);
-      }
-      catch (const boost::filesystem::filesystem_error& e)
-      {
-        ROS_ERROR_STREAM("Could not create " << dst_path << ". Reason: " << e.what());
-        return false;
-      }
+      ROS_ERROR_STREAM("Parent folder " << dst_path << " does not exist.");
+      return false;
     }
-    fs::path output_filename = dst_path / fs::path(robot_name_ + "_calibration.yaml");
-    if (fs::exists(output_filename))
+    ROS_INFO_STREAM("Writing calibration data to " << out_path);
+    if (fs::exists(output_filename_))
     {
-      ROS_WARN_STREAM("Output file " << output_filename << " already exists. Overwriting.");
+      ROS_WARN_STREAM("Output file " << output_filename_ << " already exists. Overwriting.");
     }
-    std::ofstream file(output_filename.string());
+    std::ofstream file(output_filename_);
     if (file.is_open())
     {
       file << *calibration_data_;
@@ -147,7 +128,7 @@ public:
       ROS_ERROR_STREAM("Failed writing the file. Do you have the correct rights?");
       return false;
     }
-    ROS_INFO_STREAM("Wrote output to " << output_filename);
+    ROS_INFO_STREAM("Wrote output.");
 
     return true;
   }
@@ -171,9 +152,7 @@ private:
 
   ros::NodeHandle nh_;
   std::string robot_ip_;
-  std::string robot_name_;
-  std::string package_path_;
-  std::string subfolder_;
+  std::string output_filename_;
 
   std::unique_ptr<YAML::Node> calibration_data_;
 };
