@@ -46,4 +46,17 @@ std::ostream& operator<<(std::ostream& out, const std::array<T, N>& item)
   out << "]";
   return out;
 }
+
+/*!
+ * \brief Converts an enum type to its underlying type
+ *
+ * \param e Enum value that should be converted
+ *
+ * \returns Enum value converted to underlying type
+ */
+template <typename E>
+constexpr typename std::underlying_type<E>::type toUnderlying(const E e) noexcept
+{
+  return static_cast<typename std::underlying_type<E>::type>(e);
+}
 }  // namespace ur_driver

@@ -476,21 +476,21 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
   {
     if (position_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_position_command_);
+      ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
     }
     else if (velocity_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_velocity_command_);
-    }
-    else if (robot_program_running_)
-    {
-      ur_driver_->writeKeepalive();
+      ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
     }
     else
     {
-      ur_driver_->stopControl();
+      ur_driver_->writeKeepalive();
     }
     packet_read_ = false;
+  }
+  else
+  {
+    ur_driver_->stopControl();
   }
 }
 
