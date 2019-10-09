@@ -1,7 +1,7 @@
 # Universal_Robots_ROS_Driver
-Universal Robots have become a dominant supplier lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
+Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
-<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Serie familie" style="width: 45%;"/></center>
+<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Series family" style="width: 45%;"/></center>
 
 With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
@@ -37,16 +37,16 @@ the [FZI Research Center for Information Technology](https://www.fzi.de).
 Create an issue on the [Issue Board](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/new) using the default template.
 
 ## Features
- * Works for all **CB3 (with software version >= 3.7) and eSeries (software >= 5.1)** robots and uses the RTDE interface for communication, whenever possible.
+ * Works for all **CB3 (with software version >= 3.7) and e-Series (software >= 5.1)** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
    targets precisely.
  * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the
-   eSeries. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (See
+   e-Series. To use this, compile and run it on a kernel with the `PREEMPT_RT` patch enabled. (See
    the [Real-time setup guide](ur_robot_driver/doc/real_time.md) on how to achieve this)
  * Transparent **integration of the teach-pendant**. Using the URCaps system, a program is running
    on the robot that handles control commands sent from ROS side. With this, the robot can be
    **paused**, **stopped** and **resumed** without restarting the ROS driver.
-   This will in the future also enable, the usage of ROS-components as a part of a more complex UR-program
+   This will in the future also enable the usage of ROS-components as part of a more complex UR-program
    on the teach pendant. This is currently not yet supported, as we are still missing to exit
    control from ROS side. Expect this to come in future releases.
  * Use the robot's **speed-scaling**. When speed scaling is active due to safety constraints or the
@@ -54,7 +54,7 @@ Create an issue on the [Issue Board](https://github.com/UniversalRobots/Universa
    trajectory execution accordingly.<br/>
    **Note**: Other ros-controllers based on a position interface
    can be used with this driver, but may behave wrong if the speed slider isn't set to 100% or if
-   speed scaling slows down the robot. Also, the pausing function can only be used, if the default
+   speed scaling slows down the robot. Also, the pausing function can only be used if the default
    scaled trajectory controller is used.
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
@@ -63,7 +63,7 @@ Please see the external [feature list](ur_robot_driver/doc/features.md) for a li
 This repository contains the new **ur_robot_driver** and a couple of helper packages, such as:
 
   * **controller_stopper**: A small external tool that stops and restarts ros-controllers based on
-    the robot's state. This can be helpful, when the robot is in a state, where it won't accept
+    the robot's state. This can be helpful when the robot is in a state where it won't accept
     commands sent from ROS.
   * **ur_calibration**: Package around extracting and converting a robot's factory calibration
     information to make it usable by the robot_description.
@@ -106,7 +106,7 @@ $ source devel/setup.bash
 For using the *ur_robot_driver* with a real robot you need to install the
 **externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
 
-**Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of eSeries) is
+**Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of e-Series) is
 necessary.
 
 For installing the necessary URCap and creating a program, please see the individual tutorials on
@@ -124,7 +124,7 @@ inside a catkin workspace).
 Each UR robot is calibrated inside the factory giving exact forward and inverse kinematics. To also
 make use of this in ROS, you first have to extract the calibration information from the robot.
 
-Though this step is not necessary, to control the robot using this driver, it is highly recommended
+Though this step is not necessary to control the robot using this driver, it is highly recommended
 to do so, as otherwise endeffector positions might be off in the magnitude of centimeters.
 
 
@@ -143,7 +143,7 @@ We recommend keeping calibrations for all robots in your organization in a commo
 Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
 to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
 
-To actually start the robot driver use one of the existing launchfiles
+To actually start the robot driver use one of the existing launch files
 
     $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101
 
@@ -158,7 +158,7 @@ If you calibrated your robot before, pass that calibration to the launch file:
 If the parameters in that file don't match the ones reported from the robot, the driver will output
 an error during startup, but will remain usable.
 
-For more information on the launchfile's parameters see its own documentation.
+For more information on the launch file's parameters see its own documentation.
 
 Once the robot driver is started, load the previously generated program on the robot panel and
 execute it. From that moment on the robot is fully functional. You can make use of the pause
