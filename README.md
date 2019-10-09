@@ -145,7 +145,7 @@ to go ahead starting the driver. (**Note**: We do recommend, though, to calibrat
 
 To actually start the robot driver use one of the existing launchfiles
 
-    $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
+    $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101
 
 where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example".
