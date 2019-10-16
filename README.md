@@ -36,6 +36,9 @@ the [FZI Research Center for Information Technology](https://www.fzi.de).
 ## How to report an issue
 Create an issue on the [Issue Board](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/new) using the default template.
 
+## How to get help
+If you need help using this driver, please see the ROS-category in the [UR+ Developer Forum](https://forum.universal-robots.com/c/ros). 
+
 ## Features
  * Works for all **CB3 (with software version >= 3.7) and e-Series (software >= 5.1)** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
