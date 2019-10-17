@@ -12,7 +12,7 @@ def main():
     # IP address of the robot
     robot_ip = rospy.get_param("~robot_ip")
     # Port on which the remote pc (robot) publishes the interface
-    tcp_port = rospy.get_param("~tcp_port", "54321")
+    tcp_port = str(rospy.get_param("~tcp_port", "54321"))
 
     # By default, socat will create a pty in /dev/pts/N with n being an increasing number.
     # Additionally, a symlink at the given location will be created. Use an absolute path here.
