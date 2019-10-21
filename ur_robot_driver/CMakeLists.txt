@@ -100,6 +100,7 @@ add_library(ur_robot_driver
     src/rtde/rtde_client.cpp
     src/ur/ur_driver.cpp
     src/ur/calibration_checker.cpp
+    src/ur/dashboard_client.cpp
     src/ur/tool_communication.cpp
     src/rtde/rtde_writer.cpp
 )
@@ -113,6 +114,12 @@ add_executable(ur_robot_driver_node
 target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_robot_driver)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(dashboard_client
+  src/ros/dashboard_client.cpp
+  src/ros/dashboard_quick.cpp
+)
+target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_robot_driver)
+add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS ur_robot_driver ur_robot_driver_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
