@@ -25,6 +25,7 @@
  */
 //----------------------------------------------------------------------
 
+#include <regex>
 #include <ur_robot_driver/log.h>
 #include <ur_robot_driver/ur/dashboard_client.h>
 
@@ -88,147 +89,162 @@ std::string DashboardClient::sendAndReceive(const std::string& text)
   return "ERROR";
 }
 
-bool DashboardClient::addToLog(const std::string& text)
+bool DashboardClient::addToLog(const std::string& text, std::string& response)
 {
-  std::string answer = sendAndReceive("addToLog " + text + "\n");
-  if (answer != "Aded log message")
+  response = sendAndReceive("addToLog " + text + "\n");
+  rtrim(response);
+  if (response != "Added log message")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::brakeRelease()
+bool DashboardClient::brakeRelease(std::string& response)
 {
-  std::string answer = sendAndReceive("brake release\n");
-  if (answer != "Brake releasing")
+  response = sendAndReceive("brake release\n");
+  rtrim(response);
+  if (response != "Brake releasing")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::clearOperationalMode()
+bool DashboardClient::clearOperationalMode(std::string& response)
 {
-  std::string answer = sendAndReceive("clear operational mode\n");
-  if (answer != "operational mode is no longer controlled by Dashboard Server")
+  response = sendAndReceive("clear operational mode\n");
+  rtrim(response);
+  std::regex re("No longer controlling the operational mode\\. Current operational mode: '(MANUAL|AUTOMATIC)'\\.");
+  if (std::regex_match(response, re))
+  {
+    return true;
+  }
+  return false;
+}
+
+bool DashboardClient::closePopup(std::string& response)
+{
+  response = sendAndReceive("close popup\n");
+  rtrim(response);
+  if (response != "closing popup")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::closePopup()
+bool DashboardClient::closeSafetyPopup(std::string& response)
 {
-  std::string answer = sendAndReceive("close popup\n");
-  if (answer != "closing popup")
+  response = sendAndReceive("close safety popup\n");
+  rtrim(response);
+  if (response != "closing safety popup")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::closeSafetyPopup()
+bool DashboardClient::loadInstallation(const std::string& installation_name, std::string& response)
 {
-  std::string answer = sendAndReceive("close safety popup\n");
-  if (answer != "closing safety popup")
+  response = sendAndReceive("load installation " + installation_name + "\n");
+  rtrim(response);
+  if (response != "Loading installation: " + installation_name)
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::loadInstallation(const std::string& installation_name)
+bool DashboardClient::loadProgram(const std::string& program_name, std::string& response)
 {
-  std::string answer = sendAndReceive("load installation " + installation_name + "\n");
-  if (answer != "Loading installation: " + installation_name)
+  response = sendAndReceive("load " + program_name + "\n");
+  rtrim(response);
+  if (response != "Loading program: " + program_name)
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::loadProgram(const std::string& program_name)
+bool DashboardClient::pause(std::string& response)
 {
-  std::string answer = sendAndReceive("load " + program_name + "\n");
-  if (answer != "Loading program: " + program_name + "\n")
+  response = sendAndReceive("pause\n");
+  rtrim(response);
+  if (response != "Pausing program")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::pause()
+bool DashboardClient::play(std::string& response)
 {
-  std::string answer = sendAndReceive("pause");
-  if (answer != "Pausing program\n")
+  response = sendAndReceive("play\n");
+  rtrim(response);
+  if (response != "Starting program")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::play()
+bool DashboardClient::popup(const std::string& text, std::string& response)
 {
-  std::string answer = sendAndReceive("play\n");
-  if (answer != "Starting program\n")
+  response = sendAndReceive("popup " + text + "\n");
+  rtrim(response);
+  if (response != "showing popup")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::popup(const std::string& text)
+bool DashboardClient::powerOff(std::string& response)
 {
-  std::string answer = sendAndReceive("popup " + text + "\n");
-  if (answer != "showing popup\n")
+  response = sendAndReceive("power off\n");
+  rtrim(response);
+  if (response != "Powering off")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::powerOff()
+bool DashboardClient::powerOn(std::string& response)
 {
-  std::string answer = sendAndReceive("power off\n");
-  if (answer != "Powering off\n")
+  response = sendAndReceive("power on\n");
+  rtrim(response);
+  if (response != "Powering on")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::powerOn()
+bool DashboardClient::quit(std::string& response)
 {
-  std::string answer = sendAndReceive("power on\n");
-  if (answer != "Powering on\n")
+  response = sendAndReceive("quit\n");
+  rtrim(response);
+  if (response != "Disconnected")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::quit()
+bool DashboardClient::restartSafety(std::string& response)
 {
-  std::string answer = sendAndReceive("quit\n");
-  if (answer != "Disconnected\n")
+  response = sendAndReceive("restart safety\n");
+  rtrim(response);
+  if (response != "Restarting safety")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::restartSafety()
-{
-  std::string answer = sendAndReceive("restart safety\n");
-  if (answer != "Restarting safety\n")
-  {
-    return false;
-  }
-  return true;
-}
-
-bool DashboardClient::setOperationalMode(const OperationalMode mode)
+bool DashboardClient::setOperationalMode(const OperationalMode mode, std::string& response)
 {
   std::string mode_string;
   switch (mode)
@@ -242,38 +258,42 @@ bool DashboardClient::setOperationalMode(const OperationalMode mode)
     default:
       throw std::runtime_error("Enum value not known.");
   }
-  std::string answer = sendAndReceive("set operational mode " + mode_string + "\n");
-  if (answer != "Setting operational mode: " + mode_string + "\n")
+  response = sendAndReceive("set operational mode " + mode_string + "\n");
+  rtrim(response);
+  if (response != "Setting operational mode: " + mode_string)
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::shutdown()
+bool DashboardClient::shutdown(std::string& response)
 {
-  std::string answer = sendAndReceive("shutdown\n");
-  if (answer != "Shutting down\n")
+  response = sendAndReceive("shutdown\n");
+  rtrim(response);
+  if (response != "Shutting down")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::stop()
+bool DashboardClient::stop(std::string& response)
 {
-  std::string answer = sendAndReceive("stop\n");
-  if (answer != "Stopped\n")
+  response = sendAndReceive("stop\n");
+  rtrim(response);
+  if (response != "Stopped")
   {
     return false;
   }
   return true;
 }
 
-bool DashboardClient::unlockProtectiveStop()
+bool DashboardClient::unlockProtectiveStop(std::string& response)
 {
-  std::string answer = sendAndReceive("unlock protective stop\n");
-  if (answer != "Protective stop releasing\n")
+  response = sendAndReceive("unlock protective stop\n");
+  rtrim(response);
+  if (response != "Protective stop releasing")
   {
     return false;
   }

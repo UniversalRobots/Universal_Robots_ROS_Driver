@@ -35,7 +35,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   client_.connect();
   brake_release_service_ = nh_.advertiseService("brake_release", &DashboardClientROS::brakeRelease, this);
   clear_operational_mode_service_ =
-      nh_.advertiseService("clear_operational__mode", &DashboardClientROS::clearOperationalMode, this);
+      nh_.advertiseService("clear_operational_mode", &DashboardClientROS::clearOperationalMode, this);
   close_popup_service_ = nh_.advertiseService("close_popup", &DashboardClientROS::closePopup, this);
   close_safety_popup_service_ = nh_.advertiseService("close_safety_popup", &DashboardClientROS::closeSafetyPopup, this);
   pause_service_ = nh_.advertiseService("pause", &DashboardClientROS::pause, this);
@@ -52,79 +52,79 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
 
 bool DashboardClientROS::brakeRelease(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.brakeRelease();
+  resp.success = client_.brakeRelease(resp.message);
   return true;
 }
 
 bool DashboardClientROS::clearOperationalMode(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.clearOperationalMode();
+  resp.success = client_.clearOperationalMode(resp.message);
   return true;
 }
 
 bool DashboardClientROS::closePopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.closePopup();
+  resp.success = client_.closePopup(resp.message);
   return true;
 }
 
 bool DashboardClientROS::closeSafetyPopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.closeSafetyPopup();
+  resp.success = client_.closeSafetyPopup(resp.message);
   return true;
 }
 
 bool DashboardClientROS::pause(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.pause();
+  resp.success = client_.pause(resp.message);
   return true;
 }
 
 bool DashboardClientROS::play(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.play();
+  resp.success = client_.play(resp.message);
   return true;
 }
 
 bool DashboardClientROS::powerOff(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.powerOff();
+  resp.success = client_.powerOff(resp.message);
   return true;
 }
 
 bool DashboardClientROS::powerOn(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.powerOn();
+  resp.success = client_.powerOn(resp.message);
   return true;
 }
 
 bool DashboardClientROS::quit(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.quit();
+  resp.success = client_.quit(resp.message);
   return true;
 }
 
 bool DashboardClientROS::restartSafety(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.restartSafety();
+  resp.success = client_.restartSafety(resp.message);
   return true;
 }
 
 bool DashboardClientROS::shutdown(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.shutdown();
+  resp.success = client_.shutdown(resp.message);
   return true;
 }
 
 bool DashboardClientROS::stop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.stop();
+  resp.success = client_.stop(resp.message);
   return true;
 }
 
 bool DashboardClientROS::unlockProtectiveStop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
-  resp.success = client_.unlockProtectiveStop();
+  resp.success = client_.unlockProtectiveStop(resp.message);
   return true;
 }
 }  // namespace ur_driver

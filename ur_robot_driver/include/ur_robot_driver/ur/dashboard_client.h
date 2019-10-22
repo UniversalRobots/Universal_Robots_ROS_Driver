@@ -37,7 +37,8 @@ public:
   DashboardClient(const std::string& host, int port);
   virtual ~DashboardClient() = default;
 
-  enum class OperationalMode {
+  enum class OperationalMode
+  {
     MANUAL,
     AUTOMATIC
   };
@@ -46,24 +47,24 @@ public:
   void disconnect();
 
   // Sending functions
-  bool addToLog(const std::string& text);
-  bool brakeRelease();
-  bool clearOperationalMode();
-  bool closePopup();
-  bool closeSafetyPopup();
-  bool loadInstallation(const std::string& installation_name);
-  bool loadProgram(const std::string& program_name);
-  bool pause();
-  bool play();
-  bool popup(const std::string& text);
-  bool powerOff();
-  bool powerOn();
-  bool quit();
-  bool restartSafety();
-  bool setOperationalMode(const OperationalMode mode);
-  bool shutdown();
-  bool stop();
-  bool unlockProtectiveStop();
+  bool addToLog(const std::string& text, std::string& response);
+  bool brakeRelease(std::string& response);
+  bool clearOperationalMode(std::string& response);
+  bool closePopup(std::string& response);
+  bool closeSafetyPopup(std::string& response);
+  bool loadInstallation(const std::string& installation_name, std::string& response);
+  bool loadProgram(const std::string& program_name, std::string& response);
+  bool pause(std::string& response);
+  bool play(std::string& response);
+  bool popup(const std::string& text, std::string& response);
+  bool powerOff(std::string& response);
+  bool powerOn(std::string& response);
+  bool quit(std::string& response);
+  bool restartSafety(std::string& response);
+  bool setOperationalMode(const OperationalMode mode, std::string& response);
+  bool shutdown(std::string& response);
+  bool stop(std::string& response);
+  bool unlockProtectiveStop(std::string& response);
 
   // Requesting information
   bool running();
@@ -85,6 +86,11 @@ private:
   bool send(const std::string& text);
   std::string read();
   std::string sendAndReceive(const std::string& text);
+
+  void rtrim(std::string& str, const std::string& chars = "\t\n\v\f\r ")
+  {
+    str.erase(str.find_last_not_of(chars) + 1);
+  }
 
   std::string host_;
   int port_;
