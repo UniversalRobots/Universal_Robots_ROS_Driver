@@ -49,6 +49,7 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include "ur_robot_driver/ur/ur_driver.h"
+#include <ur_robot_driver/ros/dashboard_client.h>
 
 namespace ur_driver
 {
@@ -188,6 +189,7 @@ protected:
   void commandCallback(const std_msgs::StringConstPtr& msg);
 
   std::unique_ptr<UrDriver> ur_driver_;
+  std::unique_ptr<DashboardClientROS> dashboard_client_;
 
   ros::ServiceServer deactivate_srv_;
 
