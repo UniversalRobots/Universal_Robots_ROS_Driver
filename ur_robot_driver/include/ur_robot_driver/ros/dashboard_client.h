@@ -38,6 +38,10 @@
 
 namespace ur_driver
 {
+/*!
+ * \brief ROS wrapper for UR's dashboard server access. Many (not necessarily all) dashboard
+ * functionalities are wrapped into ROS services here.
+ */
 class DashboardClientROS
 {
 public:

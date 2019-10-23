@@ -33,19 +33,39 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   : nh_(nh), client_(robot_ip)
 {
   client_.connect();
+  // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
   brake_release_service_ = nh_.advertiseService("brake_release", &DashboardClientROS::brakeRelease, this);
+
+  // If this service is called the operational mode can again be changed from PolyScope, and the user password is
+  // enabled.
   clear_operational_mode_service_ =
       nh_.advertiseService("clear_operational_mode", &DashboardClientROS::clearOperationalMode, this);
+  // Close a (non-safety) popup on the teach pendant.
   close_popup_service_ = nh_.advertiseService("close_popup", &DashboardClientROS::closePopup, this);
+  // Close a safety popup on the teach pendant.
   close_safety_popup_service_ = nh_.advertiseService("close_safety_popup", &DashboardClientROS::closeSafetyPopup, this);
+  // Pause a running program.
   pause_service_ = nh_.advertiseService("pause", &DashboardClientROS::pause, this);
+  // Start execution of a previously loaded program
   play_service_ = nh_.advertiseService("play", &DashboardClientROS::play, this);
+  // Power off the robot motors
   power_off_service_ = nh_.advertiseService("power_off", &DashboardClientROS::powerOff, this);
+  // Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
   power_on_service_ = nh_.advertiseService("power_on", &DashboardClientROS::powerOn, this);
-  quit_service_ = nh_.advertiseService("quit", &DashboardClientROS::quit, this);
+  // Disconnect from the dashboard service. Currently, there's no way of reconnecting.
+  // quit_service_ = nh_.advertiseService("quit", &DashboardClientROS::quit, this);
+
+  // Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot
+  // will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to
+  // check the error log before using this command (either via PolyScope or e.g. ssh connection).
   restart_safety_service_ = nh_.advertiseService("restart_safety", &DashboardClientROS::restartSafety, this);
+
+  // Shutdown the robot controller
   shutdown_service_ = nh_.advertiseService("shutdown", &DashboardClientROS::shutdown, this);
+  // Stop program execution on the robot
   stop_service_ = nh_.advertiseService("stop", &DashboardClientROS::stop, this);
+  // Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the
+  // cause of the protective stop is resolved before calling this service.
   unlock_protective_stop_service_ =
       nh_.advertiseService("unlock_protective_stop", &DashboardClientROS::unlockProtectiveStop, this);
 }
@@ -60,7 +80,8 @@ bool DashboardClientROS::brakeRelease(std_srvs::Trigger::Request& req, std_srvs:
 bool DashboardClientROS::clearOperationalMode(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
 {
   resp.message = client_.sendAndReceive("clear operational mode\n");
-  resp.success = std::regex_match(resp.message, std::regex("No longer controlling the operational mode\\. Current operational mode: '(MANUAL|AUTOMATIC)'\\."));
+  resp.success = std::regex_match(resp.message, std::regex("No longer controlling the operational mode\\. Current "
+                                                           "operational mode: '(MANUAL|AUTOMATIC)'\\."));
   return true;
 }
 
