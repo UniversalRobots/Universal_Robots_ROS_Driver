@@ -28,6 +28,8 @@
 #ifndef UR_ROBOT_DRIVER_ROS_DASHBOARD_CLIENT_H_INCLUDED
 #define UR_ROBOT_DRIVER_ROS_DASHBOARD_CLIENT_H_INCLUDED
 
+#include <regex>
+
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 #include <std_srvs/Empty.h>
@@ -36,7 +38,6 @@
 
 namespace ur_driver
 {
-const int DASHBOARD_SERVER_IP = 29999;
 class DashboardClientROS
 {
 public:

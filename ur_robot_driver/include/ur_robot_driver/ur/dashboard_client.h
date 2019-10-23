@@ -31,50 +31,45 @@
 
 namespace ur_driver
 {
+/*!
+ * \brief This class is a wrapper around the dashboard server.
+ *
+ * For every Dashboard command there exists a wrapper function that will send the request and wait
+ * for the server's response.
+ *
+ * For documentation about the dashboard server, please see
+ *  - https://www.universal-robots.com/how-tos-and-faqs/how-to/ur-how-tos/dashboard-server-cb-series-port-29999-15690/
+ *  - https://www.universal-robots.com/how-tos-and-faqs/how-to/ur-how-tos/dashboard-server-e-series-port-29999-42728/
+ */
 class DashboardClient : public comm::TCPSocket
 {
 public:
-  DashboardClient(const std::string& host, int port);
+  DashboardClient(const std::string& host);
   virtual ~DashboardClient() = default;
 
-  enum class OperationalMode
-  {
-    MANUAL,
-    AUTOMATIC
-  };
+  const int DASHBOARD_SERVER_PORT = 29999;
 
+  /*!
+   * \brief Opens a connection to the dasboard server on the host as specified in the constructor.
+   *
+   * \returns True on successful connection, false otherwise.
+   */
   bool connect();
+
+  /*!
+   * \brief Makes sure no connection to the dashboard server is held inside the object.
+   */
   void disconnect();
 
-  // Sending functions
-  bool addToLog(const std::string& text, std::string& response);
-  bool brakeRelease(std::string& response);
-  bool clearOperationalMode(std::string& response);
-  bool closePopup(std::string& response);
-  bool closeSafetyPopup(std::string& response);
-  bool loadInstallation(const std::string& installation_name, std::string& response);
-  bool loadProgram(const std::string& program_name, std::string& response);
-  bool pause(std::string& response);
-  bool play(std::string& response);
-  bool popup(const std::string& text, std::string& response);
-  bool powerOff(std::string& response);
-  bool powerOn(std::string& response);
-  bool quit(std::string& response);
-  bool restartSafety(std::string& response);
-  bool setOperationalMode(const OperationalMode mode, std::string& response);
-  bool shutdown(std::string& response);
-  bool stop(std::string& response);
-  bool unlockProtectiveStop(std::string& response);
-
-  // Requesting information
-  bool running();
-  std::string robotMode();
-  std::string getLoadedProgram();
-  bool isProgramSaved();
-  std::string programState();
-  std::string polyscopeVersion();
-  std::string safetyMode();
-  std::string safetyStatus();
+  /*!
+   * \brief Sends a command through the socket and waits for an answer.
+   *
+   * \param command Command that will be sent to the server. It is important, that the
+   * command sent is finished with a '\n' (newline) so it will be processed by the server.
+   *
+   * \returns Answer as received by the server cut off any trailing newlines.
+   */
+  std::string sendAndReceive(const std::string& command);
 
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
@@ -85,7 +80,6 @@ protected:
 private:
   bool send(const std::string& text);
   std::string read();
-  std::string sendAndReceive(const std::string& text);
 
   void rtrim(std::string& str, const std::string& chars = "\t\n\v\f\r ")
   {
@@ -94,7 +88,7 @@ private:
 
   std::string host_;
   int port_;
-  std::mutex write_mutex_, read_mutex_;
+  std::mutex write_mutex_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_ROBOT_DRIVER_DASHBOARD_CLIENT_DASHBOARD_CLIENT_H_INCLUDED
