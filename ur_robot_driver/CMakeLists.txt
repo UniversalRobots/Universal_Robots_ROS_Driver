@@ -108,6 +108,7 @@ target_link_libraries(ur_robot_driver ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(ur_robot_driver_node
+  src/ros/dashboard_client.cpp
   src/ros/hardware_interface.cpp
   src/ros/hardware_interface_node.cpp
 )
@@ -116,7 +117,7 @@ add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 
 add_executable(dashboard_client
   src/ros/dashboard_client.cpp
-  src/ros/dashboard_quick.cpp
+  src/ros/dashboard_client_node.cpp
 )
 target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_robot_driver)
 add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
