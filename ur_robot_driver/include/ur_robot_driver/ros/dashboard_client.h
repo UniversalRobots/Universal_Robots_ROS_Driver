@@ -49,34 +49,16 @@ public:
   virtual ~DashboardClientROS() = default;
 
 private:
-  // bool add_to_log(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool brakeRelease(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool clearOperationalMode(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool closePopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool closeSafetyPopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  // bool loadInstallation(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  // bool loadProgram(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool pause(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool play(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  // bool popup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool powerOff(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool powerOn(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool quit(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool restartSafety(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  // bool setOperationalMode(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool shutdown(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool stop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-  bool unlockProtectiveStop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp);
-
-  // bool running(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool robotMode(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool getLoadedProgram(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool isProgramSaved(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool programState(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool polyscopeVersion(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool safetyMode(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-  // bool safetyStatus(std_srvs::Empty::Request& req, std_srvs::Empty::Response& resp);
-
+  inline ros::ServiceServer create_dashboard_trigger_srv(const std::string& topic, const std::string& command,
+                                                         const std::string& expected)
+  {
+    return nh_.advertiseService<std_srvs::Trigger::Request, std_srvs::Trigger::Response>(
+        topic, [&, command, expected](std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp) {
+          resp.message = this->client_.sendAndReceive(command);
+          resp.success = std::regex_match(resp.message, std::regex(expected));
+          return true;
+        });
+  }
   ros::NodeHandle nh_;
   ur_driver::DashboardClient client_;
 

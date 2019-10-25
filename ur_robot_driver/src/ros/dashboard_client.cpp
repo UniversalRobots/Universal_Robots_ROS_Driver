@@ -33,133 +33,56 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   : nh_(nh), client_(robot_ip)
 {
   client_.connect();
+
   // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
-  brake_release_service_ = nh_.advertiseService("brake_release", &DashboardClientROS::brakeRelease, this);
+  // brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
+  brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
 
   // If this service is called the operational mode can again be changed from PolyScope, and the user password is
   // enabled.
-  clear_operational_mode_service_ =
-      nh_.advertiseService("clear_operational_mode", &DashboardClientROS::clearOperationalMode, this);
+  clear_operational_mode_service_ = create_dashboard_trigger_srv("clear_operational_mode", "clear operational mode\n",
+                                                                 "No longer controlling the operational mode\\. "
+                                                                 "Current "
+                                                                 "operational mode: "
+                                                                 "'(MANUAL|AUTOMATIC)'\\.");
+
   // Close a (non-safety) popup on the teach pendant.
-  close_popup_service_ = nh_.advertiseService("close_popup", &DashboardClientROS::closePopup, this);
+  close_popup_service_ = create_dashboard_trigger_srv("close_popup", "close popup\n", "closing popup");
+
   // Close a safety popup on the teach pendant.
-  close_safety_popup_service_ = nh_.advertiseService("close_safety_popup", &DashboardClientROS::closeSafetyPopup, this);
+  close_safety_popup_service_ =
+      create_dashboard_trigger_srv("close_safety_popup", "close safety popup\n", "closing safety popup");
+
   // Pause a running program.
-  pause_service_ = nh_.advertiseService("pause", &DashboardClientROS::pause, this);
+  pause_service_ = create_dashboard_trigger_srv("pause", "pause\n", "Pausing program");
+
   // Start execution of a previously loaded program
-  play_service_ = nh_.advertiseService("play", &DashboardClientROS::play, this);
+  play_service_ = create_dashboard_trigger_srv("play", "play\n", "Starting program");
+
   // Power off the robot motors
-  power_off_service_ = nh_.advertiseService("power_off", &DashboardClientROS::powerOff, this);
+  power_off_service_ = create_dashboard_trigger_srv("power_off", "power off\n", "Powering off");
+
   // Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
-  power_on_service_ = nh_.advertiseService("power_on", &DashboardClientROS::powerOn, this);
+  power_on_service_ = create_dashboard_trigger_srv("power_on", "power on\n", "Powering on");
+
   // Disconnect from the dashboard service. Currently, there's no way of reconnecting.
-  // quit_service_ = nh_.advertiseService("quit", &DashboardClientROS::quit, this);
+  quit_service_ = create_dashboard_trigger_srv("quit", "quit\n", "Disconnected");
 
   // Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot
   // will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to
   // check the error log before using this command (either via PolyScope or e.g. ssh connection).
-  restart_safety_service_ = nh_.advertiseService("restart_safety", &DashboardClientROS::restartSafety, this);
+  restart_safety_service_ = create_dashboard_trigger_srv("restart_safety", "restart safety\n", "Restarting safety");
 
   // Shutdown the robot controller
-  shutdown_service_ = nh_.advertiseService("shutdown", &DashboardClientROS::shutdown, this);
+  shutdown_service_ = create_dashboard_trigger_srv("shutdown", "shutdown\n", "Shutting down");
+
   // Stop program execution on the robot
-  stop_service_ = nh_.advertiseService("stop", &DashboardClientROS::stop, this);
+  stop_service_ = create_dashboard_trigger_srv("stop", "stop\n", "Stopped");
+
   // Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the
   // cause of the protective stop is resolved before calling this service.
   unlock_protective_stop_service_ =
-      nh_.advertiseService("unlock_protective_stop", &DashboardClientROS::unlockProtectiveStop, this);
-}
-
-bool DashboardClientROS::brakeRelease(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("brake release\n");
-  resp.success = std::regex_match(resp.message, std::regex("Brake releasing"));
-  return true;
-}
-
-bool DashboardClientROS::clearOperationalMode(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("clear operational mode\n");
-  resp.success = std::regex_match(resp.message, std::regex("No longer controlling the operational mode\\. Current "
-                                                           "operational mode: '(MANUAL|AUTOMATIC)'\\."));
-  return true;
-}
-
-bool DashboardClientROS::closePopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("close popup\n");
-  resp.success = std::regex_match(resp.message, std::regex("closing popup"));
-  return true;
-}
-
-bool DashboardClientROS::closeSafetyPopup(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("close safety popup\n");
-  resp.success = std::regex_match(resp.message, std::regex("closing safety popup"));
-  return true;
-}
-
-bool DashboardClientROS::pause(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("pause\n");
-  resp.success = std::regex_match(resp.message, std::regex("Pausing program"));
-  return true;
-}
-
-bool DashboardClientROS::play(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("play\n");
-  resp.success = std::regex_match(resp.message, std::regex("Starting program"));
-  return true;
-}
-
-bool DashboardClientROS::powerOff(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("power off\n");
-  resp.success = std::regex_match(resp.message, std::regex("Powering off"));
-  return true;
-}
-
-bool DashboardClientROS::powerOn(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("power on\n");
-  resp.success = std::regex_match(resp.message, std::regex("Powering on"));
-  return true;
-}
-
-bool DashboardClientROS::quit(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("quit\n");
-  resp.success = std::regex_match(resp.message, std::regex("Disconnected"));
-  return true;
-}
-
-bool DashboardClientROS::restartSafety(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("restart safety\n");
-  resp.success = std::regex_match(resp.message, std::regex("Restarting safety"));
-  return true;
-}
-
-bool DashboardClientROS::shutdown(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("shutdown\n");
-  resp.success = std::regex_match(resp.message, std::regex("Shutting down"));
-  return true;
-}
-
-bool DashboardClientROS::stop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("stop\n");
-  resp.success = std::regex_match(resp.message, std::regex("Stopped"));
-  return true;
-}
-
-bool DashboardClientROS::unlockProtectiveStop(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp)
-{
-  resp.message = client_.sendAndReceive("unlock protective stop\n");
-  resp.success = std::regex_match(resp.message, std::regex("Protective stop releasing"));
-  return true;
+      create_dashboard_trigger_srv("unlock_protective_stop", "unlock protective stop\n", "Protective stop releasing");
 }
 
 }  // namespace ur_driver
