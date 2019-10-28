@@ -118,6 +118,14 @@ public:
   bool writeKeepalive();
 
   /*!
+   * \brief Starts the RTDE communication.
+   *
+   * After initialization, the cyclic RTDE communication is not started automatically, so that data
+   * consumers can be started also at a later point.
+   */
+  void startRTDECommunication();
+
+  /*!
    * \brief Sends a stop command to the socket interface which will signal the program running on
    * the robot to no longer listen for commands sent from the remote pc.
    *
