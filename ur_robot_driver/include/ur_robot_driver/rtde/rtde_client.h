@@ -127,7 +127,7 @@ public:
 
 private:
   comm::URStream<PackageHeader> stream_;
-  std::vector<std::string> recipe_;
+  std::vector<std::string> output_recipe_;
   std::vector<std::string> input_recipe_;
   RTDEParser parser_;
   comm::URProducer<PackageHeader> prod_;
@@ -142,6 +142,11 @@ private:
   constexpr static const double URE_MAX_FREQUENCY = 500.0;
 
   std::vector<std::string> readRecipe(const std::string& recipe_file);
+
+  uint16_t negotiateProtocolVersion();
+  void queryURControlVersion();
+  void setupOutputs(const uint16_t protocol_version);
+  void setupInputs();
 };
 
 }  // namespace rtde_interface

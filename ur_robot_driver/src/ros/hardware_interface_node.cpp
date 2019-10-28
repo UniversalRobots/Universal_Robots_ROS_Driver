@@ -56,28 +56,6 @@ int main(int argc, char** argv)
   // register signal SIGINT and signal handler
   signal(SIGINT, signalHandler);
 
-  // Set up timers
-  ros::Time timestamp;
-  ros::Duration period;
-  auto stopwatch_last = std::chrono::steady_clock::now();
-  auto stopwatch_now = stopwatch_last;
-
-  g_hw_interface.reset(new ur_driver::HardwareInterface);
-
-  if (!g_hw_interface->init(nh, nh_priv))
-  {
-    ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
-    exit(1);
-  }
-  ROS_DEBUG_STREAM("initialized hw interface");
-  controller_manager::ControllerManager cm(g_hw_interface.get(), nh);
-
-  // Get current time and elapsed time since last read
-  timestamp = ros::Time::now();
-  stopwatch_now = std::chrono::steady_clock::now();
-  period.fromSec(std::chrono::duration_cast<std::chrono::duration<double>>(stopwatch_now - stopwatch_last).count());
-  stopwatch_last = stopwatch_now;
-
   std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
   bool has_realtime;
   realtime_file >> has_realtime;
@@ -126,6 +104,28 @@ int main(int argc, char** argv)
       ROS_ERROR("Could not get maximum thread priority for main thread");
     }
   }
+
+  // Set up timers
+  ros::Time timestamp;
+  ros::Duration period;
+  auto stopwatch_last = std::chrono::steady_clock::now();
+  auto stopwatch_now = stopwatch_last;
+
+  g_hw_interface.reset(new ur_driver::HardwareInterface);
+
+  if (!g_hw_interface->init(nh, nh_priv))
+  {
+    ROS_ERROR_STREAM("Could not correctly initialize robot. Exiting");
+    exit(1);
+  }
+  ROS_DEBUG_STREAM("initialized hw interface");
+  controller_manager::ControllerManager cm(g_hw_interface.get(), nh);
+
+  // Get current time and elapsed time since last read
+  timestamp = ros::Time::now();
+  stopwatch_now = std::chrono::steady_clock::now();
+  period.fromSec(std::chrono::duration_cast<std::chrono::duration<double>>(stopwatch_now - stopwatch_last).count());
+  stopwatch_last = stopwatch_now;
 
   double expected_cycle_time = 1.0 / (static_cast<double>(g_hw_interface->getControlFrequency()));
 
