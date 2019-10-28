@@ -44,6 +44,8 @@ private:
   Parser<HeaderT>& parser_;
   std::chrono::seconds timeout_;
 
+  bool running_;
+
 public:
   /*!
    * \brief Creates a URProducer object, registering a stream and a parser.
@@ -51,7 +53,8 @@ public:
    * \param stream The stream to read from
    * \param parser The parser to use to interpret received byte information
    */
-  URProducer(URStream<HeaderT>& stream, Parser<HeaderT>& parser) : stream_(stream), parser_(parser), timeout_(1)
+  URProducer(URStream<HeaderT>& stream, Parser<HeaderT>& parser)
+    : stream_(stream), parser_(parser), timeout_(1), running_(false)
   {
   }
 
@@ -81,6 +84,12 @@ public:
    */
   void stopProducer()
   {
+    running_ = false;
+  }
+
+  void startProducer() override
+  {
+    running_ = true;
   }
 
   /*!
@@ -92,6 +101,8 @@ public:
    */
   bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products)
   {
+    // TODO This function has become really ugly! That should be refactored!
+
     // 4KB should be enough to hold any packet received from UR
     uint8_t buf[4096];
     size_t read = 0;
@@ -102,8 +113,12 @@ public:
       {
         // reset sleep amount
         timeout_ = std::chrono::seconds(1);
-        break;
+        BinParser bp(buf, read);
+        return parser_.parse(bp, products);
       }
+
+      if (!running_)
+        return true;
 
       if (stream_.closed())
         return false;
@@ -119,8 +134,7 @@ public:
         timeout_ = next;
     }
 
-    BinParser bp(buf, read);
-    return parser_.parse(bp, products);
+    return false;
   }
 };
 }  // namespace comm

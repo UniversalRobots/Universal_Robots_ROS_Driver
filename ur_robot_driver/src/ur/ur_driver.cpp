@@ -233,6 +233,7 @@ void UrDriver::checkCalibration(const std::string& checksum)
   }
   primary_interface::PrimaryParser parser;
   comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(*primary_stream_, parser);
+  prod.setupProducer();
 
   CalibrationChecker consumer(checksum);
 

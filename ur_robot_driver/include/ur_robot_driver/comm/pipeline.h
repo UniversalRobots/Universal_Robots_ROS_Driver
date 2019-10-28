@@ -189,6 +189,10 @@ public:
   {
   }
 
+  virtual void startProducer()
+  {
+  }
+
   /*!
    * \brief Reads packages from some source and produces corresponding objects.
    *
@@ -268,6 +272,13 @@ public:
     stop();
   }
 
+  void init()
+  {
+    producer_.setupProducer();
+    if (consumer_ != nullptr)
+      consumer_->setupConsumer();
+  }
+
   /*!
    * \brief Starts the producer and, if existing, the consumer in new threads.
    */
@@ -277,7 +288,7 @@ public:
       return;
 
     running_ = true;
-    producer_.setupProducer();
+    producer_.startProducer();
     pThread_ = std::thread(&Pipeline::runProducer, this);
     if (consumer_ != nullptr)
       cThread_ = std::thread(&Pipeline::runConsumer, this);
@@ -296,6 +307,7 @@ public:
 
     running_ = false;
 
+    producer_.stopProducer();
     if (pThread_.joinable())
     {
       pThread_.join();
@@ -389,6 +401,8 @@ private:
     {
       if (!producer_.tryGet(products))
       {
+        producer_.teardownProducer();
+        running_ = false;
         break;
       }
 
@@ -402,15 +416,12 @@ private:
 
       products.clear();
     }
-    producer_.teardownProducer();
     LOG_DEBUG("Pipeline producer ended! <%s>", name_.c_str());
-    running_ = false;
     notifier_.stopped(name_);
   }
 
   void runConsumer()
   {
-    consumer_->setupConsumer();
     std::unique_ptr<_package_type> product;
     while (running_)
     {
@@ -425,11 +436,14 @@ private:
       }
 
       if (!consumer_->consume(std::move(product)))
+      {
+        consumer_->teardownConsumer();
+        running_ = false;
         break;
+      }
     }
-    consumer_->teardownConsumer();
+    consumer_->stopConsumer();
     LOG_DEBUG("Pipeline consumer ended! <%s>", name_.c_str());
-    running_ = false;
     notifier_.stopped(name_);
   }
 };

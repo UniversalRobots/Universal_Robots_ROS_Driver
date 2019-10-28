@@ -47,6 +47,8 @@ RTDEClient::RTDEClient(std::string robot_ip, comm::INotifier& notifier, const st
 
 bool RTDEClient::init()
 {
+  // A running pipeline is needed inside setup
+  pipeline_.init();
   pipeline_.run();
   uint8_t buffer[4096];
   size_t size;
@@ -119,6 +121,7 @@ bool RTDEClient::init()
   writer_.init(tmp_input->input_recipe_id_);
   pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000));
 
+  pipeline_.stop();
   return success;
 }
 bool RTDEClient::start()
@@ -126,6 +129,7 @@ bool RTDEClient::start()
   uint8_t buffer[4096];
   size_t size;
   size_t written;
+  pipeline_.run();
   size = ControlPackageStartRequest::generateSerializedRequest(buffer);
   std::unique_ptr<comm::URPackage<PackageHeader>> package;
   stream_.write(buffer, size, written);
