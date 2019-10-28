@@ -61,7 +61,7 @@ public:
   /*!
    * \brief Triggers the stream to connect to the robot.
    */
-  void setupProducer()
+  void setupProducer() override
   {
     timeval tv;
     tv.tv_sec = 1;
@@ -75,14 +75,14 @@ public:
   /*!
    * \brief Tears down the producer. Currently no special handling needed.
    */
-  void teardownProducer()
+  void teardownProducer() override
   {
     stopProducer();
   }
   /*!
    * \brief Stops the producer. Currently no functionality needed.
    */
-  void stopProducer()
+  void stopProducer() override
   {
     running_ = false;
   }
@@ -99,7 +99,7 @@ public:
    *
    * \returns Success of reading and parsing the package
    */
-  bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products)
+  bool tryGet(std::vector<std::unique_ptr<URPackage<HeaderT>>>& products) override
   {
     // TODO This function has become really ugly! That should be refactored!
 
