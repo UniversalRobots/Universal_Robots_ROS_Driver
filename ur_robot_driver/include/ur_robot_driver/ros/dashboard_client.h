@@ -36,6 +36,17 @@
 
 #include <ur_robot_driver/ur/dashboard_client.h>
 
+#include <ur_dashboard_msgs/AddToLog.h>
+#include <ur_dashboard_msgs/GetLoadedProgram.h>
+#include <ur_dashboard_msgs/GetProgramState.h>
+#include <ur_dashboard_msgs/IsProgramRunning.h>
+#include <ur_dashboard_msgs/IsProgramSaved.h>
+#include <ur_dashboard_msgs/Load.h>
+#include <ur_dashboard_msgs/Popup.h>
+#include <ur_dashboard_msgs/ProgramState.h>
+#include <ur_dashboard_msgs/GetSafetyMode.h>
+#include <ur_dashboard_msgs/RawRequest.h>
+
 namespace ur_driver
 {
 /*!
@@ -59,6 +70,16 @@ private:
           return true;
         });
   }
+
+  bool handleRunningQuery(ur_dashboard_msgs::IsProgramRunning::Request& req,
+                          ur_dashboard_msgs::IsProgramRunning::Response& resp);
+  bool handleSavedQuery(ur_dashboard_msgs::IsProgramSaved::Request& req,
+                        ur_dashboard_msgs::IsProgramSaved::Response& resp);
+  bool handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode::Request& req,
+                             ur_dashboard_msgs::GetSafetyMode::Response& resp);
+
+
+
   ros::NodeHandle nh_;
   ur_driver::DashboardClient client_;
 
@@ -77,20 +98,19 @@ private:
   ros::ServiceServer power_on_service_;
   ros::ServiceServer quit_service_;
   ros::ServiceServer restart_safety_service_;
-  ros::ServiceServer set_operational_mode_service_;
   ros::ServiceServer shutdown_service_;
   ros::ServiceServer stop_service_;
   ros::ServiceServer unlock_protective_stop_service_;
 
   // Query services
   ros::ServiceServer running_service_;
-  ros::ServiceServer robot_mode_service_;
   ros::ServiceServer get_loaded_program_service_;
   ros::ServiceServer is_program_saved_service_;
   ros::ServiceServer program_state_service_;
   ros::ServiceServer polyscope_version_service_;
   ros::ServiceServer safety_mode_service_;
-  ros::ServiceServer safety_status_service_;
+
+  ros::ServiceServer raw_request_service_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_ROBOT_DRIVER_ROS_DASHBOARD_CLIENT_H_INCLUDED

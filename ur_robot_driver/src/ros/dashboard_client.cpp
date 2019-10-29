@@ -83,6 +83,184 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   // cause of the protective stop is resolved before calling this service.
   unlock_protective_stop_service_ =
       create_dashboard_trigger_srv("unlock_protective_stop", "unlock protective stop\n", "Protective stop releasing");
+
+  // Query whether there is currently a program running
+  running_service_ = nh_.advertiseService("program_running", &DashboardClientROS::handleRunningQuery, this);
+
+  // Load a robot installation from a file
+  get_loaded_program_service_ =
+      nh_.advertiseService<ur_dashboard_msgs::GetLoadedProgram::Request, ur_dashboard_msgs::GetLoadedProgram::Response>(
+          "get_loaded_program",
+          [&](ur_dashboard_msgs::GetLoadedProgram::Request& req, ur_dashboard_msgs::GetLoadedProgram::Response& resp) {
+            resp.answer = this->client_.sendAndReceive("get loaded program\n");
+            std::smatch match;
+            std::regex expected("Loaded program: (.+)");
+            resp.success = std::regex_match(resp.answer, match, expected);
+            if (resp.success)
+            {
+              resp.program_name = match[1];
+            }
+            return true;
+          });
+
+  // Load a robot installation from a file
+  load_installation_service_ =
+      nh_.advertiseService<ur_dashboard_msgs::Load::Request, ur_dashboard_msgs::Load::Response>(
+          "load_installation", [&](ur_dashboard_msgs::Load::Request& req, ur_dashboard_msgs::Load::Response& resp) {
+            resp.answer = this->client_.sendAndReceive("load installation " + req.filename + "\n");
+            resp.success = std::regex_match(resp.answer, std::regex("Loading installation: .+"));
+            return true;
+          });
+
+  // Load a robot program from a file
+  load_program_service_ = nh_.advertiseService<ur_dashboard_msgs::Load::Request, ur_dashboard_msgs::Load::Response>(
+      "load_program", [&](ur_dashboard_msgs::Load::Request& req, ur_dashboard_msgs::Load::Response& resp) {
+        resp.answer = this->client_.sendAndReceive("load " + req.filename + "\n");
+        resp.success = std::regex_match(resp.answer, std::regex("Loading program: .+"));
+        return true;
+      });
+
+  // Query whether the current program is saved
+  is_program_saved_service_ = nh_.advertiseService("program_saved", &DashboardClientROS::handleSavedQuery, this);
+
+  // Service to show a popup on the UR Teach pendant.
+  popup_service_ = nh_.advertiseService<ur_dashboard_msgs::Popup::Request, ur_dashboard_msgs::Popup::Response>(
+      "popup", [&](ur_dashboard_msgs::Popup::Request& req, ur_dashboard_msgs::Popup::Response& resp) {
+        resp.answer = this->client_.sendAndReceive("popup " + req.message + "\n");
+        resp.success = std::regex_match(resp.answer, std::regex("showing popup"));
+
+        return true;
+      });
+
+  // Service the query the current program state
+  popup_service_ =
+      nh_.advertiseService<ur_dashboard_msgs::GetProgramState::Request, ur_dashboard_msgs::GetProgramState::Response>(
+          "program_state",
+          [&](ur_dashboard_msgs::GetProgramState::Request& req, ur_dashboard_msgs::GetProgramState::Response& resp) {
+            resp.answer = this->client_.sendAndReceive("programState\n");
+            std::smatch match;
+            std::regex expected("(STOPPED|PLAYING|PAUSED) (.+)");
+            resp.success = std::regex_match(resp.answer, match, expected);
+            if (resp.success)
+            {
+              resp.state.state = match[1];
+              resp.program_name = match[2];
+            }
+            return true;
+          });
+
+  // Service the query the current safety mode
+  safety_mode_service_ = nh_.advertiseService("get_safety_mode", &DashboardClientROS::handleSafetyModeQuery, this);
+
+  // Service to add a message to the robot's log
+  add_to_log_service_ =
+      nh_.advertiseService<ur_dashboard_msgs::AddToLog::Request, ur_dashboard_msgs::AddToLog::Response>(
+          "add_to_log", [&](ur_dashboard_msgs::AddToLog::Request& req, ur_dashboard_msgs::AddToLog::Response& resp) {
+            resp.answer = this->client_.sendAndReceive("addToLog " + req.message + "\n");
+            resp.success = std::regex_match(resp.answer, std::regex("(Added log message|No log message to add)"));
+
+            return true;
+          });
+
+  // General purpose service to send arbitrary messages to the dashboard server
+  running_service_ =
+      nh_.advertiseService<ur_dashboard_msgs::RawRequest::Request, ur_dashboard_msgs::RawRequest::Response>(
+          "raw_request",
+          [&](ur_dashboard_msgs::RawRequest::Request& req, ur_dashboard_msgs::RawRequest::Response& resp) {
+            resp.answer = this->client_.sendAndReceive(req.query + "\n");
+            return true;
+          });
+}
+
+bool DashboardClientROS::handleRunningQuery(ur_dashboard_msgs::IsProgramRunning::Request& req,
+                                            ur_dashboard_msgs::IsProgramRunning::Response& resp)
+{
+  resp.answer = this->client_.sendAndReceive("running\n");
+  std::regex expected("Program running: (true|false)");
+  std::smatch match;
+  resp.success = std::regex_match(resp.answer, match, expected);
+
+  if (resp.success)
+  {
+    resp.program_running = (match[1] == "true");
+  }
+
+  return true;
+}
+
+bool DashboardClientROS::handleSavedQuery(ur_dashboard_msgs::IsProgramSaved::Request& req,
+                                          ur_dashboard_msgs::IsProgramSaved::Response& resp)
+{
+  resp.answer = this->client_.sendAndReceive("isProgramSaved\n");
+  std::regex expected("(true|false) ([^\\s]+)");
+  std::smatch match;
+  resp.success = std::regex_match(resp.answer, match, expected);
+
+  if (resp.success)
+  {
+    resp.program_saved = (match[1] == "true");
+    resp.program_name = match[2];
+  }
+
+  return true;
+}
+
+bool DashboardClientROS::handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode::Request& req,
+                                               ur_dashboard_msgs::GetSafetyMode::Response& resp)
+{
+  resp.answer = this->client_.sendAndReceive("safetymode\n");
+  std::smatch match;
+  std::regex expected("Safetymode: (.+)");
+  resp.success = std::regex_match(resp.answer, match, expected);
+  if (resp.success)
+  {
+    if (match[1] == "NORMAL")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::NORMAL;
+    }
+    else if (match[1] == "REDUCED")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::REDUCED;
+    }
+    else if (match[1] == "PROTECTIVE_STOP")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::PROTECTIVE_STOP;
+    }
+    else if (match[1] == "RECOVERY")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::RECOVERY;
+    }
+    else if (match[1] == "SAFEGUARD_STOP")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::SAFEGUARD_STOP;
+    }
+    else if (match[1] == "SYSTEM_EMERGENCY_STOP")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::SYSTEM_EMERGENCY_STOP;
+    }
+    else if (match[1] == "ROBOT_EMERGENCY_STOP")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::ROBOT_EMERGENCY_STOP;
+    }
+    else if (match[1] == "VIOLATION")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::VIOLATION;
+    }
+    else if (match[1] == "FAULT")
+    {
+      resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::FAULT;
+    }
+    // The following are only available in SafetyStatus from 5.5 on
+    // else if (match[1] == "AUTOMATIC_MODE_SAFEGUARD_STOP")
+    //{
+    // resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::AUTOMATIC_MODE_SAFEGUARD_STOP;
+    //}
+    // else if (match[1] == "SYSTEM_THREE_POSITION_ENABLING_STOP")
+    //{
+    // resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::SYSTEM_THREE_POSITION_ENABLING_STOP;
+    //}
+  }
+  return true;
 }
 
 }  // namespace ur_driver
