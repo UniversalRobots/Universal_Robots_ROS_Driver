@@ -28,6 +28,7 @@
 #ifndef UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED
 #define UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED
 
+#include <chrono>
 #include <stdexcept>
 #include <sstream>
 
@@ -99,6 +100,28 @@ public:
     : std::runtime_error(text), VersionMismatch(text, version_req, version_actual)
   {
   }
+};
+
+/*!
+ * \brief A specialized exception representing that communication to the tool is not possible.
+ */
+class TimeoutException : public UrException
+{
+public:
+  explicit TimeoutException() = delete;
+  explicit TimeoutException(const std::string& text, timeval timeout) : std::runtime_error(text)
+  {
+    std::stringstream ss;
+    ss << text << "(Configured timeout: " << timeout.tv_sec + timeout.tv_usec * 1e-6 << " sec)";
+    text_ = ss.str();
+  }
+  virtual const char* what() const noexcept override
+  {
+    return text_.c_str();
+  }
+
+private:
+  std::string text_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_EXCEPTIONS_H_INCLUDED

@@ -28,6 +28,7 @@
 #include <regex>
 #include <ur_robot_driver/log.h>
 #include <ur_robot_driver/ur/dashboard_client.h>
+#include <ur_robot_driver/exceptions.h>
 
 namespace ur_driver
 {
@@ -49,7 +50,7 @@ bool DashboardClient::connect()
 
 void DashboardClient::disconnect()
 {
-  LOG_DEBUG("Disconnecting from %s:%d", host_.c_str(), port_);
+  LOG_INFO("Disconnecting from Dashboard server on %s:%d", host_.c_str(), port_);
   TCPSocket::close();
 }
 
@@ -68,7 +69,13 @@ std::string DashboardClient::read()
   size_t read_chars = 99;
   while (read_chars > 0)
   {
-    TCPSocket::read((uint8_t*)&character, 1, read_chars);
+    if (!TCPSocket::read((uint8_t*)&character, 1, read_chars))
+    {
+      disconnect();
+      throw TimeoutException("Did not receive answer from dashboard server in time. Disconnecting from dashboard "
+                             "server.",
+                             *recv_timeout_);
+    }
     result << character;
     if (character == '\n')
     {
@@ -85,6 +92,10 @@ std::string DashboardClient::sendAndReceive(const std::string& text)
   if (send(text))
   {
     response = read();
+  }
+  else
+  {
+    throw UrException("Failed to send request to dashboard server. Are you connected to the Dashboard Server?");
   }
   rtrim(response);
 

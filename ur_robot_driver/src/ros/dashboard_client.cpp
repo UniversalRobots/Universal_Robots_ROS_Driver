@@ -262,5 +262,4 @@ bool DashboardClientROS::handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode:
   }
   return true;
 }
-
 }  // namespace ur_driver
