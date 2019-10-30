@@ -32,7 +32,7 @@ namespace ur_driver
 DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::string& robot_ip)
   : nh_(nh), client_(robot_ip)
 {
-  client_.connect();
+  connect();
 
   // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
   // brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
@@ -64,9 +64,6 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
 
   // Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
   power_on_service_ = create_dashboard_trigger_srv("power_on", "power on\n", "Powering on");
-
-  // Disconnect from the dashboard service. Currently, there's no way of reconnecting.
-  quit_service_ = create_dashboard_trigger_srv("quit", "quit\n", "Disconnected");
 
   // Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot
   // will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to
@@ -170,6 +167,22 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
             resp.answer = this->client_.sendAndReceive(req.query + "\n");
             return true;
           });
+
+  // Service to reconnect to the dashboard server
+  reconnect_service_ = nh_.advertiseService<std_srvs::Trigger::Request, std_srvs::Trigger::Response>(
+      "connect", [&](std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp) {
+        resp.success = connect();
+        return true;
+      });
+  //
+  // Disconnect from the dashboard service. Currently, there's no way of reconnecting.
+  quit_service_ = nh_.advertiseService<std_srvs::Trigger::Request, std_srvs::Trigger::Response>(
+      "quit", [&](std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp) {
+        resp.message = this->client_.sendAndReceive("quit\n");
+        resp.success = std::regex_match(resp.message, std::regex("Disconnected"));
+        client_.disconnect();
+        return true;
+      });
 }
 
 bool DashboardClientROS::handleRunningQuery(ur_dashboard_msgs::IsProgramRunning::Request& req,
@@ -261,5 +274,16 @@ bool DashboardClientROS::handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode:
     //}
   }
   return true;
+}
+
+bool DashboardClientROS::connect()
+{
+  timeval tv;
+  // Timeout after which a call to the dashboard server will be considered failure if no answer has
+  // been received.
+  tv.tv_sec = nh_.param("receive_timeout", 1);
+  tv.tv_usec = 0;
+  client_.setReceiveTimeout(tv);
+  return client_.connect();
 }
 }  // namespace ur_driver

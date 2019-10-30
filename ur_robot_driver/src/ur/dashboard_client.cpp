@@ -38,6 +38,11 @@ DashboardClient::DashboardClient(const std::string& host) : host_(host), port_(D
 
 bool DashboardClient::connect()
 {
+  if (getState() == comm::SocketState::Connected)
+  {
+    LOG_ERROR("%s", "Socket is already connected. Refusing to reconnect.");
+    return false;
+  }
   bool ret_val = false;
   if (TCPSocket::setup(host_, port_))
   {

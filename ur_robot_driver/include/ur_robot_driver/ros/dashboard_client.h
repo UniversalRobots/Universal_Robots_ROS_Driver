@@ -78,7 +78,7 @@ private:
   bool handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode::Request& req,
                              ur_dashboard_msgs::GetSafetyMode::Response& resp);
 
-
+  bool connect();
 
   ros::NodeHandle nh_;
   ur_driver::DashboardClient client_;
@@ -111,6 +111,8 @@ private:
   ros::ServiceServer safety_mode_service_;
 
   ros::ServiceServer raw_request_service_;
+
+  ros::ServiceServer reconnect_service_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_ROBOT_DRIVER_ROS_DASHBOARD_CLIENT_H_INCLUDED
