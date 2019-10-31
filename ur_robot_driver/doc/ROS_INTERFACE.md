@@ -557,6 +557,10 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 This is the actual driver node containing the ROS-Control stack. Interfaces documented here refer to the robot's hardware interface. Controller-specific API elements might be present for the individual controllers outside of this package.
 
 #### Advertised Services
+ * "**dashboard/add_to_log**" (ur_dashboard_msgs/AddToLog)
+
+    Service to add a message to the robot's log
+
  * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
@@ -573,6 +577,30 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Close a safety popup on the teach pendant.
 
+ * "**dashboard/connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to reconnect to the dashboard server
+
+ * "**dashboard/get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+
+    Load a robot installation from a file
+
+ * "**dashboard/get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+
+    Service the query the current robot mode
+
+ * "**dashboard/get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+
+    Service the query the current safety mode
+
+ * "**dashboard/load_installation**" (ur_dashboard_msgs/Load)
+
+    Load a robot installation from a file
+
+ * "**dashboard/load_program**" (ur_dashboard_msgs/Load)
+
+    Load a robot program from a file
+
  * "**dashboard/pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Pause a running program.
@@ -581,6 +609,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Start execution of a previously loaded program
 
+ * "**dashboard/popup**" (ur_dashboard_msgs/Popup)
+
+    Service to show a popup on the UR Teach pendant.
+
  * "**dashboard/power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Power off the robot motors
@@ -588,6 +620,26 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
  * "**dashboard/power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+
+ * "**dashboard/program_running**" (ur_dashboard_msgs/IsProgramRunning)
+
+    Query whether there is currently a program running
+
+ * "**dashboard/program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+
+    Query whether the current program is saved
+
+ * "**dashboard/program_state**" (ur_dashboard_msgs/GetProgramState)
+
+    Service the query the current program state
+
+ * "**dashboard/quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Disconnect from the dashboard service.
+
+ * "**dashboard/raw_request**" (ur_dashboard_msgs/RawRequest)
+
+    General purpose service to send arbitrary messages to the dashboard server
 
  * "**dashboard/restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
@@ -622,6 +674,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
     Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
 #### Parameters
+ * "**dashboard/receive_timeout**" (Required)
+
+    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+
  * "**hardware_interface/joints**" (Required)
 
     Names of the joints. Usually, this is given in the controller config file.
@@ -709,6 +765,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
 
 #### Advertised Services
+ * "**add_to_log**" (ur_dashboard_msgs/AddToLog)
+
+    Service to add a message to the robot's log
+
  * "**brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
@@ -725,6 +785,30 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Close a safety popup on the teach pendant.
 
+ * "**connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to reconnect to the dashboard server
+
+ * "**get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+
+    Load a robot installation from a file
+
+ * "**get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+
+    Service the query the current robot mode
+
+ * "**get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+
+    Service the query the current safety mode
+
+ * "**load_installation**" (ur_dashboard_msgs/Load)
+
+    Load a robot installation from a file
+
+ * "**load_program**" (ur_dashboard_msgs/Load)
+
+    Load a robot program from a file
+
  * "**pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Pause a running program.
@@ -733,6 +817,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Start execution of a previously loaded program
 
+ * "**popup**" (ur_dashboard_msgs/Popup)
+
+    Service to show a popup on the UR Teach pendant.
+
  * "**power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Power off the robot motors
@@ -740,6 +828,26 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
  * "**power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+
+ * "**program_running**" (ur_dashboard_msgs/IsProgramRunning)
+
+    Query whether there is currently a program running
+
+ * "**program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+
+    Query whether the current program is saved
+
+ * "**program_state**" (ur_dashboard_msgs/GetProgramState)
+
+    Service the query the current program state
+
+ * "**quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Disconnect from the dashboard service.
+
+ * "**raw_request**" (ur_dashboard_msgs/RawRequest)
+
+    General purpose service to send arbitrary messages to the dashboard server
 
  * "**restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
@@ -758,6 +866,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
     Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
 
 #### Parameters
+ * "**receive_timeout**" (Required)
+
+    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+
  * "**robot_ip**" (Required)
 
     Please add description. See dashboard_client_node.cpp line number: 36

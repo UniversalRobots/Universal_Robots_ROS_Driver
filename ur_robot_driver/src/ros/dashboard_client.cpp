@@ -178,7 +178,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
         return true;
       });
   //
-  // Disconnect from the dashboard service. Currently, there's no way of reconnecting.
+  // Disconnect from the dashboard service.
   quit_service_ = nh_.advertiseService<std_srvs::Trigger::Request, std_srvs::Trigger::Response>(
       "quit", [&](std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp) {
         resp.message = this->client_.sendAndReceive("quit\n");
