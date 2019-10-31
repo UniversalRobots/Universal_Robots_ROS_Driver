@@ -20,3 +20,5 @@ tool_analog_input1
 tool_output_voltage
 tool_output_current
 tool_temperature
+robot_mode
+safety_mode

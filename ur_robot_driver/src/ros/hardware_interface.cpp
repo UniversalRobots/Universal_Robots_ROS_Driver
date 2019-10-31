@@ -290,6 +290,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   }
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
+  robot_mode_pub_.reset(
+      new realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>(robot_hw_nh, "robot_mode", 1, true));
+  safety_mode_pub_.reset(
+      new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
+
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
   // doing. Using this with other controllers might lead to unexpected behaviors.
@@ -361,6 +366,8 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "tool_output_voltage", tool_output_voltage_);
     readData(data_pkg, "tool_output_current", tool_output_current_);
     readData(data_pkg, "tool_temperature", tool_temperature_);
+    readData(data_pkg, "robot_mode", robot_mode_);
+    readData(data_pkg, "safety_mode", safety_mode_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
@@ -373,6 +380,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     extractToolPose(time);
     transformForceTorque();
     publishPose();
+    publishRobotAndSafetyMode();
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
@@ -706,6 +714,32 @@ void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
   else
   {
     ROS_ERROR_STREAM("Error sending script to robot");
+  }
+}
+
+void HardwareInterface::publishRobotAndSafetyMode()
+{
+  if (robot_mode_pub_)
+  {
+    if (robot_mode_pub_->msg_.mode != robot_mode_)
+    {
+      if (robot_mode_pub_->trylock())
+      {
+        robot_mode_pub_->msg_.mode = robot_mode_;
+        robot_mode_pub_->unlockAndPublish();
+      }
+    }
+  }
+  if (safety_mode_pub_)
+  {
+    if (safety_mode_pub_->msg_.mode != safety_mode_)
+    {
+      if (safety_mode_pub_->trylock())
+      {
+        safety_mode_pub_->msg_.mode = safety_mode_;
+        safety_mode_pub_->unlockAndPublish();
+      }
+    }
   }
 }
 }  // namespace ur_driver
