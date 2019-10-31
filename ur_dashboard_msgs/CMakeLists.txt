@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   ProgramState.msg
+  RobotMode.msg
   SafetyMode.msg
 )
 
@@ -57,6 +58,7 @@ add_service_files(
   AddToLog.srv
   GetLoadedProgram.srv
   GetProgramState.srv
+  GetRobotMode.srv
   GetSafetyMode.srv
   IsProgramRunning.srv
   IsProgramSaved.srv

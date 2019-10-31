@@ -149,6 +149,9 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   // Service the query the current safety mode
   safety_mode_service_ = nh_.advertiseService("get_safety_mode", &DashboardClientROS::handleSafetyModeQuery, this);
 
+  // Service the query the current robot mode
+  robot_mode_service_ = nh_.advertiseService("get_robot_mode", &DashboardClientROS::handleRobotModeQuery, this);
+
   // Service to add a message to the robot's log
   add_to_log_service_ =
       nh_.advertiseService<ur_dashboard_msgs::AddToLog::Request, ur_dashboard_msgs::AddToLog::Response>(
@@ -272,6 +275,59 @@ bool DashboardClientROS::handleSafetyModeQuery(ur_dashboard_msgs::GetSafetyMode:
     //{
     // resp.safety_mode.mode = ur_dashboard_msgs::SafetyMode::SYSTEM_THREE_POSITION_ENABLING_STOP;
     //}
+  }
+  return true;
+}
+
+bool DashboardClientROS::handleRobotModeQuery(ur_dashboard_msgs::GetRobotMode::Request& req,
+                                              ur_dashboard_msgs::GetRobotMode::Response& resp)
+{
+  resp.answer = this->client_.sendAndReceive("robotmode\n");
+  std::smatch match;
+  std::regex expected("Robotmode: (.+)");
+  resp.success = std::regex_match(resp.answer, match, expected);
+  if (resp.success)
+  {
+    if (match[1] == "NO_CONTROLLER")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::NO_CONTROLLER;
+    }
+    else if (match[1] == "DISCONNECTED")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::DISCONNECTED;
+    }
+    else if (match[1] == "CONFIRM_SAFETY")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::CONFIRM_SAFETY;
+    }
+    else if (match[1] == "BOOTING")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::BOOTING;
+    }
+    else if (match[1] == "POWER_OFF")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::POWER_OFF;
+    }
+    else if (match[1] == "POWER_ON")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::POWER_ON;
+    }
+    else if (match[1] == "IDLE")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::IDLE;
+    }
+    else if (match[1] == "BACKDRIVE")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::BACKDRIVE;
+    }
+    else if (match[1] == "RUNNING")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::RUNNING;
+    }
+    else if (match[1] == "UPDATING_FIRMWARE")
+    {
+      resp.robot_mode.mode = ur_dashboard_msgs::RobotMode::UPDATING_FIRMWARE;
+    }
   }
   return true;
 }
