@@ -236,7 +236,7 @@ void rtde_interface::DataPackage::initEmpty()
   }
 }
 
-bool rtde_interface::DataPackage ::parseWith(comm::BinParser& bp)
+bool rtde_interface::DataPackage::parseWith(comm::BinParser& bp)
 {
   bp.parse(recipe_id_);
   for (auto& item : recipe_)

@@ -124,7 +124,8 @@ public:
         {
           if (this->verbose_)
             ROS_DEBUG_STREAM_THROTTLE_NAMED(1, this->name_,
-                                            "Finished executing last segment, checking goal tolerances");
+                                            "Finished executing last segment, checking goal "
+                                            "tolerances");
 
           // Controller uptime
           const ros::Time uptime = this->time_data_.readFromRT()->uptime;
