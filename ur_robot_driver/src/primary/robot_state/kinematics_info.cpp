@@ -88,7 +88,7 @@ std::string KinematicsInfo::toString() const
   return os.str();
 }
 
-std::string KinematicsInfo ::toHash() const
+std::string KinematicsInfo::toHash() const
 {
   std::stringstream ss;
   for (size_t i = 0; i < 6; ++i)

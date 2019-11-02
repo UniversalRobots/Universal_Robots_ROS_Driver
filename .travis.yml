@@ -12,7 +12,7 @@ env:
   matrix:
     - ROS_DISTRO="kinetic" ROS_REPO=ros UPSTREAM_WORKSPACE=file
     - ROS_DISTRO="melodic" ROS_REPO=ros UPSTREAM_WORKSPACE=file
-    - ROS_DISTRO="kinetic" CLANG_FORMAT_CHECK=file
+    - ROS_DISTRO="kinetic" CLANG_FORMAT_CHECK=file CLANG_FORMAT_VERSION=6.0
 
 install:
   - git clone --depth=1 https://github.com/ros-industrial/industrial_ci.git .ci_config

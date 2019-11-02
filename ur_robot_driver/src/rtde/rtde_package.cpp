@@ -36,7 +36,7 @@ bool RTDEPackage::parseWith(comm::BinParser& bp)
   return true;
 }
 
-std::string rtde_interface::RTDEPackage ::toString() const
+std::string rtde_interface::RTDEPackage::toString() const
 {
   std::stringstream ss;
   ss << "Type: " << static_cast<int>(type_) << std::endl;
