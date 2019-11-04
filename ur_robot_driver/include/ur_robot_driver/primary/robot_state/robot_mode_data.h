@@ -30,6 +30,7 @@
 #define UR_RTDE_DRIBVER_ROBOT_MODE_DATA_H_INCLUDED
 
 #include "ur_robot_driver/primary/robot_state.h"
+#include <ur_robot_driver/ur/datatypes.h>
 
 namespace ur_driver
 {
@@ -52,19 +53,6 @@ public:
   static const size_t SIZE = sizeof(uint64_t) + sizeof(uint8_t) * 6;
 };
 
-enum class robot_mode_V3_X : uint8_t
-{
-  DISCONNECTED = 0,
-  CONFIRM_SAFETY = 1,
-  BOOTING = 2,
-  POWER_OFF = 3,
-  POWER_ON = 4,
-  IDLE = 5,
-  BACKDRIVE = 6,
-  RUNNING = 7,
-  UPDATING_FIRMWARE = 8
-};
-
 enum class robot_control_mode_V3_X : uint8_t
 {
   POSITION = 0,
@@ -78,13 +66,13 @@ class RobotModeData_V3_0__1 : public SharedRobotModeData, public RobotState
 public:
   virtual bool parseWith(comm::BinParser& bp);
 
-  robot_mode_V3_X robot_mode;
+  RobotMode robot_mode;
   robot_control_mode_V3_X control_mode;
 
   double target_speed_fraction;
   double speed_scaling;
 
-  static const size_t SIZE = SharedRobotModeData::SIZE + sizeof(uint8_t) + sizeof(robot_mode_V3_X) +
+  static const size_t SIZE = SharedRobotModeData::SIZE + sizeof(uint8_t) + sizeof(RobotMode) +
                              sizeof(robot_control_mode_V3_X) + sizeof(double) + sizeof(double);
 
   static_assert(RobotModeData_V3_0__1::SIZE == 33, "RobotModeData_V3_0__1 has missmatched size");
