@@ -138,7 +138,7 @@ void RTDEClient::setupOutputs(const uint16_t protocol_version)
     size = ControlPackageSetupOutputsRequest::generateSerializedRequest(buffer, output_recipe_);
   }
 
-  // Send input recipe to robot
+  // Send output recipe to robot
   if (!stream_.write(buffer, size, written))
     throw UrException("Could not send RTDE output recipe to robot.");
   if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
