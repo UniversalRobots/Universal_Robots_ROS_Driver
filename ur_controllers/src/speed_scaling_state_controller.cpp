@@ -61,7 +61,7 @@ bool SpeedScalingStateController::init(SpeedScalingInterface* hw, ros::NodeHandl
   return true;
 }
 
-void SpeedScalingStateController ::starting(const ros::Time& time)
+void SpeedScalingStateController::starting(const ros::Time& time)
 {
   // initialize time
   for (unsigned i = 0; i < last_publish_times_.size(); i++)
@@ -70,7 +70,7 @@ void SpeedScalingStateController ::starting(const ros::Time& time)
   }
 }
 
-void SpeedScalingStateController ::update(const ros::Time& time, const ros::Duration& /*period*/)
+void SpeedScalingStateController::update(const ros::Time& time, const ros::Duration& /*period*/)
 {
   // limit rate of publishing
   for (unsigned i = 0; i < realtime_pubs_.size(); i++)
@@ -93,7 +93,7 @@ void SpeedScalingStateController ::update(const ros::Time& time, const ros::Dura
   }
 }
 
-void SpeedScalingStateController ::stopping(const ros::Time& /*time*/)
+void SpeedScalingStateController::stopping(const ros::Time& /*time*/)
 {
 }
 }  // namespace ur_controllers

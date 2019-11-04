@@ -49,7 +49,7 @@ HardwareInterface::HardwareInterface()
 {
 }
 
-bool HardwareInterface ::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
+bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
 {
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
@@ -336,7 +336,7 @@ void HardwareInterface::readBitsetData(const std::unique_ptr<rtde_interface::Dat
   }
 }
 
-void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period)
+void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 {
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
@@ -412,7 +412,7 @@ void HardwareInterface ::read(const ros::Time& time, const ros::Duration& period
   }
 }
 
-void HardwareInterface ::write(const ros::Time& time, const ros::Duration& period)
+void HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
   if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
        runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
@@ -433,8 +433,8 @@ void HardwareInterface ::write(const ros::Time& time, const ros::Duration& perio
   }
 }
 
-bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
-                                       const std::list<hardware_interface::ControllerInfo>& stop_list)
+bool HardwareInterface::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
+                                      const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
   bool ret_val = true;
   if (controllers_initialized_ && !isRobotProgramRunning() && !start_list.empty())
@@ -455,8 +455,8 @@ bool HardwareInterface ::prepareSwitch(const std::list<hardware_interface::Contr
   return ret_val;
 }
 
-void HardwareInterface ::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
-                                  const std::list<hardware_interface::ControllerInfo>& stop_list)
+void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
+                                 const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
   position_controller_running_ = false;
   for (auto& controller_it : start_list)
@@ -475,7 +475,7 @@ void HardwareInterface ::doSwitch(const std::list<hardware_interface::Controller
   }
 }
 
-uint32_t HardwareInterface ::getControlFrequency() const
+uint32_t HardwareInterface::getControlFrequency() const
 {
   if (ur_driver_ != nullptr)
   {
@@ -484,7 +484,7 @@ uint32_t HardwareInterface ::getControlFrequency() const
   throw std::runtime_error("ur_driver is not yet initialized");
 }
 
-void HardwareInterface ::transformForceTorque()
+void HardwareInterface::transformForceTorque()
 {
   tcp_force_.setValue(fts_measurements_[0], fts_measurements_[1], fts_measurements_[2]);
   tcp_torque_.setValue(fts_measurements_[3], fts_measurements_[4], fts_measurements_[5]);
@@ -498,12 +498,12 @@ void HardwareInterface ::transformForceTorque()
                         tcp_torque_.x(), tcp_torque_.y(), tcp_torque_.z() };
 }
 
-bool HardwareInterface ::isRobotProgramRunning() const
+bool HardwareInterface::isRobotProgramRunning() const
 {
   return robot_program_running_;
 }
 
-void HardwareInterface ::handleRobotProgramState(bool program_running)
+void HardwareInterface::handleRobotProgramState(bool program_running)
 {
   if (robot_program_running_ == false && program_running)
   {
@@ -515,7 +515,7 @@ void HardwareInterface ::handleRobotProgramState(bool program_running)
   program_state_pub_.publish(msg);
 }
 
-bool HardwareInterface ::shouldResetControllers()
+bool HardwareInterface::shouldResetControllers()
 {
   if (controller_reset_necessary_)
   {
@@ -528,7 +528,7 @@ bool HardwareInterface ::shouldResetControllers()
   }
 }
 
-void HardwareInterface ::extractToolPose(const ros::Time& timestamp)
+void HardwareInterface::extractToolPose(const ros::Time& timestamp)
 {
   double tcp_angle = std::sqrt(std::pow(tcp_pose_[3], 2) + std::pow(tcp_pose_[4], 2) + std::pow(tcp_pose_[5], 2));
 
@@ -546,7 +546,7 @@ void HardwareInterface ::extractToolPose(const ros::Time& timestamp)
   tcp_transform_.transform.rotation = tf2::toMsg(rotation);
 }
 
-void HardwareInterface ::publishPose()
+void HardwareInterface::publishPose()
 {
   if (tcp_pose_pub_)
   {
