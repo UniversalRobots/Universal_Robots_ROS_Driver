@@ -26,23 +26,203 @@
 //----------------------------------------------------------------------
 
 #include <ur_robot_driver/ros/robot_state_helper.h>
+
+#include <std_srvs/Trigger.h>
 namespace ur_driver
 {
-RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh)
+RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh), set_mode_as_(nh_, "set_mode", false)
 {
   robot_mode_sub_ = nh_.subscribe("robot_mode", 1, &RobotStateHelper::robotModeCallback, this);
   safety_mode_sub_ = nh_.subscribe("safety_mode", 1, &RobotStateHelper::safetyModeCallback, this);
+
+  unlock_protective_stop_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/unlock_protective_stop");
+  restart_safety_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/restart_safety");
+  power_on_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_on");
+  power_off_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_off");
+  brake_release_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/brake_release");
+
+  set_mode_as_.registerGoalCallback(std::bind(&RobotStateHelper::setModeGoalCallback, this));
+  set_mode_as_.registerPreemptCallback(std::bind(&RobotStateHelper::setModePreemptCallback, this));
+  set_mode_as_.start();
 }
 
 void RobotStateHelper::robotModeCallback(const ur_dashboard_msgs::RobotMode& msg)
 {
-  robot_mode_ = RobotMode(msg.mode);
-  ROS_INFO_STREAM("Robot mode is now " << robotModeString(robot_mode_));
+  if (robot_mode_ != static_cast<RobotMode>(msg.mode))
+  {
+    robot_mode_ = RobotMode(msg.mode);
+    ROS_INFO_STREAM("Robot mode is now " << robotModeString(robot_mode_));
+    updateRobotState();
+  }
 }
 
 void RobotStateHelper::safetyModeCallback(const ur_dashboard_msgs::SafetyMode& msg)
 {
-  safety_mode_ = SafetyMode(msg.mode);
-  ROS_INFO_STREAM("Robot's safety mode is now " << safetyModeString(safety_mode_));
+  if (safety_mode_ != static_cast<SafetyMode>(msg.mode))
+  {
+    safety_mode_ = SafetyMode(msg.mode);
+    ROS_INFO_STREAM("Robot's safety mode is now " << safetyModeString(safety_mode_));
+    updateRobotState();
+  }
+}
+
+void RobotStateHelper::updateRobotState()
+{
+  if (set_mode_as_.isActive())
+  {
+    feedback_.current_robot_mode =
+        static_cast<ur_dashboard_msgs::SetModeFeedback::_current_robot_mode_type>(robot_mode_);
+    feedback_.current_safety_mode =
+        static_cast<ur_dashboard_msgs::SetModeFeedback::_current_safety_mode_type>(safety_mode_);
+    set_mode_as_.publishFeedback(feedback_);
+    if (robot_mode_ < static_cast<RobotMode>(goal_->target_robot_mode) || safety_mode_ > SafetyMode::REDUCED)
+    {
+      ROS_DEBUG_STREAM("Current robot mode is " << robotModeString(robot_mode_) << " while target mode is "
+                                                << robotModeString(static_cast<RobotMode>(goal_->target_robot_mode)));
+      doTransition();
+    }
+    else if (robot_mode_ == static_cast<RobotMode>(goal_->target_robot_mode))
+    {
+      result_.success = true;
+      result_.message = "Reached target robot mode.";
+      set_mode_as_.setSucceeded(result_);
+    }
+    else
+    {
+      result_.success = false;
+      result_.message = "Robot reached higher mode than requested during recovery. This either means that something "
+                        "went wrong or that a higher mode was requested from somewhere else (e.g. the teach "
+                        "pendant.)";
+      set_mode_as_.setAborted(result_);
+    }
+  }
+}
+
+void RobotStateHelper::doTransition()
+{
+  if (static_cast<RobotMode>(goal_->target_robot_mode) < robot_mode_)
+  {
+    // Go through power_off if lower mode is requested
+    safeDashboardTrigger(&this->power_off_srv_);
+  }
+  else
+  {
+    switch (safety_mode_)
+    {
+      case SafetyMode::PROTECTIVE_STOP:
+        safeDashboardTrigger(&this->unlock_protective_stop_srv_);
+        break;
+      case SafetyMode::SYSTEM_EMERGENCY_STOP:
+      case SafetyMode::ROBOT_EMERGENCY_STOP:
+        ROS_WARN_STREAM("The robot is currently in safety mode " << safetyModeString(safety_mode_)
+                                                                 << ". Please release the EM-Stop to proceed.");
+        break;
+      case SafetyMode::VIOLATION:
+      case SafetyMode::FAULT:
+        safeDashboardTrigger(&this->restart_safety_srv_);
+        break;
+      default:
+        switch (robot_mode_)
+        {
+          case RobotMode::CONFIRM_SAFETY:
+            ROS_WARN_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
+                                                              << ". It is required to interact with the teach pendant "
+                                                                 "at this point.");
+            break;
+          case RobotMode::BOOTING:
+            ROS_INFO_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
+                                                              << ". Please wait until the robot is booted up...");
+            break;
+          case RobotMode::POWER_OFF:
+            safeDashboardTrigger(&this->power_on_srv_);
+            break;
+          case RobotMode::POWER_ON:
+            ROS_INFO_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
+                                                              << ". Please wait until the robot is in mode "
+                                                              << robotModeString(RobotMode::IDLE));
+            break;
+          case RobotMode::IDLE:
+            safeDashboardTrigger(&this->brake_release_srv_);
+            break;
+          case RobotMode::BACKDRIVE:
+            ROS_INFO_STREAM("The robot is currently in mode "
+                            << robotModeString(robot_mode_) << ". It will automatically return to mode "
+                            << robotModeString(RobotMode::IDLE) << " once the teach button is released.");
+            break;
+          case RobotMode::RUNNING:
+            ROS_INFO_STREAM("The robot has reached operational mode " << robotModeString(robot_mode_));
+            break;
+          default:
+            ROS_WARN_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
+                                                              << ". This won't be handled by this helper. Please "
+                                                                 "resolve "
+                                                                 "this manually.");
+        }
+    }
+  }
+}
+
+void RobotStateHelper::setModeGoalCallback()
+{
+  goal_ = set_mode_as_.acceptNewGoal();
+
+  RobotMode target_mode = static_cast<RobotMode>(goal_->target_robot_mode);
+
+  // Do some input sanitation first.
+  switch (target_mode)
+  {
+    case RobotMode::POWER_OFF:
+    case RobotMode::IDLE:
+    case RobotMode::RUNNING:
+      if (robot_mode_ != target_mode || safety_mode_ > SafetyMode::REDUCED)
+      {
+        doTransition();
+      }
+      else
+      {
+        result_.success = true;
+        result_.message = "Target mode already active. Nothing to do here.";
+        set_mode_as_.setSucceeded(result_);
+      }
+      break;
+    case RobotMode::NO_CONTROLLER:
+    case RobotMode::DISCONNECTED:
+    case RobotMode::CONFIRM_SAFETY:
+    case RobotMode::BOOTING:
+    case RobotMode::POWER_ON:
+    case RobotMode::BACKDRIVE:
+    case RobotMode::UPDATING_FIRMWARE:
+      result_.message =
+          "Requested target mode " + robotModeString(target_mode) + " which cannot be explicitly selected.";
+      result_.success = false;
+      set_mode_as_.setAborted(result_);
+      break;
+    default:
+      result_.message = "Requested illegal mode.";
+      result_.success = false;
+      set_mode_as_.setAborted(result_);
+  }
+}
+
+void RobotStateHelper::setModePreemptCallback()
+{
+  ROS_INFO_STREAM("Current goal got preempted.");
+  set_mode_as_.setPreempted();
+}
+
+void RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
+{
+  assert(srv_client != nullptr);
+  std_srvs::Trigger srv;
+  srv_client->call(srv);
+  ROS_INFO_STREAM(srv.response.message);
+  if (!srv.response.success)
+  {
+    result_.success = false;
+    result_.message = "An error occurred while switching the robot mode. The respective dashboard service returned "
+                      "non-success: " +
+                      srv.response.message;
+    set_mode_as_.setAborted(result_);
+  }
 }
 }  // namespace ur_driver

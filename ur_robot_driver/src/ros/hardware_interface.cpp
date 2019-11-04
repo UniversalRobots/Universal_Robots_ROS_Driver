@@ -41,6 +41,7 @@ HardwareInterface::HardwareInterface()
   , standard_analog_input_{ { 0, 0 } }
   , standard_analog_output_{ { 0, 0 } }
   , joint_names_(6)
+  , safety_mode_(ur_dashboard_msgs::SafetyMode::NORMAL)
   , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)

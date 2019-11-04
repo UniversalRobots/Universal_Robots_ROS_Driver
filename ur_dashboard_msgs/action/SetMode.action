@@ -1,0 +1,14 @@
+# This action is for setting the robot into a desired mode
+# and safety mode is in a non-critical state (e.g. NORMAL or REDUCED)
+
+# goal
+int8 target_robot_mode
+# uint8 autonomy # This is currently an idea only
+---
+# result
+bool success
+string message
+---
+# feedback
+int8 current_robot_mode
+int8 current_safety_mode

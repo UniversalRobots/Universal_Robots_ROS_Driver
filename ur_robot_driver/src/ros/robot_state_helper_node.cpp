@@ -29,7 +29,7 @@
 
 using namespace ur_driver;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   // Set up ROS.
   ros::init(argc, argv, "robot_state_helper");

@@ -27,10 +27,12 @@
 #ifndef UR_ROBOT_DRIVER_ROS_ROBOT_STATE_HELPER_INCLUDED
 #define UR_ROBOT_DRIVER_ROS_ROBOT_STATE_HELPER_INCLUDED
 #include <ros/ros.h>
+#include <actionlib/server/simple_action_server.h>
 
 #include <ur_robot_driver/ur/datatypes.h>
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
+#include <ur_dashboard_msgs/SetModeAction.h>
 
 namespace ur_driver
 {
@@ -44,6 +46,13 @@ public:
 private:
   void robotModeCallback(const ur_dashboard_msgs::RobotMode& msg);
   void safetyModeCallback(const ur_dashboard_msgs::SafetyMode& msg);
+  void updateRobotState();
+  void doTransition();
+
+  void safeDashboardTrigger(ros::ServiceClient* srv);
+
+  void setModeGoalCallback();
+  void setModePreemptCallback();
 
   ros::NodeHandle nh_;
   RobotMode robot_mode_;
@@ -51,6 +60,16 @@ private:
 
   ros::Subscriber robot_mode_sub_;
   ros::Subscriber safety_mode_sub_;
+  ros::ServiceClient unlock_protective_stop_srv_;
+  ros::ServiceClient restart_safety_srv_;
+  ros::ServiceClient power_on_srv_;
+  ros::ServiceClient power_off_srv_;
+  ros::ServiceClient brake_release_srv_;
+  actionlib::SimpleActionServer<ur_dashboard_msgs::SetModeAction> set_mode_as_;
+
+  ur_dashboard_msgs::SetModeGoalConstPtr goal_;
+  ur_dashboard_msgs::SetModeFeedback feedback_;
+  ur_dashboard_msgs::SetModeResult result_;
 };
 }  // namespace ur_driver
 
