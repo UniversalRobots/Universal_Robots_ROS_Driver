@@ -708,7 +708,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**tf_prefix**" (default: "")
 
-    Please add description. See hardware_interface.cpp line number: 67
+    Please add description. See hardware_interface.cpp line number: 68
 
 
 
@@ -873,6 +873,63 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
  * "**robot_ip**" (Required)
 
     The IP address under which the robot is reachable.
+
+### robot_state_helper
+This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to
+a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop).
+
+It should best be started inside the hardware interface's namespace
+
+
+#### Service Clients
+ * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to release the robot's brakes
+
+ * "**dashboard/play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to start UR program execution on the robot
+
+ * "**dashboard/power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to power off the robot
+
+ * "**dashboard/power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to power on the robot
+
+ * "**dashboard/restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to restart safety
+
+ * "**dashboard/stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to stop UR program execution on the robot
+
+ * "**dashboard/unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to unlock protective stop
+
+#### Subscribed topics
+ * "**robot_mode**" (ur_dashboard_msgs/RobotMode)
+
+    Topic on which the robot_mode is published by the driver
+
+ * "**safety_mode**" (ur_dashboard_msgs/SafetyMode)
+
+    Topic on which the safety is published by the driver
+
+#### Action servers
+ * "**set_mode**" (ur_dashboard_msgs/SetMode)
+
+    Action server to set the robot into a specific mode (e.g. RUNNING). If desired, program
+    execution can be stopped before switching modes and/or (re-)started after the robot reached
+    state RUNNING.
+
+    **Note**: If you use this feature make sure that it is safe to continue program execution. The
+    robot might start moving again, immediately after this action finishes.
+
+    The 'play' field is only evaluated, when the target mode is RUNNING.
 
 ### tool_communication
 
