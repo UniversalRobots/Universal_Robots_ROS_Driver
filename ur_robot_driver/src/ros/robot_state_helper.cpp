@@ -32,15 +32,24 @@ namespace ur_driver
 {
 RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh), set_mode_as_(nh_, "set_mode", false)
 {
+  // Topic on which the robot_mode is published by the driver
   robot_mode_sub_ = nh_.subscribe("robot_mode", 1, &RobotStateHelper::robotModeCallback, this);
+  // Topic on which the safety is published by the driver
   safety_mode_sub_ = nh_.subscribe("safety_mode", 1, &RobotStateHelper::safetyModeCallback, this);
 
+  // Service to unlock protective stop
   unlock_protective_stop_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/unlock_protective_stop");
+  // Service to restart safety
   restart_safety_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/restart_safety");
+  // Service to power on the robot
   power_on_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_on");
+  // Service to power off the robot
   power_off_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_off");
+  // Service to release the robot's brakes
   brake_release_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/brake_release");
+  // Service to stop UR program execution on the robot
   stop_program_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/stop");
+  // Service to start UR program execution on the robot
   play_program_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/play");
 
   set_mode_as_.registerGoalCallback(std::bind(&RobotStateHelper::setModeGoalCallback, this));
@@ -72,19 +81,23 @@ void RobotStateHelper::updateRobotState()
 {
   if (set_mode_as_.isActive())
   {
+    // Update action feedback
     feedback_.current_robot_mode =
         static_cast<ur_dashboard_msgs::SetModeFeedback::_current_robot_mode_type>(robot_mode_);
     feedback_.current_safety_mode =
         static_cast<ur_dashboard_msgs::SetModeFeedback::_current_safety_mode_type>(safety_mode_);
     set_mode_as_.publishFeedback(feedback_);
+
     if (robot_mode_ < static_cast<RobotMode>(goal_->target_robot_mode) || safety_mode_ > SafetyMode::REDUCED)
     {
+      // Transition to next mode
       ROS_DEBUG_STREAM("Current robot mode is " << robotModeString(robot_mode_) << " while target mode is "
                                                 << robotModeString(static_cast<RobotMode>(goal_->target_robot_mode)));
       doTransition();
     }
     else if (robot_mode_ == static_cast<RobotMode>(goal_->target_robot_mode))
     {
+      // Final mode reached
       result_.success = true;
       result_.message = "Reached target robot mode.";
       if (robot_mode_ == RobotMode::RUNNING && goal_->play_program)

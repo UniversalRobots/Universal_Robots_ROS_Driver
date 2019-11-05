@@ -36,6 +36,14 @@
 
 namespace ur_driver
 {
+/*!
+ * \brief A small helper class around the robot state (constisting of 'robot_mode' and
+ * 'safety_mode')
+ *
+ * This class logs any changes of the robot state and provides an action interface bring the robot
+ * into a required state. For modifying the robot mode it uses the dashboard server interface
+ * provided by the ur_robot_driver.
+ */
 class RobotStateHelper
 {
 public:
@@ -46,11 +54,28 @@ public:
 private:
   void robotModeCallback(const ur_dashboard_msgs::RobotMode& msg);
   void safetyModeCallback(const ur_dashboard_msgs::SafetyMode& msg);
+
+  /*!
+   * \brief Updates action feedback and triggers next transition if necessary
+   */
   void updateRobotState();
+
+  /*!
+   * \brief Performs the transition required by the current mode to get to the next mode.
+   */
   void doTransition();
 
+  /*!
+   * \brief Small wrapper function to call a trigger service. The trigger's response message will be
+   * loged to INFO output.
+   *
+   * \param srv Pointer to service client that shall be used.
+   *
+   * \returns service response's success field.
+   */
   bool safeDashboardTrigger(ros::ServiceClient* srv);
 
+  // Action server functions
   void setModeGoalCallback();
   void setModePreemptCallback();
 
