@@ -40,6 +40,8 @@ RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh), set_mod
   power_on_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_on");
   power_off_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/power_off");
   brake_release_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/brake_release");
+  stop_program_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/stop");
+  play_program_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/play");
 
   set_mode_as_.registerGoalCallback(std::bind(&RobotStateHelper::setModeGoalCallback, this));
   set_mode_as_.registerPreemptCallback(std::bind(&RobotStateHelper::setModePreemptCallback, this));
@@ -85,7 +87,18 @@ void RobotStateHelper::updateRobotState()
     {
       result_.success = true;
       result_.message = "Reached target robot mode.";
-      set_mode_as_.setSucceeded(result_);
+      if (robot_mode_ == RobotMode::RUNNING && goal_->play_program)
+      {
+        // The dashboard denies playing immediately after switching the mode to RUNNING
+        sleep(1);
+        safeDashboardTrigger(&this->play_program_srv_);
+      }
+
+      // Action could be aborted, e.g. because of failing play request
+      if (set_mode_as_.isActive())
+      {
+        set_mode_as_.setSucceeded(result_);
+      }
     }
     else
     {
@@ -176,6 +189,10 @@ void RobotStateHelper::setModeGoalCallback()
     case RobotMode::RUNNING:
       if (robot_mode_ != target_mode || safety_mode_ > SafetyMode::REDUCED)
       {
+        if (goal_->stop_program)
+        {
+          safeDashboardTrigger(&this->stop_program_srv_);
+        }
         doTransition();
       }
       else
@@ -210,7 +227,7 @@ void RobotStateHelper::setModePreemptCallback()
   set_mode_as_.setPreempted();
 }
 
-void RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
+bool RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
 {
   assert(srv_client != nullptr);
   std_srvs::Trigger srv;
@@ -224,5 +241,6 @@ void RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
                       srv.response.message;
     set_mode_as_.setAborted(result_);
   }
+  return srv.response.success;
 }
 }  // namespace ur_driver

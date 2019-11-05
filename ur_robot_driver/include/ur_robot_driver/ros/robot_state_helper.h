@@ -49,7 +49,7 @@ private:
   void updateRobotState();
   void doTransition();
 
-  void safeDashboardTrigger(ros::ServiceClient* srv);
+  bool safeDashboardTrigger(ros::ServiceClient* srv);
 
   void setModeGoalCallback();
   void setModePreemptCallback();
@@ -65,6 +65,8 @@ private:
   ros::ServiceClient power_on_srv_;
   ros::ServiceClient power_off_srv_;
   ros::ServiceClient brake_release_srv_;
+  ros::ServiceClient stop_program_srv_;
+  ros::ServiceClient play_program_srv_;
   actionlib::SimpleActionServer<ur_dashboard_msgs::SetModeAction> set_mode_as_;
 
   ur_dashboard_msgs::SetModeGoalConstPtr goal_;
