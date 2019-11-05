@@ -32,8 +32,8 @@ using namespace ur_driver;
 int main(int argc, char** argv)
 {
   // Set up ROS.
-  ros::init(argc, argv, "robot_state_helper");
-  ros::NodeHandle nh("ur_hardware_interface");
+  ros::init(argc, argv, "ur_robot_state_helper");
+  ros::NodeHandle nh;
 
   RobotStateHelper state_helper(nh);
 
