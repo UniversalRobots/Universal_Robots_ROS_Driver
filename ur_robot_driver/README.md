@@ -41,9 +41,10 @@ on details.
 **Note to e-Series users:**
 The robot won't accept script code from a remote source unless the robot is put into
 *remote_control-mode*. However, if put into *remote_control-mode*, the program containing the
-**External Control** program node can't be started from the panel. If this behavior is required,
-please use the headless mode that does not require having a program running on the teach pendant.
-Note: The current headless mode doesn't offer the full functionality of the teach pendant.
+**External Control** program node can't be started from the panel.
+For this purpose, please use the **dashboard** services to load, start and stop the main program
+running on the robot. See the [ROS-API documentation](doc/ROS_INTERFACE.md) for details on the
+dashboard services.
 
 For using the **tool communication interface** on e-Series robots, a `socat` script is prepared to
 forward the robot's tool communication interface to a local device on the ROS PC. See [the tool
