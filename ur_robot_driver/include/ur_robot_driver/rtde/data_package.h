@@ -103,6 +103,19 @@ public:
   size_t serializePackage(uint8_t* buffer);
 
   /*!
+   * \brief Check if a specific data field is of a given type.
+   *
+   * \param name The string identifier for the data field as used in the documentation.
+   *
+   * \returns True, if the data field is of the given type, false otherwise.
+   */
+  template <typename T>
+  static bool isType(const std::string& name)
+  {
+    return g_type_list[name].which() == _rtde_type_variant(T()).which();
+  }
+
+  /*!
    * \brief Get a data field from the DataPackage.
    *
    * The data package contains a lot of different data fields, depending on the recipe.
