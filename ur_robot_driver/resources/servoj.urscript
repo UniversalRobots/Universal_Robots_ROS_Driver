@@ -83,6 +83,8 @@ while keepalive > 0:
     if params_mult[1] > 1:
       q = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
       set_servo_setpoint(q)
+    else:
+      set_servo_setpoint(get_actual_joint_positions())
     end
   else:
     keepalive = keepalive - 1
