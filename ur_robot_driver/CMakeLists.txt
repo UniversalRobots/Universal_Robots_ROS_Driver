@@ -105,6 +105,7 @@ add_library(ur_robot_driver
     src/ur/dashboard_client.cpp
     src/ur/tool_communication.cpp
     src/rtde/rtde_writer.cpp
+    src/ros/data_field_publisher.cpp
 )
 target_link_libraries(ur_robot_driver ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

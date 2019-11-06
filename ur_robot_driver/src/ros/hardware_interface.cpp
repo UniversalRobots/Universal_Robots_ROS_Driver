@@ -52,6 +52,8 @@ HardwareInterface::HardwareInterface()
 
 bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
 {
+  ROS_ERROR_STREAM(rtde_interface::DataPackage::isType<double>("actual_q"));
+  ROS_ERROR_STREAM(rtde_interface::DataPackage::isType<vector6d_t>("actual_q"));
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string script_filename;
@@ -303,6 +305,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   safety_mode_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
 
+  std::vector<std::string> recipe = ur_driver_->getRTDEOutputRecipe();
+  rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, robot_hw_nh));
+
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
   // doing. Using this with other controllers might lead to unexpected behaviors.
@@ -393,6 +398,8 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+
+    rtde_data_pub_->publishData(data_pkg);
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
