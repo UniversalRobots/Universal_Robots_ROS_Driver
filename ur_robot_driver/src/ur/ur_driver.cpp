@@ -295,4 +295,9 @@ bool UrDriver::sendRobotProgram()
     return false;
   }
 }
+
+std::vector<std::string> UrDriver::getRTDEOutputRecipe()
+{
+  return rtde_client_->getOutputRecipe();
+}
 }  // namespace ur_driver
