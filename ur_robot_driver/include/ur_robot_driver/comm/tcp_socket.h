@@ -50,7 +50,6 @@ class TCPSocket
 private:
   std::atomic<int> socket_fd_;
   std::atomic<SocketState> state_;
-  std::unique_ptr<timeval> recv_timeout_;
 
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
@@ -60,6 +59,8 @@ protected:
   virtual void setOptions(int socket_fd);
 
   bool setup(std::string& host, int port);
+
+  std::unique_ptr<timeval> recv_timeout_;
 
 public:
   /*!

@@ -557,6 +557,106 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 This is the actual driver node containing the ROS-Control stack. Interfaces documented here refer to the robot's hardware interface. Controller-specific API elements might be present for the individual controllers outside of this package.
 
 #### Advertised Services
+ * "**dashboard/add_to_log**" (ur_dashboard_msgs/AddToLog)
+
+    Service to add a message to the robot's log
+
+ * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
+
+ * "**dashboard/clear_operational_mode**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
+
+ * "**dashboard/close_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Close a (non-safety) popup on the teach pendant.
+
+ * "**dashboard/close_safety_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Close a safety popup on the teach pendant.
+
+ * "**dashboard/connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to reconnect to the dashboard server
+
+ * "**dashboard/get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+
+    Load a robot installation from a file
+
+ * "**dashboard/get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+
+    Service to query the current robot mode
+
+ * "**dashboard/get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+
+    Service to query the current safety mode
+
+ * "**dashboard/load_installation**" (ur_dashboard_msgs/Load)
+
+    Load a robot installation from a file
+
+ * "**dashboard/load_program**" (ur_dashboard_msgs/Load)
+
+    Load a robot program from a file
+
+ * "**dashboard/pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Pause a running program.
+
+ * "**dashboard/play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Start execution of a previously loaded program
+
+ * "**dashboard/popup**" (ur_dashboard_msgs/Popup)
+
+    Service to show a popup on the UR Teach pendant.
+
+ * "**dashboard/power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Power off the robot motors
+
+ * "**dashboard/power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+
+ * "**dashboard/program_running**" (ur_dashboard_msgs/IsProgramRunning)
+
+    Query whether there is currently a program running
+
+ * "**dashboard/program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+
+    Query whether the current program is saved
+
+ * "**dashboard/program_state**" (ur_dashboard_msgs/GetProgramState)
+
+    Service the query the current program state
+
+ * "**dashboard/quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Disconnect from the dashboard service.
+
+ * "**dashboard/raw_request**" (ur_dashboard_msgs/RawRequest)
+
+    General purpose service to send arbitrary messages to the dashboard server
+
+ * "**dashboard/restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
+
+ * "**dashboard/shutdown**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Shutdown the robot controller
+
+ * "**dashboard/stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Stop program execution on the robot
+
+ * "**dashboard/unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
+
  * "**hand_back_control**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
     Calling this service will make the "External Control" program node on the UR-Program return.
@@ -574,6 +674,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
     Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
 #### Parameters
+ * "**dashboard/receive_timeout**" (Required)
+
+    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+
  * "**hardware_interface/joints**" (Required)
 
     Names of the joints. Usually, this is given in the controller config file.
@@ -656,6 +760,120 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in remote-control mode.  Sending scripts to this will stop program execution unless wrapped in a secondary program:  sec myProgram(): set_digital_out(0, True) end
 
+### dashboard_client
+
+
+
+#### Advertised Services
+ * "**add_to_log**" (ur_dashboard_msgs/AddToLog)
+
+    Service to add a message to the robot's log
+
+ * "**brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
+
+ * "**clear_operational_mode**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
+
+ * "**close_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Close a (non-safety) popup on the teach pendant.
+
+ * "**close_safety_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Close a safety popup on the teach pendant.
+
+ * "**connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Service to reconnect to the dashboard server
+
+ * "**get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+
+    Load a robot installation from a file
+
+ * "**get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+
+    Service the query the current robot mode
+
+ * "**get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+
+    Service the query the current safety mode
+
+ * "**load_installation**" (ur_dashboard_msgs/Load)
+
+    Load a robot installation from a file
+
+ * "**load_program**" (ur_dashboard_msgs/Load)
+
+    Load a robot program from a file
+
+ * "**pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Pause a running program.
+
+ * "**play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Start execution of a previously loaded program
+
+ * "**popup**" (ur_dashboard_msgs/Popup)
+
+    Service to show a popup on the UR Teach pendant.
+
+ * "**power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Power off the robot motors
+
+ * "**power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+
+ * "**program_running**" (ur_dashboard_msgs/IsProgramRunning)
+
+    Query whether there is currently a program running
+
+ * "**program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+
+    Query whether the current program is saved
+
+ * "**program_state**" (ur_dashboard_msgs/GetProgramState)
+
+    Service to query the current program state
+
+ * "**quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Disconnect from the dashboard service.
+
+ * "**raw_request**" (ur_dashboard_msgs/RawRequest)
+
+    General purpose service to send arbitrary messages to the dashboard server
+
+ * "**restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
+
+ * "**shutdown**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Shutdown the robot controller
+
+ * "**stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Stop program execution on the robot
+
+ * "**unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
+
+#### Parameters
+ * "**receive_timeout**" (Required)
+
+    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+
+ * "**robot_ip**" (Required)
+
+    The IP address under which the robot is reachable.
+
 ### tool_communication
 
 This node is used to start the RS485 tunneling interface on the ROS machine. This requires that the RS485 daemon is running on the robot controller and tool communication is enabled on the robot.
@@ -668,8 +886,4 @@ This node is used to start the RS485 tunneling interface on the ROS machine. Thi
  * "**~robot_ip**" (Required)
 
     IP address of the robot
-
- * "**~tcp_port**" (default: "54321")
-
-    Port on which the remote pc (robot) publishes the interface
 

@@ -24,6 +24,7 @@ find_package(catkin REQUIRED
     tf2_msgs
     trajectory_msgs
     ur_controllers
+    ur_dashboard_msgs
     ur_msgs
 )
 find_package(Boost REQUIRED)
@@ -47,6 +48,7 @@ catkin_package(
     tf2_msgs
     trajectory_msgs
     ur_controllers
+    ur_dashboard_msgs
     ur_msgs
     std_srvs
   DEPENDS
@@ -100,6 +102,7 @@ add_library(ur_robot_driver
     src/rtde/rtde_client.cpp
     src/ur/ur_driver.cpp
     src/ur/calibration_checker.cpp
+    src/ur/dashboard_client.cpp
     src/ur/tool_communication.cpp
     src/rtde/rtde_writer.cpp
 )
@@ -107,12 +110,19 @@ target_link_libraries(ur_robot_driver ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(ur_robot_driver_node
+  src/ros/dashboard_client_ros.cpp
   src/ros/hardware_interface.cpp
   src/ros/hardware_interface_node.cpp
 )
 target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_robot_driver)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(dashboard_client
+  src/ros/dashboard_client_ros.cpp
+  src/ros/dashboard_client_node.cpp
+)
+target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_robot_driver)
+add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 install(TARGETS ur_robot_driver ur_robot_driver_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
