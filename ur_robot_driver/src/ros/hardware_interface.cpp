@@ -238,7 +238,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Create ros_control interfaces
   for (std::size_t i = 0; i < joint_positions_.size(); ++i)
   {
-    ROS_DEBUG_STREAM("Registing handles for joint " << joint_names_[i]);
+    ROS_DEBUG_STREAM("Registering handles for joint " << joint_names_[i]);
     // Create joint state interface for all joints
     js_interface_.registerHandle(hardware_interface::JointStateHandle(joint_names_[i], &joint_positions_[i],
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
@@ -306,6 +306,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
+  ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
   return true;

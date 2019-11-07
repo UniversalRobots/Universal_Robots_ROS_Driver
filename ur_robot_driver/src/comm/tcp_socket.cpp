@@ -177,7 +177,10 @@ bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
   written = 0;
 
   if (state_ != SocketState::Connected)
+  {
+    LOG_ERROR("Attempt to write on a non-connected socket");
     return false;
+  }
 
   size_t remaining = buf_len;
 
@@ -187,7 +190,10 @@ bool TCPSocket::write(const uint8_t* buf, const size_t buf_len, size_t& written)
     ssize_t sent = ::send(socket_fd_, buf + written, remaining, 0);
 
     if (sent <= 0)
+    {
+      LOG_ERROR("Sending data through socket failed.");
       return false;
+    }
 
     written += sent;
     remaining -= sent;

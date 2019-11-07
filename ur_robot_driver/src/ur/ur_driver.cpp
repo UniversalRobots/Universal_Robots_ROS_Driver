@@ -137,7 +137,6 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   reverse_port_ = reverse_port;
   watchdog_thread_ = std::thread(&UrDriver::startWatchdog, this);
 
-  rtde_client_->start();  // TODO: Add extra start method (also to HW-Interface)
   LOG_DEBUG("Initialization done");
 }
 
@@ -165,6 +164,11 @@ bool UrDriver::writeKeepalive()
     return reverse_interface_->write(fake, 1);
   }
   return false;
+}
+
+void UrDriver::startRTDECommunication()
+{
+  rtde_client_->start();
 }
 
 bool UrDriver::stopControl()
@@ -233,6 +237,7 @@ void UrDriver::checkCalibration(const std::string& checksum)
   }
   primary_interface::PrimaryParser parser;
   comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(*primary_stream_, parser);
+  prod.setupProducer();
 
   CalibrationChecker consumer(checksum);
 
