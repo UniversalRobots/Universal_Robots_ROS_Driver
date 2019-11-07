@@ -65,6 +65,7 @@ public:
    * \param robot_ip IP address of the robot
    */
   DashboardClientROS(const ros::NodeHandle& nh, const std::string& robot_ip);
+  DashboardClientROS() = delete;
   virtual ~DashboardClientROS() = default;
 
 private:

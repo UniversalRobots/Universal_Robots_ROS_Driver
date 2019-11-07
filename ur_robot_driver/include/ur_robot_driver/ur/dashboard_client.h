@@ -50,6 +50,7 @@ public:
    * \param host IP address of the robot
    */
   DashboardClient(const std::string& host);
+  DashboardClient() = delete;
   virtual ~DashboardClient() = default;
 
   const int DASHBOARD_SERVER_PORT = 29999;
