@@ -50,7 +50,6 @@ bool DashboardClient::connect()
     ret_val = true;
   }
   return ret_val;
-  ;
 }
 
 void DashboardClient::disconnect()
