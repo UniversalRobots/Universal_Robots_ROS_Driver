@@ -47,8 +47,15 @@ namespace ur_driver
 class RobotStateHelper
 {
 public:
-  RobotStateHelper() = delete;
+  /*!
+   * \brief Constructor that should be used by default
+   *
+   * \param nh Node handle that should be used. The handle's namespace should be the same as used
+   * for the hardware interface. Otherwise remapping will be necessary to access the hardware
+   * interface's topics and sercices.
+   */
   RobotStateHelper(const ros::NodeHandle& nh);
+  RobotStateHelper() = delete;
   virtual ~RobotStateHelper() = default;
 
 private:

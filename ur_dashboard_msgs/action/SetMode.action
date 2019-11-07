@@ -1,5 +1,5 @@
-# This action is for setting the robot into a desired mode
-# and safety mode is in a non-critical state (e.g. NORMAL or REDUCED)
+# This action is for setting the robot into a desired mode (e.g. RUNNING) and safety mode into a
+# non-critical state (e.g. NORMAL or REDUCED), for example after a safety incident happened.
 
 # goal
 int8 target_robot_mode
