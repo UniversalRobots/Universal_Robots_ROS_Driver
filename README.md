@@ -146,7 +146,7 @@ to do so, as otherwise endeffector positions might be off in the magnitude of ce
 For this, there exists a helper script:
 
     $ roslaunch ur_calibration calibration_correction.launch \
-    robot_ip:=<robot_ip> target_filename:="${HOME}/my_robot_calibration.yaml"
+      robot_ip:=<robot_ip> target_filename:="${HOME}/my_robot_calibration.yaml"
 
 For the parameter `robot_ip` insert the IP address on which the ROS pc can reach the robot. As
 `target_filename` provide an absolute path where the result will be saved to.
@@ -168,7 +168,7 @@ load the calibration parameters for the robot "ur10_example".
 If you calibrated your robot before, pass that calibration to the launch file:
 
     $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101 \
-    kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
+      kinematics_config:=$(rospack find ur_calibration)/etc/ur10_example_calibration.yaml
 
 If the parameters in that file don't match the ones reported from the robot, the driver will output
 an error during startup, but will remain usable.
