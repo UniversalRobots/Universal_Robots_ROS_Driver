@@ -27,7 +27,6 @@
   <depend>controller_manager</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
-  <depend>industrial_msgs</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
   <depend>tf</depend>

@@ -15,7 +15,6 @@ find_package(catkin REQUIRED
     controller_manager
     geometry_msgs
     hardware_interface
-    industrial_msgs
     roscpp
     sensor_msgs
     std_srvs
@@ -40,7 +39,6 @@ catkin_package(
     controller_manager
     geometry_msgs
     hardware_interface
-    industrial_msgs
     roscpp
     sensor_msgs
     tf
