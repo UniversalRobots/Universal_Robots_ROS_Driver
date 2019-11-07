@@ -57,6 +57,13 @@ namespace ur_driver
 class DashboardClientROS
 {
 public:
+  /*!
+   * \brief Constructor that shall be used by default
+   *
+   * \param nh Node handle pointing to the name space the dashboard-related functionalities are to
+   * be found
+   * \param robot_ip IP address of the robot
+   */
   DashboardClientROS(const ros::NodeHandle& nh, const std::string& robot_ip);
   virtual ~DashboardClientROS() = default;
 

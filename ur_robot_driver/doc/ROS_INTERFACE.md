@@ -587,11 +587,11 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**dashboard/get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
 
-    Service the query the current robot mode
+    Service to query the current robot mode
 
  * "**dashboard/get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
 
-    Service the query the current safety mode
+    Service to query the current safety mode
 
  * "**dashboard/load_installation**" (ur_dashboard_msgs/Load)
 
@@ -839,7 +839,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**program_state**" (ur_dashboard_msgs/GetProgramState)
 
-    Service the query the current program state
+    Service to query the current program state
 
  * "**quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
@@ -872,11 +872,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**robot_ip**" (Required)
 
-    Please add description. See dashboard_client_node.cpp line number: 36
-
-
-
-    	std::string robot_ip = priv_nh.param<std::string>("robot_ip", "192.168.56.101");
+    The IP address under which the robot is reachable.
 
 ### tool_communication
 

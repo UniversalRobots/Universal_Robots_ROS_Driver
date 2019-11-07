@@ -44,6 +44,11 @@ namespace ur_driver
 class DashboardClient : public comm::TCPSocket
 {
 public:
+  /*!
+   * \brief Constructor that shall be used by default
+   *
+   * \param host IP address of the robot
+   */
   DashboardClient(const std::string& host);
   virtual ~DashboardClient() = default;
 

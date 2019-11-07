@@ -129,7 +129,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
         return true;
       });
 
-  // Service the query the current program state
+  // Service to query the current program state
   popup_service_ =
       nh_.advertiseService<ur_dashboard_msgs::GetProgramState::Request, ur_dashboard_msgs::GetProgramState::Response>(
           "program_state",
@@ -146,10 +146,10 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
             return true;
           });
 
-  // Service the query the current safety mode
+  // Service to query the current safety mode
   safety_mode_service_ = nh_.advertiseService("get_safety_mode", &DashboardClientROS::handleSafetyModeQuery, this);
 
-  // Service the query the current robot mode
+  // Service to query the current robot mode
   robot_mode_service_ = nh_.advertiseService("get_robot_mode", &DashboardClientROS::handleRobotModeQuery, this);
 
   // Service to add a message to the robot's log
