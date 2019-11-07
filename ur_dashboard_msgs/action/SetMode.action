@@ -1,0 +1,25 @@
+# This action is for setting the robot into a desired mode (e.g. RUNNING) and safety mode into a
+# non-critical state (e.g. NORMAL or REDUCED), for example after a safety incident happened.
+
+# goal
+int8 target_robot_mode
+
+# Stop program execution before restoring the target mode. Can be used together with 'play_program'.
+bool stop_program
+
+# Play the currently loaded program after target mode is reached.#
+# NOTE: Requesting mode RUNNING in combination with this will make the robot continue the motion it
+# was doing before. This might probably lead into the same problem (protective stop, EM-Stop due to
+# faulty motion, etc.) If you want to be safe, set the 'stop_program' flag below and manually play
+# the program after robot state is returned to normal.
+# This flag will only be used when requesting mode RUNNING
+bool play_program
+
+---
+# result
+bool success
+string message
+---
+# feedback
+int8 current_robot_mode
+int8 current_safety_mode

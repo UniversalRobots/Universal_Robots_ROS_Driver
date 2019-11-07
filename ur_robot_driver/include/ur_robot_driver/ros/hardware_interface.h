@@ -51,6 +51,9 @@
 #include "ur_robot_driver/ur/ur_driver.h"
 #include <ur_robot_driver/ros/dashboard_client_ros.h>
 
+#include <ur_dashboard_msgs/RobotMode.h>
+#include <ur_dashboard_msgs/SafetyMode.h>
+
 namespace ur_driver
 {
 /*!
@@ -174,6 +177,7 @@ protected:
 
   void publishIOData();
   void publishToolData();
+  void publishRobotAndSafetyMode();
 
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
@@ -225,10 +229,14 @@ protected:
   double target_speed_fraction_;
   double speed_scaling_combined_;
   std::vector<std::string> joint_names_;
+  int32_t robot_mode_;
+  int32_t safety_mode_;
 
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>> robot_mode_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>> safety_mode_pub_;
 
   ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;

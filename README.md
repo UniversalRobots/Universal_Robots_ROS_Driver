@@ -52,8 +52,8 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    on the robot that handles control commands sent from ROS side. With this, the robot can be
    **paused**, **stopped** and **resumed** without restarting the ROS driver.
    This will in the future also enable the usage of ROS-components as part of a more complex UR-program
-   on the teach pendant. This is currently not yet supported, as we are still missing to exit
-   control from ROS side. Expect this to come in future releases.
+   on the teach pendant. ROS-control of the robot can be quit using a service call to continue
+   program execution on the TP.
  * Use the robot's **speed-scaling**. When speed scaling is active due to safety constraints or the
    speed slider is used, this gets correctly handled on the ROS side, as well slowing down
    trajectory execution accordingly.<br/>
@@ -61,6 +61,11 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    can be used with this driver, but may behave wrong if the speed slider isn't set to 100% or if
    speed scaling slows down the robot. Also, the pausing function can only be used if the default
    scaled trajectory controller is used.
+ * **ROS-Service-based replacement of most every-day TP-interactions** offer using UR robots without
+   interacting with the teach pendant at all, if desired. The robot can be started, stopped and even
+   recovery from safety events can be done using ROS service- and action calls. See the driver's
+   [dashboard services](ur_robot_driver/doc/ROS_INTERFACE.md#ur_robot_driver_node) and the
+   [robot_state_helper node](ur_robot_driver/doc/ROS_INTERFACE.md#robot_state_helper) for details.
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 

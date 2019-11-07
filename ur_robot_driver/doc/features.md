@@ -13,7 +13,7 @@
 | panel interaction in between possible                 | no<sup>1</sup>   | yes                   |
 | get and set IO states                                 | yes              | yes               |
 | use tool communication on e-series                    | -                | yes                   |
-| use the driver without a teach pendant necessary      | -                | planned               |
+| use the driver without a teach pendant necessary      | -                | yes               |
 | support of CB2 robots                                 | yes              | -                     |
 | trajectory extrapolation on robot on missing packages | no<sup>2</sup>   | yes                   |
 | use ROS as drop-in for TP-programs                    | -                | yes   |

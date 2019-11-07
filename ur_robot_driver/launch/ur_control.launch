@@ -73,4 +73,8 @@
     </rosparam>
   </node>
 
+  <!-- Make sure to start this in the namespace of the hardware interface -->
+  <node ns="ur_hardware_interface" name="ur_robot_state_helper" pkg="ur_robot_driver" type="robot_state_helper" respawn="false" output="screen">
+  </node>
+
 </launch>
