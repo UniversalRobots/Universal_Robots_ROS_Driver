@@ -94,20 +94,25 @@ on information how to set this up.
 ```bash
 # source global ros
 $ source /opt/ros/<your_ros_version>/setup.bash
+
 # create a catkin workspace
 $ mkdir -p catkin_ws/src && cd catkin_ws
-$ catkin_make
-$ cd src
+
 # clone the driver
-$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
+$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
+
 # clone fork of the description to use the calibration feature
-$ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git
+$ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
+
 # install dependencies
-$ rosdep install --from-path . -y --ignore-src
-# build the driver
-$ cd ..
+$ sudo apt update -qq
+$ rosdep update
+$ rosdep install --from-path src --ignore-src -y
+
+# build the workspace
 $ catkin_make
-# source the workspace
+
+# activate the workspace (ie: source it)
 $ source devel/setup.bash
 ```
 
