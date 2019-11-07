@@ -305,7 +305,32 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   safety_mode_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
 
+  std::string already_published[] = { "actual_q",
+                                      "actual_qd",
+                                      "target_speed_fraction",
+                                      "speed_scaling",
+                                      "runtime_state",
+                                      "actual_TCP_force",
+                                      "actual_TCP_pose",
+                                      "standard_analog_input0",
+                                      "standard_analog_input1",
+                                      "standard_analog_output0",
+                                      "standard_analog_output1",
+                                      "tool_mode",
+                                      "tool_analog_input0",
+                                      "tool_analog_input1",
+                                      "tool_output_voltage",
+                                      "tool_output_current",
+                                      "tool_temperature",
+                                      "actual_digital_input_bits",
+                                      "actual_digital_output_bits",
+                                      "analog_io_types",
+                                      "tool_analog_input_types" };
   std::vector<std::string> recipe = ur_driver_->getRTDEOutputRecipe();
+  for (auto s : already_published)
+  {
+    recipe.erase(std::remove(recipe.begin(), recipe.end(), s), recipe.end());
+  }
   rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, robot_hw_nh));
 
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
