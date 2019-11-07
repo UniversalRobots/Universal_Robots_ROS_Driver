@@ -26,7 +26,7 @@
 //----------------------------------------------------------------------
 
 #include <ros/ros.h>
-#include <ur_robot_driver/ros/dashboard_client.h>
+#include <ur_robot_driver/ros/dashboard_client_ros.h>
 
 int main(int argc, char** argv)
 {
