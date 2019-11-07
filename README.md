@@ -99,7 +99,7 @@ $ mkdir -p catkin_ws/src && cd catkin_ws
 $ catkin_make
 $ cd src
 # clone the driver
-$ git clone <this_repository_url>
+$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
 # clone fork of the description to use the calibration feature
 $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git
 # install dependencies
