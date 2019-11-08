@@ -631,7 +631,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**dashboard/program_state**" (ur_dashboard_msgs/GetProgramState)
 
-    Service the query the current program state
+    Service to query the current program state
 
  * "**dashboard/quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
@@ -714,14 +714,6 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     	robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
- * "Symbol: **this_thread**" (default: "&params")
-
-    Please add description. See hardware_interface_node.cpp line number: 98
-
-
-
-    	int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
-
  * "**tool_baud_rate**" (Required)
 
     Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
@@ -795,11 +787,11 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
 
-    Service the query the current robot mode
+    Service to query the current robot mode
 
  * "**get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
 
-    Service the query the current safety mode
+    Service to query the current safety mode
 
  * "**load_installation**" (ur_dashboard_msgs/Load)
 
@@ -875,11 +867,8 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
     The IP address under which the robot is reachable.
 
 ### robot_state_helper
-This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to
-a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop).
 
-It should best be started inside the hardware interface's namespace
-
+This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop).  It should best be started inside the hardware interface's namespace
 
 #### Service Clients
  * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
@@ -919,7 +908,7 @@ It should best be started inside the hardware interface's namespace
 
     Topic on which the safety is published by the driver
 
-#### Action servers
+#### Actions
  * "**set_mode**" (ur_dashboard_msgs/SetMode)
 
     Action server to set the robot into a specific mode (e.g. RUNNING). If desired, program
