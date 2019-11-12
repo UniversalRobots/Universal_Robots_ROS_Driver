@@ -27,6 +27,7 @@
   <depend>controller_manager</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
   <depend>tf</depend>
@@ -47,6 +48,7 @@
   <exec_depend>velocity_controllers</exec_depend>
 
   <export>
+    <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />
     <rosdoc config="doc/rosdoc.yaml" />
   </export>
 

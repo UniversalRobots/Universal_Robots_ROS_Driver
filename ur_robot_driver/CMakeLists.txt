@@ -15,6 +15,7 @@ find_package(catkin REQUIRED
     controller_manager
     geometry_msgs
     hardware_interface
+    pluginlib
     roscpp
     sensor_msgs
     std_srvs
@@ -39,6 +40,7 @@ catkin_package(
     controller_manager
     geometry_msgs
     hardware_interface
+    pluginlib
     roscpp
     sensor_msgs
     tf
@@ -88,6 +90,7 @@ add_library(ur_robot_driver
     src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
+    src/ros/hardware_interface.cpp
     src/rtde/control_package_pause.cpp
     src/rtde/control_package_setup_inputs.cpp
     src/rtde/control_package_setup_outputs.cpp
@@ -145,4 +148,8 @@ install(DIRECTORY config launch
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
+)
+
+install(FILES hardware_interface_plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

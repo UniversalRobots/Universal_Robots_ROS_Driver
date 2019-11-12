@@ -24,7 +24,7 @@
  *
  */
 //----------------------------------------------------------------------
-
+#include <pluginlib/class_list_macros.hpp>
 #include "ur_robot_driver/ros/hardware_interface.h"
 #include "ur_robot_driver/ur/tool_communication.h"
 #include <ur_robot_driver/exceptions.h>
@@ -744,3 +744,5 @@ void HardwareInterface::publishRobotAndSafetyMode()
   }
 }
 }  // namespace ur_driver
+
+PLUGINLIB_EXPORT_CLASS(ur_driver::HardwareInterface, hardware_interface::RobotHW)
