@@ -90,6 +90,7 @@ add_library(ur_robot_driver
     src/primary/robot_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
+    src/ros/dashboard_client_ros.cpp
     src/ros/hardware_interface.cpp
     src/rtde/control_package_pause.cpp
     src/rtde/control_package_setup_inputs.cpp
