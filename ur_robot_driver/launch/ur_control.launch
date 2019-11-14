@@ -60,8 +60,8 @@
     output="screen" args="$(arg controllers)" />
 
   <!-- load other controller -->
-  <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-    output="screen" args="load $(arg stopped_controllers)" />
+  <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="--stopped $(arg stopped_controllers)" />
 
 
   <node name="controller_stopper" pkg="controller_stopper" type="node" respawn="false" output="screen">
