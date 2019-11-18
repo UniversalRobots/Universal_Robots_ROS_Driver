@@ -177,5 +177,9 @@ int main(int argc, char* argv[])
   {
     ROS_ERROR_STREAM(e.what());
   }
+  catch (const std::exception& e)
+  {
+    ROS_ERROR_STREAM(e.what());
+  }
   return 0;
 }
