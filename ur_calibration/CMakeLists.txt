@@ -11,13 +11,15 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+# create alias for the '_INCLUDE_DIR' variable, to help Catkin export it
+set(YAML_CPP_INCLUDE_DIRS ${YAML_CPP_INCLUDE_DIR})
 
 catkin_package(
   CATKIN_DEPENDS
     roscpp
     ur_robot_driver
   DEPENDS
-    yaml-cpp
+    YAML_CPP
 )
 
 ###########
@@ -30,6 +32,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIRS}
 )
 
 add_executable(calibration_correction
@@ -43,7 +46,7 @@ add_dependencies(calibration_correction ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 ## Specify libraries to link a library or executable target against
 target_link_libraries(calibration_correction
   ${catkin_LIBRARIES}
-  yaml-cpp
+  ${YAML_CPP_LIBRARIES}
 )
 
 install(DIRECTORY launch
