@@ -13,8 +13,6 @@ find_package(yaml-cpp REQUIRED)
 
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ur_calibration
   CATKIN_DEPENDS
     roscpp
     ur_robot_driver
