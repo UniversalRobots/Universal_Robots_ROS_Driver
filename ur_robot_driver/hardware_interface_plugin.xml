@@ -1,0 +1,7 @@
+<library path="lib/libur_robot_driver_plugin">
+  <class name="ur_driver/HardwareInterface" type="ur_driver::HardwareInterface" base_class_type="hardware_interface::RobotHW">
+    <description>
+      Universal Robots ROS Driver as plugin
+    </description>
+  </class>
+</library>
