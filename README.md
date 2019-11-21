@@ -218,8 +218,13 @@ This section will cover some previously raised issues.
  [e-Series robots](ur_robot_driver/doc/install_urcap_e_series.md))<br/>
  Note: This error can also show up, when the ROS driver is not running.
 3. **When starting the program on the TP, I get a `C207A0` error.**<br/>
- Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. Since the robot's
- ethernet port is used for communicating with ROS (note: EtherNet/IP != ethernet), you'll have to
- deactivate this. See
- [#28](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/28#issuecomment-554889336) for
- details
+ Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
+ Ethernet/IP fieldbus (note: EtherNet/IP != ethernet), make sure that it is
+ connected properly. In the Ethernet/IP fieldbus Installation screen
+ (e-series: Installation > Fieldbus > EtherNet/IP, CB3: Installation > EtherNet/IP) you can select the action that is being
+ executed upon a loss of EtherNet/IP Scanner connection. If you select "None",
+ save installation and program, then no exception is raised when no connection
+ to the fieldbus scanner can be established (note: This is only to get the
+ `External Control` running. You probably want to make sure that a connection to
+ the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
+ fieldbusses at all, you can disable it in the same installation screen. 
