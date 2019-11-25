@@ -1,0 +1,22 @@
+name: Industrial CI pipeline
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env:
+          - ROS_DISTRO: kinetic
+            UPSTREAM_WORKSPACE: .ci.rosinstall
+          - ROS_DISTRO: melodic
+            UPSTREAM_WORKSPACE: .ci.rosinstall
+          - ROS_DISTRO: melodic
+            UPSTREAM_WORKSPACE: .ci.rosinstall
+            CLANG_FORMAT_CHECK: file
+            CLANG_FORMAT_VERSION: "6.0"
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
