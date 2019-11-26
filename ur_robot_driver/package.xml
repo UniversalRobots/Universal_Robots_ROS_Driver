@@ -6,10 +6,10 @@
   <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controllers and the e-series.</description>
   <author>Thomas Timm Andersen</author>
   <author>Simon Rasmussen</author>
-  <author>Felix Mauch</author>
+  <author>Felix Exner</author>
   <author>Lea Steffen</author>
   <author>Tristan Schnell</author>
-  <maintainer email="mauch@fzi.de">Felix Mauch</maintainer>
+  <maintainer email="exner@fzi.de">Felix Exner</maintainer>
   <license>Apache 2.0</license>
   <license>BSD 2-clause</license>
   <license>Zlib</license>

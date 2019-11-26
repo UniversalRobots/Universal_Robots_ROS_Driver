@@ -19,7 +19,7 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Felix Mauch mauch@fzi.de
+ * \author  Felix Exner exner@fzi.de
  * \author  Lea Steffen steffen@fzi.de
  * \date    2019-04-01
  *
