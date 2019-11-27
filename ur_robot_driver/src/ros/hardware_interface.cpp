@@ -389,6 +389,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   set_payload_srv_ = robot_hw_nh.advertiseService<ur_msgs::SetPayload::Request, ur_msgs::SetPayload::Response>(
       "set_payload", [&](ur_msgs::SetPayload::Request& req, ur_msgs::SetPayload::Response& resp) {
         std::stringstream cmd;
+        cmd.imbue(std::locale::classic());  // Make sure, decimal divider is actually '.'
         cmd << "sec setup():" << std::endl
             << " set_payload(" << req.payload << ", [" << req.center_of_gravity.x << ", " << req.center_of_gravity.y
             << ", " << req.center_of_gravity.z << "])" << std::endl
