@@ -315,6 +315,17 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
+  // Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only
+  // work when the robot is in remote-control mode.
+  tare_sensor_srv_ = robot_hw_nh.advertiseService<std_srvs::Trigger::Request, std_srvs::Trigger::Response>(
+      "zero_ftsensor", [&](std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& resp) {
+        resp.success = this->ur_driver_->sendScript(R"(sec tareSensor():
+  zero_ftsensor()
+end
+)");
+        return true;
+      });
+
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 

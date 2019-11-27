@@ -196,6 +196,7 @@ protected:
   std::unique_ptr<DashboardClientROS> dashboard_client_;
 
   ros::ServiceServer deactivate_srv_;
+  ros::ServiceServer tare_sensor_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
   ur_controllers::ScaledPositionJointInterface spj_interface_;
