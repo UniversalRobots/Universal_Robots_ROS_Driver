@@ -266,13 +266,15 @@ bool UrDriver::sendScript(const std::string& program)
                              "should not happen.");
   }
 
-  size_t len = program.size();
-  const uint8_t* data = reinterpret_cast<const uint8_t*>(program.c_str());
+  auto program_with_newline = program + '\n';
+
+  size_t len = program_with_newline.size();
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(program_with_newline.c_str());
   size_t written;
 
   if (secondary_stream_->write(data, len, written))
   {
-    LOG_DEBUG("Sent program to robot");
+    LOG_DEBUG("Sent program to robot:\n%s", program_with_newline.c_str());
     return true;
   }
   LOG_ERROR("Could not send program to robot");
