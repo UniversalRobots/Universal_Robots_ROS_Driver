@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/UniversalRobots/Universal_Robots_ROS_Driver.svg?branch=master)](https://travis-ci.org/UniversalRobots/Universal_Robots_ROS_Driver)
 
+
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
@@ -9,7 +10,7 @@ With the release of UR’s new e-Series, the demand for a ROS driver that suppor
 
 It is the core value of Universal Robots, to empower people to achieve any goal within automation. The success criteria of this driver release is to follow this vision, by providing the ROS community with an easy to use, stable and powerful driver, that empowers the community to reach their goals in research and automation without struggling with unimportant technical challenges, instability or lacking features.
 
-### Acknowledgement
+## Acknowledgement
 This driver is forked from the [ur_modern_driver](https://github.com/ros-industrial/ur_modern_driver).
 
 <!-- 
@@ -36,7 +37,9 @@ the [FZI Research Center for Information Technology](https://www.fzi.de).
 
 
 ## How to report an issue
-Create an issue on the [Issue Board](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/new) using the default template.
+Before creating an issue, please have a look at the [Troubleshooting section](#Troubleshooting) of this document.
+
+To create an issue on the [Issue Board](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/new) please use the default template.
 
 ## How to get help
 If you need help using this driver, please see the ROS-category in the [UR+ Developer Forum](https://forum.universal-robots.com/c/ros). 
@@ -193,3 +196,43 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
 
+## Troubleshooting
+
+This section will cover some previously raised issues.
+
+### I started everything, but I cannot control the robot.
+The `External Control` program node from the URCap is not running on the robot. Make sure to create
+a program containing this node on the robot and start it. Inside the ROS terminal you should see
+the output `Robot ready to receive control commands.`
+
+**Note:** When interacting with the teach pendant, or sending other primary programs to the robot, the
+program will be stopped. On the ROS terminal you will see an output `Connection to robot dropped,
+waiting for new connection`. In those cases, restart program execution (e.g. by pressing the play
+button on the TP).
+
+In general, make sure you've completed the following tasks:
+
+1. Install and setup the `External Control` URCap as explained
+   [above](#setting-up-a-ur-robot-for-ur_robot_driver) (also setup the IP address **of the ROS
+   pc** inside the URCap's installation.)
+2. Start the driver handing the IP **of the robot** as explained in the
+   [quickstart](#quick-start)
+3. Load and start the previously generated program on the TP.
+
+### When starting the program on the TP, I get an error "The connection to the remote PC could not be established"
+Make sure, the IP address setup is correct, as described in the setup guides ([CB3 robots](ur_robot_driver/doc/install_urcap_cb3.md),
+[e-Series robots](ur_robot_driver/doc/install_urcap_e_series.md))
+
+**Note:** This error can also show up, when the ROS driver is not running.
+
+### When starting the program on the TP, I get a `C207A0` error.
+Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
+Ethernet/IP fieldbus (note: EtherNet/IP != ethernet), make sure that it is
+connected properly. In the Ethernet/IP fieldbus Installation screen
+(e-series: *Installation > Fieldbus > EtherNet/IP*, CB3: *Installation > EtherNet/IP*) you can select the action that is being
+executed upon a loss of EtherNet/IP Scanner connection. If you select "None",
+save installation and program, then no exception is raised when no connection
+to the fieldbus scanner can be established (note: This is only to get the
+`External Control` running. You probably want to make sure that a connection to
+the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
+fieldbusses at all, you can disable it in the same installation screen. 
