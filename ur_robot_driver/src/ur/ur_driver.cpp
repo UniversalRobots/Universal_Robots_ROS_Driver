@@ -266,6 +266,9 @@ bool UrDriver::sendScript(const std::string& program)
                              "should not happen.");
   }
 
+  // urscripts (snippets) must end with a newline, or otherwise the controller's runtime will
+  // not execute them. To avoid problems, we always just append a newline here, even if
+  // there may already be one.
   auto program_with_newline = program + '\n';
 
   size_t len = program_with_newline.size();
