@@ -228,7 +228,14 @@ public:
   }
 
 private:
-  const std::set<uint32_t> baud_rates_allowed_{ 9600, 19200, 38400, 57600, 115200, 10000000, 2000000, 5000000 };
+  const std::set<uint32_t> baud_rates_allowed_{ 9600,
+                                                19200,
+                                                38400,
+                                                57600,
+                                                115200,
+                                                static_cast<uint32_t>(1e6),
+                                                static_cast<uint32_t>(2e6),
+                                                static_cast<uint32_t>(5e6) };
 
   ToolVoltage tool_voltage_;
   Parity parity_;
