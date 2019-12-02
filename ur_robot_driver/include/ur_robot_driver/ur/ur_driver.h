@@ -31,6 +31,7 @@
 #include "ur_robot_driver/comm/reverse_interface.h"
 #include "ur_robot_driver/comm/script_sender.h"
 #include "ur_robot_driver/ur/tool_communication.h"
+#include "ur_robot_driver/ur/version_information.h"
 #include "ur_robot_driver/primary/robot_message/version_message.h"
 #include "ur_robot_driver/rtde/rtde_writer.h"
 
@@ -173,6 +174,14 @@ public:
    */
   bool sendRobotProgram();
 
+  /*!
+   * \brief Returns version information about the currently connected robot
+   */
+  const VersionInformation& getVersion()
+  {
+    return robot_version_;
+  }
+
 private:
   std::string readScriptFile(const std::string& filename);
   std::string readKeepalive();
@@ -197,6 +206,8 @@ private:
   std::string robot_ip_;
   bool in_headless_mode_;
   std::string full_robot_program_;
+
+  VersionInformation robot_version_;
 };
 }  // namespace ur_driver
 #endif  // ifndef UR_RTDE_DRIVER_UR_UR_DRIVER_H_INCLUDED
