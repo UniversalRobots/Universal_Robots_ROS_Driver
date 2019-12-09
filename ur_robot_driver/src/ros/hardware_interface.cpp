@@ -65,6 +65,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  robot_hw_nh.getParam("reverse_port", reverse_port_);
+  robot_hw_nh.getParam("script_sender_port", script_sender_port_);
+
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
   // Path to the urscript code that will be sent to the robot.
@@ -207,7 +210,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                  headless_mode, std::move(tool_comm_setup), calibration_checksum));
+                                  headless_mode, std::move(tool_comm_setup), calibration_checksum, reverse_port_,
+                                  script_sender_port_));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {

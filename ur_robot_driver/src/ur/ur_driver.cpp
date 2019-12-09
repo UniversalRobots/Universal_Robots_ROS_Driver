@@ -50,13 +50,16 @@ static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
                               const std::string& output_recipe_file, const std::string& input_recipe_file,
                               std::function<void(bool)> handle_program_state, bool headless_mode,
-                              std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum)
+                              std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum,
+                              const int reverse_port, const int script_sender_port)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)
   , reverse_interface_active_(false)
   , handle_program_state_(handle_program_state)
   , robot_ip_(robot_ip)
+  , reverse_port_(reverse_port)
+  , script_sender_port_(script_sender_port)
 {
   LOG_DEBUG("Initializing urdriver");
   LOG_DEBUG("Initializing RTDE client");
@@ -79,9 +82,6 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   servoj_time_ = 1.0 / rtde_frequency_;
 
   std::string local_ip = rtde_client_->getIP();
-
-  uint32_t reverse_port = 50001;        // TODO: Make this a parameter
-  uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
 
   std::string prog = readScriptFile(script_file);
   prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE));

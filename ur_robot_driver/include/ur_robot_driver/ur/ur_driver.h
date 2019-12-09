@@ -58,10 +58,13 @@ public:
    * \param tool_comm_setup Configuration for using the tool communication.
    * \param calibration_checksum Expected checksum of calibration. Will be matched against the
    * calibration reported by the robot.
+   * \param reverse_port #TODO
+   * \param script_sending_port #TODO
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
-           std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "");
+           std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "",
+           const int reverse_port = 50001, const int script_sender_port = 50002);
   /*!
    * \brief Constructs a new UrDriver object.
    *
@@ -73,12 +76,15 @@ public:
    * \param headless_mode Parameter to control if the driver should be started in headless mode.
    * \param calibration_checksum Expected checksum of calibration. Will be matched against the
    * calibration reported by the robot.
+   * \param reverse_port #TODO
+   * \param script_sending_port #TODO
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
-           const std::string& calibration_checksum = "")
+           const std::string& calibration_checksum = "", const int reverse_port = 50001,
+           const int script_sender_port = 50002)
     : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state, headless_mode,
-               std::unique_ptr<ToolCommSetup>{}, calibration_checksum)
+               std::unique_ptr<ToolCommSetup>{}, calibration_checksum, reverse_port, script_sender_port)
   {
   }
 
@@ -200,10 +206,11 @@ private:
 
   std::thread watchdog_thread_;
   bool reverse_interface_active_;
-  uint32_t reverse_port_;
   std::function<void(bool)> handle_program_state_;
 
   std::string robot_ip_;
+  int reverse_port_;
+  int script_sender_port_;
   bool in_headless_mode_;
   std::string full_robot_program_;
 
