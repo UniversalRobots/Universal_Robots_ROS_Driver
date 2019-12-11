@@ -15,8 +15,8 @@
   <license>Zlib</license>
 
   <url type="website">http://wiki.ros.org/ur_robot_driver</url>
-  <url type="bugtracker">https://github.com/ros-industrial/ur_robot_driver/issues</url>
-  <url type="repository">https://github.com/ros-industrial/ur_robot_driver</url>
+  <url type="bugtracker">https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues</url>
+  <url type="repository">https://github.com/UniversalRobots/Universal_Robots_ROS_Driver</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
