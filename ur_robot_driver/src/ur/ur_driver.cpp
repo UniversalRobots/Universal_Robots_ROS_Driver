@@ -51,7 +51,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
                               const std::string& output_recipe_file, const std::string& input_recipe_file,
                               std::function<void(bool)> handle_program_state, bool headless_mode,
                               std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum,
-                              const int reverse_port, const int script_sender_port)
+                              const uint32_t reverse_port, const uint32_t script_sender_port)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)

@@ -259,8 +259,6 @@ protected:
   bool controllers_initialized_;
 
   std::string robot_ip_;
-  int reverse_port_;
-  int script_sender_port_;
   std::string tf_prefix_;
 };
 
