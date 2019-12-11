@@ -190,12 +190,14 @@ protected:
   bool setSpeedSlider(ur_msgs::SetSpeedSliderFractionRequest& req, ur_msgs::SetSpeedSliderFractionResponse& res);
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
   bool resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
 
   std::unique_ptr<UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
 
   ros::ServiceServer deactivate_srv_;
+  ros::ServiceServer tare_sensor_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
   ur_controllers::ScaledPositionJointInterface spj_interface_;

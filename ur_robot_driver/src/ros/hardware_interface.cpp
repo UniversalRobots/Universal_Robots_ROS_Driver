@@ -315,6 +315,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
+  // Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only
+  // work when the robot is in remote-control mode.
+  tare_sensor_srv_ = robot_hw_nh.advertiseService("zero_ftsensor", &HardwareInterface::zeroFTSensor, this);
+
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
@@ -691,6 +695,28 @@ bool HardwareInterface::resendRobotProgram(std_srvs::TriggerRequest& req, std_sr
     res.message = "Could not resend robot program";
   }
 
+  return true;
+}
+
+bool HardwareInterface::zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  if (ur_driver_->getVersion().major < 5)
+  {
+    std::stringstream ss;
+    ss << "Zeroing the Force-Torque sensor is only available for e-Series robots (Major version >= 5). This robot's "
+          "version is "
+       << ur_driver_->getVersion();
+    ROS_ERROR_STREAM(ss.str());
+    res.message = ss.str();
+    res.success = false;
+  }
+  else
+  {
+    res.success = this->ur_driver_->sendScript(R"(sec tareSensor():
+  zero_ftsensor()
+end
+)");
+  }
   return true;
 }
 

@@ -673,6 +673,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
+ * "**zero_ftsensor**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only work when the robot is in remote-control mode.
+
 #### Parameters
  * "**dashboard/receive_timeout**" (Required)
 
