@@ -56,10 +56,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)
   , reverse_interface_active_(false)
+  , reverse_port_(reverse_port)
   , handle_program_state_(handle_program_state)
   , robot_ip_(robot_ip)
-  , reverse_port_(reverse_port)
-  , script_sender_port_(script_sender_port)
 {
   LOG_DEBUG("Initializing urdriver");
   LOG_DEBUG("Initializing RTDE client");

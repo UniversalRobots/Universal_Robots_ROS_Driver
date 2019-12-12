@@ -210,7 +210,6 @@ private:
   std::thread watchdog_thread_;
   bool reverse_interface_active_;
   uint32_t reverse_port_;
-  uint32_t script_sender_port_;
   std::function<void(bool)> handle_program_state_;
 
   std::string robot_ip_;
