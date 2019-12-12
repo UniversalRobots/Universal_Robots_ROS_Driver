@@ -213,8 +213,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                  headless_mode, std::move(tool_comm_setup), calibration_checksum, (uint32_t)reverse_port,
-                                  (uint32_t)script_sender_port));
+                                  headless_mode, std::move(tool_comm_setup), calibration_checksum,
+                                  (uint32_t)reverse_port, (uint32_t)script_sender_port));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
