@@ -2,6 +2,8 @@
 <launch>
   <arg name="debug" default="false" doc="Debug flag that will get passed on to ur_common.launch"/>
   <arg name="robot_ip" doc="IP address by which the robot can be reached."/>
+  <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
+  <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
   <arg name="controllers" default="joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller" doc="Controllers that are activated by default."/>
   <arg name="stopped_controllers" default="pos_traj_controller" doc="Controllers that are initally loaded, but not started."/>
@@ -17,6 +19,8 @@
     <arg name="controller_config_file" value="$(arg controller_config_file)"/>
     <arg name="robot_description_file" value="$(arg robot_description_file)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
+    <arg name="reverse_port" value="$(arg reverse_port)"/>
+    <arg name="script_sender_port" value="$(arg script_sender_port)"/>
     <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="limited" value="$(arg limited)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>

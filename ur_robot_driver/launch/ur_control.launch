@@ -9,6 +9,8 @@
   <arg name="use_tool_communication" doc="On e-Series robots tool communication can be enabled with this argument"/>
   <arg name="controller_config_file" doc="Config file used for defining the ROS-Control controllers."/>
   <arg name="robot_ip" doc="IP address by which the robot can be reached."/>
+  <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
+  <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="kinematics_config" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description. Pass the same config file that is passed to the robot_description."/>
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
   <arg name="controllers" default="joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller" doc="Controllers that are activated by default."/>
@@ -29,6 +31,8 @@
   <!-- Load hardware interface -->
   <node name="ur_hardware_interface" pkg="ur_robot_driver" type="ur_robot_driver_node" output="screen" launch-prefix="$(arg launch_prefix)" required="true">
     <param name="robot_ip" type="str" value="$(arg robot_ip)"/>
+    <param name="reverse_port" type="int" value="$(arg reverse_port)"/>
+    <param name="script_sender_port" type="int" value="$(arg script_sender_port)"/>
     <rosparam command="load" file="$(arg kinematics_config)" />
     <param name="script_file" value="$(arg urscript_file)"/>
     <param name="output_recipe_file" value="$(arg rtde_output_recipe_file)"/>
@@ -48,6 +52,8 @@
   <!-- Starts socat to bridge the robot's tool communication interface to a local tty device -->
   <node if="$(arg use_tool_communication)" name="ur_tool_communication_bridge" pkg="ur_robot_driver" type="tool_communication" respawn="false" output="screen">
     <param name="robot_ip" value="$(arg robot_ip)"/>
+    <param name="reverse_port" type="int" value="$(arg reverse_port)"/>
+    <param name="script_sender_port" type="int" value="$(arg script_sender_port)"/>
     <param name="device_name" value="$(arg tool_device_name)"/>
     <param name="tcp_port" value="$(arg tool_tcp_port)"/>
   </node>
