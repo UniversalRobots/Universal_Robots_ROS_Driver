@@ -305,6 +305,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   safety_mode_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
 
+  // As we automatically create publishers for raw data of additional fields, we prevent republishing data
+  // that has already been published on ROS-interfaces. This list has to be kept updated by hand.
   std::string already_published[] = { "actual_q",
                                       "actual_qd",
                                       "target_speed_fraction",
