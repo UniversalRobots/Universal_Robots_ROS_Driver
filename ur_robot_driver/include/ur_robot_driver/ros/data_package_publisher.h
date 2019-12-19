@@ -35,11 +35,21 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+  /*!
+   * \brief The DataPackagePublisher class handles publishing all data fields of an RTDE data
+   * package to various ROS topics.
+   */
 class DataPackagePublisher
 {
 public:
   DataPackagePublisher() = delete;
 
+  /*!
+   * \brief Creates a new DataPackagePublisher object.
+   *
+   * \param recipe The different data fields contained in the package that should be published
+   * \param nh The node handle to advertise publishers on
+   */
   DataPackagePublisher(const std::vector<std::string>& recipe, ros::NodeHandle& nh) : recipe_(recipe)
   {
     for (auto str : recipe)
@@ -49,6 +59,11 @@ public:
   }
 
   void publishData(const std::unique_ptr<DataPackage>& data_package)
+  /*!
+   * \brief Publishes all relevant data fields of a given data package.
+   *
+   * \param data_package The data package to publish
+   */
   {
     for (auto const& i : publishers_)
     {
