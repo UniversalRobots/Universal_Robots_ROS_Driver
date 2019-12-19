@@ -81,9 +81,8 @@ public:
    * \param nh The used ROS node handle
    */
   DirectDataPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier)
+    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
   {
-    pub_.reset(new realtime_tools::RealtimePublisher<MsgT>(nh, "rtde_data/" + data_field_identifier_, 1));
   }
 
   /*!
@@ -97,14 +96,11 @@ public:
   {
     if (data_package.getData(data_field_identifier_, data_))
     {
-      if (pub_)
+      if (pub_.trylock())
       {
-        if (pub_->trylock())
-        {
-          pub_->msg_.data = data_;
-          pub_->unlockAndPublish();
-          return true;
-        }
+        pub_.msg_.data = data_;
+        pub_.unlockAndPublish();
+        return true;
       }
     }
     return false;
@@ -113,7 +109,7 @@ public:
 private:
   DataT data_;
   std::string data_field_identifier_;
-  std::unique_ptr<realtime_tools::RealtimePublisher<MsgT>> pub_;
+  realtime_tools::RealtimePublisher<MsgT> pub_;
 };
 
 /*!
@@ -132,10 +128,8 @@ public:
    * \param nh The used ROS node handle
    */
   ArrayDataPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier)
+    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
   {
-    pub_.reset(new realtime_tools::RealtimePublisher<MsgT>(nh, "rtde_data/" + data_field_identifier_, 1));
-    pub_->msg_.data.resize(N);
   }
 
   /*!
@@ -149,17 +143,14 @@ public:
   {
     if (data_package.getData(data_field_identifier_, data_))
     {
-      if (pub_)
+      if (pub_.trylock())
       {
-        if (pub_->trylock())
+        for (size_t i = 0; i < N; i++)
         {
-          for (size_t i = 0; i < N; i++)
-          {
-            pub_->msg_.data[i] = data_[i];
-          }
-          pub_->unlockAndPublish();
-          return true;
+          pub_.msg_.data[i] = data_[i];
         }
+        pub_.unlockAndPublish();
+        return true;
       }
     }
     return false;
@@ -168,7 +159,7 @@ public:
 private:
   std::array<DataT, N> data_;
   std::string data_field_identifier_;
-  std::unique_ptr<realtime_tools::RealtimePublisher<MsgT>> pub_;
+  realtime_tools::RealtimePublisher<MsgT> pub_;
 };
 }  // namespace rtde_interface
 }  // namespace ur_driver
