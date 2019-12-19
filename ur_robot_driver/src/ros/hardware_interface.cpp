@@ -52,8 +52,6 @@ HardwareInterface::HardwareInterface()
 
 bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
 {
-  ROS_ERROR_STREAM(rtde_interface::DataPackage::isType<double>("actual_q"));
-  ROS_ERROR_STREAM(rtde_interface::DataPackage::isType<vector6d_t>("actual_q"));
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string script_filename;
