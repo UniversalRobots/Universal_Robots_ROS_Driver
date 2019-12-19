@@ -51,7 +51,7 @@ public:
    *
    * \returns True if the realtime publisher could publish the data.
    */
-  virtual bool publish(const std::unique_ptr<DataPackage>& data_package) = 0;
+  virtual bool publish(const DataPackage& data_package) = 0;
 
   /*!
    * \brief Creates a DataFieldPublisher object based on a given data field.
@@ -93,9 +93,9 @@ public:
    *
    * \returns True if the realtime publisher could publish the data.
    */
-  virtual bool publish(const std::unique_ptr<DataPackage>& data_package)
+  virtual bool publish(const DataPackage& data_package)
   {
-    if (data_package->getData(data_field_identifier_, data_))
+    if (data_package.getData(data_field_identifier_, data_))
     {
       if (pub_)
       {
@@ -145,9 +145,9 @@ public:
    *
    * \returns True if the realtime publisher could publish the data.
    */
-  virtual bool publish(const std::unique_ptr<DataPackage>& data_package)
+  virtual bool publish(const DataPackage& data_package)
   {
-    if (data_package->getData(data_field_identifier_, data_))
+    if (data_package.getData(data_field_identifier_, data_))
     {
       if (pub_)
       {

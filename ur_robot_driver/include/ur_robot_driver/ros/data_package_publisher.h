@@ -58,12 +58,12 @@ public:
     }
   }
 
-  void publishData(const std::unique_ptr<DataPackage>& data_package)
   /*!
    * \brief Publishes all relevant data fields of a given data package.
    *
    * \param data_package The data package to publish
    */
+  void publishData(const DataPackage& data_package)
   {
     for (auto const& i : publishers_)
     {

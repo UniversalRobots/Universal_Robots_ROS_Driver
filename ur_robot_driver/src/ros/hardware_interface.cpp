@@ -426,7 +426,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     publishPose();
     publishRobotAndSafetyMode();
 
-    rtde_data_pub_->publishData(data_pkg);
+    rtde_data_pub_->publishData(*data_pkg);
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
