@@ -35,10 +35,10 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-  /*!
-   * \brief The DataPackagePublisher class handles publishing all data fields of an RTDE data
-   * package to various ROS topics.
-   */
+/*!
+ * \brief The DataPackagePublisher class handles publishing all data fields of an RTDE data
+ * package to various ROS topics.
+ */
 class DataPackagePublisher
 {
 public:
