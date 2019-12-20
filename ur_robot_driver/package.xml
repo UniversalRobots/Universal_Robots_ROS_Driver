@@ -36,6 +36,7 @@
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
   <depend>ur_dashboard_msgs</depend>
+  <depend>ur_rtde_msgs</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
 
