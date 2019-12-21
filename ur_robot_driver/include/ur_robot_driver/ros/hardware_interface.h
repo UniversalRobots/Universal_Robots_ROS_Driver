@@ -35,6 +35,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/String.h>
+#include <std_msgs/UInt32.h>
 #include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_publisher.h>
 #include "tf2_msgs/TFMessage.h"
@@ -178,6 +179,7 @@ protected:
   void publishIOData();
   void publishToolData();
   void publishRobotAndSafetyMode();
+  void publishRuntimeState();
 
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
@@ -239,6 +241,7 @@ protected:
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>> robot_mode_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>> safety_mode_pub_;
+  std::unique_ptr<realtime_tools::RealtimePublisher<std_msgs::UInt32>> runtime_state_pub_;
 
   ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;

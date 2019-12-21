@@ -302,6 +302,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>(robot_hw_nh, "robot_mode", 1, true));
   safety_mode_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
+  runtime_state_pub_.reset(
+      new realtime_tools::RealtimePublisher<std_msgs::UInt32>(robot_hw_nh, "runtime_state", 1));
 
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
@@ -393,6 +395,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+    publishRuntimeState();
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
@@ -524,6 +527,18 @@ void HardwareInterface::transformForceTorque()
 bool HardwareInterface::isRobotProgramRunning() const
 {
   return robot_program_running_;
+}
+
+void HardwareInterface::publishRuntimeState()
+{
+  if (runtime_state_pub_)
+  {
+    if (runtime_state_pub_->trylock())
+    {
+      runtime_state_pub_->msg_.data = runtime_state_; 
+      runtime_state_pub_->unlockAndPublish();
+    }
+  }
 }
 
 void HardwareInterface::handleRobotProgramState(bool program_running)
