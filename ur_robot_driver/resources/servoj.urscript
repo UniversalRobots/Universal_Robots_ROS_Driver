@@ -1,7 +1,7 @@
 {{BEGIN_REPLACE}}
 
 steptime = get_steptime()
-speedj_time = steptime - 0.1*steptime
+
 textmsg("steptime=", steptime)
 MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
@@ -86,12 +86,8 @@ end
 thread speedThread():
   textmsg("Starting speed thread")
   while control_mode == MODE_SPEEDJ:
-    enter_critical
     qd = cmd_servo_qd
-    exit_critical
-    # Having this shortly under steptime seems to help
-    speedj(qd, 40.0, speedj_time)
-    sync()
+    speedj(qd, 40.0, steptime)
   end
   textmsg("speedj thread ended")
   stopj(5.0)
@@ -106,9 +102,9 @@ textmsg("External control active")
 params_mult = socket_read_binary_integer(1+6+1, "reverse_socket")
 keepalive = params_mult[1]
 while keepalive > 0 and control_mode > MODE_STOPPED:
-  enter_critical
   socket_send_line(1, "reverse_socket")
   params_mult = socket_read_binary_integer(1+6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
+  enter_critical
   if params_mult[0] > 0:
     keepalive = params_mult[1]
     if control_mode != params_mult[8]:
