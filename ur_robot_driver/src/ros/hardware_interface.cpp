@@ -65,6 +65,12 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // Port that will be opened to communicate between the driver and the robot controller.
+  int reverse_port = robot_hw_nh.param("reverse_port", 50001);
+
+  // The driver will offer an interface to receive the program's URScript on this port.
+  int script_sender_port = robot_hw_nh.param("script_sender_port", 50002);
+
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
   // Path to the urscript code that will be sent to the robot.
@@ -207,7 +213,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                  headless_mode, std::move(tool_comm_setup), calibration_checksum));
+                                  headless_mode, std::move(tool_comm_setup), calibration_checksum,
+                                  (uint32_t)reverse_port, (uint32_t)script_sender_port));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
@@ -314,6 +321,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
+
+  // Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only
+  // work when the robot is in remote-control mode.
+  tare_sensor_srv_ = robot_hw_nh.advertiseService("zero_ftsensor", &HardwareInterface::zeroFTSensor, this);
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
@@ -691,6 +702,28 @@ bool HardwareInterface::resendRobotProgram(std_srvs::TriggerRequest& req, std_sr
     res.message = "Could not resend robot program";
   }
 
+  return true;
+}
+
+bool HardwareInterface::zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  if (ur_driver_->getVersion().major < 5)
+  {
+    std::stringstream ss;
+    ss << "Zeroing the Force-Torque sensor is only available for e-Series robots (Major version >= 5). This robot's "
+          "version is "
+       << ur_driver_->getVersion();
+    ROS_ERROR_STREAM(ss.str());
+    res.message = ss.str();
+    res.success = false;
+  }
+  else
+  {
+    res.success = this->ur_driver_->sendScript(R"(sec tareSensor():
+  zero_ftsensor()
+end
+)");
+  }
   return true;
 }
 

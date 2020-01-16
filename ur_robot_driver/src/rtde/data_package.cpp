@@ -58,7 +58,7 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "speed_scaling", double() },
   { "target_speed_fraction", double() },
   { "actual_momentum", double() },
-  { "actial_main_voltage", double() },
+  { "actual_main_voltage", double() },
   { "actual_robot_voltage", double() },
   { "actual_robot_current", double() },
   { "actual_joint_voltage", vector6d_t() },

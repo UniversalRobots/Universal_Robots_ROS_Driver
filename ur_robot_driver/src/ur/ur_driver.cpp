@@ -50,11 +50,13 @@ static const std::string SERVER_PORT_REPLACE("{{SERVER_PORT_REPLACE}}");
 ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& script_file,
                               const std::string& output_recipe_file, const std::string& input_recipe_file,
                               std::function<void(bool)> handle_program_state, bool headless_mode,
-                              std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum)
+                              std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum,
+                              const uint32_t reverse_port, const uint32_t script_sender_port)
   : servoj_time_(0.008)
   , servoj_gain_(2000)
   , servoj_lookahead_time_(0.03)
   , reverse_interface_active_(false)
+  , reverse_port_(reverse_port)
   , handle_program_state_(handle_program_state)
   , robot_ip_(robot_ip)
 {
@@ -80,9 +82,6 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
   std::string local_ip = rtde_client_->getIP();
 
-  uint32_t reverse_port = 50001;        // TODO: Make this a parameter
-  uint32_t script_sender_port = 50002;  // TODO: Make this a parameter
-
   std::string prog = readScriptFile(script_file);
   prog.replace(prog.find(JOINT_STATE_REPLACE), JOINT_STATE_REPLACE.length(), std::to_string(MULT_JOINTSTATE));
   std::ostringstream out;
@@ -92,16 +91,16 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   prog.replace(prog.find(SERVER_IP_REPLACE), SERVER_IP_REPLACE.length(), local_ip);
   prog.replace(prog.find(SERVER_PORT_REPLACE), SERVER_PORT_REPLACE.length(), std::to_string(reverse_port));
 
-  auto urcontrol_version = rtde_client_->getVersion();
+  robot_version_ = rtde_client_->getVersion();
 
   std::stringstream begin_replace;
   if (tool_comm_setup != nullptr)
   {
-    if (urcontrol_version.major < 5)
+    if (robot_version_.major < 5)
     {
       throw ToolCommNotAvailable("Tool communication setup requested, but this robot version does not support using "
                                  "the tool communication interface. Please check your configuration.",
-                                 5, urcontrol_version.major);
+                                 5, robot_version_.major);
     }
     begin_replace << "set_tool_voltage("
                   << static_cast<std::underlying_type<ToolVoltage>::type>(tool_comm_setup->getToolVoltage()) << ")\n";

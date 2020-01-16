@@ -35,7 +35,6 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   connect();
 
   // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
-  // brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
   brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
 
   // If this service is called the operational mode can again be changed from PolyScope, and the user password is
@@ -130,7 +129,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
       });
 
   // Service to query the current program state
-  popup_service_ =
+  program_state_service_ =
       nh_.advertiseService<ur_dashboard_msgs::GetProgramState::Request, ur_dashboard_msgs::GetProgramState::Response>(
           "program_state",
           [&](ur_dashboard_msgs::GetProgramState::Request& req, ur_dashboard_msgs::GetProgramState::Response& resp) {
@@ -163,7 +162,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
           });
 
   // General purpose service to send arbitrary messages to the dashboard server
-  running_service_ =
+  raw_request_service_ =
       nh_.advertiseService<ur_dashboard_msgs::RawRequest::Request, ur_dashboard_msgs::RawRequest::Response>(
           "raw_request",
           [&](ur_dashboard_msgs::RawRequest::Request& req, ur_dashboard_msgs::RawRequest::Response& resp) {

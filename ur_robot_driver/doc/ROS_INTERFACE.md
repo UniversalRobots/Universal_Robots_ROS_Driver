@@ -32,6 +32,10 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur3e_upload.launch")
 
     Robot description launch file.
@@ -39,6 +43,10 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -113,6 +121,10 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_description)/launch/ur10_upload.launch")
 
     Robot description launch file.
@@ -120,6 +132,10 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -158,6 +174,10 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Please add description. See file "launch/ur_control.launch".
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
@@ -169,6 +189,10 @@ Robot bringup launchfile without the robot description. Include this, if you wan
  * "**rtde_output_recipe_file**" (default: "$(find ur_robot_driver)/resources/rtde_output_recipe.txt")
 
     Recipe file used for the RTDE-outputs. Only change this if you know what you're doing.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -247,6 +271,10 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (Required)
 
     Robot description launch file.
@@ -254,6 +282,10 @@ Launchfile that starts a robot description with robot_state publisher and the dr
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -328,6 +360,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_description)/launch/ur5_upload.launch")
 
     Robot description launch file.
@@ -335,6 +371,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -373,6 +413,10 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur5e_upload.launch")
 
     Robot description launch file.
@@ -380,6 +424,10 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -454,6 +502,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_description)/launch/ur3_upload.launch")
 
     Robot description launch file.
@@ -461,6 +513,10 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -499,6 +555,10 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
     Use the description in limited mode (Every axis rotates from -PI to PI)
 
+ * "**reverse_port**" (default: "50001")
+
+    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+
  * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur10e_upload.launch")
 
     Robot description launch file.
@@ -506,6 +566,10 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
  * "**robot_ip**" (Required)
 
     IP address by which the robot can be reached.
+
+ * "**script_sender_port**" (default: "50002")
+
+    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
  * "**stopped_controllers**" (default: "pos_traj_controller")
 
@@ -673,6 +737,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
+ * "**zero_ftsensor**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+    Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only work when the robot is in remote-control mode.
+
 #### Parameters
  * "**dashboard/receive_timeout**" (Required)
 
@@ -698,6 +766,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Path to the file containing the recipe used for requesting RTDE outputs.
 
+ * "**reverse_port**" (Required)
+
+    Port that will be opened to communicate between the driver and the robot controller.
+
  * "**robot_ip**" (Required)
 
     The robot's IP address.
@@ -706,9 +778,13 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Path to the urscript code that will be sent to the robot.
 
+ * "**script_sender_port**" (Required)
+
+    The driver will offer an interface to receive the program's URScript on this port.
+
  * "**tf_prefix**" (default: "")
 
-    Please add description. See hardware_interface.cpp line number: 68
+    Please add description. See hardware_interface.cpp line number: 74
 
 
 
