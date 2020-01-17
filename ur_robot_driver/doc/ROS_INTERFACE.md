@@ -234,7 +234,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**urscript_file**" (default: "$(find ur_robot_driver)/resources/servoj.urscript")
+ * "**urscript_file**" (default: "$(find ur_robot_driver)/resources/ros_control.urscript")
 
     Path to URScript that will be sent to the robot and that forms the main control program.
 
