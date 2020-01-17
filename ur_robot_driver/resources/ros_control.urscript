@@ -97,18 +97,19 @@ socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
 control_mode = MODE_UNINITIALIZED
 thread_move = 0
-keepalive = -2
+global keepalive = -2
 textmsg("External control active")
 params_mult = socket_read_binary_integer(1+6+1, "reverse_socket")
 keepalive = params_mult[1]
 while keepalive > 0 and control_mode > MODE_STOPPED:
+  enter_critical
   socket_send_line(1, "reverse_socket")
   params_mult = socket_read_binary_integer(1+6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
-  enter_critical
   if params_mult[0] > 0:
     keepalive = params_mult[1]
     if control_mode != params_mult[8]:
       control_mode = params_mult[8]
+      join thread_move
       if control_mode == MODE_SERVOJ:
         thread_move = run servoThread()
       elif control_mode == MODE_SPEEDJ:

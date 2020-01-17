@@ -287,6 +287,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
+    svj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
+        js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i], &speed_scaling_combined_));
   }
 
   speedsc_interface_.registerHandle(
@@ -300,6 +302,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&spj_interface_);
   registerInterface(&pj_interface_);
   registerInterface(&vj_interface_);
+  registerInterface(&svj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
@@ -488,10 +491,6 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     }
     packet_read_ = false;
   }
-  else
-  {
-    ur_driver_->stopControl();
-  }
 }
 
 bool HardwareInterface::prepareSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
@@ -532,6 +531,10 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
       if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
       {
         position_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+      {
+        velocity_controller_running_ = true;
       }
       if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
       {

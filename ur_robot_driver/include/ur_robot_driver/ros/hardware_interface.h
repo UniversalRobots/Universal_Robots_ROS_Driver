@@ -204,6 +204,7 @@ protected:
   hardware_interface::PositionJointInterface pj_interface_;
   ur_controllers::SpeedScalingInterface speedsc_interface_;
   hardware_interface::VelocityJointInterface vj_interface_;
+  ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
 
   vector6d_t joint_position_command_;
