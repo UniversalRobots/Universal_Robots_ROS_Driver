@@ -448,7 +448,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
 {
   if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
        runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
-      robot_program_running_ && ((non_blocking_read_ && packet_read_) || (!non_blocking_read_)))
+      robot_program_running_ && (!non_blocking_read_ || packet_read_))
   {
     if (position_controller_running_)
     {
