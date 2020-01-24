@@ -144,11 +144,11 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
 {
-  std::chrono::milliseconds timeout(get_packet_timeout_);  // This can take one of two values, 0ms or 100ms. The large
-                                                           // timeout is for when the robot is commanding the control
-                                                           // loop's timing (read is blocking). The zero timeout is for
-                                                           // when the robot is sharing a control loop with
-                                                           // something else (combined_robot_hw)
+  // This can take one of two values, 0ms or 100ms. The large timeout is for when the robot is commanding the control
+  // loop's timing (read is blocking). The zero timeout is for when the robot is sharing a control loop with
+  // something else (combined_robot_hw)
+  std::chrono::milliseconds timeout(get_packet_timeout_);
+
   return rtde_client_->getDataPackage(timeout);
 }
 
