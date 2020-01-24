@@ -109,7 +109,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   int servoj_gain = robot_hw_nh.param("servoj_gain", 2000);
   if ((servoj_gain > 2000) || (servoj_gain < 100))
   {
-      ROS_ERROR("servoj_gain is %d, must be in range [100, 2000]", servoj_gain);
+      ROS_ERROR_STREAM("servoj_gain is " << servoj_gain << ", must be in range [100, 2000]");
       return false;
   }
 
@@ -118,7 +118,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   double servoj_lookahead_time = robot_hw_nh.param("servoj_lookahead_time", 0.03);
   if ((servoj_lookahead_time > 0.2) || (servoj_lookahead_time < 0.03))
   {
-      ROS_ERROR("servoj_lookahead_time is %f, must be in range [0.03, 0.2]", servoj_lookahead_time);
+      ROS_ERROR_STREAM("servoj_lookahead_time is " << servoj_lookahead_time << ", must be in range [0.03, 0.2]");
       return false;
   }
 
