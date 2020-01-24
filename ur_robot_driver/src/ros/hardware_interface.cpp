@@ -104,6 +104,24 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // Specify gain for servoing to position in joint space.
+  // A higher gain can sharpen the trajectory.
+  int servoj_gain = robot_hw_nh.param("servoj_gain", 2000);
+  if ((servoj_gain > 2000) || (servoj_gain < 100))
+  {
+      ROS_ERROR("servoj_gain is %d, must be in range [100, 2000]", servoj_gain);
+      return false;
+  }
+
+  // Specify lookahead time for servoing to position in joint space.
+  // A longer lookahead time can smooth the trajectory.
+  double servoj_lookahead_time = robot_hw_nh.param("servoj_lookahead_time", 0.03);
+  if ((servoj_lookahead_time > 0.2) || (servoj_lookahead_time < 0.03))
+  {
+      ROS_ERROR("servoj_lookahead_time is %f, must be in range [0.03, 0.2]", servoj_lookahead_time);
+      return false;
+  }
+
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
@@ -214,7 +232,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
                                   headless_mode, std::move(tool_comm_setup), calibration_checksum,
-                                  (uint32_t)reverse_port, (uint32_t)script_sender_port));
+                                  (uint32_t)reverse_port, (uint32_t)script_sender_port,
+                                  servoj_gain, servoj_lookahead_time));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
