@@ -104,7 +104,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
-  // Enables non_blocking_read mode. Useful when used with combined_robot_hw
+  // Enables non_blocking_read mode. Useful when used with combined_robot_hw. Disables error
+  // generated when read returns without any data, sets the read timeout to zero, and
+  // synchronises read/write operations.
   robot_hw_nh.param("non_blocking_read", non_blocking_read_, false);
 
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
