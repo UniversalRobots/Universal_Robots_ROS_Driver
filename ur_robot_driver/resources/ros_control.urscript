@@ -74,7 +74,7 @@ thread servoThread():
     exit_critical
   end
   textmsg("servo thread ended")
-  stopj(0.1)
+  stopj(4.0)
 end
 
 # Helpers for speed control
