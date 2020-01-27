@@ -62,11 +62,14 @@ public:
    * and the robot controller.
    * \param script_sending_port The driver will offer an interface to receive the program's URScript on this port. If
    * the robot cannot connect to this port, `External Control` will stop immediately.
+   * \param servoj_gain Proportional gain for arm joints following target position, range [100,2000]
+   * \param servoj_lookahead_time Time [S], range [0.03,0.2] smoothens the trajectory with this lookahead time
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "",
-           const uint32_t reverse_port = 50001, const uint32_t script_sender_port = 50002);
+           const uint32_t reverse_port = 50001, const uint32_t script_sender_port = 50002, int servoj_gain = 2000,
+           double servoj_lookahead_time = 0.03);
   /*!
    * \brief Constructs a new UrDriver object.
    *
@@ -82,13 +85,16 @@ public:
    * and the robot controller
    * \param script_sending_port The driver will offer an interface to receive the program's URScript on this port.
    * If the robot cannot connect to this port, `External Control` will stop immediately.
+   * \param servoj_gain Proportional gain for arm joints following target position, range [100,2000]
+   * \param servoj_lookahead_time Time [S], range [0.03,0.2] smoothens the trajectory with this lookahead time
    */
   UrDriver(const std::string& robot_ip, const std::string& script_file, const std::string& output_recipe_file,
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            const std::string& calibration_checksum = "", const uint32_t reverse_port = 50001,
-           const uint32_t script_sender_port = 50002)
+           const uint32_t script_sender_port = 50002, int servoj_gain = 2000, double servoj_lookahead_time = 0.03)
     : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state, headless_mode,
-               std::unique_ptr<ToolCommSetup>{}, calibration_checksum, reverse_port, script_sender_port)
+               std::unique_ptr<ToolCommSetup>{}, calibration_checksum, reverse_port, script_sender_port, servoj_gain,
+               servoj_lookahead_time)
   {
   }
 
