@@ -204,6 +204,11 @@ void UrDriver::startWatchdog()
 
     LOG_INFO("Connection to robot dropped, waiting for new connection.");
     handle_program_state_(false);
+    // We explicitly call the destructor here, as unique_ptr.reset() creates a new object before
+    // replacing the pointer and destroying the old object. This will result in a resource conflict
+    // when trying to bind the socket.
+    // TODO: It would probably make sense to keep the same instance alive for the complete runtime
+    // instead of killing it all the time.
     reverse_interface_->~ReverseInterface();
     reverse_interface_.reset(new comm::ReverseInterface(reverse_port_));
     reverse_interface_active_ = true;
