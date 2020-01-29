@@ -9,8 +9,7 @@
   <arg name="stopped_controllers" default="pos_joint_traj_controller joint_group_vel_controller" doc="Controllers that are initally loaded, but not started."/>
   <arg name="controller_config_file" default="$(find ur_robot_driver)/config/ur10_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
   <arg name="robot_description_file" default="$(find ur_description)/launch/ur10_upload.launch" doc="Robot description launch file."/>
-  <arg name="kinematics_config" default="$(find ur_description)/config/ur10_default.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
-  <arg name="limited" default="false" doc="Use the description in limited mode (Every axis rotates from -PI to PI)"/>
+  <arg name="kinematics_config" default="$(find ur_description)/config/ur10/default_kinematics.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
 
   <include file="$(find ur_robot_driver)/launch/ur_common.launch" pass_all_args="true">
