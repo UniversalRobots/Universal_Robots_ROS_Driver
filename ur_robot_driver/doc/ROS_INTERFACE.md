@@ -822,6 +822,14 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as well.
 
+ * "**servoj_gain**" (default: "2000")
+
+    Specify gain for servoing to position in joint space. A higher gain can sharpen the trajectory.
+
+ * "**servoj_gain**" (default: "0.03")
+
+    Specify lookahead time for servoing to position in joint space. A longer lookahead time can smooth the trajectory.
+
 #### Published topics
  * "**robot_program_running**" ([std_msgs/Bool](http://docs.ros.org/api/std_msgs/html/msg/Bool.html))
 
