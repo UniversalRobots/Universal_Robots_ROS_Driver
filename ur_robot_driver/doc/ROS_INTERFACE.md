@@ -764,7 +764,7 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
  * "**non_blocking_read**" (default: "false")
 
-    Enables non_blocking_read mode. Useful when used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations.
+    Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when not used with combined_robot_hw can suppress important errors and affect real-time performance.
 
  * "**output_recipe_file**" (Required)
 
