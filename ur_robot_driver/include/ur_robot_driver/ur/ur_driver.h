@@ -122,10 +122,11 @@ public:
    * the robot.
    *
    * \param values Desired joint positions
+   * \param control_mode Control mode this command is assigned to.
    *
    * \returns True on successful write.
    */
-  bool writeJointCommand(const vector6d_t& values);
+  bool writeJointCommand(const vector6d_t& values, const comm::ControlMode control_mode);
 
   /*!
    * \brief Write a keepalive signal only.

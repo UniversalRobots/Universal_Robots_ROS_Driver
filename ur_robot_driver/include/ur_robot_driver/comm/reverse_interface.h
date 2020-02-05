@@ -38,6 +38,18 @@ namespace ur_driver
 namespace comm
 {
 /*!
+ * \brief Control modes as interpreted from the script runnning on the robot.
+ */
+enum class ControlMode : int32_t
+{
+  MODE_STOPPED = -2,        ///< When this is set, the program is expected to stop and exit.
+  MODE_UNINITIALIZED = -1,  ///< Startup default until another mode is sent to the script.
+  MODE_IDLE = 0,            ///< Set when no controller is currently active controlling the robot.
+  MODE_SERVOJ = 1,          ///< Set when servoj control is active.
+  MODE_SPEEDJ = 2           ///< Set when speedj control is active.
+};
+
+/*!
  * \brief The ReverseInterface class handles communication to the robot. It starts a server and
  * waits for the robot to connect via its URCaps program.
  */
@@ -72,17 +84,19 @@ public:
   /*!
    * \brief Writes needed information to the robot to be read by the URCaps program.
    *
-   * \param positions A vector of joint position targets for the robot
-   * \param type An additional integer used to command the program to end when needed
+   * \param positions A vector of joint targets for the robot
+   * \param control_mode Control mode assigned to this command. See documentation of ::ControlMode
+   * for details on possible values.
    *
    * \returns True, if the write was performed successfully, false otherwise.
    */
-  bool write(const vector6d_t* positions, const int32_t type = 2)
+  bool write(const vector6d_t* positions, const ControlMode control_mode = ControlMode::MODE_IDLE)
   {
-    uint8_t buffer[sizeof(uint32_t) * 7];
+    uint8_t buffer[sizeof(int32_t) * 8];
     uint8_t* b_pos = buffer;
 
-    int32_t val = htobe32(type);
+    // The first element is always the keepalive signal.
+    int32_t val = htobe32(1);
     b_pos += append(b_pos, val);
 
     if (positions != nullptr)
@@ -94,6 +108,13 @@ public:
         b_pos += append(b_pos, val);
       }
     }
+    else
+    {
+      b_pos += 6 * sizeof(int32_t);
+    }
+
+    val = htobe32(toUnderlying(control_mode));
+    b_pos += append(b_pos, val);
 
     size_t written;
 
