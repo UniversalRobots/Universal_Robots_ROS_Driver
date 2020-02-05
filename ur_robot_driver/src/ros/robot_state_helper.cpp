@@ -210,9 +210,9 @@ void RobotStateHelper::setModeGoalCallback()
       }
       else
       {
-        result_.success = true;
-        result_.message = "Target mode already active. Nothing to do here.";
-        set_mode_as_.setSucceeded(result_);
+        // There is no transition to do here, but we have to start the program again, if desired.
+        // This happens inside updateRobotState()
+        updateRobotState();
       }
       break;
     case RobotMode::NO_CONTROLLER:
