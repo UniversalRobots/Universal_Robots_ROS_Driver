@@ -52,7 +52,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
                               std::function<void(bool)> handle_program_state, bool headless_mode,
                               std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum,
                               const uint32_t reverse_port, const uint32_t script_sender_port, int servoj_gain,
-                              double servoj_lookahead_time)
+                              double servoj_lookahead_time, bool non_blocking_read)
   : servoj_time_(0.008)
   , servoj_gain_(servoj_gain)
   , servoj_lookahead_time_(servoj_lookahead_time)
@@ -72,6 +72,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   secondary_stream_->connect();
   LOG_INFO("Checking if calibration data matches connected robot.");
   checkCalibration(calibration_checksum);
+
+  non_blocking_read_ = non_blocking_read;
+  get_packet_timeout_ = non_blocking_read_ ? 0 : 100;
 
   if (!rtde_client_->init())
   {
@@ -142,8 +145,11 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
 
 std::unique_ptr<rtde_interface::DataPackage> ur_driver::UrDriver::getDataPackage()
 {
-  std::chrono::milliseconds timeout(100);  // We deliberately have a quite large timeout here, as the robot itself
-                                           // should command the control loop's timing.
+  // This can take one of two values, 0ms or 100ms. The large timeout is for when the robot is commanding the control
+  // loop's timing (read is blocking). The zero timeout is for when the robot is sharing a control loop with
+  // something else (combined_robot_hw)
+  std::chrono::milliseconds timeout(get_packet_timeout_);
+
   return rtde_client_->getDataPackage(timeout);
 }
 

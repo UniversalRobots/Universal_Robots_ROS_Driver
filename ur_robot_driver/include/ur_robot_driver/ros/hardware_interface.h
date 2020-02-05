@@ -258,6 +258,9 @@ protected:
   bool controller_reset_necessary_;
   bool controllers_initialized_;
 
+  bool packet_read_;
+  bool non_blocking_read_;
+
   std::string robot_ip_;
   std::string tf_prefix_;
 };

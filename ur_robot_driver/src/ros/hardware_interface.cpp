@@ -104,6 +104,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // Enables non_blocking_read mode. Useful when used with combined_robot_hw. Disables error
+  // generated when read returns without any data, sets the read timeout to zero, and
+  // synchronises read/write operations.
+  robot_hw_nh.param("non_blocking_read", non_blocking_read_, false);
+
   // Specify gain for servoing to position in joint space.
   // A higher gain can sharpen the trajectory.
   int servoj_gain = robot_hw_nh.param("servoj_gain", 2000);
@@ -233,7 +238,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
                                   headless_mode, std::move(tool_comm_setup), calibration_checksum,
                                   (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
-                                  servoj_lookahead_time));
+                                  servoj_lookahead_time, non_blocking_read_));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
@@ -380,6 +385,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
+    packet_read_ = true;
     readData(data_pkg, "actual_q", joint_positions_);
     readData(data_pkg, "actual_qd", joint_velocities_);
     readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
@@ -450,7 +456,10 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   }
   else
   {
-    ROS_ERROR("Could not get fresh data package from robot");
+    if (!non_blocking_read_)
+    {
+      ROS_ERROR("Could not get fresh data package from robot");
+    }
   }
 }
 
@@ -458,7 +467,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
 {
   if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
        runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
-      robot_program_running_)
+      robot_program_running_ && (!non_blocking_read_ || packet_read_))
   {
     if (position_controller_running_)
     {
@@ -472,6 +481,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     {
       ur_driver_->stopControl();
     }
+    packet_read_ = false;
   }
 }
 

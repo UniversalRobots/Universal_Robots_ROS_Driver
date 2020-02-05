@@ -762,6 +762,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Hash of the calibration reported by the robot. This is used for validating the robot description is using the correct calibration. If the robot's calibration doesn't match this hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your own hash matching your actual robot.
 
+ * "**non_blocking_read**" (default: "false")
+
+    Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when not used with combined_robot_hw can suppress important errors and affect real-time performance.
+
  * "**output_recipe_file**" (Required)
 
     Path to the file containing the recipe used for requesting RTDE outputs.
