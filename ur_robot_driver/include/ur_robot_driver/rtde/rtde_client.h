@@ -147,6 +147,15 @@ private:
   void queryURControlVersion();
   void setupOutputs(const uint16_t protocol_version);
   void setupInputs();
+  /*!
+   * \brief Splits a variable_types string as reported from the robot into single variable type
+   * strings
+   *
+   * \param variable_types String as reported from the robot
+   *
+   * \returns A vector of variable variable_names
+   */
+  std::vector<std::string> splitVariableTypes(const std::string& variable_types) const;
 };
 
 }  // namespace rtde_interface
