@@ -27,6 +27,7 @@
 #ifndef UR_ROBOT_DRIVER_DASHBOARD_CLIENT_DASHBOARD_CLIENT_H_INCLUDED
 #define UR_ROBOT_DRIVER_DASHBOARD_CLIENT_DASHBOARD_CLIENT_H_INCLUDED
 
+#include <ur_robot_driver/log.h>
 #include <ur_robot_driver/comm/tcp_socket.h>
 
 namespace ur_driver
@@ -80,7 +81,9 @@ public:
 protected:
   virtual bool open(int socket_fd, struct sockaddr* address, size_t address_len)
   {
-    return ::connect(socket_fd, address, address_len) == 0;
+    int connection_result = ::connect(socket_fd, address, address_len);
+    LOG_DEBUG("Connection result: %s", strerror(errno));
+    return connection_result == 0;
   }
 
 private:

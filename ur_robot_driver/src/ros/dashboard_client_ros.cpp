@@ -25,6 +25,7 @@
  */
 //----------------------------------------------------------------------
 
+#include <thread>
 #include <ur_robot_driver/ros/dashboard_client_ros.h>
 
 namespace ur_driver
@@ -33,7 +34,6 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   : nh_(nh), client_(robot_ip)
 {
   connect();
-
   // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
   brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
 
@@ -339,6 +339,15 @@ bool DashboardClientROS::connect()
   tv.tv_sec = nh_.param("receive_timeout", 1);
   tv.tv_usec = 0;
   client_.setReceiveTimeout(tv);
-  return client_.connect();
+
+  std::chrono::seconds timeout(1);
+  while (!client_.connect())
+  {
+    LOG_WARN("Failed to connect to dashboard server, retrying in %ld seconds...", timeout.count());
+    std::this_thread::sleep_for(timeout);
+    timeout *= 2;
+  }
+  return true;
 }
+
 }  // namespace ur_driver
