@@ -234,7 +234,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
     Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
- * "**urscript_file**" (default: "$(find ur_robot_driver)/resources/servoj.urscript")
+ * "**urscript_file**" (default: "$(find ur_robot_driver)/resources/ros_control.urscript")
 
     Path to URScript that will be sent to the robot and that forms the main control program.
 
@@ -762,6 +762,10 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
 
     Hash of the calibration reported by the robot. This is used for validating the robot description is using the correct calibration. If the robot's calibration doesn't match this hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your own hash matching your actual robot.
 
+ * "**non_blocking_read**" (default: "false")
+
+    Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when not used with combined_robot_hw can suppress important errors and affect real-time performance.
+
  * "**output_recipe_file**" (Required)
 
     Path to the file containing the recipe used for requesting RTDE outputs.
@@ -817,6 +821,14 @@ This is the actual driver node containing the ROS-Control stack. Interfaces docu
  * "**use_tool_communication**" (Required)
 
     Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as well.
+
+ * "**servoj_gain**" (default: "2000")
+
+    Specify gain for servoing to position in joint space. A higher gain can sharpen the trajectory.
+
+ * "**servoj_gain**" (default: "0.03")
+
+    Specify lookahead time for servoing to position in joint space. A longer lookahead time can smooth the trajectory.
 
 #### Published topics
  * "**robot_program_running**" ([std_msgs/Bool](http://docs.ros.org/api/std_msgs/html/msg/Bool.html))

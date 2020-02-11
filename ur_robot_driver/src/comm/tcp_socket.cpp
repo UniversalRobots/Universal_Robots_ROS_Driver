@@ -118,11 +118,12 @@ bool TCPSocket::setSocketFD(int socket_fd)
 
 void TCPSocket::close()
 {
-  if (state_ != SocketState::Connected)
-    return;
-  state_ = SocketState::Closed;
-  ::close(socket_fd_);
-  socket_fd_ = -1;
+  if (socket_fd_ >= 0)
+  {
+    state_ = SocketState::Closed;
+    ::close(socket_fd_);
+    socket_fd_ = -1;
+  }
 }
 
 std::string TCPSocket::getIP() const
