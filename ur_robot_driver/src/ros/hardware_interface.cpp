@@ -464,9 +464,9 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   }
   else
   {
+    controller_reset_necessary_ = true;
     if (!non_blocking_read_)
     {
-      controller_reset_necessary_ = true;
       ROS_ERROR("Could not get fresh data package from robot");
     }
   }
