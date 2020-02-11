@@ -21,7 +21,7 @@ class IOTest(unittest.TestCase):
         super(IOTest, self).__init__(*args)
         rospy.init_node('io_test')
 
-        timeout = 10
+        timeout = 1000
 
         self.service_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
         try:
