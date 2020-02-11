@@ -345,7 +345,10 @@ bool DashboardClientROS::connect()
   {
     LOG_WARN("Failed to connect to dashboard server, retrying in %ld seconds...", timeout.count());
     std::this_thread::sleep_for(timeout);
-    timeout *= 2;
+    if (timeout < std::chrono::seconds(120))
+    {
+      timeout *= 2;
+    }
   }
   return true;
 }
