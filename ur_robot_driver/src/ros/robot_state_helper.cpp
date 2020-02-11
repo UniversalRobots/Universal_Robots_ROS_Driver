@@ -39,6 +39,7 @@ RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh), set_mod
 
   // Service to unlock protective stop
   unlock_protective_stop_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/unlock_protective_stop");
+  unlock_protective_stop_srv_.waitForExistence();
   // Service to restart safety
   restart_safety_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/restart_safety");
   // Service to power on the robot
