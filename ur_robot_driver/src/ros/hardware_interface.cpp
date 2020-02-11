@@ -464,6 +464,13 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   }
   else
   {
+    // If reading from RTDE fails, this means that we lost RTDE connection (or that our connection
+    // is not reliable). If we ignore this, the joint_state_controller will continue to publish old
+    // data (e.g. if we unplug the cable from the robot).  However, this also means that any
+    // trajectory execution will be aborted from time to time if the connection to the robot isn't
+    // reliable.
+    // TODO: This doesn't seem too bad currently, but we have to keep this in mind, when we
+    // implement trajectory execution strategies that require a less reliable network connection.
     controller_reset_necessary_ = true;
     if (!non_blocking_read_)
     {
