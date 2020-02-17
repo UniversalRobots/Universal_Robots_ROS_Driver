@@ -196,6 +196,14 @@ protected:
   std::unique_ptr<UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
 
+  /*!
+   * \brief Checks whether a resource list contains joints from this hardware interface
+   *
+   * True is returned as soon as one joint name from claimed_resources matches a joint from this
+   * hardware interface.
+   */
+  bool checkControllerClaims(const std::set<std::string>& claimed_resources);
+
   ros::ServiceServer deactivate_srv_;
   ros::ServiceServer tare_sensor_srv_;
 

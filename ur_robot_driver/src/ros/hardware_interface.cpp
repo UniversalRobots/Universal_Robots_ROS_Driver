@@ -526,27 +526,53 @@ bool HardwareInterface::prepareSwitch(const std::list<hardware_interface::Contro
 void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                                  const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
-  position_controller_running_ = false;
-  velocity_controller_running_ = false;
+  for (auto& controller_it : stop_list)
+  {
+    for (auto& resource_it : controller_it.claimed_resources)
+    {
+      if (checkControllerClaims(resource_it.resources))
+      {
+        if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+        {
+          position_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
+        {
+          position_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+        {
+          velocity_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
+        {
+          velocity_controller_running_ = false;
+        }
+      }
+    }
+  }
   for (auto& controller_it : start_list)
   {
     for (auto& resource_it : controller_it.claimed_resources)
     {
-      if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+      if (checkControllerClaims(resource_it.resources))
       {
-        position_controller_running_ = true;
-      }
-      if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
-      {
-        position_controller_running_ = true;
-      }
-      if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
-      {
-        velocity_controller_running_ = true;
-      }
-      if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
-      {
-        velocity_controller_running_ = true;
+        if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+        {
+          position_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
+        {
+          position_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+        {
+          velocity_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
+        {
+          velocity_controller_running_ = true;
+        }
       }
     }
   }
@@ -829,6 +855,21 @@ void HardwareInterface::publishRobotAndSafetyMode()
       }
     }
   }
+}
+
+bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claimed_resources)
+{
+  for (const std::string& it : joint_names_)
+  {
+    for (const std::string& jt : claimed_resources)
+    {
+      if (it == jt)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 }  // namespace ur_driver
 
