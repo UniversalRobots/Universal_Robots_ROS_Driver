@@ -533,8 +533,11 @@ bool HardwareInterface::prepareSwitch(const std::list<hardware_interface::Contro
 void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerInfo>& start_list,
                                  const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
-  position_controller_running_ = false;
-  velocity_controller_running_ = false;
+  if ((!stop_list.empty()) || (!start_list.empty()))
+  {
+    position_controller_running_ = false;
+    velocity_controller_running_ = false;
+  }
   for (auto& controller_it : start_list)
   {
     for (auto& resource_it : controller_it.claimed_resources)
