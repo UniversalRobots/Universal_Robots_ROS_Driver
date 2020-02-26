@@ -39,6 +39,7 @@
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
 
+  <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
