@@ -54,6 +54,7 @@
   <exec_depend>message_runtime</exec_depend>
 
   <depend>actionlib_msgs</depend>
+  <depend>std_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
