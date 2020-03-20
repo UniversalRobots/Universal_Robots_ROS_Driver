@@ -29,6 +29,8 @@
 #include "ur_robot_driver/ur/tool_communication.h"
 #include <ur_robot_driver/exceptions.h>
 
+#include <ur_msgs/SetPayload.h>
+
 #include <Eigen/Geometry>
 
 namespace ur_driver
@@ -375,6 +377,19 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
+
+  // Setup the mounted payload through a ROS service
+  set_payload_srv_ = robot_hw_nh.advertiseService<ur_msgs::SetPayload::Request, ur_msgs::SetPayload::Response>(
+      "set_payload", [&](ur_msgs::SetPayload::Request& req, ur_msgs::SetPayload::Response& resp) {
+        std::stringstream cmd;
+        cmd.imbue(std::locale::classic());  // Make sure, decimal divider is actually '.'
+        cmd << "sec setup():" << std::endl
+            << " set_payload(" << req.payload << ", [" << req.center_of_gravity.x << ", " << req.center_of_gravity.y
+            << ", " << req.center_of_gravity.z << "])" << std::endl
+            << "end";
+        resp.success = this->ur_driver_->sendScript(cmd.str());
+        return true;
+      });
 
   return true;
 }
