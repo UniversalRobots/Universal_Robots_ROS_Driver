@@ -38,4 +38,12 @@ typedef ur_controllers::ScaledJointTrajectoryController<trajectory_interface::Qu
     ScaledJointTrajectoryController;
 }
 
+namespace velocity_controllers
+{
+typedef ur_controllers::ScaledJointTrajectoryController<trajectory_interface::QuinticSplineSegment<double>,
+                                                        ur_controllers::ScaledVelocityJointInterface>
+    ScaledJointTrajectoryController;
+}
+
 PLUGINLIB_EXPORT_CLASS(position_controllers::ScaledJointTrajectoryController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(velocity_controllers::ScaledJointTrajectoryController, controller_interface::ControllerBase)

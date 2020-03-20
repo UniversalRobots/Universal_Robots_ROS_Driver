@@ -35,6 +35,7 @@ namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
+  , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
@@ -44,6 +45,7 @@ HardwareInterface::HardwareInterface()
   , safety_mode_(ur_dashboard_msgs::SafetyMode::NORMAL)
   , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
+  , velocity_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -101,6 +103,29 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   if (!robot_hw_nh.getParam("headless_mode", headless_mode))
   {
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("headless_mode") << " not given.");
+    return false;
+  }
+
+  // Enables non_blocking_read mode. Useful when used with combined_robot_hw. Disables error
+  // generated when read returns without any data, sets the read timeout to zero, and
+  // synchronises read/write operations.
+  robot_hw_nh.param("non_blocking_read", non_blocking_read_, false);
+
+  // Specify gain for servoing to position in joint space.
+  // A higher gain can sharpen the trajectory.
+  int servoj_gain = robot_hw_nh.param("servoj_gain", 2000);
+  if ((servoj_gain > 2000) || (servoj_gain < 100))
+  {
+    ROS_ERROR_STREAM("servoj_gain is " << servoj_gain << ", must be in range [100, 2000]");
+    return false;
+  }
+
+  // Specify lookahead time for servoing to position in joint space.
+  // A longer lookahead time can smooth the trajectory.
+  double servoj_lookahead_time = robot_hw_nh.param("servoj_lookahead_time", 0.03);
+  if ((servoj_lookahead_time > 0.2) || (servoj_lookahead_time < 0.03))
+  {
+    ROS_ERROR_STREAM("servoj_lookahead_time is " << servoj_lookahead_time << ", must be in range [0.03, 0.2]");
     return false;
   }
 
@@ -214,7 +239,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
                                   headless_mode, std::move(tool_comm_setup), calibration_checksum,
-                                  (uint32_t)reverse_port, (uint32_t)script_sender_port));
+                                  (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
+                                  servoj_lookahead_time, non_blocking_read_));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {
@@ -257,8 +283,12 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     // Create joint position control interface
     pj_interface_.registerHandle(
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
+    vj_interface_.registerHandle(
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
+    svj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
+        js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i], &speed_scaling_combined_));
   }
 
   speedsc_interface_.registerHandle(
@@ -271,6 +301,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
   registerInterface(&pj_interface_);
+  registerInterface(&vj_interface_);
+  registerInterface(&svj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
 
@@ -361,6 +393,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
+    packet_read_ = true;
     readData(data_pkg, "actual_q", joint_positions_);
     readData(data_pkg, "actual_qd", joint_velocities_);
     readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
@@ -431,7 +464,10 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   }
   else
   {
-    ROS_ERROR("Could not get fresh data package from robot");
+    if (!non_blocking_read_)
+    {
+      ROS_ERROR("Could not get fresh data package from robot");
+    }
   }
 }
 
@@ -439,20 +475,21 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
 {
   if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
        runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
-      robot_program_running_)
+      robot_program_running_ && (!non_blocking_read_ || packet_read_))
   {
     if (position_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_position_command_);
+      ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
     }
-    else if (robot_program_running_)
+    else if (velocity_controller_running_)
     {
-      ur_driver_->writeKeepalive();
+      ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
     }
     else
     {
-      ur_driver_->stopControl();
+      ur_driver_->writeKeepalive();
     }
+    packet_read_ = false;
   }
 }
 
@@ -482,6 +519,7 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
                                  const std::list<hardware_interface::ControllerInfo>& stop_list)
 {
   position_controller_running_ = false;
+  velocity_controller_running_ = false;
   for (auto& controller_it : start_list)
   {
     for (auto& resource_it : controller_it.claimed_resources)
@@ -493,6 +531,14 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
       if (resource_it.hardware_interface == "hardware_interface::PositionJointInterface")
       {
         position_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+      {
+        velocity_controller_running_ = true;
+      }
+      if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
+      {
+        velocity_controller_running_ = true;
       }
     }
   }

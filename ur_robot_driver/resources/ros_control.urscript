@@ -1,21 +1,30 @@
 {{BEGIN_REPLACE}}
 
 steptime = get_steptime()
+
 textmsg("steptime=", steptime)
 MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
 #Constants
-SERVO_STOPPED = -2
 SERVO_UNINITIALIZED = -1
 SERVO_IDLE = 0
 SERVO_RUNNING = 1
 
+MODE_STOPPED = -2
+MODE_UNINITIALIZED = -1
+MODE_IDLE = 0
+MODE_SERVOJ = 1
+MODE_SPEEDJ = 2
+
 #Global variables are also showed in the Teach pendants variable list
 global cmd_servo_state = SERVO_UNINITIALIZED
+global cmd_servo_qd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 global cmd_servo_q = get_actual_joint_positions()
 global cmd_servo_q_last = get_actual_joint_positions()
 global extrapolate_count = 0
 global extrapolate_max_count = 0
+global control_mode = MODE_UNINITIALIZED
+cmd_speedj_active = True
 
 def set_servo_setpoint(q):
   cmd_servo_state = SERVO_RUNNING
@@ -32,8 +41,9 @@ def extrapolate():
 end
 
 thread servoThread():
+  textmsg("Starting servo thread")
   state = SERVO_IDLE
-  while state > SERVO_STOPPED:
+  while control_mode == MODE_SERVOJ:
     enter_critical
     q = cmd_servo_q
     do_extrapolate = False
@@ -57,7 +67,6 @@ thread servoThread():
     elif state == SERVO_RUNNING:
       extrapolate_count = 0
       servoj(q, t=steptime, {{SERVO_J_REPLACE}})
-
     else:
       extrapolate_count = 0
       sync()
@@ -65,26 +74,54 @@ thread servoThread():
     exit_critical
   end
   textmsg("servo thread ended")
-  stopj(0.1)
+  stopj(4.0)
 end
+
+# Helpers for speed control
+def set_speed(qd):
+  cmd_servo_qd = qd
+  control_mode = MODE_SPEEDJ
+end
+
+thread speedThread():
+  textmsg("Starting speed thread")
+  while control_mode == MODE_SPEEDJ:
+    qd = cmd_servo_qd
+    speedj(qd, 40.0, steptime)
+  end
+  textmsg("speedj thread ended")
+  stopj(5.0)
+end
+
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
-thread_servo = run servoThread()
-keepalive = -2
+control_mode = MODE_UNINITIALIZED
+thread_move = 0
+global keepalive = -2
 textmsg("External control active")
-params_mult = socket_read_binary_integer(1+6, "reverse_socket")
+params_mult = socket_read_binary_integer(1+6+1, "reverse_socket")
 keepalive = params_mult[1]
-while keepalive > 0:
+while keepalive > 0 and control_mode > MODE_STOPPED:
   enter_critical
   socket_send_line(1, "reverse_socket")
-  params_mult = socket_read_binary_integer(1+6, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
+  params_mult = socket_read_binary_integer(1+6+1, "reverse_socket", 0.02) # steptime could work as well, but does not work in simulation
   if params_mult[0] > 0:
     keepalive = params_mult[1]
-    if params_mult[1] > 1:
+    if control_mode != params_mult[8]:
+      control_mode = params_mult[8]
+      join thread_move
+      if control_mode == MODE_SERVOJ:
+        thread_move = run servoThread()
+      elif control_mode == MODE_SPEEDJ:
+        thread_move = run speedThread()
+      end
+    end
+    if control_mode == MODE_SERVOJ:
       q = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
       set_servo_setpoint(q)
-    else:
-      set_servo_setpoint(get_actual_joint_positions())
+    elif control_mode == MODE_SPEEDJ:
+      qd = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
+      set_speed(qd)
     end
   else:
     keepalive = keepalive - 1
@@ -92,8 +129,8 @@ while keepalive > 0:
   exit_critical
 end
 
-textmsg("Stopping communication and servoing")
-cmd_servo_state = SERVO_STOPPED
-sleep(.1)
+textmsg("Stopping communication and control")
+control_mode = MODE_STOPPED
+join thread_move
+textmsg("All threads ended")
 socket_close("reverse_socket")
-kill thread_servo

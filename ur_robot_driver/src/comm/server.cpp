@@ -102,9 +102,6 @@ bool URServer::accept()
 
 void URServer::disconnectClient()
 {
-  if (client_.getState() != comm::SocketState::Connected)
-    return;
-
   client_.close();
 }
 
