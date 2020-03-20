@@ -17,7 +17,7 @@ To build the kernel, you will need a couple of tools available on your system. Y
 using
 
 ``` bash
-$ sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget gawk
+$ sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget gawk flex
 ```
 
 Before you download the sources of a real-time-enabled kernel, check the kernel version that is currently installed:
