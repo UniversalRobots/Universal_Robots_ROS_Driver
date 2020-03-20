@@ -63,7 +63,7 @@ $ wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.14.139.tar.sign
 
 To unzip the downloaded files do
 ```bash
-$ xz -d patch-4.14.139-rt66.patch.xz
+$ xz -dk patch-4.14.139-rt66.patch.xz
 $ xz -d linux-4.14.139.tar.xz
 ```
 
