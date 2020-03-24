@@ -38,6 +38,7 @@
   <depend>ur_dashboard_msgs</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>industrial_robot_status_interface</depend>
 
   <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
@@ -47,6 +48,7 @@
   <exec_depend>socat</exec_depend>
   <exec_depend>ur_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
+   <exec_depend>industrial_robot_status_controller</exec_depend>
 
   <export>
     <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />

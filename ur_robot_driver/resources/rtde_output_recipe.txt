@@ -22,3 +22,5 @@ tool_output_current
 tool_temperature
 robot_mode
 safety_mode
+robot_status_bits
+safety_status_bits

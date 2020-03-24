@@ -31,6 +31,9 @@
 
 #include <Eigen/Geometry>
 
+using industrial_robot_status_interface::TriState;
+using industrial_robot_status_interface::RobotMode;
+
 namespace ur_driver
 {
 HardwareInterface::HardwareInterface()
@@ -297,6 +300,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
       "wrench", tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
+  robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
+      "industrial_robot_status_handle", robot_status_resource_));
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -305,6 +311,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&svj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
+  registerInterface(&robot_status_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -390,6 +397,15 @@ void HardwareInterface::readBitsetData(const std::unique_ptr<rtde_interface::Dat
 
 void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 {
+  // set defaults
+  robot_status_resource_.mode            = RobotMode::UNKNOWN;
+  robot_status_resource_.e_stopped       = TriState::UNKNOWN;
+  robot_status_resource_.drives_powered  = TriState::UNKNOWN;
+  robot_status_resource_.motion_possible = TriState::UNKNOWN;
+  robot_status_resource_.in_motion       = TriState::UNKNOWN;
+  robot_status_resource_.in_error        = TriState::UNKNOWN;
+  robot_status_resource_.error_code      = 0;
+
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
@@ -413,10 +429,14 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "tool_temperature", tool_temperature_);
     readData(data_pkg, "robot_mode", robot_mode_);
     readData(data_pkg, "safety_mode", safety_mode_);
+    readBitsetData<uint32_t>(data_pkg, "robot_status_bits", robot_status_bits_);
+    readBitsetData<uint32_t>(data_pkg, "safety_status_bits", safety_status_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
+
+    extractRobotStatus();
 
     publishIOData();
     publishToolData();
@@ -626,6 +646,34 @@ void HardwareInterface::publishPose()
       tcp_pose_pub_->unlockAndPublish();
     }
   }
+}
+
+void HardwareInterface::extractRobotStatus()
+{
+    // robot status bit 2: Is teach button pressed
+    robot_status_resource_.mode            = robot_status_bits_[2] ? RobotMode::MANUAL : RobotMode::AUTO;
+
+    // safety status bit 7: Is emergency stopped
+    robot_status_resource_.e_stopped       = safety_status_bits_[7] ? TriState::TRUE : TriState::FALSE;
+
+    // robot status bit 0: Is power on
+    // Note that this is true as soon as the drives are powered,
+    // even if the breakes are still closed
+    // which is in slight contrast to the comments in the
+    // message definition
+    robot_status_resource_.drives_powered  = robot_status_bits_[0] ? TriState::TRUE : TriState::FALSE;
+
+    robot_status_resource_.motion_possible = robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING ? TriState::TRUE : TriState::FALSE;
+
+    // I found no way to reliably get information if the robot is moving
+    robot_status_resource_.in_motion       = TriState::UNKNOWN;
+
+    // note that e-stop is handled by a seperate variable
+    robot_status_resource_.in_error        = safety_status_bits_[2] ? TriState::TRUE : TriState::FALSE;
+
+    // the error code, if any, is not transmitted by this protocol
+    // it can and should be fetched seperately
+    robot_status_resource_.error_code      = 0;
 }
 
 void HardwareInterface::publishIOData()

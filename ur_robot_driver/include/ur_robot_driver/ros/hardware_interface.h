@@ -54,6 +54,8 @@
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
 
+#include <industrial_robot_status_interface/industrial_robot_status_interface.h>
+
 namespace ur_driver
 {
 /*!
@@ -179,6 +181,12 @@ protected:
   void publishToolData();
   void publishRobotAndSafetyMode();
 
+  /*!
+   * \brief Read and evaluate data in order to set robot status properties for industrial
+   *        robot status interface
+   */
+  void extractRobotStatus();
+
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
   template <typename T>
@@ -234,6 +242,8 @@ protected:
   std::vector<std::string> joint_names_;
   int32_t robot_mode_;
   int32_t safety_mode_;
+  std::bitset<4> robot_status_bits_;
+  std::bitset<11> safety_status_bits_;
 
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
@@ -245,6 +255,9 @@ protected:
   ros::ServiceServer set_io_srv_;
   ros::ServiceServer resend_robot_program_srv_;
   ros::Subscriber command_sub_;
+
+  industrial_robot_status_interface::RobotStatus robot_status_resource_{};
+  industrial_robot_status_interface::IndustrialRobotStatusInterface robot_status_interface_{};
 
   uint32_t runtime_state_;
   bool position_controller_running_;
