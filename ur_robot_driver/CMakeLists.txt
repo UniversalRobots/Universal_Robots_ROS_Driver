@@ -15,6 +15,7 @@ find_package(catkin REQUIRED
     controller_manager
     geometry_msgs
     hardware_interface
+    industrial_robot_status_interface
     pluginlib
     roscpp
     sensor_msgs
