@@ -110,7 +110,7 @@ $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git s
 # install dependencies
 $ sudo apt update -qq
 $ rosdep update
-$ rosdep install --from-path src --ignore-src -y
+$ rosdep install --from-paths src --ignore-src -y
 
 # build the workspace
 $ catkin_make
