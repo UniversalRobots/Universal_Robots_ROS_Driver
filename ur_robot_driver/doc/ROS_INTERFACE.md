@@ -475,7 +475,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
 ### ur3_bringup.launch
 
-Standalone launchfile to startup a ur5 robot. This requires a robot reachable via a network connection.
+Standalone launchfile to startup a ur3 robot. This requires a robot reachable via a network connection.
 
 #### Arguments
  * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur3_controllers.yaml")
