@@ -674,7 +674,11 @@ void HardwareInterface::extractRobotStatus()
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
   if (safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)])
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED)] ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_VIOLATION)] ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_FAULT)] ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY)])
   {
     robot_status_resource_.in_error = TriState::TRUE;
   }
