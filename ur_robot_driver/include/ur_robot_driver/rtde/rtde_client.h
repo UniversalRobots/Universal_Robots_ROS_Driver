@@ -48,7 +48,7 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-enum UrRtdeRobotStatusBits
+enum class UrRtdeRobotStatusBits
 {
   IS_POWER_ON = 0,
   IS_PROGRAM_RUNNING = 1,
@@ -56,7 +56,7 @@ enum UrRtdeRobotStatusBits
   IS_POWER_BUTTON_PRESSED = 3
 };
 
-enum UrRtdeSafetyStatusBits
+enum class UrRtdeSafetyStatusBits
 {
   IS_NORMAL_MODE = 0,
   IS_REDUCED_MODE = 1,

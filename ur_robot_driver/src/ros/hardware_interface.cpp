@@ -652,18 +652,20 @@ void HardwareInterface::extractRobotStatus()
 {
   using namespace rtde_interface;
 
-  robot_status_resource_.mode =
-      robot_status_bits_[UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED] ? RobotMode::MANUAL : RobotMode::AUTO;
+  robot_status_resource_.mode = robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED)] ?
+                                    RobotMode::MANUAL :
+                                    RobotMode::AUTO;
 
-  robot_status_resource_.e_stopped =
-      safety_status_bits_[UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED] ? TriState::TRUE : TriState::FALSE;
+  robot_status_resource_.e_stopped = safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ?
+                                         TriState::TRUE :
+                                         TriState::FALSE;
 
   // Note that this is true as soon as the drives are powered,
   // even if the breakes are still closed
   // which is in slight contrast to the comments in the
   // message definition
   robot_status_resource_.drives_powered =
-      robot_status_bits_[UrRtdeRobotStatusBits::IS_POWER_ON] ? TriState::TRUE : TriState::FALSE;
+      robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_POWER_ON)] ? TriState::TRUE : TriState::FALSE;
 
   robot_status_resource_.motion_possible =
       robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING ? TriState::TRUE : TriState::FALSE;
@@ -671,8 +673,8 @@ void HardwareInterface::extractRobotStatus()
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
-  if (safety_status_bits_[UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED] ||
-      safety_status_bits_[UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED])
+  if (safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED)] ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)])
   {
     robot_status_resource_.in_error = TriState::TRUE;
   }
