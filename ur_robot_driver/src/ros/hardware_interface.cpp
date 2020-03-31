@@ -671,9 +671,15 @@ void HardwareInterface::extractRobotStatus()
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
-  // note that e-stop is handled by a seperate variable
-  robot_status_resource_.in_error =
-      safety_status_bits_[UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED] ? TriState::TRUE : TriState::FALSE;
+  if (safety_status_bits_[UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED] ||
+      safety_status_bits_[UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED])
+  {
+    robot_status_resource_.in_error = TriState::TRUE;
+  }
+  else
+  {
+    robot_status_resource_.in_error = TriState::FALSE;
+  }
 
   // the error code, if any, is not transmitted by this protocol
   // it can and should be fetched seperately

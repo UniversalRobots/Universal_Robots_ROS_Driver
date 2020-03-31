@@ -48,7 +48,6 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-
 enum UrRtdeRobotStatusBits
 {
   IS_POWER_ON = 0,
