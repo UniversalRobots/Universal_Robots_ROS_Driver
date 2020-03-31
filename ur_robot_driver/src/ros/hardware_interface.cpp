@@ -650,18 +650,20 @@ void HardwareInterface::publishPose()
 
 void HardwareInterface::extractRobotStatus()
 {
-  // robot status bit 2: Is teach button pressed
-  robot_status_resource_.mode = robot_status_bits_[2] ? RobotMode::MANUAL : RobotMode::AUTO;
+  using namespace rtde_interface;
 
-  // safety status bit 7: Is emergency stopped
-  robot_status_resource_.e_stopped = safety_status_bits_[7] ? TriState::TRUE : TriState::FALSE;
+  robot_status_resource_.mode =
+      robot_status_bits_[UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED] ? RobotMode::MANUAL : RobotMode::AUTO;
 
-  // robot status bit 0: Is power on
+  robot_status_resource_.e_stopped =
+      safety_status_bits_[UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED] ? TriState::TRUE : TriState::FALSE;
+
   // Note that this is true as soon as the drives are powered,
   // even if the breakes are still closed
   // which is in slight contrast to the comments in the
   // message definition
-  robot_status_resource_.drives_powered = robot_status_bits_[0] ? TriState::TRUE : TriState::FALSE;
+  robot_status_resource_.drives_powered =
+      robot_status_bits_[UrRtdeRobotStatusBits::IS_POWER_ON] ? TriState::TRUE : TriState::FALSE;
 
   robot_status_resource_.motion_possible =
       robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING ? TriState::TRUE : TriState::FALSE;
@@ -670,7 +672,8 @@ void HardwareInterface::extractRobotStatus()
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
   // note that e-stop is handled by a seperate variable
-  robot_status_resource_.in_error = safety_status_bits_[2] ? TriState::TRUE : TriState::FALSE;
+  robot_status_resource_.in_error =
+      safety_status_bits_[UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED] ? TriState::TRUE : TriState::FALSE;
 
   // the error code, if any, is not transmitted by this protocol
   // it can and should be fetched seperately
