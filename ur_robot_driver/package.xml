@@ -10,8 +10,8 @@
   <author>Lea Steffen</author>
   <author>Tristan Schnell</author>
   <maintainer email="exner@fzi.de">Felix Exner</maintainer>
-  <license>Apache 2.0</license>
-  <license>BSD 2-clause</license>
+  <license>Apache-2.0</license>
+  <license>BSD-2-Clause</license>
   <license>Zlib</license>
 
   <url type="website">http://wiki.ros.org/ur_robot_driver</url>
