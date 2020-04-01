@@ -33,9 +33,18 @@
 
 using industrial_robot_status_interface::RobotMode;
 using industrial_robot_status_interface::TriState;
+using namespace ur_driver::rtde_interface;
 
 namespace ur_driver
 {
+// bitset mask is applied to robot safety status bits in order to determine 'in_error' state
+static const std::bitset<11> in_error_bitset_(1 << toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_VIOLATION) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_FAULT) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY));
+
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
@@ -673,12 +682,7 @@ void HardwareInterface::extractRobotStatus()
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
-  if (safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_VIOLATION)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_FAULT)] ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY)])
+  if ((safety_status_bits_ | in_error_bitset_).any())
   {
     robot_status_resource_.in_error = TriState::TRUE;
   }
