@@ -670,7 +670,7 @@ void HardwareInterface::extractRobotStatus()
                                          TriState::FALSE;
 
   // Note that this is true as soon as the drives are powered,
-  // even if the breakes are still closed
+  // even if the brakes are still closed
   // which is in slight contrast to the comments in the
   // message definition
   robot_status_resource_.drives_powered =
@@ -682,7 +682,7 @@ void HardwareInterface::extractRobotStatus()
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
-  if ((safety_status_bits_ | in_error_bitset_).any())
+  if ((safety_status_bits_ & in_error_bitset_).any())
   {
     robot_status_resource_.in_error = TriState::TRUE;
   }
@@ -692,7 +692,7 @@ void HardwareInterface::extractRobotStatus()
   }
 
   // the error code, if any, is not transmitted by this protocol
-  // it can and should be fetched seperately
+  // it can and should be fetched separately
   robot_status_resource_.error_code = 0;
 }
 
