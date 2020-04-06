@@ -4,10 +4,6 @@ The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controller
 
 ## Launchfiles
 
-### 2xbringup.launch
-
-No arguments for this launch file found. You can add a description by hand, if you like.
-
 ### ur3e_bringup.launch
 
 Standalone launchfile to startup a ur3e. This requires a robot reachable via a network connection.
