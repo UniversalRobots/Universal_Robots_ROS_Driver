@@ -701,7 +701,7 @@ void HardwareInterface::publishToolData()
       tool_data_pub_->msg_.analog_input_range2 = tool_analog_input_types_[0];
       tool_data_pub_->msg_.analog_input_range3 = tool_analog_input_types_[1];
       tool_data_pub_->msg_.analog_input2 = tool_analog_input_[0];
-      tool_data_pub_->msg_.analog_input2 = tool_analog_input_[1];
+      tool_data_pub_->msg_.analog_input3 = tool_analog_input_[1];
       tool_data_pub_->msg_.tool_output_voltage = tool_output_voltage_;
       tool_data_pub_->msg_.tool_current = tool_output_current_;
       tool_data_pub_->msg_.tool_temperature = tool_temperature_;
