@@ -2,6 +2,17 @@ name: Industrial CI pipeline
 on: [push, pull_request]
 
 jobs:
+  format_check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: DoozyX/clang-format-lint-action@v0.5
+      with:
+        source: '.'
+        extensions: 'h,cpp'
+        clangFormatVersion: 6
+
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -13,10 +24,6 @@ jobs:
           - ROS_DISTRO: melodic
             UPSTREAM_WORKSPACE: .ci.rosinstall
             ROS_REPO: main
-          - ROS_DISTRO: melodic
-            UPSTREAM_WORKSPACE: .ci.rosinstall
-            CLANG_FORMAT_CHECK: file
-            CLANG_FORMAT_VERSION: "6.0"
 
     steps:
       - uses: actions/checkout@v1
