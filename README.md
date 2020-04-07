@@ -157,8 +157,10 @@ We recommend keeping calibrations for all robots in your organization in a commo
 [package's documentation](ur_calibration/README.md) for details.
 
 #### Quick start
-Once the driver is built and the **externalcontrol** URCap is installed on the robot, you are good
-to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
+Once the driver is built and the **externalcontrol** URCap is installed on the
+robot, you are good to go ahead starting the driver. (**Note**: We do
+recommend, though, to [extract your robot's
+calibration](#extract-calibration-information) first.)
 
 To actually start the robot driver use one of the existing launch files
 
