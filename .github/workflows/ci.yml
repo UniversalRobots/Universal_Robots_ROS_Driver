@@ -10,7 +10,7 @@ jobs:
     - uses: 'ros-industrial/industrial_ci@master'
       env:
         CLANG_FORMAT_CHECK: file
-	CLANG_FORMAT_VERSION: "6.0"
+        CLANG_FORMAT_VERSION: "6.0"
 
   build:
     runs-on: ubuntu-latest
