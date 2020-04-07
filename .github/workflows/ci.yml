@@ -9,8 +9,10 @@ jobs:
         env:
           - ROS_DISTRO: kinetic
             UPSTREAM_WORKSPACE: .ci.rosinstall
+            ROS_REPO: main
           - ROS_DISTRO: melodic
             UPSTREAM_WORKSPACE: .ci.rosinstall
+            ROS_REPO: main
           - ROS_DISTRO: melodic
             UPSTREAM_WORKSPACE: .ci.rosinstall
             CLANG_FORMAT_CHECK: file
