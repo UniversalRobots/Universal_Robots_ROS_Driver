@@ -157,8 +157,10 @@ We recommend keeping calibrations for all robots in your organization in a commo
 [package's documentation](ur_calibration/README.md) for details.
 
 #### Quick start
-Once the driver is built and the **externalcontrol** URCap is installed and running on the robot, you are good
-to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
+Once the driver is built and the **externalcontrol** URCap is installed on the
+robot, you are good to go ahead starting the driver. (**Note**: We do
+recommend, though, to [extract your robot's
+calibration](#extract-calibration-information) first.)
 
 To actually start the robot driver use one of the existing launch files
 
@@ -177,10 +179,13 @@ an error during startup, but will remain usable.
 
 For more information on the launch file's parameters see its own documentation.
 
-Once the robot driver is started, load the previously generated program on the robot panel and
-execute it. From that moment on the robot is fully functional. You can make use of the pause
-function or even stop the program. Simply press the play button again and the ROS driver will
-reconnect.
+Once the robot driver is started, load the [previously generated program](#prepare-the-robot) on the
+robot panel that will start the *External Control* program node and execute it. From that moment on
+the robot is fully functional. You can make use of the *Pause* function or even *Stop* (◾) the
+program.  Simply press the *Play* button (▶) again and the ROS driver will reconnect.
+
+Inside the ROS terminal running the driver you should see the output `Robot ready to receive control commands.`
+
 
 To control the robot using ROS, use the action server on
 
