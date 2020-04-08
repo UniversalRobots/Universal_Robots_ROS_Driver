@@ -800,7 +800,7 @@ The driver will offer an interface to receive the program's URScript on this por
 
 ##### servoj_gain (Required)
 
-Specify lookahead time for servoing to position in joint space. A longer lookahead time can smooth the trajectory.
+Specify gain for servoing to position in joint space. A higher gain can sharpen the trajectory.
 
 ##### servoj_lookahead_time (Required)
 
@@ -808,21 +808,8 @@ Specify lookahead time for servoing to position in joint space. A longer lookahe
 
 ##### tf_prefix (default: "")
 
-Please add description. See hardware_interface.cpp line number: 76
+When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order to publish correct frame names for frames reported by the robot directly.
 
-	robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
-
-##### Symbol: this_thread (default: "&params);
-      if (ret != 0)
-      {
-        ROS_ERROR_STREAM("Unsuccessful in setting main thread realtime priority. Error code: " << ret")
-
-Please add description. See hardware_interface_node.cpp line number: 76
-
-	int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
-      if (ret != 0)
-      {
-        ROS_ERROR_STREAM("Unsuccessful in setting main thread realtime priority. Error code: " << ret);
 
 ##### tool_baud_rate (Required)
 
