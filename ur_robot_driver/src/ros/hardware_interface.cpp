@@ -676,9 +676,6 @@ void HardwareInterface::extractRobotStatus()
   robot_status_resource_.drives_powered =
       robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_POWER_ON)] ? TriState::TRUE : TriState::FALSE;
 
-  robot_status_resource_.motion_possible =
-      robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING ? TriState::TRUE : TriState::FALSE;
-
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
 
@@ -689,6 +686,18 @@ void HardwareInterface::extractRobotStatus()
   else
   {
     robot_status_resource_.in_error = TriState::FALSE;
+  }
+
+  // Motion is not possible if controller is either in error or in safeguard stop.
+  // TODO: Check status of robot program "external control" here as well
+  if (robot_status_resource_.in_error == TriState::TRUE ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_SAFEGUARD_STOPPED)])
+  {
+    robot_status_resource_.motion_possible = TriState::FALSE;
+  }
+  else
+  {
+    robot_status_resource_.motion_possible = TriState::TRUE;
   }
 
   // the error code, if any, is not transmitted by this protocol
