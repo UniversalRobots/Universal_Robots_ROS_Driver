@@ -93,7 +93,22 @@ thread speedThread():
   stopj(5.0)
 end
 
+thread torqueThread():
+  while True:
+    torques = get_joint_torques()
+    write_output_float_register(4, torques[0])
+    write_output_float_register(5, torques[1])
+    write_output_float_register(6, torques[2])
+    write_output_float_register(7, torques[3])
+    write_output_float_register(8, torques[4])
+    write_output_float_register(9, torques[5])
+    sync()
+  end
+end
+
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
+
+torque_thread = run torqueThread()
 
 control_mode = MODE_UNINITIALIZED
 thread_move = 0
@@ -132,5 +147,6 @@ end
 textmsg("Stopping communication and control")
 control_mode = MODE_STOPPED
 join thread_move
+kill torque_thread
 textmsg("All threads ended")
 socket_close("reverse_socket")

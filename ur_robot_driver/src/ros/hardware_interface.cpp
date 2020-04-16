@@ -442,6 +442,12 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "safety_mode", safety_mode_);
     readBitsetData<uint32_t>(data_pkg, "robot_status_bits", robot_status_bits_);
     readBitsetData<uint32_t>(data_pkg, "safety_status_bits", safety_status_bits_);
+    readData(data_pkg, "output_double_register_24", output_double_register_[0]);
+    readData(data_pkg, "output_double_register_25", output_double_register_[1]);
+    readData(data_pkg, "output_double_register_26", output_double_register_[2]);
+    readData(data_pkg, "output_double_register_27", output_double_register_[3]);
+    readData(data_pkg, "output_double_register_28", output_double_register_[4]);
+    readData(data_pkg, "output_double_register_29", output_double_register_[5]);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
@@ -789,6 +795,12 @@ void HardwareInterface::publishToolData()
       tool_data_pub_->msg_.tool_output_voltage = tool_output_voltage_;
       tool_data_pub_->msg_.tool_current = tool_output_current_;
       tool_data_pub_->msg_.tool_temperature = tool_temperature_;
+      tool_data_pub_->msg_.output_double_register_24 = output_double_register_[0];
+      tool_data_pub_->msg_.output_double_register_25 = output_double_register_[1];
+      tool_data_pub_->msg_.output_double_register_26 = output_double_register_[2];
+      tool_data_pub_->msg_.output_double_register_27 = output_double_register_[3];
+      tool_data_pub_->msg_.output_double_register_28 = output_double_register_[4];
+      tool_data_pub_->msg_.output_double_register_29 = output_double_register_[5];
       tool_data_pub_->unlockAndPublish();
     }
   }
