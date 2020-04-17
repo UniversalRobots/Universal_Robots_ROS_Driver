@@ -73,6 +73,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // The driver will offer an interface to receive the program's URScript on this port.
   int script_sender_port = robot_hw_nh.param("script_sender_port", 50002);
 
+  // When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order
+  // to publish correct frame names for frames reported by the robot directly.
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
   // Path to the urscript code that will be sent to the robot.
@@ -106,9 +108,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
-  // Enables non_blocking_read mode. Useful when used with combined_robot_hw. Disables error
-  // generated when read returns without any data, sets the read timeout to zero, and
-  // synchronises read/write operations.
+  // Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read
+  // returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when
+  // not used with combined_robot_hw can suppress important errors and affect real-time performance.
   robot_hw_nh.param("non_blocking_read", non_blocking_read_, false);
 
   // Specify gain for servoing to position in joint space.
