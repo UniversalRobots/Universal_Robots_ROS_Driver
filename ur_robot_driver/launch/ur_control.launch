@@ -15,7 +15,7 @@
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
   <arg name="controllers" default="joint_state_controller vel_based_pos_traj_controller force_torque_sensor_controller"/>
   <arg name="stopped_controllers" default="joint_group_vel_controller"/>
-  <arg name="urscript_file" default="$(find ur_robot_driver)/resources/ros_control.urscript"/>
+  <arg name="urscript_file" default="$(find ur_robot_driver)/resources/ros_control.urscript" doc="Path to URScript that will be sent to the robot and that forms the main control program."/>
   <arg name="rtde_output_recipe_file" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt" doc="Recipe file used for the RTDE-outputs. Only change this if you know what you're doing."/>
   <arg name="rtde_input_recipe_file" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt" doc="Recipe file used for the RTDE-inputs. Only change this if you know what you're doing."/>
   <arg name="tool_voltage" default="0" doc="Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true."/>
