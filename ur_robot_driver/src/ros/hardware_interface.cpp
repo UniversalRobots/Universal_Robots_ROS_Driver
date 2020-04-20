@@ -695,9 +695,14 @@ void HardwareInterface::extractRobotStatus()
   {
     robot_status_resource_.motion_possible = TriState::FALSE;
   }
-  else
+  else if (robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING)
+
   {
     robot_status_resource_.motion_possible = TriState::TRUE;
+  }
+  else
+  {
+    robot_status_resource_.motion_possible = TriState::FALSE;
   }
 
   // the error code, if any, is not transmitted by this protocol
