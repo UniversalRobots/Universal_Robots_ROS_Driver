@@ -21,6 +21,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>boost</build_depend>
+  <build_depend>industrial_robot_status_interface</build_depend>
 
   <depend>actionlib</depend>
   <depend>control_msgs</depend>
@@ -41,6 +42,7 @@
 
   <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
+  <exec_depend>industrial_robot_status_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>

@@ -48,6 +48,29 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+enum class UrRtdeRobotStatusBits
+{
+  IS_POWER_ON = 0,
+  IS_PROGRAM_RUNNING = 1,
+  IS_TEACH_BUTTON_PRESSED = 2,
+  IS_POWER_BUTTON_PRESSED = 3
+};
+
+enum class UrRtdeSafetyStatusBits
+{
+  IS_NORMAL_MODE = 0,
+  IS_REDUCED_MODE = 1,
+  IS_PROTECTIVE_STOPPED = 2,
+  IS_RECOVERY_MODE = 3,
+  IS_SAFEGUARD_STOPPED = 4,
+  IS_SYSTEM_EMERGENCY_STOPPED = 5,
+  IS_ROBOT_EMERGENCY_STOPPED = 6,
+  IS_EMERGENCY_STOPPED = 7,
+  IS_VIOLATION = 8,
+  IS_FAULT = 9,
+  IS_STOPPED_DUE_TO_SAFETY = 10
+};
+
 /*!
  * \brief The RTDEClient class manages communication over the RTDE interface. It contains the RTDE
  * handshake and read and write functionality to and from the robot.

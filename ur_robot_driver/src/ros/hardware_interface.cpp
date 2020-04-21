@@ -31,8 +31,20 @@
 
 #include <Eigen/Geometry>
 
+using industrial_robot_status_interface::RobotMode;
+using industrial_robot_status_interface::TriState;
+using namespace ur_driver::rtde_interface;
+
 namespace ur_driver
 {
+// bitset mask is applied to robot safety status bits in order to determine 'in_error' state
+static const std::bitset<11> in_error_bitset_(1 << toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_VIOLATION) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_FAULT) |
+                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY));
+
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
@@ -299,6 +311,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
       "wrench", tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
+  robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
+      "industrial_robot_status_handle", robot_status_resource_));
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -307,6 +322,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&svj_interface_);
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
+  registerInterface(&robot_status_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -392,6 +408,15 @@ void HardwareInterface::readBitsetData(const std::unique_ptr<rtde_interface::Dat
 
 void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 {
+  // set defaults
+  robot_status_resource_.mode = RobotMode::UNKNOWN;
+  robot_status_resource_.e_stopped = TriState::UNKNOWN;
+  robot_status_resource_.drives_powered = TriState::UNKNOWN;
+  robot_status_resource_.motion_possible = TriState::UNKNOWN;
+  robot_status_resource_.in_motion = TriState::UNKNOWN;
+  robot_status_resource_.in_error = TriState::UNKNOWN;
+  robot_status_resource_.error_code = 0;
+
   std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
@@ -415,10 +440,14 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "tool_temperature", tool_temperature_);
     readData(data_pkg, "robot_mode", robot_mode_);
     readData(data_pkg, "safety_mode", safety_mode_);
+    readBitsetData<uint32_t>(data_pkg, "robot_status_bits", robot_status_bits_);
+    readBitsetData<uint32_t>(data_pkg, "safety_status_bits", safety_status_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
+
+    extractRobotStatus();
 
     publishIOData();
     publishToolData();
@@ -662,6 +691,59 @@ void HardwareInterface::publishPose()
       tcp_pose_pub_->unlockAndPublish();
     }
   }
+}
+
+void HardwareInterface::extractRobotStatus()
+{
+  using namespace rtde_interface;
+
+  robot_status_resource_.mode = robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED)] ?
+                                    RobotMode::MANUAL :
+                                    RobotMode::AUTO;
+
+  robot_status_resource_.e_stopped = safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ?
+                                         TriState::TRUE :
+                                         TriState::FALSE;
+
+  // Note that this is true as soon as the drives are powered,
+  // even if the brakes are still closed
+  // which is in slight contrast to the comments in the
+  // message definition
+  robot_status_resource_.drives_powered =
+      robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_POWER_ON)] ? TriState::TRUE : TriState::FALSE;
+
+  // I found no way to reliably get information if the robot is moving
+  robot_status_resource_.in_motion = TriState::UNKNOWN;
+
+  if ((safety_status_bits_ & in_error_bitset_).any())
+  {
+    robot_status_resource_.in_error = TriState::TRUE;
+  }
+  else
+  {
+    robot_status_resource_.in_error = TriState::FALSE;
+  }
+
+  // Motion is not possible if controller is either in error or in safeguard stop.
+  // TODO: Check status of robot program "external control" here as well
+  if (robot_status_resource_.in_error == TriState::TRUE ||
+      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_SAFEGUARD_STOPPED)])
+  {
+    robot_status_resource_.motion_possible = TriState::FALSE;
+  }
+  else if (robot_mode_ == ur_dashboard_msgs::RobotMode::RUNNING)
+
+  {
+    robot_status_resource_.motion_possible = TriState::TRUE;
+  }
+  else
+  {
+    robot_status_resource_.motion_possible = TriState::FALSE;
+  }
+
+  // the error code, if any, is not transmitted by this protocol
+  // it can and should be fetched separately
+  robot_status_resource_.error_code = 0;
 }
 
 void HardwareInterface::publishIOData()
