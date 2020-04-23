@@ -88,7 +88,7 @@ std::unique_ptr<DataFieldPublisher> DataFieldPublisher::createFromString(const s
     return std::unique_ptr<DataFieldPublisher>(
         new ArrayDataPublisher<double, ur_rtde_msgs::JointCurrents, 6>(data_field_identifier, nh));
   }
-  else if (data_field_identifier == "target_movement")
+  else if (data_field_identifier == "target_moment")
   {
     return std::unique_ptr<DataFieldPublisher>(
         new ArrayDataPublisher<double, ur_rtde_msgs::JointTorques, 6>(data_field_identifier, nh));
