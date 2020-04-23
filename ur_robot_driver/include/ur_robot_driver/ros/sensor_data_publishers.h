@@ -82,51 +82,6 @@ private:
   realtime_tools::RealtimePublisher<std_msgs::Duration> pub_;
 };
 
-/*!
- * \brief Implements a publisher that publishes a datafield containing the joint temperatures.
- *
- */
-class JointTemperaturePublisher : public DataFieldPublisher
-{
-public:
-  /*!
-   * \brief Creates a JointTemperaturePublisher object.
-   *
-   * \param data_field_identifier The string identifier of the data field to publish
-   * \param nh The used ROS node handle
-   */
-  JointTemperaturePublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
-  {
-    pub_.msg_ = std_msgs::Duration();
-  }
-
-  /*!
-   * \brief Publishes the relevant data field from a data package.
-   *
-   * \param data_package The given data package to publish from
-   *
-   * \returns True if the realtime publisher could publish the data.
-   */
-  virtual bool publish(const DataPackage& data_package)
-  {
-    if (data_package.getData(data_field_identifier_, data_))
-    {
-      if (pub_.trylock())
-      {
-        pub_.msg_.data.fromSec(data_);
-        pub_.unlockAndPublish();
-        return true;
-      }
-    }
-    return false;
-  }
-
-private:
-  double data_;
-  std::string data_field_identifier_;
-  realtime_tools::RealtimePublisher<std_msgs::Duration> pub_;
-};
 }  // namespace rtde_interface
 }  // namespace ur_driver
 
