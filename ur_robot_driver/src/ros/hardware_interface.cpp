@@ -331,7 +331,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     recipe.erase(std::remove(recipe.begin(), recipe.end(), s), recipe.end());
   }
-  rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, robot_hw_nh));
+  //create node_handle in rtde_data namespace
+  ros::NodeHandle rtde_nh(robot_hw_nh, "rtde_data");
+  rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, rtde_nh));
 
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
