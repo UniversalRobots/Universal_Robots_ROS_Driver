@@ -325,7 +325,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                       "actual_digital_input_bits",
                                       "actual_digital_output_bits",
                                       "analog_io_types",
-                                      "tool_analog_input_types" };
+                                      "tool_analog_input_types",
+                                      "robot_mode",
+                                      "safety_mode"};
   std::vector<std::string> recipe = ur_driver_->getRTDEOutputRecipe();
   for (auto s : already_published)
   {
