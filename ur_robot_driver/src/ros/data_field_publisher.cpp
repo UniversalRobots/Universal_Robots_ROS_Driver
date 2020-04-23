@@ -53,13 +53,13 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-using _bool_publisher = DirectDataPublisher<bool, std_msgs::Bool>;
-using _uint8_publisher = DirectDataPublisher<uint8_t, std_msgs::UInt8>;
-using _uint32_publisher = DirectDataPublisher<uint32_t, std_msgs::UInt32>;
-using _uint64_publisher = DirectDataPublisher<uint64_t, std_msgs::UInt64>;
-using _int32_publisher = DirectDataPublisher<int32_t, std_msgs::Int32>;
-using _double_publisher = DirectDataPublisher<double, std_msgs::Float64>;
-using _string_publisher = DirectDataPublisher<std::string, std_msgs::String>;
+using bool_publisher = DirectDataPublisher<bool, std_msgs::Bool>;
+using uint8_publisher = DirectDataPublisher<uint8_t, std_msgs::UInt8>;
+using uint32_publisher = DirectDataPublisher<uint32_t, std_msgs::UInt32>;
+using uint64_publisher = DirectDataPublisher<uint64_t, std_msgs::UInt64>;
+using int32_publisher = DirectDataPublisher<int32_t, std_msgs::Int32>;
+using double_publisher = DirectDataPublisher<double, std_msgs::Float64>;
+using string_publisher = DirectDataPublisher<std::string, std_msgs::String>;
 
 std::unique_ptr<DataFieldPublisher> DataFieldPublisher::createFromString(const std::string& data_field_identifier,
                                                                          ros::NodeHandle& nh)
@@ -237,27 +237,27 @@ std::unique_ptr<DataFieldPublisher> DataFieldPublisher::createFromString(const s
   }
   else if (DataPackage::isType<bool>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _bool_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new bool_publisher(data_field_identifier, nh));
   }
   else if (DataPackage::isType<uint8_t>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _uint8_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new uint8_publisher(data_field_identifier, nh));
   }
   else if (DataPackage::isType<uint32_t>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _uint32_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new uint32_publisher(data_field_identifier, nh));
   }
   else if (DataPackage::isType<uint64_t>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _uint64_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new uint64_publisher(data_field_identifier, nh));
   }
   else if (DataPackage::isType<int32_t>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _int32_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new int32_publisher(data_field_identifier, nh));
   }
   else if (DataPackage::isType<double_t>(data_field_identifier))
   {
-    return std::unique_ptr<DataFieldPublisher>(new _double_publisher(data_field_identifier, nh));
+    return std::unique_ptr<DataFieldPublisher>(new double_publisher(data_field_identifier, nh));
   }
   else
   {
