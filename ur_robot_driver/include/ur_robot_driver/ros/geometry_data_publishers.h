@@ -53,7 +53,7 @@ public:
    * \param nh The used ROS node handle
    */
   PosePublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = geometry_msgs::Pose();
   }
@@ -115,7 +115,7 @@ public:
    * \param nh The used ROS node handle
    */
   TwistPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = geometry_msgs::Twist();
   }
@@ -166,7 +166,7 @@ public:
    * \param nh The used ROS node handle
    */
   Vector3Publisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = geometry_msgs::Vector3();
   }

@@ -83,7 +83,7 @@ public:
    * \param nh The used ROS node handle
    */
   DirectDataPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
   }
 
@@ -130,7 +130,7 @@ public:
    * \param nh The used ROS node handle
    */
   ArrayDataPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_.data.resize(N);
   }
@@ -180,7 +180,7 @@ public:
    * \param nh The used ROS node handle
    */
   BitRegisterArrayPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh, uint8_t start_pin)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_.registers.resize(ARRAY_SIZE);
     for (size_t i = 0; i < ARRAY_SIZE; i++)

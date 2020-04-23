@@ -50,7 +50,7 @@ public:
    * \param nh The used ROS node handle
    */
   DurationPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = std_msgs::Duration();
   }
@@ -96,7 +96,7 @@ public:
    * \param nh The used ROS node handle
    */
   JointTemperaturePublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = std_msgs::Duration();
   }

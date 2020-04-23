@@ -53,7 +53,7 @@ public:
    * \param nh The used ROS node handle
    */
   ModePublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
   }
 
@@ -99,7 +99,7 @@ public:
    * \param nh The used ROS node handle
    */
   StatusPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
   }
 
@@ -144,7 +144,7 @@ public:
    * \param nh The used ROS node handle
    */
   JointModePublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = ur_rtde_msgs::JointMode();
     pub_.msg_.mode.resize(NUM_JOINTS);
@@ -195,7 +195,7 @@ public:
    * \param nh The used ROS node handle
    */
   RobotStatusBitsPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = ur_rtde_msgs::RobotStatusBits();
   }
@@ -245,7 +245,7 @@ public:
    * \param nh The used ROS node handle
    */
   SafetyStatusBitsPublisher(const std::string& data_field_identifier, ros::NodeHandle& nh)
-    : data_field_identifier_(data_field_identifier), pub_(nh, "rtde_data/" + data_field_identifier_, 1)
+    : data_field_identifier_(data_field_identifier), pub_(nh, data_field_identifier_, 1)
   {
     pub_.msg_ = ur_rtde_msgs::SafetyStatusBits();
   }
