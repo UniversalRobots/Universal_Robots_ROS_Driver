@@ -327,13 +327,13 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                       "analog_io_types",
                                       "tool_analog_input_types",
                                       "robot_mode",
-                                      "safety_mode"};
+                                      "safety_mode" };
   std::vector<std::string> recipe = ur_driver_->getRTDEOutputRecipe();
   for (auto s : already_published)
   {
     recipe.erase(std::remove(recipe.begin(), recipe.end(), s), recipe.end());
   }
-  //create node_handle in rtde_data namespace
+  // create node_handle in rtde_data namespace
   ros::NodeHandle rtde_nh(robot_hw_nh, "rtde_data");
   rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, rtde_nh));
 
