@@ -115,7 +115,7 @@ public:
       case RobotPackageType::ROBOT_MESSAGE:
       {
         uint64_t timestamp;
-        uint8_t source;
+        int8_t source;
         RobotMessagePackageType message_type;
 
         bp.parse(timestamp);

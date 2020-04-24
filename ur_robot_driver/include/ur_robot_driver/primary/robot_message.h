@@ -37,7 +37,7 @@ namespace primary_interface
 /*!
  * \brief Possible RobotMessage types
  */
-enum class RobotMessagePackageType : uint8_t
+enum class RobotMessagePackageType : int8_t
 {
   ROBOT_MESSAGE_TEXT = 0,
   ROBOT_MESSAGE_PROGRAM_LABEL = 1,
@@ -62,7 +62,7 @@ public:
    * \param timestamp Timestamp of the package
    * \param source The package's source
    */
-  RobotMessage(const uint64_t timestamp, const uint8_t source) : timestamp_(timestamp), source_(source)
+  RobotMessage(const uint64_t timestamp, const int8_t source) : timestamp_(timestamp), source_(source)
   {
   }
   virtual ~RobotMessage() = default;
@@ -94,7 +94,7 @@ public:
   virtual std::string toString() const;
 
   uint64_t timestamp_;
-  uint8_t source_;
+  int8_t source_;
   RobotMessagePackageType message_type_;
 };
 
