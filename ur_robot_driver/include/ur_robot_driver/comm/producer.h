@@ -57,6 +57,8 @@ public:
   {
   }
 
+  virtual ~URProducer() = default;
+
   /*!
    * \brief Triggers the stream to connect to the robot.
    */
