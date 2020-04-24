@@ -47,7 +47,8 @@ public:
    * \param timestamp Timestamp of the package
    * \param source The package's source
    */
-  VersionMessage(uint64_t timestamp, int8_t source) : RobotMessage(timestamp, source)
+  VersionMessage(uint64_t timestamp, int8_t source)
+    : RobotMessage(timestamp, source, RobotMessagePackageType::ROBOT_MESSAGE_VERSION)
   {
   }
   virtual ~VersionMessage() = default;
