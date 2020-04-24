@@ -175,7 +175,7 @@ private:
       case RobotMessagePackageType::ROBOT_MESSAGE_VERSION:
         return new VersionMessage(timestamp, source);
       default:
-        return new RobotMessage(timestamp, source);
+        return new RobotMessage(timestamp, source, type);
     }
   }
 };
