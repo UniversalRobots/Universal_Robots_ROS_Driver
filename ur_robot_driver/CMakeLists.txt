@@ -91,6 +91,8 @@ add_library(ur_robot_driver
     src/primary/primary_package.cpp
     src/primary/robot_message.cpp
     src/primary/robot_state.cpp
+    src/primary/robot_message/error_code_message.cpp
+    src/primary/robot_message/runtime_exception_message.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_message/text_message.cpp
     src/primary/robot_message/key_message.cpp

@@ -28,6 +28,8 @@
 #include "ur_robot_driver/primary/robot_message.h"
 #include "ur_robot_driver/primary/robot_state/kinematics_info.h"
 #include "ur_robot_driver/primary/robot_message/key_message.h"
+#include "ur_robot_driver/primary/robot_message/error_code_message.h"
+#include "ur_robot_driver/primary/robot_message/runtime_exception_message.h"
 #include "ur_robot_driver/primary/robot_message/text_message.h"
 #include "ur_robot_driver/primary/robot_message/version_message.h"
 
@@ -180,6 +182,10 @@ private:
         return new TextMessage(timestamp, source);
       case RobotMessagePackageType::ROBOT_MESSAGE_KEY:
         return new KeyMessage(timestamp, source);
+      case RobotMessagePackageType::ROBOT_MESSAGE_ERROR_CODE:
+        return new ErrorCodeMessage(timestamp, source);
+      case RobotMessagePackageType::ROBOT_MESSAGE_RUNTIME_EXCEPTION:
+        return new RuntimeExceptionMessage(timestamp, source);
       default:
         return new RobotMessage(timestamp, source, type);
     }
