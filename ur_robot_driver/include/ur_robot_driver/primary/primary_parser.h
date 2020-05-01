@@ -26,9 +26,7 @@
 #include "ur_robot_driver/primary/package_header.h"
 #include "ur_robot_driver/primary/robot_state.h"
 #include "ur_robot_driver/primary/robot_message.h"
-//#include "ur_robot_driver/primary/robot_state/robot_mode_data.h"
 #include "ur_robot_driver/primary/robot_state/kinematics_info.h"
-//#include "ur_robot_driver/primary/robot_state/master_board.h"
 #include "ur_robot_driver/primary/robot_message/version_message.h"
 
 namespace ur_driver

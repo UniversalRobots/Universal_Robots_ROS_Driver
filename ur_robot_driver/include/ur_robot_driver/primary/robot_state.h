@@ -77,23 +77,23 @@ public:
    *
    * \returns True, if the package was parsed successfully, false otherwise
    */
-  virtual bool parseWith(comm::BinParser& bp)
-  {
-    return PrimaryPackage::parseWith(bp);
-  }
+  virtual bool parseWith(comm::BinParser& bp);
+
+  /*!
+   * \brief Consume this specific package with a specific consumer.
+   *
+   * \param consumer Placeholder for the consumer calling this
+   *
+   * \returns true on success
+   */
+  virtual bool consumeWith(AbstractPrimaryConsumer& consumer);
 
   /*!
    * \brief Produces a human readable representation of the package object.
    *
    * \returns A string representing the object
    */
-  virtual std::string toString() const
-  {
-    std::stringstream ss;
-    ss << "Type: " << static_cast<int>(state_type_) << std::endl;
-    ss << PrimaryPackage::toString();
-    return ss.str();
-  }
+  virtual std::string toString() const;
 
 private:
   RobotStateType state_type_;

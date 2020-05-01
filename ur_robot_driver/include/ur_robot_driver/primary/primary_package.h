@@ -71,7 +71,7 @@ public:
    *
    * \returns true on success
    */
-  virtual bool consumeWith(AbstractPrimaryConsumer& consumer);
+  virtual bool consumeWith(AbstractPrimaryConsumer& consumer) = 0;
 
   /*!
    * \brief Produces a human readable representation of the package object.

@@ -89,6 +89,7 @@ add_library(ur_robot_driver
     #src/ur/robot_mode.cpp
     src/primary/primary_package.cpp
     src/primary/robot_message.cpp
+    src/primary/robot_state.cpp
     src/primary/robot_message/version_message.cpp
     src/primary/robot_state/kinematics_info.cpp
     src/rtde/control_package_pause.cpp

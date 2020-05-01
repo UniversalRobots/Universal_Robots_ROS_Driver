@@ -68,7 +68,8 @@ public:
   }
 
   // To be implemented in specific consumers
-  virtual bool consume(PrimaryPackage& pkg) = 0;
+  virtual bool consume(RobotMessage& pkg) = 0;
+  virtual bool consume(RobotState& pkg) = 0;
   virtual bool consume(VersionMessage& pkg) = 0;
   virtual bool consume(KinematicsInfo& pkg) = 0;
 
