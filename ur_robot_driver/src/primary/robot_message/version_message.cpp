@@ -49,7 +49,7 @@ bool VersionMessage::parseWith(comm::BinParser& bp)
   return true;  // not really possible to check dynamic size packets
 }
 
-bool VersionMessage ::consumeWith(AbstractPrimaryConsumer& consumer)
+bool VersionMessage::consumeWith(AbstractPrimaryConsumer& consumer)
 {
   return consumer.consume(*this);
 }

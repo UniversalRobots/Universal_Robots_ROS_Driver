@@ -30,6 +30,7 @@
 
 #include "ur_robot_driver/log.h"
 #include "ur_robot_driver/primary/robot_message/runtime_exception_message.h"
+#include "ur_robot_driver/primary/abstract_primary_consumer.h"
 
 namespace ur_driver
 {
@@ -42,6 +43,11 @@ bool RuntimeExceptionMessage::parseWith(comm::BinParser& bp)
   bp.parseRemainder(text_);
 
   return true;  // not really possible to check dynamic size packets
+}
+
+bool RuntimeExceptionMessage::consumeWith(AbstractPrimaryConsumer& consumer)
+{
+  return consumer.consume(*this);
 }
 
 std::string RuntimeExceptionMessage::toString() const

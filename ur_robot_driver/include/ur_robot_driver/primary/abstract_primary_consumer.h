@@ -30,6 +30,10 @@
 
 #include "ur_robot_driver/log.h"
 #include "ur_robot_driver/comm/pipeline.h"
+#include "ur_robot_driver/primary/robot_message/error_code_message.h"
+#include "ur_robot_driver/primary/robot_message/key_message.h"
+#include "ur_robot_driver/primary/robot_message/runtime_exception_message.h"
+#include "ur_robot_driver/primary/robot_message/text_message.h"
 #include "ur_robot_driver/primary/robot_message/version_message.h"
 #include "ur_robot_driver/primary/robot_state/kinematics_info.h"
 
@@ -70,6 +74,10 @@ public:
   // To be implemented in specific consumers
   virtual bool consume(RobotMessage& pkg) = 0;
   virtual bool consume(RobotState& pkg) = 0;
+  virtual bool consume(ErrorCodeMessage& pkg) = 0;
+  virtual bool consume(KeyMessage& pkg) = 0;
+  virtual bool consume(RuntimeExceptionMessage& pkg) = 0;
+  virtual bool consume(TextMessage& pkg) = 0;
   virtual bool consume(VersionMessage& pkg) = 0;
   virtual bool consume(KinematicsInfo& pkg) = 0;
 
