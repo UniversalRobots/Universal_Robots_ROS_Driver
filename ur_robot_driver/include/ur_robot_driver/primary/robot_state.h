@@ -28,8 +28,6 @@
 #ifndef UR_RTDE_DRIVER_ROBOT_STATE_H_INCLUDED
 #define UR_RTDE_DRIVER_ROBOT_STATE_H_INCLUDED
 
-#include <sstream>
-
 #include "ur_robot_driver/primary/primary_package.h"
 #include "ur_robot_driver/primary/package_header.h"
 

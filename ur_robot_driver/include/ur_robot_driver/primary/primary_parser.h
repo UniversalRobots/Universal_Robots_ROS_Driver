@@ -39,7 +39,7 @@ namespace primary_interface
  * \brief The primary specific parser. Interprets a given byte stream as serialized primary
  * packages and parses it accordingly.
  */
-class PrimaryParser : public comm::Parser<PackageHeader>
+class PrimaryParser : public comm::Parser<PrimaryPackage>
 {
 public:
   PrimaryParser() = default;
@@ -54,7 +54,7 @@ public:
    * \returns True, if the byte stream could successfully be parsed as primary packages, false
    * otherwise
    */
-  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
+  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<PrimaryPackage>>& results)
   {
     int32_t packet_size;
     RobotPackageType type;

@@ -79,7 +79,7 @@ uint16_t RTDEClient::negotiateProtocolVersion()
   size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
   if (!stream_.write(buffer, size, written))
     throw UrException("Sending protocol version query to robot failed.");
-  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  std::unique_ptr<RTDEPackage> package;
   if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
     throw UrException("Could not get urcontrol version from robot. This should not happen!");
   rtde_interface::RequestProtocolVersion* tmp_version =
@@ -106,7 +106,7 @@ void RTDEClient::queryURControlVersion()
   uint8_t buffer[4096];
   size_t size;
   size_t written;
-  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  std::unique_ptr<RTDEPackage> package;
   size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
   if (!stream_.write(buffer, size, written))
     throw UrException("Sending urcontrol version query request to robot failed.");
@@ -127,7 +127,7 @@ void RTDEClient::setupOutputs(const uint16_t protocol_version)
   size_t size;
   size_t written;
   uint8_t buffer[4096];
-  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  std::unique_ptr<RTDEPackage> package;
   LOG_INFO("Setting up RTDE communication with frequency %f", max_frequency_);
   if (protocol_version == 2)
   {
@@ -168,7 +168,7 @@ void RTDEClient::setupInputs()
   size_t size;
   size_t written;
   uint8_t buffer[4096];
-  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  std::unique_ptr<RTDEPackage> package;
   size = ControlPackageSetupInputsRequest::generateSerializedRequest(buffer, input_recipe_);
   if (!stream_.write(buffer, size, written))
     throw UrException("Could not send RTDE input recipe to robot.");
@@ -211,7 +211,7 @@ bool RTDEClient::start()
   size_t written;
   pipeline_.run();
   size = ControlPackageStartRequest::generateSerializedRequest(buffer);
-  std::unique_ptr<comm::URPackage<PackageHeader>> package;
+  std::unique_ptr<RTDEPackage> package;
   if (!stream_.write(buffer, size, written))
     throw UrException("Sending RTDE start command failed!");
   if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
@@ -234,7 +234,7 @@ std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
 
 std::unique_ptr<rtde_interface::DataPackage> RTDEClient::getDataPackage(std::chrono::milliseconds timeout)
 {
-  std::unique_ptr<comm::URPackage<rtde_interface::PackageHeader>> urpackage;
+  std::unique_ptr<RTDEPackage> urpackage;
   if (pipeline_.getLatestProduct(urpackage, timeout))
   {
     rtde_interface::DataPackage* tmp = dynamic_cast<rtde_interface::DataPackage*>(urpackage.get());
