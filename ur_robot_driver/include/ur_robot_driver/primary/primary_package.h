@@ -35,6 +35,8 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+class AbstractPrimaryConsumer;
+
 /*!
  * \brief The PrimaryPackage is solely an abstraction level.
  * It inherits form the URPackage and is also a parent class for primary_interface::RobotMessage,
@@ -60,6 +62,8 @@ public:
    * \returns True, if the package was parsed successfully, false otherwise
    */
   virtual bool parseWith(comm::BinParser& bp);
+
+  virtual bool consumeWith(AbstractPrimaryConsumer& consumer);
 
   /*!
    * \brief Produces a human readable representation of the package object.

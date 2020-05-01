@@ -1,7 +1,7 @@
 // this is for emacs file handling -*- mode: c++; indent-tabs-mode: nil -*-
-
+//
 // -- BEGIN LICENSE BLOCK ----------------------------------------------
-// Copyright 2019 FZI Forschungszentrum Informatik
+// Copyright 2020 FZI Forschungszentrum Informatik
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,42 +20,47 @@
 /*!\file
  *
  * \author  Felix Exner exner@fzi.de
- * \date    2019-04-09
+ * \date    2020-04-30
  *
  */
 //----------------------------------------------------------------------
 
-#include "ur_robot_driver/primary/primary_package.h"
-#include "ur_robot_driver/primary/abstract_primary_consumer.h"
+#ifndef UR_ROBOT_DRIVER_ABSTRACT_PRIMARY_CONSUMER_H_INCLUDED
+#define UR_ROBOT_DRIVER_ABSTRACT_PRIMARY_CONSUMER_H_INCLUDED
+
+#include "ur_robot_driver/log.h"
+#include "ur_robot_driver/comm/pipeline.h"
+#include "ur_robot_driver/primary/robot_message/version_message.h"
+#include "ur_robot_driver/primary/robot_state/kinematics_info.h"
 
 namespace ur_driver
 {
 namespace primary_interface
 {
-bool PrimaryPackage::parseWith(comm::BinParser& bp)
+class AbstractPrimaryConsumer : public comm::IConsumer<PrimaryPackage>
 {
-  bp.rawData(buffer_, buffer_length_);
-  return true;
-}
+public:
+  AbstractPrimaryConsumer() = default;
+  virtual ~AbstractPrimaryConsumer() = default;
 
-
-bool PrimaryPackage ::consumeWith(AbstractPrimaryConsumer& consumer)
-{
-  return consumer.consume(*this);
-}
-
-std::string PrimaryPackage::toString() const
-{
-  std::stringstream ss;
-  ss << "Raw byte stream: ";
-  for (size_t i = 0; i < buffer_length_; ++i)
+  virtual bool consume(std::shared_ptr<PrimaryPackage> product)
   {
-    uint8_t* buf = buffer_.get();
-    ss << std::hex << static_cast<int>(buf[i]) << " ";
+    if (product != nullptr)
+    {
+      return product->consumeWith(*this);
+    }
+    return false;
   }
-  ss << std::endl;
-  return ss.str();
-}
 
+  virtual bool consume(PrimaryPackage& pkg) = 0;
+  virtual bool consume(VersionMessage& pkg) = 0;
+  virtual bool consume(KinematicsInfo& pkg) = 0;
+
+private:
+  /* data */
+};
 }  // namespace primary_interface
 }  // namespace ur_driver
+
+#endif  // ifndef UR_ROBOT_DRIVER_ABSTRACT_PRIMARY_CONSUMER_H_INCLUDED
+
