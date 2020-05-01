@@ -83,11 +83,7 @@ include_directories(
 add_library(ur_robot_driver
     src/comm/tcp_socket.cpp
     src/comm/server.cpp
-    #src/ros/service_stopper.cpp
-    #src/ur/commander.cpp
-    #src/ur/master_board.cpp
-    #src/ur/messages.cpp
-    #src/ur/robot_mode.cpp
+    src/primary/primary_client.cpp
     src/primary/primary_package.cpp
     src/primary/robot_message.cpp
     src/primary/robot_state.cpp
