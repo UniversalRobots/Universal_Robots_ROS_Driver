@@ -37,13 +37,28 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+/*!
+ * \brief Base consumer for primary packages
+ *
+ * Primary interface consumers can inherit from this class in order to implement the visitor
+ * pattern for consuming primary packages.
+ */
 class AbstractPrimaryConsumer : public comm::IConsumer<PrimaryPackage>
 {
 public:
   AbstractPrimaryConsumer() = default;
   virtual ~AbstractPrimaryConsumer() = default;
 
-  virtual bool consume(std::shared_ptr<PrimaryPackage> product)
+  /*!
+   * \brief This consume method is usally being called by the Pipeline structure. We don't
+   * necessarily need to know the specific package type here, as the packages themselves will take
+   * care to be consumed with the correct function (visitor pattern).
+   *
+   * \param product package as it is received from the robot
+   *
+   * \returns true on successful consuming
+   */
+  virtual bool consume(std::shared_ptr<PrimaryPackage> product) final
   {
     if (product != nullptr)
     {
@@ -52,6 +67,7 @@ public:
     return false;
   }
 
+  // To be implemented in specific consumers
   virtual bool consume(PrimaryPackage& pkg) = 0;
   virtual bool consume(VersionMessage& pkg) = 0;
   virtual bool consume(KinematicsInfo& pkg) = 0;
@@ -63,4 +79,3 @@ private:
 }  // namespace ur_driver
 
 #endif  // ifndef UR_ROBOT_DRIVER_ABSTRACT_PRIMARY_CONSUMER_H_INCLUDED
-

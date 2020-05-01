@@ -63,6 +63,14 @@ public:
    */
   virtual bool parseWith(comm::BinParser& bp);
 
+  /*!
+   * \brief Consume this package with a specific consumer. This should be overwritten in inherited
+   * packages
+   *
+   * \param consumer Placeholder for the consumer calling this
+   *
+   * \returns true on success
+   */
   virtual bool consumeWith(AbstractPrimaryConsumer& consumer);
 
   /*!
