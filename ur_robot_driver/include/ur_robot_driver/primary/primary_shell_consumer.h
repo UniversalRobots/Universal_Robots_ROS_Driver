@@ -49,7 +49,7 @@ public:
   }
   virtual bool consume(RobotState& msg) override
   {
-    LOG_INFO("---RobotState:---\n%s", msg.toString().c_str());
+    //LOG_INFO("---RobotState:---\n%s", msg.toString().c_str());
     return true;
   }
   virtual bool consume(ErrorCodeMessage& msg) override

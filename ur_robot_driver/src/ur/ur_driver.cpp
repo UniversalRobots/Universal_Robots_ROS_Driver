@@ -53,7 +53,8 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
                               std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum,
                               const uint32_t reverse_port, const uint32_t script_sender_port, int servoj_gain,
                               double servoj_lookahead_time, bool non_blocking_read)
-  : servoj_time_(0.008)
+  : primary_client_(robot_ip, calibration_checksum)
+  , servoj_time_(0.008)
   , servoj_gain_(servoj_gain)
   , servoj_lookahead_time_(servoj_lookahead_time)
   , reverse_interface_active_(false)
@@ -65,13 +66,14 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   LOG_DEBUG("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, output_recipe_file, input_recipe_file));
 
-  primary_stream_.reset(
-      new comm::URStream<primary_interface::PrimaryPackage>(robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
-  secondary_stream_.reset(new comm::URStream<primary_interface::PrimaryPackage>(
-      robot_ip_, ur_driver::primary_interface::UR_SECONDARY_PORT));
-  secondary_stream_->connect();
-  LOG_INFO("Checking if calibration data matches connected robot.");
-  checkCalibration(calibration_checksum);
+  // primary_stream_.reset(
+  // new comm::URStream<primary_interface::PrimaryPackage>(robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
+  // secondary_stream_.reset(new comm::URStream<primary_interface::PrimaryPackage>(
+  // robot_ip_, ur_driver::primary_interface::UR_SECONDARY_PORT));
+  // secondary_stream_->connect();
+  // LOG_INFO("Checking if calibration data matches connected robot.");
+  // checkCalibration(calibration_checksum);
+  //
 
   non_blocking_read_ = non_blocking_read;
   get_packet_timeout_ = non_blocking_read_ ? 0 : 100;
@@ -254,30 +256,6 @@ std::string UrDriver::readKeepalive()
   }
 }
 
-void UrDriver::checkCalibration(const std::string& checksum)
-{
-  if (primary_stream_ == nullptr)
-  {
-    throw std::runtime_error("checkCalibration() called without a primary interface connection being established.");
-  }
-  primary_interface::PrimaryParser parser;
-  comm::URProducer<primary_interface::PrimaryPackage> prod(*primary_stream_, parser);
-  prod.setupProducer();
-
-  CalibrationChecker consumer(checksum);
-
-  comm::INotifier notifier;
-
-  comm::Pipeline<primary_interface::PrimaryPackage> pipeline(prod, &consumer, "Pipeline", notifier);
-  pipeline.run();
-
-  while (!consumer.isChecked())
-  {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-  }
-  LOG_DEBUG("Got calibration information from robot.");
-}
-
 rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
 {
   return rtde_client_->getWriter();
@@ -285,28 +263,7 @@ rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
 
 bool UrDriver::sendScript(const std::string& program)
 {
-  if (secondary_stream_ == nullptr)
-  {
-    throw std::runtime_error("Sending script to robot requested while there is no primary interface established. This "
-                             "should not happen.");
-  }
-
-  // urscripts (snippets) must end with a newline, or otherwise the controller's runtime will
-  // not execute them. To avoid problems, we always just append a newline here, even if
-  // there may already be one.
-  auto program_with_newline = program + '\n';
-
-  size_t len = program_with_newline.size();
-  const uint8_t* data = reinterpret_cast<const uint8_t*>(program_with_newline.c_str());
-  size_t written;
-
-  if (secondary_stream_->write(data, len, written))
-  {
-    LOG_DEBUG("Sent program to robot:\n%s", program_with_newline.c_str());
-    return true;
-  }
-  LOG_ERROR("Could not send program to robot");
-  return false;
+  return primary_client_.sendScript(program);
 }
 
 bool UrDriver::sendRobotProgram()

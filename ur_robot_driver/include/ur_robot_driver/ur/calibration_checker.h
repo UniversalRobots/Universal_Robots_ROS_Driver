@@ -27,18 +27,17 @@
 #ifndef UR_RTDE_DRIVER_UR_CALIBRATION_CHECKER_H_INCLUDED
 #define UR_RTDE_DRIVER_UR_CALIBRATION_CHECKER_H_INCLUDED
 
-#include <ur_robot_driver/comm/pipeline.h>
-
+#include <ur_robot_driver/primary/primary_package_handler.h>
 #include <ur_robot_driver/primary/robot_state/kinematics_info.h>
 
 namespace ur_driver
 {
 /*!
- * \brief The CalibrationChecker class consumes primary packages ignoring all but KinematicsInfo
- * packages. These are then checked against the used kinematics to see if the correct calibration
- * is used.
+ * \brief The CalibrationChecker checks a received KinematicsInfo package against a registered calibration hash
+ * value. This way we know whether the robot that sent the KinematicsInfo package matches the
+ * expected calibration.
  */
-class CalibrationChecker : public comm::IConsumer<primary_interface::PrimaryPackage>
+class CalibrationChecker : public primary_interface::IPrimaryPackageHandler<primary_interface::KinematicsInfo>
 {
 public:
   /*!
@@ -51,31 +50,6 @@ public:
   virtual ~CalibrationChecker() = default;
 
   /*!
-   * \brief Empty setup function, as no setup is needed.
-   */
-  virtual void setupConsumer()
-  {
-  }
-  /*!
-   * \brief Tears down the consumer.
-   */
-  virtual void teardownConsumer()
-  {
-  }
-  /*!
-   * \brief Stops the consumer.
-   */
-  virtual void stopConsumer()
-  {
-  }
-  /*!
-   * \brief Handles timeouts.
-   */
-  virtual void onTimeout()
-  {
-  }
-
-  /*!
    * \brief Consumes a package, checking its hash if it is a KinematicsInfo package. If the hash
    * does not match the expected hash, an error is logged.
    *
@@ -83,7 +57,7 @@ public:
    *
    * \returns True, if the package was consumed correctly
    */
-  virtual bool consume(std::shared_ptr<primary_interface::PrimaryPackage> product);
+  virtual void handle(primary_interface::KinematicsInfo& kin_info) override;
 
   /*!
    * \brief Used to make sure the calibration check is not performed several times.
