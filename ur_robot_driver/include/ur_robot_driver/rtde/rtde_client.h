@@ -149,12 +149,12 @@ public:
   RTDEWriter& getWriter();
 
 private:
-  comm::URStream<PackageHeader> stream_;
+  comm::URStream<RTDEPackage> stream_;
   std::vector<std::string> output_recipe_;
   std::vector<std::string> input_recipe_;
   RTDEParser parser_;
-  comm::URProducer<PackageHeader> prod_;
-  comm::Pipeline<PackageHeader> pipeline_;
+  comm::URProducer<RTDEPackage> prod_;
+  comm::Pipeline<RTDEPackage> pipeline_;
   RTDEWriter writer_;
 
   VersionInformation urcontrol_version_;

@@ -38,7 +38,7 @@ namespace ur_driver
  * packages. These are then checked against the used kinematics to see if the correct calibration
  * is used.
  */
-class CalibrationChecker : public comm::IConsumer<comm::URPackage<primary_interface::PackageHeader>>
+class CalibrationChecker : public comm::IConsumer<primary_interface::PrimaryPackage>
 {
 public:
   /*!
@@ -83,7 +83,7 @@ public:
    *
    * \returns True, if the package was consumed correctly
    */
-  virtual bool consume(std::shared_ptr<comm::URPackage<primary_interface::PackageHeader>> product);
+  virtual bool consume(std::shared_ptr<primary_interface::PrimaryPackage> product);
 
   /*!
    * \brief Used to make sure the calibration check is not performed several times.

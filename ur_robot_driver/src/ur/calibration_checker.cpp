@@ -20,7 +20,7 @@ CalibrationChecker::CalibrationChecker(const std::string& expected_hash)
   : expected_hash_(expected_hash), checked_(false)
 {
 }
-bool CalibrationChecker::consume(std::shared_ptr<comm::URPackage<primary_interface::PackageHeader>> product)
+bool CalibrationChecker::consume(std::shared_ptr<primary_interface::PrimaryPackage> product)
 {
   auto kin_info = std::dynamic_pointer_cast<primary_interface::KinematicsInfo>(product);
   if (kin_info != nullptr)

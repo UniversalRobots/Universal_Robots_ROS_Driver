@@ -38,7 +38,7 @@ namespace comm
  * peek at the field defining the package length. This is why it is templated with the package
  * header type.
  */
-template <typename HeaderT>
+template <typename T>
 class URStream : public TCPSocket
 {
 public:
@@ -116,21 +116,21 @@ private:
   std::mutex write_mutex_, read_mutex_;
 };
 
-template <typename HeaderT>
-bool URStream<HeaderT>::write(const uint8_t* buf, const size_t buf_len, size_t& written)
+template <typename T>
+bool URStream<T>::write(const uint8_t* buf, const size_t buf_len, size_t& written)
 {
   std::lock_guard<std::mutex> lock(write_mutex_);
   return TCPSocket::write(buf, buf_len, written);
 }
 
-template <typename HeaderT>
-bool URStream<HeaderT>::read(uint8_t* buf, const size_t buf_len, size_t& total)
+template <typename T>
+bool URStream<T>::read(uint8_t* buf, const size_t buf_len, size_t& total)
 {
   std::lock_guard<std::mutex> lock(read_mutex_);
 
   bool initial = true;
   uint8_t* buf_pos = buf;
-  size_t remainder = sizeof(typename HeaderT::_package_size_type);
+  size_t remainder = sizeof(typename T::HeaderType::_package_size_type);
   size_t read = 0;
 
   while (remainder > 0 && TCPSocket::read(buf_pos, remainder, read))
@@ -138,8 +138,8 @@ bool URStream<HeaderT>::read(uint8_t* buf, const size_t buf_len, size_t& total)
     TCPSocket::setOptions(getSocketFD());
     if (initial)
     {
-      remainder = HeaderT::getPackageLength(buf);
-      if (remainder >= (buf_len - sizeof(typename HeaderT::_package_size_type)))
+      remainder = T::HeaderType::getPackageLength(buf);
+      if (remainder >= (buf_len - sizeof(typename T::HeaderType::_package_size_type)))
       {
         LOG_ERROR("Packet size %zd is larger than buffer %zu, discarding.", remainder, buf_len);
         return false;

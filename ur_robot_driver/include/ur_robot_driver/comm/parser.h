@@ -32,7 +32,7 @@ namespace comm
  * iclude classes which inherit from it (rtdeParser and primaryParser).
  * The parser functionality also embodies a factory function taking in an uint8.
  */
-template <typename HeaderT>
+template <typename T>
 class Parser
 
 {
@@ -46,11 +46,10 @@ public:
    * \param bp Instance of class binaryParser
    * \param results A unique pointer
    */
-  virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<URPackage<HeaderT>>>& results) = 0;
-  using _header_type = HeaderT;
+  virtual bool parse(BinParser& bp, std::vector<std::unique_ptr<T>>& results) = 0;
 
 private:
-  HeaderT header_;
+  typename T::HeaderType header_;
   // URProducer producer_;
 };
 
