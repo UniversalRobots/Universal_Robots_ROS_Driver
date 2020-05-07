@@ -442,6 +442,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "safety_mode", safety_mode_);
     readBitsetData<uint32_t>(data_pkg, "robot_status_bits", robot_status_bits_);
     readBitsetData<uint32_t>(data_pkg, "safety_status_bits", safety_status_bits_);
+    readData(data_pkg, "actual_current", joint_efforts_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
