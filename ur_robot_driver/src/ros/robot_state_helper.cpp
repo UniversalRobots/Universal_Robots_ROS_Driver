@@ -32,7 +32,8 @@ namespace ur_driver
 {
 RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
   : nh_(nh)
-  , robot_mode_(RobotMode::POWER_OFF)
+  , is_started_(false)
+  , robot_mode_(RobotMode::UNKNOWN)
   , safety_mode_(SafetyMode::UNDEFINED_SAFETY_MODE)
   , set_mode_as_(nh_, "set_mode", false)
 {
@@ -58,7 +59,6 @@ RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
 
   set_mode_as_.registerGoalCallback(std::bind(&RobotStateHelper::setModeGoalCallback, this));
   set_mode_as_.registerPreemptCallback(std::bind(&RobotStateHelper::setModePreemptCallback, this));
-  set_mode_as_.start();
 }
 
 void RobotStateHelper::robotModeCallback(const ur_dashboard_msgs::RobotMode& msg)
@@ -68,6 +68,10 @@ void RobotStateHelper::robotModeCallback(const ur_dashboard_msgs::RobotMode& msg
     robot_mode_ = RobotMode(msg.mode);
     ROS_INFO_STREAM("Robot mode is now " << robotModeString(robot_mode_));
     updateRobotState();
+    if (!is_started_)
+    {
+      startActionServer();
+    }
   }
 }
 
@@ -78,6 +82,10 @@ void RobotStateHelper::safetyModeCallback(const ur_dashboard_msgs::SafetyMode& m
     safety_mode_ = SafetyMode(msg.mode);
     ROS_INFO_STREAM("Robot's safety mode is now " << safetyModeString(safety_mode_));
     updateRobotState();
+    if (!is_started_)
+    {
+      startActionServer();
+    }
   }
 }
 
@@ -259,5 +267,14 @@ bool RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
     set_mode_as_.setAborted(result_);
   }
   return srv.response.success;
+}
+
+void RobotStateHelper::startActionServer()
+{
+  if (robot_mode_ != RobotMode::UNKNOWN && safety_mode_ != SafetyMode::UNDEFINED_SAFETY_MODE)
+  {
+    set_mode_as_.start();
+    is_started_ = true;
+  }
 }
 }  // namespace ur_driver
