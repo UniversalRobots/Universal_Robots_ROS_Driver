@@ -57,6 +57,7 @@ RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
   // Service to start UR program execution on the robot
   play_program_srv_ = nh_.serviceClient<std_srvs::Trigger>("dashboard/play");
 
+  play_program_srv_.waitForExistence();
   set_mode_as_.registerGoalCallback(std::bind(&RobotStateHelper::setModeGoalCallback, this));
   set_mode_as_.registerPreemptCallback(std::bind(&RobotStateHelper::setModePreemptCallback, this));
 }
