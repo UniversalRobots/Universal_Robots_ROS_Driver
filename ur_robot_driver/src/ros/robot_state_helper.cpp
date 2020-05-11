@@ -30,7 +30,11 @@
 #include <std_srvs/Trigger.h>
 namespace ur_driver
 {
-RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh) : nh_(nh), set_mode_as_(nh_, "set_mode", false)
+RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
+  : nh_(nh)
+  , robot_mode_(RobotMode::POWER_OFF)
+  , safety_mode_(SafetyMode::UNDEFINED_SAFETY_MODE)
+  , set_mode_as_(nh_, "set_mode", false)
 {
   // Topic on which the robot_mode is published by the driver
   robot_mode_sub_ = nh_.subscribe("robot_mode", 1, &RobotStateHelper::robotModeCallback, this);
