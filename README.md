@@ -266,3 +266,15 @@ end user.
 Yes, this is possible. However, if used inside a [combined HW
 interface](http://wiki.ros.org/combined_robot_hw) we recommend to enable [non-blocking read
 functinality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
+
+### I sent raw script code to the robot but it is not executed
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept script code from an external source.
+This has to be switched from the Teach-Pendant.
+
+### Using the dashboard doesn't work
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on the dashboard server.
+See [Available dashboard
+commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
+for details.

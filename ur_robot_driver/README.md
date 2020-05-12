@@ -55,3 +55,40 @@ Therefor, it can be used with all position-based controllers available in ROS-Co
 recommend using the controllers from the `ur_controllers` package. See it's
 [documentation](../ur_controllers/README.md) for details. **Note: Speed scaling support will only be
 available using the controllers from `ur_controllers`**
+
+## A note about modes
+The term **mode** is used in different meanings inside this driver.
+
+### Remote control mode
+On the e-series the robot itself can operate in different command modes: It can be either in **local control
+mode** where the teach pendant is the single point of command or in **remote control mode**, where
+motions from the TP, starting & loading programs from the TP activating the freedrive mode are
+blocked. Note that the **remote control mode** has to be explicitly enabled in the robot's settings
+under **Settings** -> **System** -> **Remote Control**. See the robot's manual for details.
+
+The **remote control mode** is needed for many aspects of this driver such as
+ * headless mode (see below)
+ * sending script code to the robot
+ * many dashboard functionalities such as
+   * restarting the robot after protective / EM-Stop
+   * powering on the robot and do brake release
+   * loading and starting programs
+ * the `set_mode` action, as it uses the dashboard calls mentioned above
+
+### Headless mode
+Inside this driver, there's the **headless** mode, which can be either enabled or not. When the
+[headless mode](./doc/ROS_INTERFACE.md#headless_mode-default-false) is activated, required script
+code for external control will be sent to the robot directly when the driver starts. As soon as
+other script code is sent to the robot either by sending it directly through this driver or by
+pressing any motion-related button on the teach pendant, the script will be overwritten by this
+action and has to be restarted by using the
+[resend_robot_program](./doc/ROS_INTERFACE.md#resend_robot_program-std_srvstrigger) service. If this
+is necessary, you will see the output `Connection to robot dropped, waiting for new connection.`
+from the driver. Note that pressing "play" on the TP won't start the external control again, but
+whatever program is currently loaded on the controller. This mode doesn't require the "External
+Control" URCap being installed on the robot as the program is sent to the robot directly. However,
+we recommend to use the non-headless mode and leverage the `set_mode` action to start program
+execution without the teach pendant. The **headless** mode might be removed in future releases.
+
+**Note for the e-Series:** In order to leverage the **headless** mode on the e-Series the robot must
+be in **remote_control_mode** as explained above.
