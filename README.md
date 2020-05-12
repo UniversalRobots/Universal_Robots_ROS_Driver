@@ -261,3 +261,8 @@ Additionally: If the calibration doesn't match the expected one, there's a reaso
 should better be explicitly handled by a human. Having to run the calibration
 extraction/transformation as a separate step makes this possible and doesn't hide this step from the
 end user.
+
+### Can this driver be used inside a combined hardware interface?
+Yes, this is possible. However, if used inside a [combined HW
+interface](http://wiki.ros.org/combined_robot_hw) we recommend to enable [non-blocking read
+functinality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
