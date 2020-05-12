@@ -246,3 +246,18 @@ This is a known issue and unfortunately we don't have a solution for this. The N
 seems to not compile with every kernel. We recommend to use a multi-machine ROS setup in this
 situation where a realtime-system is running the robot driver and a separate machine is performing
 the computations requiring the graphics card.
+
+### Why can't the driver use the extracted calibration info on startup?
+This is mainly because parameters are loaded onto the parameter server before any nodes are started.
+
+The `robot_description` concept inside ROS is not designed to be changed while a system is running.
+Consumers of the urdf/`robot_description` will not update the model they have been loading
+initially. It's not the driver that needs/benefits from this calibrated urdf, it's the rest of the
+ROS application.
+
+Additionally: it's good to have this sort of things done in an off-line fashion, as that makes it
+predictable. If/when, for whatever reason, the calibration data changes, it's almost always better
+to have the files updated because of a conscious decision to do that, instead of automatically,
+invisible.  Having to run the calibration extraction/transformation as a separate step makes this
+possible. If the calibration doesn't match the expected one, there's a reason for that and it should
+better be explicitly handled by a human.
