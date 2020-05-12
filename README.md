@@ -251,13 +251,13 @@ the computations requiring the graphics card.
 This is mainly because parameters are loaded onto the parameter server before any nodes are started.
 
 The `robot_description` concept inside ROS is not designed to be changed while a system is running.
-Consumers of the urdf/`robot_description` will not update the model they have been loading
-initially. It's not the driver that needs/benefits from this calibrated urdf, it's the rest of the
-ROS application.
+Consumers of the urdf/`robot_description` (in terms of other ROS nodes) will not update the model
+they have been loading initially. While technically the description could be altered during runtime
+and any node that is started AFTER the description was updated, this would lead to an inconsistent
+state inside the system. In other words: It's not the driver that needs/benefits from this
+calibrated urdf, it's the rest of the ROS application.
 
-Additionally: it's good to have this sort of things done in an off-line fashion, as that makes it
-predictable. If/when, for whatever reason, the calibration data changes, it's almost always better
-to have the files updated because of a conscious decision to do that, instead of automatically,
-invisible.  Having to run the calibration extraction/transformation as a separate step makes this
-possible. If the calibration doesn't match the expected one, there's a reason for that and it should
-better be explicitly handled by a human.
+Additionally: If the calibration doesn't match the expected one, there's a reason for that and it
+should better be explicitly handled by a human. Having to run the calibration
+extraction/transformation as a separate step makes this possible and doesn't hide this step from the
+end user.
