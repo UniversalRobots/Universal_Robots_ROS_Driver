@@ -273,9 +273,9 @@ void UrDriver::checkCalibration(const std::string& checksum)
 
   while (!consumer.isChecked())
   {
-    ros::Duration(1).sleep();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  ROS_DEBUG_STREAM("Got calibration information from robot.");
+  LOG_DEBUG("Got calibration information from robot.");
 }
 
 rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()
