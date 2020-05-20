@@ -246,3 +246,35 @@ This is a known issue and unfortunately we don't have a solution for this. The N
 seems to not compile with every kernel. We recommend to use a multi-machine ROS setup in this
 situation where a realtime-system is running the robot driver and a separate machine is performing
 the computations requiring the graphics card.
+
+### Why can't the driver use the extracted calibration info on startup?
+This is mainly because parameters are loaded onto the parameter server before any nodes are started.
+
+The `robot_description` concept inside ROS is not designed to be changed while a system is running.
+Consumers of the urdf/`robot_description` (in terms of other ROS nodes) will not update the model
+they have been loading initially. While technically the description could be altered during runtime
+and any node that is started AFTER the description was updated, this would lead to an inconsistent
+state inside the system. In other words: It's not the driver that needs/benefits from this
+calibrated urdf, it's the rest of the ROS application.
+
+Additionally: If the calibration doesn't match the expected one, there's a reason for that and it
+should better be explicitly handled by a human. Having to run the calibration
+extraction/transformation as a separate step makes this possible and doesn't hide this step from the
+end user.
+
+### Can this driver be used inside a combined hardware interface?
+Yes, this is possible. However, if used inside a [combined HW
+interface](http://wiki.ros.org/combined_robot_hw) we recommend to enable [non-blocking read
+functinality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
+
+### I sent raw script code to the robot but it is not executed
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept script code from an external source.
+This has to be switched from the Teach-Pendant.
+
+### Using the dashboard doesn't work
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on the dashboard server.
+See [Available dashboard
+commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
+for details.
