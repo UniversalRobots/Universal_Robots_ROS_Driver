@@ -252,13 +252,12 @@ This is mainly because parameters are loaded onto the parameter server before an
 
 The `robot_description` concept inside ROS is not designed to be changed while a system is running.
 Consumers of the urdf/`robot_description` (in terms of other ROS nodes) will not update the model
-they have been loading initially. While technically the description could be altered during runtime
-and any node that is started AFTER the description was updated, this would lead to an inconsistent
-state inside the system. In other words: It's not the driver that needs/benefits from this
-calibrated urdf, it's the rest of the ROS application.
+they have been loading initially. While technically the `robot_description` parameter could be altered during runtime
+and any node that is started *afterwards* would see the updated model, this would lead to an inconsistent
+application state (as some nodes will use the old model, while others use the updated one). In other words: It's not the driver that needs/benefits from this calibrated urdf, it's the rest of the ROS application and that will only see it *if* the calibrated version is present on the parameter server *before* nodes are started.
 
-Additionally: If the calibration doesn't match the expected one, there's a reason for that and it
-should better be explicitly handled by a human. Having to run the calibration
+Additionally: If the calibration stored on the ROS side doesn't match the one of the robot controller, there's a good chance there is a reason for this and it
+would be better to make updating it a conscious decision by a human (as the driver would not know *when* updating the model would be convenient or safe). Having to run the calibration
 extraction/transformation as a separate step makes this possible and doesn't hide this step from the
 end user.
 
