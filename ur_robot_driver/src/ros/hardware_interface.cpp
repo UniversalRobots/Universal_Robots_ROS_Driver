@@ -246,7 +246,16 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   std::string calibration_checksum = robot_hw_nh.param<std::string>("kinematics/hash", "");
   ROS_INFO_STREAM("Initializing dashboard client");
   ros::NodeHandle dashboard_nh(robot_hw_nh, "dashboard");
-  dashboard_client_.reset(new DashboardClientROS(dashboard_nh, robot_ip_));
+  try
+  {
+    dashboard_client_.reset(new DashboardClientROS(dashboard_nh, robot_ip_));
+  }
+
+  catch (ur_driver::UrException& e)
+  {
+    ROS_FATAL_STREAM(e.what());
+    return false;
+  }
   ROS_INFO_STREAM("Initializing urdriver");
   try
   {

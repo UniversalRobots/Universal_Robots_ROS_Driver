@@ -26,14 +26,18 @@
 //----------------------------------------------------------------------
 
 #include <ur_robot_driver/ros/dashboard_client_ros.h>
+#include <ur_robot_driver/exceptions.h>
 
 namespace ur_driver
 {
 DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::string& robot_ip)
   : nh_(nh), client_(robot_ip)
 {
-  connect();
-
+  if (!connect())
+  {
+    throw UrException("Failed to connect to robot. Please check if the robot is booted and connected and that the "
+                      "configured IP address is correct.");
+  }
   // Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
   brake_release_service_ = create_dashboard_trigger_srv("brake_release", "brake release\n", "Brake releasing");
 
