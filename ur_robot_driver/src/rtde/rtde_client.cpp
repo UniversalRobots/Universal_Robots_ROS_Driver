@@ -117,8 +117,11 @@ bool RTDEClient::negotiateProtocolVersion(const uint16_t protocol_version)
       LOG_WARN("%s", ss.str().c_str());
     }
   }
-  throw UrException("Could not negotiate RTDE protocol version after %u tries. Please check the output of the "
-                    "negotiation attempts above to get a hint what could be wrong.");
+  std::stringstream ss;
+  ss << "Could not negotiate RTDE protocol version after " << MAX_REQUEST_RETRIES
+     << " tries. Please check the output of the "
+        "negotiation attempts above to get a hint what could be wrong.";
+  throw UrException(ss.str());
 }
 
 void RTDEClient::queryURControlVersion()
@@ -152,8 +155,11 @@ void RTDEClient::queryURControlVersion()
       LOG_WARN("%s", ss.str().c_str());
     }
   }
-  throw UrException("Could not query urcontrol version after %u tries. Please check the output of the "
-                    "query attempts above to get a hint what could be wrong.");
+  std::stringstream ss;
+  ss << "Could not query urcontrol version after " << MAX_REQUEST_RETRIES
+     << " tries. Please check the output of the "
+        "negotiation attempts above to get a hint what could be wrong.";
+  throw UrException(ss.str());
 }
 
 void RTDEClient::setupOutputs(const uint16_t protocol_version)
@@ -211,8 +217,11 @@ void RTDEClient::setupOutputs(const uint16_t protocol_version)
       LOG_WARN("%s", ss.str().c_str());
     }
   }
-  throw UrException("Could not setup RTDE outputs after  %u tries. Please check the output of the "
-                    "query attempts above to get a hint what could be wrong.");
+  std::stringstream ss;
+  ss << "Could not setup RTDE outputs after " << MAX_REQUEST_RETRIES
+     << " tries. Please check the output of the "
+        "negotiation attempts above to get a hint what could be wrong.";
+  throw UrException(ss.str());
 }
 
 void RTDEClient::setupInputs()
@@ -268,8 +277,11 @@ void RTDEClient::setupInputs()
       LOG_WARN("%s", ss.str().c_str());
     }
   }
-  throw UrException("Could not setup RTDE inputs after %u tries. Please check the output of the "
-                    "query attempts above to get a hint what could be wrong.");
+  std::stringstream ss;
+  ss << "Could not setup RTDE inputs after " << MAX_REQUEST_RETRIES
+     << " tries. Please check the output of the "
+        "negotiation attempts above to get a hint what could be wrong.";
+  throw UrException(ss.str());
 }
 
 bool RTDEClient::start()
@@ -300,8 +312,11 @@ bool RTDEClient::start()
       LOG_WARN("%s", ss.str().c_str());
     }
   }
-  throw UrException("Could not start RTDE communication after %u tries. Please check the output of the "
-                    "query attempts above to get a hint what could be wrong.");
+  std::stringstream ss;
+  ss << "Could not start RTDE communication after " << MAX_REQUEST_RETRIES
+     << " tries. Please check the output of the "
+        "negotiation attempts above to get a hint what could be wrong.";
+  throw UrException(ss.str());
 }
 
 std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
