@@ -113,6 +113,7 @@ bool RTDEClient::negotiateProtocolVersion(const uint16_t protocol_version)
       std::stringstream ss;
       ss << "Did not receive protocol negotiation answer from robot. Message received instead: " << std::endl
          << package->toString() << ". Retrying...";
+      num_retries++;
       LOG_WARN("%s", ss.str().c_str());
     }
   }
@@ -147,6 +148,7 @@ void RTDEClient::queryURControlVersion()
       std::stringstream ss;
       ss << "Did not receive protocol negotiation answer from robot. Message received instead: " << std::endl
          << package->toString() << ". Retrying...";
+      num_retries++;
       LOG_WARN("%s", ss.str().c_str());
     }
   }
