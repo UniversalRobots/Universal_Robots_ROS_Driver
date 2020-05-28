@@ -51,7 +51,18 @@ bool RTDEClient::init()
   pipeline_.init();
   pipeline_.run();
 
-  uint16_t protocol_version = negotiateProtocolVersion();
+  uint16_t protocol_version = MAX_RTDE_PROTOCOL_VERSION;
+  while (!negotiateProtocolVersion(protocol_version))
+  {
+    LOG_INFO("Robot did not accept RTDE protocol version '%hu'. Trying lower protocol version", protocol_version);
+    protocol_version--;
+    if (protocol_version == 0)
+    {
+      throw UrException("Protocol version for RTDE communication could not be established. Robot didn't accept any of "
+                        "the suggested versions.");
+    }
+  }
+  LOG_INFO("Negotiated RTDE protocol version to %hu.", protocol_version);
   parser_.setProtocolVersion(protocol_version);
 
   queryURControlVersion();
@@ -70,56 +81,77 @@ bool RTDEClient::init()
   return true;
 }
 
-uint16_t RTDEClient::negotiateProtocolVersion()
+bool RTDEClient::negotiateProtocolVersion(const uint16_t protocol_version)
 {
+  static unsigned num_retries = 0;
   uint8_t buffer[4096];
   size_t size;
   size_t written;
-  uint16_t protocol_version = 2;
   size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
   if (!stream_.write(buffer, size, written))
     throw UrException("Sending protocol version query to robot failed.");
+
   std::unique_ptr<RTDEPackage> package;
-  if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
-    throw UrException("Could not get urcontrol version from robot. This should not happen!");
-  rtde_interface::RequestProtocolVersion* tmp_version =
-      dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
-  if (!tmp_version->accepted_)
+  while (num_retries < MAX_REQUEST_RETRIES)
   {
-    protocol_version = 1;
-    size = RequestProtocolVersionRequest::generateSerializedRequest(buffer, protocol_version);
-    if (!stream_.write(buffer, size, written))
-      throw UrException("Sending protocol version query to robot failed.");
     if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
-      throw UrException("Could not get urcontrol version from robot. This should not happen!");
-    tmp_version = dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get());
-    if (!tmp_version->accepted_)
     {
-      throw UrException("Neither protocol version 1 nor 2 was accepted by the robot. This should not happen!");
+      throw UrException("No answer to RTDE protocol version negotiation request was received from robot. This should "
+                        "not "
+                        "happen!");
+    }
+
+    if (rtde_interface::RequestProtocolVersion* tmp_version =
+            dynamic_cast<rtde_interface::RequestProtocolVersion*>(package.get()))
+    {
+      // Reset the num_tries variable in case we have to try with another protocol version.
+      num_retries = 0;
+      return tmp_version->accepted_;
+    }
+    else
+    {
+      std::stringstream ss;
+      ss << "Did not receive protocol negotiation answer from robot. Message received instead: " << std::endl
+         << package->toString() << ". Retrying...";
+      LOG_WARN("%s", ss.str().c_str());
     }
   }
-  return protocol_version;
+  throw UrException("Could not negotiate RTDE protocol version after %u tries. Please check the output of the "
+                    "negotiation attempts above to get a hint what could be wrong.");
 }
 
 void RTDEClient::queryURControlVersion()
 {
+  static unsigned num_retries = 0;
   uint8_t buffer[4096];
   size_t size;
   size_t written;
-  std::unique_ptr<RTDEPackage> package;
   size = GetUrcontrolVersionRequest::generateSerializedRequest(buffer);
   if (!stream_.write(buffer, size, written))
     throw UrException("Sending urcontrol version query request to robot failed.");
-  if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
-    throw UrException("Could not get urcontrol version from robot. This should not happen!");
-  rtde_interface::GetUrcontrolVersion* tmp_urcontrol_version =
-      dynamic_cast<rtde_interface::GetUrcontrolVersion*>(package.get());
 
-  if (tmp_urcontrol_version == nullptr)
+  std::unique_ptr<RTDEPackage> package;
+  while (num_retries < MAX_REQUEST_RETRIES)
   {
-    throw UrException("Could not get urcontrol version from robot. This should not happen!");
+    if (!pipeline_.getLatestProduct(package, std::chrono::milliseconds(1000)))
+      throw UrException("No answer to urcontrol version query was received from robot. This should not happen!");
+
+    if (rtde_interface::GetUrcontrolVersion* tmp_urcontrol_version =
+            dynamic_cast<rtde_interface::GetUrcontrolVersion*>(package.get()))
+    {
+      urcontrol_version_ = tmp_urcontrol_version->version_information_;
+      return;
+    }
+    else
+    {
+      std::stringstream ss;
+      ss << "Did not receive protocol negotiation answer from robot. Message received instead: " << std::endl
+         << package->toString() << ". Retrying...";
+      LOG_WARN("%s", ss.str().c_str());
+    }
   }
-  urcontrol_version_ = tmp_urcontrol_version->version_information_;
+  throw UrException("Could not query urcontrol version after %u tries. Please check the output of the "
+                    "query attempts above to get a hint what could be wrong.");
 }
 
 void RTDEClient::setupOutputs(const uint16_t protocol_version)

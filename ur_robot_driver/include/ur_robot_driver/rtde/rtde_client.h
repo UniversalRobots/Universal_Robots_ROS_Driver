@@ -48,6 +48,9 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+static const uint16_t MAX_RTDE_PROTOCOL_VERSION = 2;
+static const unsigned MAX_REQUEST_RETRIES = 5;
+
 enum class UrRtdeRobotStatusBits
 {
   IS_POWER_ON = 0,
@@ -166,7 +169,7 @@ private:
 
   std::vector<std::string> readRecipe(const std::string& recipe_file);
 
-  uint16_t negotiateProtocolVersion();
+  bool negotiateProtocolVersion(const uint16_t protocol_version);
   void queryURControlVersion();
   void setupOutputs(const uint16_t protocol_version);
   void setupInputs();
