@@ -38,7 +38,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_e_description)/launch/ur3e_upload.launch")
+##### robot_description_file (default: "$(find ur_e_description)/launch/load_ur3e.launch")
 
 Robot description launch file.
 
@@ -132,7 +132,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_description)/launch/ur10_upload.launch")
+##### robot_description_file (default: "$(find ur_description)/launch/load_ur10.launch")
 
 Robot description launch file.
 
@@ -374,7 +374,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_description)/launch/ur5_upload.launch")
+##### robot_description_file (default: "$(find ur_description)/launch/load_ur5.launch")
 
 Robot description launch file.
 
@@ -428,7 +428,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_e_description)/launch/ur5e_upload.launch")
+##### robot_description_file (default: "$(find ur_e_description)/launch/load_ur5e.launch")
 
 Robot description launch file.
 
@@ -518,7 +518,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_description)/launch/ur3_upload.launch")
+##### robot_description_file (default: "$(find ur_description)/launch/load_ur3.launch")
 
 Robot description launch file.
 
@@ -572,7 +572,7 @@ Use the description in limited mode (Every axis rotates from -PI to PI)
 
 Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-##### robot_description_file (default: "$(find ur_e_description)/launch/ur10e_upload.launch")
+##### robot_description_file (default: "$(find ur_e_description)/launch/load_ur10e.launch")
 
 Robot description launch file.
 
