@@ -49,7 +49,6 @@
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>socat</exec_depend>
   <exec_depend>ur_description</exec_depend>
-  <exec_depend>ur_e_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
   <test_depend>rostest</test_depend>
