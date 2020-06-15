@@ -8,7 +8,7 @@
   <arg name="controllers" default="joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller" doc="Controllers that are activated by default."/>
   <arg name="stopped_controllers" default="pos_joint_traj_controller joint_group_vel_controller" doc="Controllers that are initally loaded, but not started."/>
   <arg name="controller_config_file" default="$(find ur_robot_driver)/config/ur3e_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
-  <arg name="robot_description_file" default="$(find ur_description)/launch/ur3e_upload.launch" doc="Robot description launch file."/>
+  <arg name="robot_description_file" default="$(find ur_description)/launch/load_ur3e.launch" doc="Robot description launch file."/>
   <arg name="kinematics_config" default="$(find ur_description)/config/ur3e/default_kinematics.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="use_tool_communication" default="false" doc="On e-Series robots tool communication can be enabled with this argument"/>
   <arg name="tool_voltage" default="0" doc="Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true."/>
