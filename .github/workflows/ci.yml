@@ -11,7 +11,7 @@ jobs:
       env:
         ROS_DISTRO: melodic
         CLANG_FORMAT_CHECK: file
-        CLANG_FORMAT_VERSION: "6.0"
+        CLANG_FORMAT_VERSION: "9"
 
   build:
     runs-on: ubuntu-latest
