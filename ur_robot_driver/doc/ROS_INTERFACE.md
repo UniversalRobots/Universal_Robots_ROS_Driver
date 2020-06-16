@@ -26,7 +26,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur3e/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur3e/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -120,7 +120,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur10/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur10/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -362,7 +362,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur5/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur5/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -416,7 +416,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur5e/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur5e/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -506,7 +506,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur3/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur3/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
@@ -560,7 +560,7 @@ Debug flag that will get passed on to ur_common.launch
 
 Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-##### kinematics_config (default: "$(find ur_description)/config/ur10e/default_kinematics.yaml.yaml")
+##### kinematics_config (default: "$(find ur_description)/config/ur10e/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
