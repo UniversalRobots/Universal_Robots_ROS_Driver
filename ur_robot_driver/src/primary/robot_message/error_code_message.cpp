@@ -40,7 +40,9 @@ bool ErrorCodeMessage::parseWith(comm::BinParser& bp)
 {
   bp.parse(message_code_);
   bp.parse(message_argument_);
-  bp.parse(report_level_);
+  int32_t report_level;
+  bp.parse(report_level);
+  report_level_ = static_cast<ReportLevel>(report_level);
   bp.parse(data_type_);
   bp.parse(data_);
   bp.parseRemainder(text_);
@@ -58,7 +60,7 @@ std::string ErrorCodeMessage::toString() const
   std::stringstream ss;
   ss << "Message code: " << message_code_ << std::endl;
   ss << "Message argument: " << message_argument_ << std::endl;
-  ss << "Report level: " << report_level_ << std::endl;
+  ss << "Report level: " << static_cast<int>(report_level_) << std::endl;
   ss << "Datatype: " << static_cast<int>(data_type_) << std::endl;
   ss << "Data: " << data_ << std::endl;
   ss << "Text: " << text_;

@@ -34,6 +34,20 @@ namespace ur_driver
 {
 namespace primary_interface
 {
+enum class ReportLevel : int32_t
+{
+  DEBUG = 0,
+  INFO = 1,
+  WARNING = 2,
+  VIOLATION = 3,
+  FAULT = 4,
+  DEVL_DEBUG = 128,
+  DEVL_INFO = 129,
+  DEVL_WARNING = 130,
+  DEVL_VIOLATION = 131,
+  DEVL_FAULT = 132
+};
+
 /*!
  * \brief The ErrorCodeMessage class handles the error code messages sent via the primary UR interface.
  */
@@ -81,7 +95,7 @@ public:
 
   int32_t message_code_;
   int32_t message_argument_;
-  int32_t report_level_;
+  ReportLevel report_level_;
   uint8_t data_type_;
   uint32_t data_;
   std::string text_;

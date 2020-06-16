@@ -33,6 +33,7 @@
 #include "ur_robot_driver/primary/primary_package_handler.h"
 #include "ur_robot_driver/primary/abstract_primary_consumer.h"
 #include "ur_robot_driver/primary/key_message_handler.h"
+#include "ur_robot_driver/primary/error_code_message_handler.h"
 #include "ur_robot_driver/primary/robot_message/error_code_message.h"
 #include "ur_robot_driver/primary/robot_message/key_message.h"
 #include "ur_robot_driver/primary/robot_message/runtime_exception_message.h"
@@ -57,6 +58,7 @@ public:
   {
     LOG_INFO("Constructing primary consumer");
     key_message_worker_.reset(new KeyMessageHandler());
+    error_code_message_worker_.reset(new ErrorCodeMessageHandler());
     LOG_INFO("Constructed primary consumer");
   }
   virtual ~PrimaryConsumer() = default;
@@ -69,11 +71,6 @@ public:
   virtual bool consume(RobotState& msg) override
   {
     // LOG_INFO("---RobotState:---\n%s", msg.toString().c_str());
-    return true;
-  }
-  virtual bool consume(ErrorCodeMessage& msg) override
-  {
-    LOG_INFO("---ErrorCodeMessage---\n%s", msg.toString().c_str());
     return true;
   }
   virtual bool consume(RuntimeExceptionMessage& msg) override
@@ -122,6 +119,20 @@ public:
     return false;
   }
 
+  /*!
+   * \brief Handle a ErrorCodeMessage
+   *
+   * \returns True if there's a handler for this message type registered. False otherwise.
+   */
+  virtual bool consume(ErrorCodeMessage& pkg) override
+  {
+    if (error_code_message_worker_ != nullptr)
+    {
+      error_code_message_worker_->handle(pkg);
+      return true;
+    }
+    return false;
+  }
   void setKinematicsInfoHandler(const std::shared_ptr<IPrimaryPackageHandler<KinematicsInfo>>& handler)
   {
     kinematics_info_message_worker_ = handler;
@@ -129,6 +140,7 @@ public:
 
 private:
   std::shared_ptr<IPrimaryPackageHandler<KeyMessage>> key_message_worker_;
+  std::shared_ptr<IPrimaryPackageHandler<ErrorCodeMessage>> error_code_message_worker_;
   std::shared_ptr<IPrimaryPackageHandler<KinematicsInfo>> kinematics_info_message_worker_;
 };
 }  // namespace primary_interface
