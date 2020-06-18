@@ -35,6 +35,7 @@ catkin_package(
     include
   LIBRARIES
     ur_robot_driver
+    ur_robot_driver_plugin
   CATKIN_DEPENDS
     actionlib
     control_msgs
@@ -140,7 +141,7 @@ add_executable(robot_state_helper
 target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_robot_driver)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-install(TARGETS ur_robot_driver ur_robot_driver_node robot_state_helper dashboard_client
+install(TARGETS ur_robot_driver ur_robot_driver_plugin ur_robot_driver_node robot_state_helper dashboard_client
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
