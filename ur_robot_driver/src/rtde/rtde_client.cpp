@@ -199,7 +199,6 @@ void RTDEClient::setupOutputs(const uint16_t protocol_version)
       for (std::size_t i = 0; i < variable_types.size(); ++i)
       {
         LOG_DEBUG("%s confirmed as datatype: %s", output_recipe_[i].c_str(), variable_types[i].c_str());
-        return;
         if (variable_types[i] == "NOT_FOUND")
         {
           std::string message = "Variable '" + output_recipe_[i] +
@@ -207,6 +206,7 @@ void RTDEClient::setupOutputs(const uint16_t protocol_version)
           throw UrException(message);
         }
       }
+      return;
     }
     else
     {
