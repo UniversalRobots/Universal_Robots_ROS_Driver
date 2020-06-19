@@ -142,6 +142,7 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
       full_robot_program_ += "\t" + line + "\n";
     }
     full_robot_program_ += "end\n";
+    LOG_ERROR("SENDING ROBOT PROGRAM DRIVER UR!!!!!!!!!!!!!!!!!!!!");
     sendRobotProgram();
   }
   else
