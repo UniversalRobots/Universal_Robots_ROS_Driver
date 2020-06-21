@@ -230,7 +230,7 @@ Make sure, the IP address setup is correct, as described in the setup guides ([C
 **Note:** This error can also show up, when the ROS driver is not running.
 
 ### When starting the program on the TP, I get a `C207A0` error.
-**Note** With the current driver version this issue can only happen when the fieldbus is enabled
+**Note:** With the current driver version this issue can only happen when the fieldbus is enabled
 *after* the ROS driver has been started. Otherwise you will run into #204 when starting the driver
 with an enabled EtherNet/IP fieldbus
 
