@@ -231,7 +231,7 @@ Make sure, the IP address setup is correct, as described in the setup guides ([C
 
 ### When starting the program on the TP, I get a `C207A0` error.
 **Note:** With the current driver version this issue can only happen when the fieldbus is enabled
-*after* the ROS driver has been started. Otherwise you will run into #204 when starting the driver
+*after* the ROS driver has been started. Otherwise you will run into UniversalRobots/Universal_Robots_ROS_Driver#204 when starting the driver
 with an enabled EtherNet/IP fieldbus
 
 Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
@@ -246,8 +246,8 @@ the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
 fieldbusses at all, you can disable it in the same installation screen. 
 
 ### When starting the driver, it crashes with `Variable 'speed_slider_mask' is currently controlled by another RTDE client`
-Probably, you are running into #204. Currently, this driver cannot be used together with an enabled
-EtherNet/IP fieldbus. Disable EtherNet/IP to workaround this error. #204 contains a guide how to do
+Probably, you are running into UniversalRobots/Universal_Robots_ROS_Driver#204. Currently, this driver cannot be used together with an enabled
+EtherNet/IP fieldbus. Disable EtherNet/IP to workaround this error. UniversalRobots/Universal_Robots_ROS_Driver#204 contains a guide how to do
 this.
 
 
