@@ -232,7 +232,7 @@ Make sure, the IP address setup is correct, as described in the setup guides ([C
 ### When starting the program on the TP, I get a `C207A0` error.
 **Note:** With the current driver version this issue can only happen when the fieldbus is enabled
 *after* the ROS driver has been started. Otherwise you will run into [#204](../../issues/204) when starting the driver
-with an enabled EtherNet/IP fieldbus
+with an enabled EtherNet/IP fieldbus.
 
 Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
 Ethernet/IP fieldbus (note: EtherNet/IP != ethernet), make sure that it is
