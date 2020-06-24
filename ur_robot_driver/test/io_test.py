@@ -12,7 +12,7 @@ PKG = 'ur_rtde_driver'
 NAME = 'io_test'
 
 
-from ur_msgs.srv import SetIO
+from ur_msgs.srv import SetIO, SetIORequest
 from ur_msgs.msg import IOStates
 
 
@@ -50,7 +50,7 @@ class IOTest(unittest.TestCase):
             messages += 1
         self.assertEqual(pin_state, 0)
 
-        self.service_client(1, pin, 1)
+        self.service_client(SetIORequest.FUN_SET_DIGITAL_OUT, pin, 1)
         messages = 0
         pin_state = False
 
