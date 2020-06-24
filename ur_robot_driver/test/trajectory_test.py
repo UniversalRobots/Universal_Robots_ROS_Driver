@@ -50,6 +50,27 @@ class TrajectoryTest(unittest.TestCase):
 
         self.assertEqual(self.client.get_result().error_code, 0)
 
+    def test_illegal_trajectory(self):
+        """Test robot movement"""
+        goal = FollowJointTrajectoryGoal()
+
+        goal.trajectory.joint_names = ["elbow_joint", "shoulder_lift_joint", "shoulder_pan_joint",
+                                       "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"]
+        position_list = [[0.0 for i in range(6)]]
+        position_list.append([-0.5 for i in range(6)])
+        duration_list = [6.0, 3.0]
+
+        for i, position in enumerate(position_list):
+            point = JointTrajectoryPoint()
+            point.positions = position
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+
+        self.client.send_goal(goal)
+        self.client.wait_for_result()
+
+        self.assertEqual(self.client.get_result().error_code, 0)
+
 
 if __name__ == '__main__':
     import rostest
