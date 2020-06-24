@@ -35,15 +35,13 @@
 
 namespace ur_calibration
 {
-class CalibrationConsumer
-  : public ur_driver::comm::IConsumer<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>>
+class CalibrationConsumer : public ur_driver::comm::IConsumer<ur_driver::primary_interface::PrimaryPackage>
 {
 public:
   CalibrationConsumer();
   virtual ~CalibrationConsumer() = default;
 
-  virtual bool
-  consume(std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product);
+  virtual bool consume(std::shared_ptr<ur_driver::primary_interface::PrimaryPackage> product);
 
   bool isCalibrated() const
   {

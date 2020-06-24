@@ -31,7 +31,7 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
-RTDEWriter::RTDEWriter(comm::URStream<PackageHeader>* stream, const std::vector<std::string>& recipe)
+RTDEWriter::RTDEWriter(comm::URStream<RTDEPackage>* stream, const std::vector<std::string>& recipe)
   : stream_(stream), recipe_(recipe), queue_{ 32 }
 {
 }

@@ -59,6 +59,7 @@ public:
   virtual ~RobotStateHelper() = default;
 
 private:
+  ros::NodeHandle nh_;
   void robotModeCallback(const ur_dashboard_msgs::RobotMode& msg);
   void safetyModeCallback(const ur_dashboard_msgs::SafetyMode& msg);
 
@@ -85,8 +86,9 @@ private:
   // Action server functions
   void setModeGoalCallback();
   void setModePreemptCallback();
+  void startActionServer();
+  bool is_started_;
 
-  ros::NodeHandle nh_;
   RobotMode robot_mode_;
   SafetyMode safety_mode_;
 

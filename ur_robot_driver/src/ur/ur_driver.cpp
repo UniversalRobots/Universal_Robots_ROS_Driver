@@ -65,9 +65,9 @@ ur_driver::UrDriver::UrDriver(const std::string& robot_ip, const std::string& sc
   LOG_DEBUG("Initializing RTDE client");
   rtde_client_.reset(new rtde_interface::RTDEClient(robot_ip_, notifier_, output_recipe_file, input_recipe_file));
 
-  primary_stream_.reset(new comm::URStream<ur_driver::primary_interface::PackageHeader>(
-      robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
-  secondary_stream_.reset(new comm::URStream<ur_driver::primary_interface::PackageHeader>(
+  primary_stream_.reset(
+      new comm::URStream<primary_interface::PrimaryPackage>(robot_ip_, ur_driver::primary_interface::UR_PRIMARY_PORT));
+  secondary_stream_.reset(new comm::URStream<primary_interface::PrimaryPackage>(
       robot_ip_, ur_driver::primary_interface::UR_SECONDARY_PORT));
   secondary_stream_->connect();
   LOG_INFO("Checking if calibration data matches connected robot.");
@@ -261,21 +261,21 @@ void UrDriver::checkCalibration(const std::string& checksum)
     throw std::runtime_error("checkCalibration() called without a primary interface connection being established.");
   }
   primary_interface::PrimaryParser parser;
-  comm::URProducer<ur_driver::primary_interface::PackageHeader> prod(*primary_stream_, parser);
+  comm::URProducer<primary_interface::PrimaryPackage> prod(*primary_stream_, parser);
   prod.setupProducer();
 
   CalibrationChecker consumer(checksum);
 
   comm::INotifier notifier;
 
-  comm::Pipeline<ur_driver::primary_interface::PackageHeader> pipeline(prod, consumer, "Pipeline", notifier);
+  comm::Pipeline<primary_interface::PrimaryPackage> pipeline(prod, &consumer, "Pipeline", notifier);
   pipeline.run();
 
   while (!consumer.isChecked())
   {
-    ros::Duration(1).sleep();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  ROS_DEBUG_STREAM("Got calibration information from robot.");
+  LOG_DEBUG("Got calibration information from robot.");
 }
 
 rtde_interface::RTDEWriter& UrDriver::getRTDEWriter()

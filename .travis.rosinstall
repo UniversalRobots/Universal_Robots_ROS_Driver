@@ -1,4 +1,0 @@
-- git:
-    local-name: universal_robot
-    uri: 'https://github.com/fmauch/universal_robot.git'
-    version: calibration_devel

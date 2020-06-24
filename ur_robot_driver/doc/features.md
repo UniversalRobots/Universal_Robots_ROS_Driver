@@ -4,7 +4,7 @@
 | ---                                                   | ---              | ---                   |
 | position-based control                                | yes              | yes                   |
 | scaled position-based control                         | -                | yes                   |
-| velocity-based control                                | yes              | planned               |
+| velocity-based control                                | yes              | yes                   |
 | reporting of tcp wrench                               | yes              | yes                   |
 | reporting of tcp wrench in tcp link                   | -                | yes                   |
 | pausing of programs                                   | -                | yes                   |

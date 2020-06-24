@@ -3,1021 +3,1025 @@
 The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controllers and the e-series.
 
 ## Launchfiles
+
 ### ur3e_bringup.launch
 
 Standalone launchfile to startup a ur3e. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur3e_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur3e_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur3e_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_e_description)/config/ur3e_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur3e_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_e_description)/launch/ur3e_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
 
- * "**tool_baud_rate**" (default: "115200")
+tf_prefix used for the robot.
 
-    Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_baud_rate (default: "115200")
 
- * "**tool_device_name**" (default: "/tmp/ttyUR")
+Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_device_name (default: "/tmp/ttyUR")
 
- * "**tool_parity**" (default: "0")
+Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_parity (default: "0")
 
- * "**tool_rx_idle_chars**" (default: "1.5")
+Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_rx_idle_chars (default: "1.5")
 
- * "**tool_stop_bits**" (default: "1")
+Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_stop_bits (default: "1")
 
- * "**tool_tcp_port**" (default: "54321")
+Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
+##### tool_tcp_port (default: "54321")
 
- * "**tool_tx_idle_chars**" (default: "3.5")
+Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_tx_idle_chars (default: "3.5")
 
- * "**tool_voltage**" (default: "0")
+Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
+##### tool_voltage (default: "0")
 
- * "**use_tool_communication**" (default: "false")
+Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-    On e-Series robots tool communication can be enabled with this argument
+##### use_tool_communication (default: "false")
+
+On e-Series robots tool communication can be enabled with this argument
 
 ### ur10_bringup.launch
 
 Standalone launchfile to startup a ur10 robot. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur10_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur10_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_description)/config/ur10_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_description)/config/ur10_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_description)/launch/ur10_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_description)/launch/ur10_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
+
+tf_prefix used for the robot.
 
 ### ur_control.launch
 
 Robot bringup launchfile without the robot description. Include this, if you want to include robot control into a larger launchfile structure.
 
 #### Arguments
- * "**controller_config_file**" (Required)
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (Required)
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller vel_based_pos_traj_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    If set to true, will start the driver inside gdb
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+If set to true, will start the driver inside gdb
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (Required)
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description. Pass the same config file that is passed to the robot_description.
+##### kinematics_config (Required)
 
- * "**launch_prefix**" (Required)
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description. Pass the same config file that is passed to the robot_description.
 
-    Please add description. See file "launch/ur_control.launch".
+##### launch_prefix (Required)
 
- * "**reverse_port**" (default: "50001")
+Please add description. See file "launch/ur_control.launch".
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_ip**" (Required)
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**rtde_input_recipe_file**" (default: "$(find ur_robot_driver)/resources/rtde_input_recipe.txt")
+IP address by which the robot can be reached.
 
-    Recipe file used for the RTDE-inputs. Only change this if you know what you're doing.
+##### rtde_input_recipe_file (default: "$(find ur_robot_driver)/resources/rtde_input_recipe.txt")
 
- * "**rtde_output_recipe_file**" (default: "$(find ur_robot_driver)/resources/rtde_output_recipe.txt")
+Recipe file used for the RTDE-inputs. Only change this if you know what you're doing.
 
-    Recipe file used for the RTDE-outputs. Only change this if you know what you're doing.
+##### rtde_output_recipe_file (default: "$(find ur_robot_driver)/resources/rtde_output_recipe.txt")
 
- * "**script_sender_port**" (default: "50002")
+Recipe file used for the RTDE-outputs. Only change this if you know what you're doing.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
 
- * "**tool_baud_rate**" (default: "115200")
+tf_prefix used for the robot.
 
-    Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_baud_rate (default: "115200")
 
- * "**tool_device_name**" (default: "/tmp/ttyUR")
+Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_device_name (default: "/tmp/ttyUR")
 
- * "**tool_parity**" (default: "0")
+Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_parity (default: "0")
 
- * "**tool_rx_idle_chars**" (default: "1.5")
+Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_rx_idle_chars (default: "1.5")
 
- * "**tool_stop_bits**" (default: "1")
+Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_stop_bits (default: "1")
 
- * "**tool_tcp_port**" (default: "54321")
+Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
+##### tool_tcp_port (default: "54321")
 
- * "**tool_tx_idle_chars**" (default: "3.5")
+Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_tx_idle_chars (default: "3.5")
 
- * "**tool_voltage**" (default: "0")
+Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
+##### tool_voltage (default: "0")
 
- * "**urscript_file**" (default: "$(find ur_robot_driver)/resources/ros_control.urscript")
+Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-    Path to URScript that will be sent to the robot and that forms the main control program.
+##### urscript_file (default: "$(find ur_robot_driver)/resources/ros_control.urscript")
 
- * "**use_tool_communication**" (Required)
+Path to URScript that will be sent to the robot and that forms the main control program.
 
-    On e-Series robots tool communication can be enabled with this argument
+##### use_tool_communication (Required)
+
+On e-Series robots tool communication can be enabled with this argument
 
 ### ur_common.launch
 
 Launchfile that starts a robot description with robot_state publisher and the driver for a given robot. It is recommended to use the individual launch files instead such as `ur10_bringup.launch`. Additionally, this launchfile can be used as a template to include this driver into a larger launch file structure.
 
 #### Arguments
- * "**controller_config_file**" (Required)
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (Required)
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_control.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_control.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (Required)
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (Required)
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (Required)
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (Required)
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
 
- * "**tool_baud_rate**" (default: "115200")
+tf_prefix used for the robot.
 
-    Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_baud_rate (default: "115200")
 
- * "**tool_device_name**" (default: "/tmp/ttyUR")
+Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_device_name (default: "/tmp/ttyUR")
 
- * "**tool_parity**" (default: "0")
+Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_parity (default: "0")
 
- * "**tool_rx_idle_chars**" (default: "1.5")
+Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_rx_idle_chars (default: "1.5")
 
- * "**tool_stop_bits**" (default: "1")
+Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_stop_bits (default: "1")
 
- * "**tool_tcp_port**" (default: "54321")
+Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
+##### tool_tcp_port (default: "54321")
 
- * "**tool_tx_idle_chars**" (default: "3.5")
+Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_tx_idle_chars (default: "3.5")
 
- * "**tool_voltage**" (default: "0")
+Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
+##### tool_voltage (default: "0")
 
- * "**use_tool_communication**" (Required)
+Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-    On e-Series robots tool communication can be enabled with this argument
+##### use_tool_communication (Required)
+
+On e-Series robots tool communication can be enabled with this argument
 
 ### ur5_bringup.launch
 
 Standalone launchfile to startup a ur5 robot. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur5_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur5_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_description)/config/ur5_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_description)/config/ur5_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_description)/launch/ur5_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_description)/launch/ur5_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
+
+tf_prefix used for the robot.
 
 ### ur5e_bringup.launch
 
 Standalone launchfile to startup a ur5e robot. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur5e_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur5e_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur5e_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_e_description)/config/ur5e_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur5e_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_e_description)/launch/ur5e_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
 
- * "**tool_baud_rate**" (default: "115200")
+tf_prefix used for the robot.
 
-    Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_baud_rate (default: "115200")
 
- * "**tool_device_name**" (default: "/tmp/ttyUR")
+Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_device_name (default: "/tmp/ttyUR")
 
- * "**tool_parity**" (default: "0")
+Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_parity (default: "0")
 
- * "**tool_rx_idle_chars**" (default: "1.5")
+Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_rx_idle_chars (default: "1.5")
 
- * "**tool_stop_bits**" (default: "1")
+Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_stop_bits (default: "1")
 
- * "**tool_tcp_port**" (default: "54321")
+Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
+##### tool_tcp_port (default: "54321")
 
- * "**tool_tx_idle_chars**" (default: "3.5")
+Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_tx_idle_chars (default: "3.5")
 
- * "**tool_voltage**" (default: "0")
+Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
+##### tool_voltage (default: "0")
 
- * "**use_tool_communication**" (default: "false")
+Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-    On e-Series robots tool communication can be enabled with this argument
+##### use_tool_communication (default: "false")
+
+On e-Series robots tool communication can be enabled with this argument
 
 ### ur3_bringup.launch
 
-Standalone launchfile to startup a ur5 robot. This requires a robot reachable via a network connection.
+Standalone launchfile to startup a ur3 robot. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur3_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur3_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_description)/config/ur3_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_description)/config/ur3_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_description)/launch/ur3_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_description)/launch/ur3_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
+
+tf_prefix used for the robot.
 
 ### ur10e_bringup.launch
 
 Standalone launchfile to startup a ur10e robot. This requires a robot reachable via a network connection.
 
 #### Arguments
- * "**controller_config_file**" (default: "$(find ur_robot_driver)/config/ur10e_controllers.yaml")
 
-    Config file used for defining the ROS-Control controllers.
+##### controller_config_file (default: "$(find ur_robot_driver)/config/ur10e_controllers.yaml")
 
- * "**controllers**" (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+Config file used for defining the ROS-Control controllers.
 
-    Controllers that are activated by default.
+##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
- * "**debug**" (default: "false")
+Controllers that are activated by default.
 
-    Debug flag that will get passed on to ur_common.launch
+##### debug (default: "false")
 
- * "**headless_mode**" (default: "false")
+Debug flag that will get passed on to ur_common.launch
 
-    Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
+##### headless_mode (default: "false")
 
- * "**kinematics_config**" (default: "$(find ur_e_description)/config/ur10e_default.yaml")
+Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot.
 
-    Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+##### kinematics_config (default: "$(find ur_e_description)/config/ur10e_default.yaml")
 
- * "**limited**" (default: "false")
+Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
-    Use the description in limited mode (Every axis rotates from -PI to PI)
+##### limited (default: "false")
 
- * "**reverse_port**" (default: "50001")
+Use the description in limited mode (Every axis rotates from -PI to PI)
 
-    Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
+##### reverse_port (default: "50001")
 
- * "**robot_description_file**" (default: "$(find ur_e_description)/launch/ur10e_upload.launch")
+Port that will be opened by the driver to allow direct communication between the driver and the robot controller.
 
-    Robot description launch file.
+##### robot_description_file (default: "$(find ur_e_description)/launch/ur10e_upload.launch")
 
- * "**robot_ip**" (Required)
+Robot description launch file.
 
-    IP address by which the robot can be reached.
+##### robot_ip (Required)
 
- * "**script_sender_port**" (default: "50002")
+IP address by which the robot can be reached.
 
-    The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
+##### script_sender_port (default: "50002")
 
- * "**stopped_controllers**" (default: "pos_traj_controller")
+The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-    Controllers that are initally loaded, but not started.
+##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
 
- * "**tf_prefix**" (default: "")
+Controllers that are initally loaded, but not started.
 
-    tf_prefix used for the robot.
+##### tf_prefix (default: "")
 
- * "**tool_baud_rate**" (default: "115200")
+tf_prefix used for the robot.
 
-    Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_baud_rate (default: "115200")
 
- * "**tool_device_name**" (default: "/tmp/ttyUR")
+Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_device_name (default: "/tmp/ttyUR")
 
- * "**tool_parity**" (default: "0")
+Local device name used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_parity (default: "0")
 
- * "**tool_rx_idle_chars**" (default: "1.5")
+Parity configuration used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_rx_idle_chars (default: "1.5")
 
- * "**tool_stop_bits**" (default: "1")
+Number of idle chars in RX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_stop_bits (default: "1")
 
- * "**tool_tcp_port**" (default: "54321")
+Number of stop bits used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
+##### tool_tcp_port (default: "54321")
 
- * "**tool_tx_idle_chars**" (default: "3.5")
+Port on which the robot controller publishes the tool comm interface. Only used, when `use_tool_communication` is set to true.
 
-    Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
+##### tool_tx_idle_chars (default: "3.5")
 
- * "**tool_voltage**" (default: "0")
+Number of idle chars in TX channel used for tool communication. Only used, when `use_tool_communication` is set to true.
 
-    Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
+##### tool_voltage (default: "0")
 
- * "**use_tool_communication**" (default: "false")
+Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-    On e-Series robots tool communication can be enabled with this argument
+##### use_tool_communication (default: "false")
+
+On e-Series robots tool communication can be enabled with this argument
 
 ## Nodes
+
 ### ur_robot_driver_node
 
 This is the actual driver node containing the ROS-Control stack. Interfaces documented here refer to the robot's hardware interface. Controller-specific API elements might be present for the individual controllers outside of this package.
 
 #### Advertised Services
- * "**dashboard/add_to_log**" (ur_dashboard_msgs/AddToLog)
 
-    Service to add a message to the robot's log
+##### dashboard/add_to_log ([ur_dashboard_msgs/AddToLog](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/AddToLog.html))
 
- * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to add a message to the robot's log
 
-    Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
+##### dashboard/brake_release ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/clear_operational_mode**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
 
-    If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
+##### dashboard/clear_operational_mode ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/close_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
 
-    Close a (non-safety) popup on the teach pendant.
+##### dashboard/close_popup ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/close_safety_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Close a (non-safety) popup on the teach pendant.
 
-    Close a safety popup on the teach pendant.
+##### dashboard/close_safety_popup ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Close a safety popup on the teach pendant.
 
-    Service to reconnect to the dashboard server
+##### dashboard/connect ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+Service to reconnect to the dashboard server
 
-    Load a robot installation from a file
+##### dashboard/get_loaded_program ([ur_dashboard_msgs/GetLoadedProgram](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetLoadedProgram.html))
 
- * "**dashboard/get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+Load a robot installation from a file
 
-    Service to query the current robot mode
+##### dashboard/get_robot_mode ([ur_dashboard_msgs/GetRobotMode](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetRobotMode.html))
 
- * "**dashboard/get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+Service to query the current robot mode
 
-    Service to query the current safety mode
+##### dashboard/get_safety_mode ([ur_dashboard_msgs/GetSafetyMode](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetSafetyMode.html))
 
- * "**dashboard/load_installation**" (ur_dashboard_msgs/Load)
+Service to query the current safety mode
 
-    Load a robot installation from a file
+##### dashboard/load_installation ([ur_dashboard_msgs/Load](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Load.html))
 
- * "**dashboard/load_program**" (ur_dashboard_msgs/Load)
+Load a robot installation from a file
 
-    Load a robot program from a file
+##### dashboard/load_program ([ur_dashboard_msgs/Load](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Load.html))
 
- * "**dashboard/pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Load a robot program from a file
 
-    Pause a running program.
+##### dashboard/pause ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Pause a running program.
 
-    Start execution of a previously loaded program
+##### dashboard/play ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/popup**" (ur_dashboard_msgs/Popup)
+Start execution of a previously loaded program
 
-    Service to show a popup on the UR Teach pendant.
+##### dashboard/popup ([ur_dashboard_msgs/Popup](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Popup.html))
 
- * "**dashboard/power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to show a popup on the UR Teach pendant.
 
-    Power off the robot motors
+##### dashboard/power_off ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Power off the robot motors
 
-    Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+##### dashboard/power_on ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/program_running**" (ur_dashboard_msgs/IsProgramRunning)
+Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
 
-    Query whether there is currently a program running
+##### dashboard/program_running ([ur_dashboard_msgs/IsProgramRunning](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsProgramRunning.html))
 
- * "**dashboard/program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+Query whether there is currently a program running
 
-    Query whether the current program is saved
+##### dashboard/program_saved ([ur_dashboard_msgs/IsProgramSaved](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsProgramSaved.html))
 
- * "**dashboard/program_state**" (ur_dashboard_msgs/GetProgramState)
+Query whether the current program is saved
 
-    Service to query the current program state
+##### dashboard/program_state ([ur_dashboard_msgs/GetProgramState](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetProgramState.html))
 
- * "**dashboard/quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to query the current program state
 
-    Disconnect from the dashboard service.
+##### dashboard/quit ([ur_dashboard_msgs/GetLoadedProgram](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetLoadedProgram.html))
 
- * "**dashboard/raw_request**" (ur_dashboard_msgs/RawRequest)
+Disconnect from the dashboard service.
 
-    General purpose service to send arbitrary messages to the dashboard server
+##### dashboard/raw_request ([ur_dashboard_msgs/RawRequest](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/RawRequest.html))
 
- * "**dashboard/restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+General purpose service to send arbitrary messages to the dashboard server
 
-    Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
+##### dashboard/restart_safety ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/shutdown**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
 
-    Shutdown the robot controller
+##### dashboard/shutdown ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Shutdown the robot controller
 
-    Stop program execution on the robot
+##### dashboard/stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Stop program execution on the robot
 
-    Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
+##### dashboard/unlock_protective_stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**hand_back_control**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
 
-    Calling this service will make the "External Control" program node on the UR-Program return.
+##### hand_back_control ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**resend_robot_program**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Calling this service will make the "External Control" program node on the UR-Program return.
 
-    When in headless mode, this sends the URScript program to the robot for execution. Use this after the program has been interrupted, e.g. by a protective- or EM-stop.
+##### resend_robot_program ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**set_io**" (ur_msgs/SetIO)
+When in headless mode, this sends the URScript program to the robot for execution. Use this after the program has been interrupted, e.g. by a protective- or EM-stop.
 
-    Service to set any of the robot's IOs
+##### set_io (ur_msgs/SetIO)
 
- * "**set_speed_slider**" (ur_msgs/SetSpeedSliderFraction)
+Service to set any of the robot's IOs
 
-    Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
+##### set_speed_slider (ur_msgs/SetSpeedSliderFraction)
 
- * "**zero_ftsensor**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
 
-    Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only work when the robot is in remote-control mode.
+##### zero_ftsensor ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only work when the robot is in remote-control mode.
 
 #### Parameters
- * "**dashboard/receive_timeout**" (Required)
 
-    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+##### dashboard/receive_timeout (Required)
 
- * "**hardware_interface/joints**" (Required)
+Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
 
-    Names of the joints. Usually, this is given in the controller config file.
+##### hardware_interface/joints (Required)
 
- * "**headless_mode**" (Required)
+Names of the joints. Usually, this is given in the controller config file.
 
-    Start robot in headless mode. This does not require the 'External Control' URCap to be running on the robot, but this will send the URScript to the robot directly. On e-Series robots this requires the robot to run in 'remote-control' mode.
+##### headless_mode (Required)
 
- * "**input_recipe_file**" (Required)
+Start robot in headless mode. This does not require the 'External Control' URCap to be running on the robot, but this will send the URScript to the robot directly. On e-Series robots this requires the robot to run in 'remote-control' mode.
 
-    Path to the file containing the recipe used for requesting RTDE inputs.
+##### input_recipe_file (Required)
 
- * "**kinematics/hash**" (Required)
+Path to the file containing the recipe used for requesting RTDE inputs.
 
-    Hash of the calibration reported by the robot. This is used for validating the robot description is using the correct calibration. If the robot's calibration doesn't match this hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your own hash matching your actual robot.
+##### kinematics/hash (Required)
 
- * "**non_blocking_read**" (default: "false")
+Hash of the calibration reported by the robot. This is used for validating the robot description is using the correct calibration. If the robot's calibration doesn't match this hash, an error will be printed. You can use the robot as usual, however Cartesian poses of the endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your own hash matching your actual robot.
 
-    Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when not used with combined_robot_hw can suppress important errors and affect real-time performance.
+##### non_blocking_read (default: "false")
 
- * "**output_recipe_file**" (Required)
+Enables non_blocking_read mode. Should only be used with combined_robot_hw. Disables error generated when read returns without any data, sets the read timeout to zero, and synchronises read/write operations. Enabling this when not used with combined_robot_hw can suppress important errors and affect real-time performance.
 
-    Path to the file containing the recipe used for requesting RTDE outputs.
+##### output_recipe_file (Required)
 
- * "**reverse_port**" (Required)
+Path to the file containing the recipe used for requesting RTDE outputs.
 
-    Port that will be opened to communicate between the driver and the robot controller.
+##### reverse_port (Required)
 
- * "**robot_ip**" (Required)
+Port that will be opened to communicate between the driver and the robot controller.
 
-    The robot's IP address.
+##### robot_ip (Required)
 
- * "**script_file**" (Required)
+The robot's IP address.
 
-    Path to the urscript code that will be sent to the robot.
+##### script_file (Required)
 
- * "**script_sender_port**" (Required)
+Path to the urscript code that will be sent to the robot.
 
-    The driver will offer an interface to receive the program's URScript on this port.
+##### script_sender_port (Required)
 
- * "**tf_prefix**" (default: "")
+The driver will offer an interface to receive the program's URScript on this port.
 
-    Please add description. See hardware_interface.cpp line number: 74
+##### servoj_gain (Required)
+
+Specify gain for servoing to position in joint space. A higher gain can sharpen the trajectory.
+
+##### servoj_lookahead_time (Required)
+
+Specify lookahead time for servoing to position in joint space. A longer lookahead time can smooth the trajectory.
+
+##### tf_prefix (default: "")
+
+When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order to publish correct frame names for frames reported by the robot directly.
 
 
+##### tool_baud_rate (Required)
 
-    	robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
+Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_baud_rate**" (Required)
+##### tool_parity (Required)
 
-    Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Parity used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 0 (None), 1 (odd) and 2 (even).  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_parity**" (Required)
+##### tool_rx_idle_chars (Required)
 
-    Parity used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 0 (None), 1 (odd) and 2 (even).  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=1.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_rx_idle_chars**" (Required)
+##### tool_stop_bits (Required)
 
-    Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=1.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 1 or 2.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_stop_bits**" (Required)
+##### tool_tx_idle_chars (Required)
 
-    Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 1 or 2.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=0.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
 
- * "**tool_tx_idle_chars**" (Required)
+##### tool_voltage (Required)
 
-    Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=0.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Tool voltage that will be set as soon as the UR-Program on the robot is started. Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
- * "**tool_voltage**" (Required)
+##### use_tool_communication (Required)
 
-    Tool voltage that will be set as soon as the UR-Program on the robot is started. Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
-
- * "**use_tool_communication**" (Required)
-
-    Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as well.
-
- * "**servoj_gain**" (default: "2000")
-
-    Specify gain for servoing to position in joint space. A higher gain can sharpen the trajectory.
-
- * "**servoj_gain**" (default: "0.03")
-
-    Specify lookahead time for servoing to position in joint space. A longer lookahead time can smooth the trajectory.
+Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as well.
 
 #### Published topics
- * "**robot_program_running**" ([std_msgs/Bool](http://docs.ros.org/api/std_msgs/html/msg/Bool.html))
 
-    Whenever the runtime state of the "External Control" program node in the UR-program changes, a message gets published here. So this is equivalent to the information whether the robot accepts commands from ROS side.
+##### robot_program_running ([std_msgs/Bool](http://docs.ros.org/api/std_msgs/html/msg/Bool.html))
+
+Whenever the runtime state of the "External Control" program node in the UR-program changes, a message gets published here. So this is equivalent to the information whether the robot accepts commands from ROS side.
 
 #### Subscribed topics
- * "**script_command**" ([std_msgs/String](http://docs.ros.org/api/std_msgs/html/msg/String.html))
 
-    Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in remote-control mode.  Sending scripts to this will stop program execution unless wrapped in a secondary program:  sec myProgram(): set_digital_out(0, True) end
+##### script_command ([std_msgs/String](http://docs.ros.org/api/std_msgs/html/msg/String.html))
+
+Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in remote-control mode.  Sending scripts to this will stop program execution unless wrapped in a secondary program:  sec myProgram(): set_digital_out(0, True) end
 
 ### dashboard_client
 
 
 
 #### Advertised Services
- * "**add_to_log**" (ur_dashboard_msgs/AddToLog)
 
-    Service to add a message to the robot's log
+##### add_to_log ([ur_dashboard_msgs/AddToLog](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/AddToLog.html))
 
- * "**brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to add a message to the robot's log
 
-    Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
+##### brake_release ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**clear_operational_mode**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to release the brakes. If the robot is currently powered off, it will get powered on on the fly.
 
-    If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
+##### clear_operational_mode ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**close_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+If this service is called the operational mode can again be changed from PolyScope, and the user password is enabled.
 
-    Close a (non-safety) popup on the teach pendant.
+##### close_popup ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**close_safety_popup**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Close a (non-safety) popup on the teach pendant.
 
-    Close a safety popup on the teach pendant.
+##### close_safety_popup ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**connect**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Close a safety popup on the teach pendant.
 
-    Service to reconnect to the dashboard server
+##### connect ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**get_loaded_program**" (ur_dashboard_msgs/GetLoadedProgram)
+Service to reconnect to the dashboard server
 
-    Load a robot installation from a file
+##### get_loaded_program ([ur_dashboard_msgs/GetLoadedProgram](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetLoadedProgram.html))
 
- * "**get_robot_mode**" (ur_dashboard_msgs/GetRobotMode)
+Load a robot installation from a file
 
-    Service to query the current robot mode
+##### get_robot_mode ([ur_dashboard_msgs/GetRobotMode](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetRobotMode.html))
 
- * "**get_safety_mode**" (ur_dashboard_msgs/GetSafetyMode)
+Service to query the current robot mode
 
-    Service to query the current safety mode
+##### get_safety_mode ([ur_dashboard_msgs/GetSafetyMode](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetSafetyMode.html))
 
- * "**load_installation**" (ur_dashboard_msgs/Load)
+Service to query the current safety mode
 
-    Load a robot installation from a file
+##### load_installation ([ur_dashboard_msgs/Load](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Load.html))
 
- * "**load_program**" (ur_dashboard_msgs/Load)
+Load a robot installation from a file
 
-    Load a robot program from a file
+##### load_program ([ur_dashboard_msgs/Load](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Load.html))
 
- * "**pause**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Load a robot program from a file
 
-    Pause a running program.
+##### pause ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Pause a running program.
 
-    Start execution of a previously loaded program
+##### play ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**popup**" (ur_dashboard_msgs/Popup)
+Start execution of a previously loaded program
 
-    Service to show a popup on the UR Teach pendant.
+##### popup ([ur_dashboard_msgs/Popup](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/Popup.html))
 
- * "**power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to show a popup on the UR Teach pendant.
 
-    Power off the robot motors
+##### power_off ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Power off the robot motors
 
-    Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
+##### power_on ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**program_running**" (ur_dashboard_msgs/IsProgramRunning)
+Power on the robot motors. To fully start the robot, call 'brake_release' afterwards.
 
-    Query whether there is currently a program running
+##### program_running ([ur_dashboard_msgs/IsProgramRunning](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsProgramRunning.html))
 
- * "**program_saved**" (ur_dashboard_msgs/IsProgramSaved)
+Query whether there is currently a program running
 
-    Query whether the current program is saved
+##### program_saved ([ur_dashboard_msgs/IsProgramSaved](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsProgramSaved.html))
 
- * "**program_state**" (ur_dashboard_msgs/GetProgramState)
+Query whether the current program is saved
 
-    Service to query the current program state
+##### program_state ([ur_dashboard_msgs/GetProgramState](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetProgramState.html))
 
- * "**quit**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to query the current program state
 
-    Disconnect from the dashboard service.
+##### quit ([ur_dashboard_msgs/GetLoadedProgram](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetLoadedProgram.html))
 
- * "**raw_request**" (ur_dashboard_msgs/RawRequest)
+Disconnect from the dashboard service.
 
-    General purpose service to send arbitrary messages to the dashboard server
+##### raw_request ([ur_dashboard_msgs/RawRequest](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/RawRequest.html))
 
- * "**restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+General purpose service to send arbitrary messages to the dashboard server
 
-    Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
+##### restart_safety ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**shutdown**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Used when robot gets a safety fault or violation to restart the safety. After safety has been rebooted the robot will be in Power Off. NOTE: You should always ensure it is okay to restart the system. It is highly recommended to check the error log before using this command (either via PolyScope or e.g. ssh connection).
 
-    Shutdown the robot controller
+##### shutdown ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Shutdown the robot controller
 
-    Stop program execution on the robot
+##### stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Stop program execution on the robot
 
-    Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
+##### unlock_protective_stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+Dismiss a protective stop to continue robot movements. NOTE: It is the responsibility of the user to ensure the cause of the protective stop is resolved before calling this service.
 
 #### Parameters
- * "**receive_timeout**" (Required)
 
-    Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
+##### receive_timeout (Required)
 
- * "**robot_ip**" (Required)
+Timeout after which a call to the dashboard server will be considered failure if no answer has been received.
 
-    The IP address under which the robot is reachable.
+##### robot_ip (Required)
+
+The IP address under which the robot is reachable.
 
 ### robot_state_helper
 
 This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop).  It should best be started inside the hardware interface's namespace
 
 #### Service Clients
- * "**dashboard/brake_release**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
-    Service to release the robot's brakes
+##### dashboard/brake_release ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/play**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to release the robot's brakes
 
-    Service to start UR program execution on the robot
+##### dashboard/play ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/power_off**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to start UR program execution on the robot
 
-    Service to power off the robot
+##### dashboard/power_off ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/power_on**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to power off the robot
 
-    Service to power on the robot
+##### dashboard/power_on ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/restart_safety**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to power on the robot
 
-    Service to restart safety
+##### dashboard/restart_safety ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to restart safety
 
-    Service to stop UR program execution on the robot
+##### dashboard/stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
- * "**dashboard/unlock_protective_stop**" ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+Service to stop UR program execution on the robot
 
-    Service to unlock protective stop
+##### dashboard/unlock_protective_stop ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+Service to unlock protective stop
 
 #### Subscribed topics
- * "**robot_mode**" (ur_dashboard_msgs/RobotMode)
 
-    Topic on which the robot_mode is published by the driver
+##### robot_mode ([ur_dashboard_msgs/RobotMode](http://docs.ros.org/api/ur_dashboard_msgs/html/msg/RobotMode.html))
 
- * "**safety_mode**" (ur_dashboard_msgs/SafetyMode)
+Topic on which the robot_mode is published by the driver
 
-    Topic on which the safety is published by the driver
+##### safety_mode ([ur_dashboard_msgs/SafetyMode](http://docs.ros.org/api/ur_dashboard_msgs/html/msg/SafetyMode.html))
 
-#### Actions
- * "**set_mode**" (ur_dashboard_msgs/SetMode)
-
-    Action server to set the robot into a specific mode (e.g. RUNNING). If desired, program
-    execution can be stopped before switching modes and/or (re-)started after the robot reached
-    state RUNNING.
-
-    **Note**: If you use this feature make sure that it is safe to continue program execution. The
-    robot might start moving again, immediately after this action finishes.
-
-    The 'play' field is only evaluated, when the target mode is RUNNING.
+Topic on which the safety is published by the driver
 
 ### tool_communication
 
 This node is used to start the RS485 tunneling interface on the ROS machine. This requires that the RS485 daemon is running on the robot controller and tool communication is enabled on the robot.
 
 #### Parameters
- * "**~device_name**" (Required)
 
-    By default, socat will create a pty in /dev/pts/N with n being an increasing number. Additionally, a symlink at the given location will be created. Use an absolute path here.
+##### ~device_name (Required)
 
- * "**~robot_ip**" (Required)
+By default, socat will create a pty in /dev/pts/N with n being an increasing number. Additionally, a symlink at the given location will be created. Use an absolute path here.
 
-    IP address of the robot
+##### ~robot_ip (Required)
+
+IP address of the robot
 
