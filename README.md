@@ -230,6 +230,10 @@ Make sure, the IP address setup is correct, as described in the setup guides ([C
 **Note:** This error can also show up, when the ROS driver is not running.
 
 ### When starting the program on the TP, I get a `C207A0` error.
+**Note:** With the current driver version this issue can only happen when the fieldbus is enabled
+*after* the ROS driver has been started. Otherwise you will run into [#204](../../issues/204) when starting the driver
+with an enabled EtherNet/IP fieldbus.
+
 Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
 Ethernet/IP fieldbus (note: EtherNet/IP != ethernet), make sure that it is
 connected properly. In the Ethernet/IP fieldbus Installation screen
@@ -240,6 +244,12 @@ to the fieldbus scanner can be established (note: This is only to get the
 `External Control` running. You probably want to make sure that a connection to
 the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
 fieldbusses at all, you can disable it in the same installation screen. 
+
+### When starting the driver, it crashes with `Variable 'speed_slider_mask' is currently controlled by another RTDE client`
+Probably, you are running into [#204](../../issues/204). Currently, this driver cannot be used together with an enabled
+EtherNet/IP fieldbus. Disable EtherNet/IP to workaround this error. [#204](../../issues/204) contains a guide how to do
+this.
+
 
 ### I cannot get a realtime kernel running together with an NVIDIA graphics card
 This is a known issue and unfortunately we don't have a solution for this. The Nvidia kernel module
