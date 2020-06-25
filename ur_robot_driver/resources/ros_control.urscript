@@ -1,20 +1,20 @@
 {{BEGIN_REPLACE}}
 
-steptime = get_steptime()
+global steptime = get_steptime()
 
 textmsg("steptime=", steptime)
-MULT_jointstate = {{JOINT_STATE_REPLACE}}
+global MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
 #Constants
-SERVO_UNINITIALIZED = -1
-SERVO_IDLE = 0
-SERVO_RUNNING = 1
+global SERVO_UNINITIALIZED = -1
+global SERVO_IDLE = 0
+global SERVO_RUNNING = 1
 
-MODE_STOPPED = -2
-MODE_UNINITIALIZED = -1
-MODE_IDLE = 0
-MODE_SERVOJ = 1
-MODE_SPEEDJ = 2
+global MODE_STOPPED = -2
+global MODE_UNINITIALIZED = -1
+global MODE_IDLE = 0
+global MODE_SERVOJ = 1
+global MODE_SPEEDJ = 2
 
 #Global variables are also showed in the Teach pendants variable list
 global cmd_servo_state = SERVO_UNINITIALIZED
