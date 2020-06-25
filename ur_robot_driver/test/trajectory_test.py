@@ -6,6 +6,8 @@ import unittest
 import rospy
 import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, FollowJointTrajectoryResult
+from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
+from std_srvs.srv import Trigger, TriggerRequest
 from trajectory_msgs.msg import JointTrajectoryPoint
 
 PKG = 'ur_rtde_driver'
@@ -26,7 +28,31 @@ class TrajectoryTest(unittest.TestCase):
                 "Could not reach controller action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
-        # rospy.sleep(5)
+        self.init_robot()
+
+    def init_robot(self):
+        """Make sure the robot is booted and ready to receive commands"""
+        mode_client = actionlib.SimpleActionClient(
+            '/ur_hardware_interface/set_mode', SetModeAction)
+        timeout = rospy.Duration(30)
+        try:
+            mode_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach set_mode action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+        goal = SetModeGoal()
+        goal.target_robot_mode = RobotMode.RUNNING
+        goal.play_program = False # we use headless mode during tests
+
+        mode_client.send_goal(goal)
+        mode_client.wait_for_result()
+
+        self.assertTrue(mode_client.get_result().success)
+
+        send_program_srv = rospy.ServiceProxy("/ur_hardware_interface/resend_robot_program", Trigger)
+        send_program_srv.call()
+        rospy.sleep(5)
 
     def test_trajectory(self):
         """Test robot movement"""
