@@ -22,7 +22,6 @@
 
   <build_depend>boost</build_depend>
   <build_depend>industrial_robot_status_interface</build_depend>
-  <build_depend>rostest</build_depend>
 
   <depend>actionlib</depend>
   <depend>control_msgs</depend>
@@ -51,6 +50,8 @@
   <exec_depend>ur_description</exec_depend>
   <exec_depend>ur_e_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
+
+  <test_depend>rostest</test_depend>
 
   <export>
     <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />
