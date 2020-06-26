@@ -10,7 +10,7 @@ from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 from trajectory_msgs.msg import JointTrajectoryPoint
 
-PKG = 'ur_rtde_driver'
+PKG = 'ur_robot_driver'
 NAME = 'trajectory_test'
 
 

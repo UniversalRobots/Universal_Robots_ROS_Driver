@@ -8,7 +8,7 @@ import rospy
 import rostopic
 
 
-PKG = 'ur_rtde_driver'
+PKG = 'ur_robot_driver'
 NAME = 'switch_on_test'
 
 import actionlib
