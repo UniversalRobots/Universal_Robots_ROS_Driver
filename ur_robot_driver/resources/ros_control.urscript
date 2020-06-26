@@ -3,7 +3,7 @@
 global steptime = get_steptime()
 
 textmsg("steptime=", steptime)
-global MULT_jointstate = {{JOINT_STATE_REPLACE}}
+MULT_jointstate = {{JOINT_STATE_REPLACE}}
 
 #Constants
 global SERVO_UNINITIALIZED = -1
