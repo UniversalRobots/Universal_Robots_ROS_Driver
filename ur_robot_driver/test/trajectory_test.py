@@ -19,7 +19,7 @@ class TrajectoryTest(unittest.TestCase):
         super(TrajectoryTest, self).__init__(*args)
         rospy.init_node('trajectory_testing_client')
         self.client = actionlib.SimpleActionClient(
-            '/scaled_pos_traj_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+            'follow_joint_trajectory', FollowJointTrajectoryAction)
         timeout = rospy.Duration(30)
         try:
             self.client.wait_for_server(timeout)
