@@ -1,0 +1,16 @@
+#!/bin/execlineb -P
+
+s6-envdir -fn -- /var/run/s6/container_environment
+importas -i ROBOT_MODEL ROBOT_MODEL
+
+# Redirect stderr to stdout.
+fdmove -c 2 1
+
+# Wait until openbox is running
+if { s6-svwait -t 10000 -U /var/run/s6/services/openbox/ }
+
+# Set env
+s6-env DISPLAY=:1
+
+# Execute URSim
+/ursim/start-ursim.sh ${ROBOT_MODEL}
