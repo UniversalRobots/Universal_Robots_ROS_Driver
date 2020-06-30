@@ -29,7 +29,7 @@ speed_scaling_state_controller:
 
 # Joint Trajectory Controller - position based -------------------------------
 # For detailed explanations of parameter see http://wiki.ros.org/joint_trajectory_controller
-scaled_pos_traj_controller:
+scaled_pos_joint_traj_controller:
    type: position_controllers/ScaledJointTrajectoryController
    joints: *robot_joints
    constraints:
@@ -45,7 +45,7 @@ scaled_pos_traj_controller:
    state_publish_rate: *loop_hz
    action_monitor_rate: 10
 
-pos_traj_controller:
+pos_joint_traj_controller:
    type: position_controllers/JointTrajectoryController
    joints: *robot_joints
    constraints:
@@ -61,7 +61,7 @@ pos_traj_controller:
    state_publish_rate: *loop_hz
    action_monitor_rate: 10
 
-scaled_vel_traj_controller:
+scaled_vel_joint_traj_controller:
    type: velocity_controllers/ScaledJointTrajectoryController
    joints: *robot_joints
    constraints:
@@ -98,7 +98,7 @@ scaled_vel_traj_controller:
    # action_monitor_rate: 20 # Defaults to 20
    #stop_trajectory_duration: 0 # Defaults to 0.0
 
-vel_traj_controller:
+vel_joint_traj_controller:
    type: velocity_controllers/JointTrajectoryController
    joints: *robot_joints
    constraints:

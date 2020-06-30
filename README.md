@@ -190,7 +190,7 @@ Inside the ROS terminal running the driver you should see the output `Robot read
 To control the robot using ROS, use the action server on
 
 ```bash
-/scaled_pos_traj_controller/follow_joint_trajectory
+/scaled_pos_joint_traj_controller/follow_joint_trajectory
 ```
 
 Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the
