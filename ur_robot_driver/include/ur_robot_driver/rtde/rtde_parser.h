@@ -42,7 +42,7 @@ namespace rtde_interface
  * \brief The RTDE specific parser. Interprets a given byte stream as serialized RTDE packages
  * and parses it accordingly.
  */
-class RTDEParser : public comm::Parser<PackageHeader>
+class RTDEParser : public comm::Parser<RTDEPackage>
 {
 public:
   RTDEParser() = delete;
@@ -65,7 +65,7 @@ public:
    * \returns True, if the byte stream could successfully be parsed as RTDE packages, false
    * otherwise
    */
-  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
+  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<RTDEPackage>>& results)
 
   {
     PackageHeader::_package_size_type size;

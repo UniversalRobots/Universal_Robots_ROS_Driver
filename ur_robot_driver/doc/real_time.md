@@ -17,7 +17,7 @@ To build the kernel, you will need a couple of tools available on your system. Y
 using
 
 ``` bash
-$ sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget gawk
+$ sudo apt-get install build-essential bc ca-certificates gnupg2 libssl-dev wget gawk flex bison
 ```
 
 Before you download the sources of a real-time-enabled kernel, check the kernel version that is currently installed:
@@ -63,7 +63,7 @@ $ wget https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.14.139.tar.sign
 
 To unzip the downloaded files do
 ```bash
-$ xz -d patch-4.14.139-rt66.patch.xz
+$ xz -dk patch-4.14.139-rt66.patch.xz
 $ xz -d linux-4.14.139.tar.xz
 ```
 

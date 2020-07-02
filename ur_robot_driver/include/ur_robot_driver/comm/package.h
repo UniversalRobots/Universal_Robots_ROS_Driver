@@ -66,6 +66,8 @@ public:
    */
   virtual std::string toString() const = 0;
 
+  using HeaderType = HeaderT;
+
 private:
   HeaderT header_;
 };

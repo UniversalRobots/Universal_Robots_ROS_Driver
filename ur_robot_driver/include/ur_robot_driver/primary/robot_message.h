@@ -78,6 +78,15 @@ public:
   virtual bool parseWith(comm::BinParser& bp);
 
   /*!
+   * \brief Consume this package with a specific consumer.
+   *
+   * \param consumer Placeholder for the consumer calling this
+   *
+   * \returns true on success
+   */
+  virtual bool consumeWith(AbstractPrimaryConsumer& consumer);
+
+  /*!
    * \brief Produces a human readable representation of the package object.
    *
    * \returns A string representing the object
