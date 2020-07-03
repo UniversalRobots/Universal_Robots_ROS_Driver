@@ -91,7 +91,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
   // Optional parameter to add a prefix to the 'wrench' hardware interface (if using more than one arm)
-  robot_hw_nh.getParam("wrench_prefix", wrench_prefix);
+  robot_hw_nh.param<std::string>("wrench_prefix", wrench_prefix, "");
 
   // Path to the urscript code that will be sent to the robot.
   if (!robot_hw_nh.getParam("script_file", script_filename))
