@@ -90,7 +90,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // to publish correct frame names for frames reported by the robot directly.
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
-  // Optional parameter to change the name of the wrench frame id
+  // Optional parameter to change the id of the wrench frame
   robot_hw_nh.param<std::string>("wrench_frame_id", wrench_frame_id, "wrench");
 
   // Path to the urscript code that will be sent to the robot.
