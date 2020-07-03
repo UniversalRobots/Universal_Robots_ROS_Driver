@@ -69,7 +69,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   joint_velocities_ = { { 0, 0, 0, 0, 0, 0 } };
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string script_filename;
-  std::string wrench_prefix;
+  std::string wrench_name;
   std::string output_recipe_filename;
   std::string input_recipe_filename;
 
@@ -91,7 +91,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
 
   // Optional parameter to add a prefix to the 'wrench' hardware interface (if using more than one arm)
-  robot_hw_nh.param<std::string>("wrench_prefix", wrench_prefix, "");
+  robot_hw_nh.param<std::string>("wrench_name", wrench_name, "wrench");
 
   // Path to the urscript code that will be sent to the robot.
   if (!robot_hw_nh.getParam("script_file", script_filename))
@@ -312,9 +312,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   speedsc_interface_.registerHandle(
       ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
-  fts_interface_.registerHandle(
-      hardware_interface::ForceTorqueSensorHandle(wrench_prefix + "wrench", tf_prefix_ + "tool0_controller",
-                                                  fts_measurements_.begin(), fts_measurements_.begin() + 3));
+  fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
+      wrench_name, tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
