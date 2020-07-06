@@ -58,6 +58,10 @@ Controllers that are initally loaded, but not started.
 
 tf_prefix used for the robot.
 
+##### wrench_frame_id (default: "wrench")
+
+Parameter to set the id of the wrench frame, required if using multiple robots
+
 ##### tool_baud_rate (default: "115200")
 
 Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
