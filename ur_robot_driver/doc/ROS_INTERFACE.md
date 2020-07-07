@@ -30,6 +30,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
+
 ##### limited (default: "false")
 
 Use the description in limited mode (Every axis rotates from -PI to PI)
@@ -124,6 +127,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
+
 ##### limited (default: "false")
 
 Use the description in limited mode (Every axis rotates from -PI to PI)
@@ -177,6 +183,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 ##### kinematics_config (Required)
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description. Pass the same config file that is passed to the robot_description.
+
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
 
 ##### launch_prefix (Required)
 
@@ -276,6 +285,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
+
 ##### limited (default: "false")
 
 Use the description in limited mode (Every axis rotates from -PI to PI)
@@ -366,6 +378,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
+
 ##### limited (default: "false")
 
 Use the description in limited mode (Every axis rotates from -PI to PI)
@@ -419,6 +434,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 ##### kinematics_config (default: "$(find ur_description)/config/ur5e/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
 
 ##### limited (default: "false")
 
@@ -510,6 +528,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
 
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
+
 ##### limited (default: "false")
 
 Use the description in limited mode (Every axis rotates from -PI to PI)
@@ -563,6 +584,9 @@ Automatically send URScript to robot to execute. On e-Series this does require t
 ##### kinematics_config (default: "$(find ur_description)/config/ur10e/default_kinematics.yaml")
 
 Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description.
+
+**Note:** The `default_kinematics.yaml` file will not reflect the kinematic parameters of your
+robot. Make sure to [generate your own config file](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information).
 
 ##### limited (default: "false")
 
