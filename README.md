@@ -247,6 +247,22 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
 
+### Replacing the robot description
+
+In a real-world scenario you will want to replace the robot description with a description
+containing the whole scene where the robot is acting in. For this, all the bringup launchfiles offer
+the argument `robot_description_file` that should point to a launchfile loading the robot
+description.
+
+While the `load_urXXX.launch` files from the [ur_description](http://wiki.ros.org/ur_description)
+package contain a lot of arguments to change the robot model, this driver only forwards the
+`kinematics_config` parameter file. For further adaption please create your own `load_urXXX.launch`
+file that fits your application and pass this to the `urXXX_bringup.launch` files from this package.
+
+If you prefer decoupling loading the robot description and starting the driver, you can start the
+`ur_control.launch` launchfile directly after the `robot_description` has been uploaded to the
+parameter server.
+
 ## Troubleshooting
 
 This section will cover some previously raised issues.
