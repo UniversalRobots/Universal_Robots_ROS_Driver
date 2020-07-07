@@ -298,14 +298,18 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
 
     // Create joint position control interface
-    pj_interface_.registerHandle(
-        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
-    vj_interface_.registerHandle(
-        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
+    hardware_interface::JointHandle joint_handle_position =
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]);
+    pj_interface_.registerHandle(joint_handle_position);
+    hardware_interface::JointHandle joint_handle_velocity =
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]);
+    vj_interface_.registerHandle(joint_handle_velocity);
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
     svj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i], &speed_scaling_combined_));
+
+    registerJointLimits(robot_hw_nh, joint_handle_position, joint_handle_velocity, i);
   }
 
   speedsc_interface_.registerHandle(
@@ -383,6 +387,128 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
   return true;
+}
+
+void HardwareInterface::registerJointLimits(ros::NodeHandle& robot_hw_nh,
+                                            const hardware_interface::JointHandle& joint_handle_position,
+                                            const hardware_interface::JointHandle& joint_handle_velocity,
+                                            std::size_t joint_id)
+{
+  // Default values
+  joint_position_lower_limits_[joint_id] = -std::numeric_limits<double>::max();
+  joint_position_upper_limits_[joint_id] = std::numeric_limits<double>::max();
+  joint_velocity_limits_[joint_id] = std::numeric_limits<double>::max();
+
+  // Limits datastructures
+  joint_limits_interface::JointLimits joint_limits;     // Position
+  joint_limits_interface::SoftJointLimits soft_limits;  // Soft Position
+  bool has_joint_limits = false;
+  bool has_soft_limits = false;
+
+  // Get limits from URDF
+  if (urdf_model_ == NULL)
+  {
+    ROS_WARN_STREAM("No URDF model loaded, unable to get joint limits");
+    return;
+  }
+
+  // Get limits from URDF
+  urdf::JointConstSharedPtr urdf_joint = urdf_model_->getJoint(joint_names_[joint_id]);
+
+  // Get main joint limits
+  if (urdf_joint == NULL)
+  {
+    ROS_ERROR_STREAM("URDF joint not found " << joint_names_[joint_id]);
+    return;
+  }
+
+  // Get limits from URDF
+  if (joint_limits_interface::getJointLimits(urdf_joint, joint_limits))
+  {
+    has_joint_limits = true;
+    ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id] << " has URDF position limits [" << joint_limits.min_position
+                              << ", " << joint_limits.max_position << "]");
+    if (joint_limits.has_velocity_limits)
+      ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id] << " has URDF velocity limit [" << joint_limits.max_velocity
+                                << "]");
+  }
+  else
+  {
+    if (urdf_joint->type != urdf::Joint::CONTINUOUS)
+      ROS_WARN_STREAM("Joint " << joint_names_[joint_id]
+                               << " does not have a URDF "
+                                  "position limit");
+  }
+
+  // Get limits from ROS param
+  if (joint_limits_interface::getJointLimits(joint_names_[joint_id], robot_hw_nh, joint_limits))
+  {
+    has_joint_limits = true;
+    ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id] << " has rosparam position limits ["
+                              << joint_limits.min_position << ", " << joint_limits.max_position << "]");
+    if (joint_limits.has_velocity_limits)
+      ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id] << " has rosparam velocity limit ["
+                                << joint_limits.max_velocity << "]");
+  }  // the else debug message provided internally by joint_limits_interface
+
+  // Get soft limits from URDF
+  if (joint_limits_interface::getSoftJointLimits(urdf_joint, soft_limits))
+  {
+    has_soft_limits = true;
+    ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id] << " has soft joint limits.");
+  }
+  else
+  {
+    ROS_DEBUG_STREAM("Joint " << joint_names_[joint_id]
+                              << " does not have soft joint "
+                                 "limits");
+  }
+
+  // Quit we we haven't found any limits in URDF or rosparam server
+  if (!has_joint_limits)
+  {
+    return;
+  }
+
+  // Copy position limits if available
+  if (joint_limits.has_position_limits)
+  {
+    // Slighly reduce the joint limits to prevent floating point errors
+    joint_limits.min_position += std::numeric_limits<double>::epsilon();
+    joint_limits.max_position -= std::numeric_limits<double>::epsilon();
+
+    joint_position_lower_limits_[joint_id] = joint_limits.min_position;
+    joint_position_upper_limits_[joint_id] = joint_limits.max_position;
+  }
+
+  // Copy velocity limits if available
+  if (joint_limits.has_velocity_limits)
+  {
+    joint_velocity_limits_[joint_id] = joint_limits.max_velocity;
+  }
+
+  if (has_soft_limits)  // Use soft limits
+  {
+    ROS_DEBUG_STREAM("Using soft saturation limits");
+    const joint_limits_interface::PositionJointSoftLimitsHandle soft_handle_position(joint_handle_position,
+                                                                                     joint_limits, soft_limits);
+    pos_jnt_soft_interface_.registerHandle(soft_handle_position);
+    const joint_limits_interface::VelocityJointSoftLimitsHandle soft_handle_velocity(joint_handle_velocity,
+                                                                                     joint_limits, soft_limits);
+    vel_jnt_soft_interface_.registerHandle(soft_handle_velocity);
+  }
+  else  // Use saturation limits
+  {
+    ROS_DEBUG_STREAM("Using saturation limits (not soft limits)");
+
+    const joint_limits_interface::PositionJointSaturationHandle sat_handle_position(joint_handle_position,
+                                                                                    joint_limits);
+    pos_jnt_sat_interface_.registerHandle(sat_handle_position);
+
+    const joint_limits_interface::VelocityJointSaturationHandle sat_handle_velocity(joint_handle_velocity,
+                                                                                    joint_limits);
+    vel_jnt_sat_interface_.registerHandle(sat_handle_velocity);
+  }
 }
 
 template <typename T>
@@ -522,10 +648,14 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
   {
     if (position_controller_running_)
     {
+      pos_jnt_soft_interface_.enforceLimits(period);
+      pos_jnt_sat_interface_.enforceLimits(period);
       ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
     }
     else if (velocity_controller_running_)
     {
+      vel_jnt_soft_interface_.enforceLimits(period);
+      vel_jnt_sat_interface_.enforceLimits(period);
       ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
     }
     else
