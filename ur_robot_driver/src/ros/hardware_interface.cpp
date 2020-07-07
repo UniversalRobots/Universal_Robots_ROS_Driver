@@ -72,6 +72,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   std::string output_recipe_filename;
   std::string input_recipe_filename;
 
+  // Load URDF file from parameter server
+  loadURDF(robot_hw_nh, "robot_description");
+
   // The robot's IP address.
   if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
   {
@@ -955,6 +958,37 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
     }
   }
   return false;
+}
+
+void HardwareInterface::loadURDF(ros::NodeHandle& nh, std::string param_name)
+{
+  std::string urdf_string;
+  urdf_model_ = new urdf::Model();
+
+  // search and wait for robot_description on param server
+  while (urdf_string.empty() && ros::ok())
+  {
+    std::string search_param_name;
+    if (nh.searchParam(param_name, search_param_name))
+    {
+      ROS_INFO_STREAM("Waiting for model URDF on the ROS param server at location: " << nh.getNamespace()
+                                                                                     << search_param_name);
+      nh.getParam(search_param_name, urdf_string);
+    }
+    else
+    {
+      ROS_INFO_STREAM("Waiting for model URDF on the ROS param server at location: " << nh.getNamespace()
+                                                                                     << param_name);
+      nh.getParam(param_name, urdf_string);
+    }
+
+    usleep(100000);
+  }
+
+  if (!urdf_model_->initString(urdf_string))
+    ROS_ERROR_STREAM("Unable to load URDF model");
+  else
+    ROS_DEBUG_STREAM("Received URDF from param server");
 }
 }  // namespace ur_driver
 

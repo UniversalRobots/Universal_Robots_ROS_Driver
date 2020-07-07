@@ -45,6 +45,7 @@
 #include <ur_msgs/SetIO.h>
 #include "ur_msgs/SetSpeedSliderFraction.h"
 
+#include <urdf/model.h>
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
 
@@ -156,6 +157,13 @@ public:
   bool shouldResetControllers();
 
 protected:
+
+  /*!
+   * \brief Loads URDF model from robot_description parameter
+   *
+   * Requires robot_description paramter to be set on the parameter server
+   */
+  void loadURDF(ros::NodeHandle& nh, std::string param_name);
   /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame.
    *
@@ -222,6 +230,9 @@ protected:
   hardware_interface::VelocityJointInterface vj_interface_;
   ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
+
+
+  urdf::Model* urdf_model_;
 
   vector6d_t joint_position_command_;
   vector6d_t joint_velocity_command_;
