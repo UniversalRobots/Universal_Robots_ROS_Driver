@@ -26,9 +26,7 @@
 #include "ur_robot_driver/primary/package_header.h"
 #include "ur_robot_driver/primary/robot_state.h"
 #include "ur_robot_driver/primary/robot_message.h"
-//#include "ur_robot_driver/primary/robot_state/robot_mode_data.h"
 #include "ur_robot_driver/primary/robot_state/kinematics_info.h"
-//#include "ur_robot_driver/primary/robot_state/master_board.h"
 #include "ur_robot_driver/primary/robot_message/version_message.h"
 
 namespace ur_driver
@@ -39,7 +37,7 @@ namespace primary_interface
  * \brief The primary specific parser. Interprets a given byte stream as serialized primary
  * packages and parses it accordingly.
  */
-class PrimaryParser : public comm::Parser<PackageHeader>
+class PrimaryParser : public comm::Parser<PrimaryPackage>
 {
 public:
   PrimaryParser() = default;
@@ -54,7 +52,7 @@ public:
    * \returns True, if the byte stream could successfully be parsed as primary packages, false
    * otherwise
    */
-  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<comm::URPackage<PackageHeader>>>& results)
+  bool parse(comm::BinParser& bp, std::vector<std::unique_ptr<PrimaryPackage>>& results)
   {
     int32_t packet_size;
     RobotPackageType type;

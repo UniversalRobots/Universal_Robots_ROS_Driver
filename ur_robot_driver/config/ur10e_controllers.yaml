@@ -139,3 +139,8 @@ vel_traj_controller:
 joint_group_vel_controller:
    type: velocity_controllers/JointGroupVelocityController
    joints: *robot_joints
+
+robot_status_controller:
+   type: industrial_robot_status_controller/IndustrialRobotStatusController
+   handle_name: industrial_robot_status_handle
+   publish_rate: 10

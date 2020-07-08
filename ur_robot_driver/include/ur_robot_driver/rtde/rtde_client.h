@@ -48,6 +48,32 @@ namespace ur_driver
 {
 namespace rtde_interface
 {
+static const uint16_t MAX_RTDE_PROTOCOL_VERSION = 2;
+static const unsigned MAX_REQUEST_RETRIES = 5;
+
+enum class UrRtdeRobotStatusBits
+{
+  IS_POWER_ON = 0,
+  IS_PROGRAM_RUNNING = 1,
+  IS_TEACH_BUTTON_PRESSED = 2,
+  IS_POWER_BUTTON_PRESSED = 3
+};
+
+enum class UrRtdeSafetyStatusBits
+{
+  IS_NORMAL_MODE = 0,
+  IS_REDUCED_MODE = 1,
+  IS_PROTECTIVE_STOPPED = 2,
+  IS_RECOVERY_MODE = 3,
+  IS_SAFEGUARD_STOPPED = 4,
+  IS_SYSTEM_EMERGENCY_STOPPED = 5,
+  IS_ROBOT_EMERGENCY_STOPPED = 6,
+  IS_EMERGENCY_STOPPED = 7,
+  IS_VIOLATION = 8,
+  IS_FAULT = 9,
+  IS_STOPPED_DUE_TO_SAFETY = 10
+};
+
 /*!
  * \brief The RTDEClient class manages communication over the RTDE interface. It contains the RTDE
  * handshake and read and write functionality to and from the robot.
@@ -126,12 +152,12 @@ public:
   RTDEWriter& getWriter();
 
 private:
-  comm::URStream<PackageHeader> stream_;
+  comm::URStream<RTDEPackage> stream_;
   std::vector<std::string> output_recipe_;
   std::vector<std::string> input_recipe_;
   RTDEParser parser_;
-  comm::URProducer<PackageHeader> prod_;
-  comm::Pipeline<PackageHeader> pipeline_;
+  comm::URProducer<RTDEPackage> prod_;
+  comm::Pipeline<RTDEPackage> pipeline_;
   RTDEWriter writer_;
 
   VersionInformation urcontrol_version_;
@@ -143,10 +169,19 @@ private:
 
   std::vector<std::string> readRecipe(const std::string& recipe_file);
 
-  uint16_t negotiateProtocolVersion();
+  bool negotiateProtocolVersion(const uint16_t protocol_version);
   void queryURControlVersion();
   void setupOutputs(const uint16_t protocol_version);
   void setupInputs();
+  /*!
+   * \brief Splits a variable_types string as reported from the robot into single variable type
+   * strings
+   *
+   * \param variable_types String as reported from the robot
+   *
+   * \returns A vector of variable variable_names
+   */
+  std::vector<std::string> splitVariableTypes(const std::string& variable_types) const;
 };
 
 }  // namespace rtde_interface
