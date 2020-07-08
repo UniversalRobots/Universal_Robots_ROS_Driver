@@ -330,8 +330,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   speedsc_interface_.registerHandle(
       ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
-  fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(wrench_prefix + "wrench",
-      tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
+  fts_interface_.registerHandle(
+      hardware_interface::ForceTorqueSensorHandle(wrench_prefix + "wrench", tf_prefix_ + "tool0_controller",
+                                                  fts_measurements_.begin(), fts_measurements_.begin() + 3));
 
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
