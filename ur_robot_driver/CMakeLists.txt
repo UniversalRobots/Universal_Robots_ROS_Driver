@@ -162,7 +162,7 @@ install(TARGETS ur_robot_driver ur_robot_driver_plugin ur_robot_driver_node robo
 install(PROGRAMS scripts/tool_communication
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(DIRECTORY config launch
+install(DIRECTORY config launch resources
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 
