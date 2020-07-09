@@ -32,13 +32,14 @@ namespace ur_driver
 namespace rtde_interface
 {
 RTDEWriter::RTDEWriter(comm::URStream<RTDEPackage>* stream, const std::vector<std::string>& recipe)
-  : stream_(stream), recipe_(recipe), queue_{ 32 }
+  : stream_(stream), recipe_(recipe), queue_{ 32 }, running_(false)
 {
 }
 
 void RTDEWriter::init(uint8_t recipe_id)
 {
   recipe_id_ = recipe_id;
+  running_ = true;
   writer_thread_ = std::thread(&RTDEWriter::run, this);
 }
 
@@ -48,13 +49,16 @@ void RTDEWriter::run()
   size_t size;
   size_t written;
   std::unique_ptr<DataPackage> package;
-  while (true)
+  while (running_)
   {
-    queue_.waitDequeue(package);
-    package->setRecipeID(recipe_id_);
-    size = package->serializePackage(buffer);
-    stream_->write(buffer, size, written);
+    if (queue_.waitDequeTimed(package, 1000000))
+    {
+      package->setRecipeID(recipe_id_);
+      size = package->serializePackage(buffer);
+      stream_->write(buffer, size, written);
+    }
   }
+  LOG_DEBUG("Write thread ended.");
 }
 
 bool RTDEWriter::sendSpeedSlider(double speed_slider_fraction)
