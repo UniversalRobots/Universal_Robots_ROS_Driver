@@ -145,6 +145,11 @@ if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
 
   add_rostest(test/driver.test)
+
+  catkin_add_gtest(test_rtde_client
+    test/test_rtde_client.cpp
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
+  target_link_libraries(test_rtde_client ${catkin_LIBRARIES} ur_robot_driver)
 endif()
 
 
