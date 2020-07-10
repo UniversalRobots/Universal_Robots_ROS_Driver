@@ -121,7 +121,7 @@ $ source devel/setup.bash
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
 For using the *ur_robot_driver* with a real robot you need to install the
-**externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
+**externalcontrol-1.0.2.urcap** which can be found inside the **resources** folder of this driver.
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of e-Series) is
 necessary.
@@ -190,7 +190,7 @@ Inside the ROS terminal running the driver you should see the output `Robot read
 To control the robot using ROS, use the action server on
 
 ```bash
-/scaled_pos_traj_controller/follow_joint_trajectory
+/scaled_pos_joint_traj_controller/follow_joint_trajectory
 ```
 
 Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the
