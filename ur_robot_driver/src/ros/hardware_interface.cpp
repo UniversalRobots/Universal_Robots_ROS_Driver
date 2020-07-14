@@ -278,7 +278,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
 
   // Names of the joints. Usually, this is given in the controller config file.
-  if (!root_nh.getParam("hardware_interface/joints", joint_names_))
+  if (!robot_hw_nh.getParam("joints", joint_names_))
   {
     ROS_ERROR_STREAM("Cannot find required parameter " << root_nh.resolveName("hardware_interface/joints")
                                                        << " on the parameter server.");
