@@ -51,6 +51,8 @@
   <exec_depend>ur_e_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
+  <test_depend>rostest</test_depend>
+
   <export>
     <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />
     <rosdoc config="doc/rosdoc.yaml" />

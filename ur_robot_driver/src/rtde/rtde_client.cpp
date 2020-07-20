@@ -323,6 +323,13 @@ std::vector<std::string> RTDEClient::readRecipe(const std::string& recipe_file)
 {
   std::vector<std::string> recipe;
   std::ifstream file(recipe_file);
+  if (file.fail())
+  {
+    std::stringstream msg;
+    msg << "Opening file '" << recipe_file << "' failed with error: " << strerror(errno);
+    LOG_ERROR("%s", msg.str().c_str());
+    throw UrException(msg.str());
+  }
   std::string line;
   while (std::getline(file, line))
   {

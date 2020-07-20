@@ -55,7 +55,16 @@ public:
    * \param recipe The recipe to use for communication
    */
   RTDEWriter(comm::URStream<RTDEPackage>* stream, const std::vector<std::string>& recipe);
-  ~RTDEWriter() = default;
+
+  ~RTDEWriter()
+  {
+    running_ = false;
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    if (writer_thread_.joinable())
+    {
+      writer_thread_.join();
+    }
+  }
   /*!
    * \brief Starts the writer thread, which periodically clears the queue to write packages to the
    * robot.
@@ -120,6 +129,7 @@ private:
   uint8_t recipe_id_;
   moodycamel::BlockingReaderWriterQueue<std::unique_ptr<DataPackage>> queue_;
   std::thread writer_thread_;
+  bool running_;
 };
 
 }  // namespace rtde_interface
