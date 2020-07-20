@@ -751,6 +751,10 @@ Service to set any of the robot's IOs
 ##### set_speed_slider (ur_msgs/SetSpeedSliderFraction)
 
 Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
+ 
+#### set_payload (ur_msgs/SetPayload)
+
+Setup the mounted payload through a ROS service
 
 ##### zero_ftsensor ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 
