@@ -29,6 +29,7 @@ find_package(catkin REQUIRED
     ur_msgs
 )
 find_package(Boost REQUIRED)
+find_package(ur_lib REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -55,6 +56,7 @@ catkin_package(
     std_srvs
   DEPENDS
     Boost
+    ur_lib
 )
 
 # check c++11 / c++0x
@@ -80,43 +82,11 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
 )
 
-add_library(ur_robot_driver
-    src/comm/tcp_socket.cpp
-    src/comm/server.cpp
-    #src/ros/service_stopper.cpp
-    #src/ur/commander.cpp
-    #src/ur/master_board.cpp
-    #src/ur/messages.cpp
-    #src/ur/robot_mode.cpp
-    src/primary/primary_package.cpp
-    src/primary/robot_message.cpp
-    src/primary/robot_state.cpp
-    src/primary/robot_message/version_message.cpp
-    src/primary/robot_state/kinematics_info.cpp
-    src/rtde/control_package_pause.cpp
-    src/rtde/control_package_setup_inputs.cpp
-    src/rtde/control_package_setup_outputs.cpp
-    src/rtde/control_package_start.cpp
-    src/rtde/data_package.cpp
-    src/rtde/get_urcontrol_version.cpp
-    src/rtde/request_protocol_version.cpp
-    src/rtde/rtde_package.cpp
-    src/rtde/text_message.cpp
-    src/rtde/rtde_client.cpp
-    src/ur/ur_driver.cpp
-    src/ur/calibration_checker.cpp
-    src/ur/dashboard_client.cpp
-    src/ur/tool_communication.cpp
-    src/rtde/rtde_writer.cpp
-)
-target_link_libraries(ur_robot_driver ${catkin_LIBRARIES})
-add_dependencies(ur_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 add_library(ur_robot_driver_plugin
   src/ros/dashboard_client_ros.cpp
   src/ros/hardware_interface.cpp
 )
-target_link_libraries(ur_robot_driver_plugin ur_robot_driver ${catkin_LIBRARIES})
+target_link_libraries(ur_robot_driver_plugin ur_lib ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(ur_robot_driver_node
@@ -124,21 +94,21 @@ add_executable(ur_robot_driver_node
   src/ros/hardware_interface.cpp
   src/ros/hardware_interface_node.cpp
 )
-target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_robot_driver)
+target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_lib)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(dashboard_client
   src/ros/dashboard_client_ros.cpp
   src/ros/dashboard_client_node.cpp
 )
-target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_robot_driver)
+target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_lib)
 add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(robot_state_helper
   src/ros/robot_state_helper.cpp
   src/ros/robot_state_helper_node.cpp
 )
-target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_robot_driver)
+target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_lib)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 if(CATKIN_ENABLE_TESTING)
@@ -149,11 +119,11 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_gtest(test_rtde_client
     test/test_rtde_client.cpp
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
-  target_link_libraries(test_rtde_client ${catkin_LIBRARIES} ur_robot_driver)
+  target_link_libraries(test_rtde_client ${catkin_LIBRARIES} ur_lib)
 endif()
 
 
-install(TARGETS ur_robot_driver ur_robot_driver_plugin ur_robot_driver_node robot_state_helper dashboard_client
+install(TARGETS ur_robot_driver_plugin ur_robot_driver_node robot_state_helper dashboard_client
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

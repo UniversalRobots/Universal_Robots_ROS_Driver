@@ -29,7 +29,7 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <ur_robot_driver/ur/datatypes.h>
+#include <ur_lib/ur/datatypes.h>
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
 #include <ur_dashboard_msgs/SetModeAction.h>
