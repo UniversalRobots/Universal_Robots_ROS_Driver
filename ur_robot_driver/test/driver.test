@@ -5,7 +5,7 @@
     -->
 
   <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
-    <arg name="robot_ip" value="192.168.56.101"/>
+    <arg name="robot_ip" value="192.168.56.103"/>
     <arg name="headless_mode" value="true"/>
   </include>
 
