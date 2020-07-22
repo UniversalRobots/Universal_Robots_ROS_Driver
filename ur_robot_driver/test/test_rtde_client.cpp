@@ -18,7 +18,7 @@
 
 using namespace ur_driver;
 
-const std::string ROBOT_IP = "172.17.0.2";
+const std::string ROBOT_IP = "192.168.56.101";
 
 TEST(UrRobotDriver, rtde_handshake)
 {
