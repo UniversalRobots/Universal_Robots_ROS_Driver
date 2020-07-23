@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.12)
 project(ur_lib)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/" ${CMAKE_MODULE_PATH})
-#add_definitions( -DROS_BUILD )
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   message("${PROJECT_NAME}: You did not request a specific build type: selecting 'RelWithDebInfo'.")
@@ -50,6 +49,19 @@ target_include_directories( ur_lib PUBLIC
   $<INSTALL_INTERFACE:include>
   ${Boost_INCLUDE_DIRS}
 )
+
+find_package(console_bridge)
+if(console_bridge_FOUND)
+  message("Building with ROS logging support")
+  add_definitions( -DROS_BUILD )
+  target_include_directories( ur_lib PRIVATE
+    ${console_bridge_INCLUDE_DIRS}
+  )
+else()
+  message("Building without ROS logging support")
+endif()
+
+
 target_link_libraries(ur_lib INTERFACE ${Boost_Libraries})
 
 install(TARGETS ur_lib EXPORT ur_lib_targets

@@ -20,13 +20,13 @@
 #include <inttypes.h>
 
 #ifdef ROS_BUILD
-#include <ros/ros.h>
+#include <console_bridge/console.h>
 
-#define LOG_DEBUG ROS_DEBUG
-#define LOG_WARN ROS_WARN
-#define LOG_INFO ROS_INFO
-#define LOG_ERROR ROS_ERROR
-#define LOG_FATAL ROS_FATAL
+#define LOG_DEBUG CONSOLE_BRIDGE_logDebug
+#define LOG_WARN CONSOLE_BRIDGE_logWarn
+#define LOG_INFO CONSOLE_BRIDGE_logInform
+#define LOG_ERROR CONSOLE_BRIDGE_logError
+#define LOG_FATAL CONSOLE_BRIDGE_logError
 
 #else
 

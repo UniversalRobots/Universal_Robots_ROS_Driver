@@ -21,6 +21,7 @@
   <buildtool_depend>cmake</buildtool_depend>
 
   <build_depend>boost</build_depend>
+  <depend>console_bridge</depend>
 
   <export>
     <build_type>cmake</build_type>
