@@ -23,6 +23,7 @@
   <build_depend>boost</build_depend>
 
   <export>
+    <build_type>cmake</build_type>
   </export>
 
 </package>
