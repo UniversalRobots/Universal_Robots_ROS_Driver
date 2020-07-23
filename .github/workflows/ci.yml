@@ -21,14 +21,14 @@ jobs:
           - ROS_DISTRO: kinetic
             UPSTREAM_WORKSPACE: .ci.rosinstall
             ROS_REPO: main
-            DOCKER_RUN_OPTS: --network bridge
-            BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 172.17.0.2'
+            DOCKER_RUN_OPTS: --network static_test_net
+            BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 192.168.56.101'
             IMMEDIATE_TEST_OUTPUT: true
           - ROS_DISTRO: melodic
             UPSTREAM_WORKSPACE: .ci.rosinstall
             ROS_REPO: main
-            DOCKER_RUN_OPTS: --network bridge
-            BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 172.17.0.2'
+            DOCKER_RUN_OPTS: --network static_test_net
+            BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 192.168.56.101'
             IMMEDIATE_TEST_OUTPUT: true
 
     steps:
