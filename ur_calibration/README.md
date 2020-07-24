@@ -31,7 +31,7 @@ exist)
 ```bash
 # Replace your actual catkin_ws folder
 $ cd <catkin_ws>/src
-$ catkin_create_pkg example_organization_ur_launch ur_robot_driver \
+$ catkin_create_pkg example_organization_ur_launch ur_lib \
 -D "Package containing calibrations and launch files for our UR robots."
 # Create a skeleton package
 $ mkdir -p example_organization_ur_launch/etc
@@ -53,7 +53,7 @@ respective launchfile in the driver:
 ```bash
 # Replace your actual catkin_ws folder
 $ cd <catkin_ws>/src/example_organization_ur_launch/launch
-$ roscp ur_robot_driver ur10_bringup.launch ex-ur10-1.launch
+$ roscp ur_lib ur10_bringup.launch ex-ur10-1.launch
 ```
 
 Next, modify the parameter section of the new launchfile to match your actual calibration:
