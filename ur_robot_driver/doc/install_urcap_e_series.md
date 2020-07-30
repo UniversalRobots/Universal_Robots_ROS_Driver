@@ -1,4 +1,4 @@
-# Installing a URCap on a s-Series robot
+# Installing a URCap on a e-Series robot
 
 For using the *ur_robot_driver* with a real robot you need to install the
 **externalcontrol-1.0.2.urcap** which can be found inside the **resources** folder of this driver.
