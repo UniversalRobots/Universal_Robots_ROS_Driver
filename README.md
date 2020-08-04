@@ -181,8 +181,8 @@ For more information on the launch file's parameters see its own documentation.
 
 Once the robot driver is started, load the [previously generated program](#prepare-the-robot) on the
 robot panel that will start the *External Control* program node and execute it. From that moment on
-the robot is fully functional. You can make use of the *Pause* function or even *Stop* (◾) the
-program.  Simply press the *Play* button (▶) again and the ROS driver will reconnect.
+the robot is fully functional. You can make use of the *Pause* function or even *Stop* (:stop_button:) the
+program.  Simply press the *Play* button (:arrow_forward:) again and the ROS driver will reconnect.
 
 Inside the ROS terminal running the driver you should see the output `Robot ready to receive control commands.`
 
