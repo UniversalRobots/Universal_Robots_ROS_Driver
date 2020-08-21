@@ -39,8 +39,10 @@ this could lead to significant path deviation due to multiple reasons:
    effectively get scaled down resulting in a slower execution.
  - The robot could scale down motions based on configured safety limits resulting in a slower motion
    than expected and therefore not reaching the desired target in a control cycle.
- - Motions could not be executed at all, e.g. because the robot is E-stopped or in a protective stop or
-   the program interpreting motion commands is simply not running.
+ - Motions might not be executed at all, e.g. because the robot is E-stopped or in a protective stop
+ - Motion commands sent to the robot might not be interpreted, e.g. because there is no
+   [`external_control`](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#prepare-the-robot)
+   program node running on the robot controller.
  - The program interpreting motion commands could be paused.
 
 The following plot illustrates the problem:
