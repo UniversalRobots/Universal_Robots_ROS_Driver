@@ -58,7 +58,7 @@ additional path deviations. Pausing the program or hitting the E-stop effectivel
 `speed_scaling` being 0 meaning the trajectory will not be continued until the program is continued.
 This way, trajectory executions can be explicitly paused and continued.
 
-With the scaled version of the trajectory controller the use case from above looks like this:
+With the scaled version of the trajectory controller the example motion shown in the previous diagram becomes:
 ![Trajectory execution with scaled_joint_trajectory_controller](doc/traj_with_speed_scaling.png
 "Trajectory execution with scaled_joint_trajectory_controller")
 
