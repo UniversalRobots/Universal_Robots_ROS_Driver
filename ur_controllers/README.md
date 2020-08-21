@@ -6,8 +6,8 @@ robot family. Currently this contains
   * A **speed_scaling_interface** to read the value of the current speed scaling into controllers.
   * A **scaled_joint_command_interface** that provides access to joint values and commands in 
   combination with the speed scaling value.
-  * A **speed_scaling_state_controller** that publishes the current value of the speed scaling
-  to a topic interface.
+  * A **speed_scaling_state_controller** that publishes the current execution speed as reported by
+  the robot to a topic interface. Values are floating points between 0 and 1.
   * A **scaled_joint_trajectory_controller** that is similar to the *joint_trajectory_controller*,
   but it uses the speed scaling reported by the robot to reduce progress in the trajectory.
 
@@ -21,10 +21,13 @@ into the default `ros_control` controller set at some future point.
 This packages offers a couple of specific controllers that will be explained in the following
 sections.
 ### ur_controllers/SpeedScalingStateController
-This controller publishes the current actual execution speed as reported by the robot.
-This is the percentage of the speed slider multiplied with the `target_speed_fraction` that results
-from the robot's speed scaling getting active.
+This controller publishes the current actual execution speed as reported by the robot. Values are
+floating points between 0 and 1.
 
+In the [`ur_robot_driver`](../ur_robot_driver) this is calculated by multiplying the two [RTDE](https://www.universal-robots.com/articles/ur/real-time-data-exchange-rtde-guide/) data
+fields `speed_scaling` (which should be equal to the value shown by the speed slider position on the
+teach pendant) and `target_speed_fraction` (Which is the fraction to which execution gets slowed
+down by the controller).
 ### position_controllers/ScaledJointTrajectoryController and velocity_controllers/ScaledJointTrajectoryController
 These controllers work similar to the well-known
 [`joint_trajectory_controller`](http://wiki.ros.org/joint_trajectory_controller).
