@@ -53,9 +53,9 @@ The graph shows a trajectory with one joint being moved to a target point and ba
 point. As the joint's speed is limited to a very low setting on the teach pendant, speed scaling
 (black line) activates and limits the joint speed (green line). As a result, the target
 trajectory (light blue) doesn't get executed by the robot, but instead the pink trajectory is executed.
-The vertical distance between the light blue line and the pink line is the path error in each time
-frame. We can see that the path deviation gets above 300 degrees at some point and the target point
-at -6 never gets reached.
+The vertical distance between the light blue line and the pink line is the path error in each
+control cycle. We can see that the path deviation gets above 300 degrees at some point and the
+target point at -6 radians never gets reached.
 
 All of the cases mentioned above are addressed by the scaled trajectory versions. Trajectory execution
 can be transparently scaled down using the speed slider on the teach pendant without leading to
@@ -72,5 +72,5 @@ robot reaches the intermediate setpoint instead of returning "too early" as in t
 
 Under the hood this is implemented by proceeding the trajectory not by a full time step but only by
 the fraction determined by the current speed scaling. If speed scaling is currently at 50% then
-interpolation of the current time frame will start half a time step after the beginning of the
-previous time frame.
+interpolation of the current control cycle will start half a time step after the beginning of the
+previous control cycle.
