@@ -35,7 +35,7 @@ TEST(UrRobotDriver, rtde_handshake_wrong_ip)
   comm::INotifier notifier;
   std::string output_recipe = "resources/rtde_output_recipe.txt";
   std::string input_recipe = "resources/rtde_input_recipe.txt";
-  rtde_interface::RTDEClient client("1.2.3.4", notifier, output_recipe, input_recipe);
+  rtde_interface::RTDEClient client("192.168.56.123", notifier, output_recipe, input_recipe);
 
   EXPECT_THROW(client.init(), UrException);
 }
