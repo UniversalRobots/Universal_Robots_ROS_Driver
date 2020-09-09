@@ -92,7 +92,7 @@ private:
   bool connect();
 
   ros::NodeHandle nh_;
-  ur_driver::DashboardClient client_;
+  urcl::DashboardClient client_;
 
   // Commanding services
   ros::ServiceServer add_to_log_service_;

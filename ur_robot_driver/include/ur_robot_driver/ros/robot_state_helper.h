@@ -89,8 +89,8 @@ private:
   void startActionServer();
   bool is_started_;
 
-  RobotMode robot_mode_;
-  SafetyMode safety_mode_;
+  urcl::RobotMode robot_mode_;
+  urcl::SafetyMode safety_mode_;
 
   ros::Subscriber robot_mode_sub_;
   ros::Subscriber safety_mode_sub_;

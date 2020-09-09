@@ -33,8 +33,8 @@ namespace ur_driver
 RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
   : nh_(nh)
   , is_started_(false)
-  , robot_mode_(RobotMode::UNKNOWN)
-  , safety_mode_(SafetyMode::UNDEFINED_SAFETY_MODE)
+  , robot_mode_(urcl::RobotMode::UNKNOWN)
+  , safety_mode_(urcl::SafetyMode::UNDEFINED_SAFETY_MODE)
   , set_mode_as_(nh_, "set_mode", false)
 {
   // Topic on which the robot_mode is published by the driver
@@ -64,9 +64,9 @@ RobotStateHelper::RobotStateHelper(const ros::NodeHandle& nh)
 
 void RobotStateHelper::robotModeCallback(const ur_dashboard_msgs::RobotMode& msg)
 {
-  if (robot_mode_ != static_cast<RobotMode>(msg.mode))
+  if (robot_mode_ != static_cast<urcl::RobotMode>(msg.mode))
   {
-    robot_mode_ = RobotMode(msg.mode);
+    robot_mode_ = urcl::RobotMode(msg.mode);
     ROS_INFO_STREAM("Robot mode is now " << robotModeString(robot_mode_));
     updateRobotState();
     if (!is_started_)
@@ -78,9 +78,9 @@ void RobotStateHelper::robotModeCallback(const ur_dashboard_msgs::RobotMode& msg
 
 void RobotStateHelper::safetyModeCallback(const ur_dashboard_msgs::SafetyMode& msg)
 {
-  if (safety_mode_ != static_cast<SafetyMode>(msg.mode))
+  if (safety_mode_ != static_cast<urcl::SafetyMode>(msg.mode))
   {
-    safety_mode_ = SafetyMode(msg.mode);
+    safety_mode_ = urcl::SafetyMode(msg.mode);
     ROS_INFO_STREAM("Robot's safety mode is now " << safetyModeString(safety_mode_));
     updateRobotState();
     if (!is_started_)
@@ -101,19 +101,21 @@ void RobotStateHelper::updateRobotState()
         static_cast<ur_dashboard_msgs::SetModeFeedback::_current_safety_mode_type>(safety_mode_);
     set_mode_as_.publishFeedback(feedback_);
 
-    if (robot_mode_ < static_cast<RobotMode>(goal_->target_robot_mode) || safety_mode_ > SafetyMode::REDUCED)
+    if (robot_mode_ < static_cast<urcl::RobotMode>(goal_->target_robot_mode) ||
+        safety_mode_ > urcl::SafetyMode::REDUCED)
     {
       // Transition to next mode
-      ROS_DEBUG_STREAM("Current robot mode is " << robotModeString(robot_mode_) << " while target mode is "
-                                                << robotModeString(static_cast<RobotMode>(goal_->target_robot_mode)));
+      ROS_DEBUG_STREAM("Current robot mode is "
+                       << robotModeString(robot_mode_) << " while target mode is "
+                       << robotModeString(static_cast<urcl::RobotMode>(goal_->target_robot_mode)));
       doTransition();
     }
-    else if (robot_mode_ == static_cast<RobotMode>(goal_->target_robot_mode))
+    else if (robot_mode_ == static_cast<urcl::RobotMode>(goal_->target_robot_mode))
     {
       // Final mode reached
       result_.success = true;
       result_.message = "Reached target robot mode.";
-      if (robot_mode_ == RobotMode::RUNNING && goal_->play_program)
+      if (robot_mode_ == urcl::RobotMode::RUNNING && goal_->play_program)
       {
         // The dashboard denies playing immediately after switching the mode to RUNNING
         sleep(1);
@@ -139,7 +141,7 @@ void RobotStateHelper::updateRobotState()
 
 void RobotStateHelper::doTransition()
 {
-  if (static_cast<RobotMode>(goal_->target_robot_mode) < robot_mode_)
+  if (static_cast<urcl::RobotMode>(goal_->target_robot_mode) < robot_mode_)
   {
     // Go through power_off if lower mode is requested
     safeDashboardTrigger(&this->power_off_srv_);
@@ -148,47 +150,47 @@ void RobotStateHelper::doTransition()
   {
     switch (safety_mode_)
     {
-      case SafetyMode::PROTECTIVE_STOP:
+      case urcl::SafetyMode::PROTECTIVE_STOP:
         safeDashboardTrigger(&this->unlock_protective_stop_srv_);
         break;
-      case SafetyMode::SYSTEM_EMERGENCY_STOP:
-      case SafetyMode::ROBOT_EMERGENCY_STOP:
+      case urcl::SafetyMode::SYSTEM_EMERGENCY_STOP:
+      case urcl::SafetyMode::ROBOT_EMERGENCY_STOP:
         ROS_WARN_STREAM("The robot is currently in safety mode " << safetyModeString(safety_mode_)
                                                                  << ". Please release the EM-Stop to proceed.");
         break;
-      case SafetyMode::VIOLATION:
-      case SafetyMode::FAULT:
+      case urcl::SafetyMode::VIOLATION:
+      case urcl::SafetyMode::FAULT:
         safeDashboardTrigger(&this->restart_safety_srv_);
         break;
       default:
         switch (robot_mode_)
         {
-          case RobotMode::CONFIRM_SAFETY:
+          case urcl::RobotMode::CONFIRM_SAFETY:
             ROS_WARN_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
                                                               << ". It is required to interact with the teach pendant "
                                                                  "at this point.");
             break;
-          case RobotMode::BOOTING:
+          case urcl::RobotMode::BOOTING:
             ROS_INFO_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
                                                               << ". Please wait until the robot is booted up...");
             break;
-          case RobotMode::POWER_OFF:
+          case urcl::RobotMode::POWER_OFF:
             safeDashboardTrigger(&this->power_on_srv_);
             break;
-          case RobotMode::POWER_ON:
+          case urcl::RobotMode::POWER_ON:
             ROS_INFO_STREAM("The robot is currently in mode " << robotModeString(robot_mode_)
                                                               << ". Please wait until the robot is in mode "
-                                                              << robotModeString(RobotMode::IDLE));
+                                                              << robotModeString(urcl::RobotMode::IDLE));
             break;
-          case RobotMode::IDLE:
+          case urcl::RobotMode::IDLE:
             safeDashboardTrigger(&this->brake_release_srv_);
             break;
-          case RobotMode::BACKDRIVE:
+          case urcl::RobotMode::BACKDRIVE:
             ROS_INFO_STREAM("The robot is currently in mode "
                             << robotModeString(robot_mode_) << ". It will automatically return to mode "
-                            << robotModeString(RobotMode::IDLE) << " once the teach button is released.");
+                            << robotModeString(urcl::RobotMode::IDLE) << " once the teach button is released.");
             break;
-          case RobotMode::RUNNING:
+          case urcl::RobotMode::RUNNING:
             ROS_INFO_STREAM("The robot has reached operational mode " << robotModeString(robot_mode_));
             break;
           default:
@@ -205,15 +207,15 @@ void RobotStateHelper::setModeGoalCallback()
 {
   goal_ = set_mode_as_.acceptNewGoal();
 
-  RobotMode target_mode = static_cast<RobotMode>(goal_->target_robot_mode);
+  urcl::RobotMode target_mode = static_cast<urcl::RobotMode>(goal_->target_robot_mode);
 
   // Do some input sanitation first.
   switch (target_mode)
   {
-    case RobotMode::POWER_OFF:
-    case RobotMode::IDLE:
-    case RobotMode::RUNNING:
-      if (robot_mode_ != target_mode || safety_mode_ > SafetyMode::REDUCED)
+    case urcl::RobotMode::POWER_OFF:
+    case urcl::RobotMode::IDLE:
+    case urcl::RobotMode::RUNNING:
+      if (robot_mode_ != target_mode || safety_mode_ > urcl::SafetyMode::REDUCED)
       {
         if (goal_->stop_program)
         {
@@ -228,13 +230,13 @@ void RobotStateHelper::setModeGoalCallback()
         updateRobotState();
       }
       break;
-    case RobotMode::NO_CONTROLLER:
-    case RobotMode::DISCONNECTED:
-    case RobotMode::CONFIRM_SAFETY:
-    case RobotMode::BOOTING:
-    case RobotMode::POWER_ON:
-    case RobotMode::BACKDRIVE:
-    case RobotMode::UPDATING_FIRMWARE:
+    case urcl::RobotMode::NO_CONTROLLER:
+    case urcl::RobotMode::DISCONNECTED:
+    case urcl::RobotMode::CONFIRM_SAFETY:
+    case urcl::RobotMode::BOOTING:
+    case urcl::RobotMode::POWER_ON:
+    case urcl::RobotMode::BACKDRIVE:
+    case urcl::RobotMode::UPDATING_FIRMWARE:
       result_.message =
           "Requested target mode " + robotModeString(target_mode) + " which cannot be explicitly selected.";
       result_.success = false;
@@ -272,7 +274,7 @@ bool RobotStateHelper::safeDashboardTrigger(ros::ServiceClient* srv_client)
 
 void RobotStateHelper::startActionServer()
 {
-  if (robot_mode_ != RobotMode::UNKNOWN && safety_mode_ != SafetyMode::UNDEFINED_SAFETY_MODE)
+  if (robot_mode_ != urcl::RobotMode::UNKNOWN && safety_mode_ != urcl::SafetyMode::UNDEFINED_SAFETY_MODE)
   {
     set_mode_as_.start();
     is_started_ = true;

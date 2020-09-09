@@ -42,7 +42,7 @@
 
 namespace fs = boost::filesystem;
 
-using namespace ur_driver;
+using namespace urcl;
 using namespace primary_interface;
 using namespace ur_calibration;
 
