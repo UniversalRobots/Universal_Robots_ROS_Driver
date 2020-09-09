@@ -29,7 +29,7 @@ find_package(catkin REQUIRED
     ur_msgs
 )
 find_package(Boost REQUIRED)
-find_package(ur_lib REQUIRED)
+find_package(ur_client_library REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -55,7 +55,7 @@ catkin_package(
     std_srvs
   DEPENDS
     Boost
-    ur_lib
+    ur_client_library
 )
 
 # check c++11 / c++0x
@@ -85,7 +85,7 @@ add_library(ur_robot_driver_plugin
   src/ros/dashboard_client_ros.cpp
   src/ros/hardware_interface.cpp
 )
-target_link_libraries(ur_robot_driver_plugin ur_lib::ur_lib ${catkin_LIBRARIES})
+target_link_libraries(ur_robot_driver_plugin ur_client_library::urcl ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(ur_robot_driver_node
@@ -93,21 +93,21 @@ add_executable(ur_robot_driver_node
   src/ros/hardware_interface.cpp
   src/ros/hardware_interface_node.cpp
 )
-target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_lib::ur_lib)
+target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(dashboard_client
   src/ros/dashboard_client_ros.cpp
   src/ros/dashboard_client_node.cpp
 )
-target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_lib::ur_lib)
+target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(robot_state_helper
   src/ros/robot_state_helper.cpp
   src/ros/robot_state_helper_node.cpp
 )
-target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_lib::ur_lib)
+target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 if(CATKIN_ENABLE_TESTING)
@@ -118,7 +118,7 @@ if(CATKIN_ENABLE_TESTING)
   catkin_add_gtest(test_rtde_client
     test/test_rtde_client.cpp
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
-  target_link_libraries(test_rtde_client ${catkin_LIBRARIES} ur_lib::ur_lib)
+  target_link_libraries(test_rtde_client ${catkin_LIBRARIES} ur_client_library::urcl)
 endif()
 
 

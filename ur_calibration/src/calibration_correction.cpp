@@ -27,12 +27,12 @@
 
 #include <ur_calibration/calibration_consumer.h>
 
-#include <ur_lib/comm/parser.h>
-#include <ur_lib/comm/pipeline.h>
-#include <ur_lib/comm/producer.h>
-#include <ur_lib/comm/stream.h>
-#include <ur_lib/primary/package_header.h>
-#include <ur_lib/primary/primary_parser.h>
+#include <ur_client_library/comm/parser.h>
+#include <ur_client_library/comm/pipeline.h>
+#include <ur_client_library/comm/producer.h>
+#include <ur_client_library/comm/stream.h>
+#include <ur_client_library/primary/package_header.h>
+#include <ur_client_library/primary/primary_parser.h>
 
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>

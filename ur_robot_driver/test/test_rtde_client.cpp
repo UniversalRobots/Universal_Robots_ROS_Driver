@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 
-#include <ur_lib/rtde/rtde_client.h>
+#include <ur_client_library/rtde/rtde_client.h>
 
 using namespace ur_driver;
 

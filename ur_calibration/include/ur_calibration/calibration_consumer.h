@@ -27,9 +27,9 @@
 
 #ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
 #define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_lib/comm/pipeline.h>
+#include <ur_client_library/comm/pipeline.h>
 
-#include <ur_lib/primary/robot_state/kinematics_info.h>
+#include <ur_client_library/primary/robot_state/kinematics_info.h>
 
 #include <ur_calibration/calibration.h>
 

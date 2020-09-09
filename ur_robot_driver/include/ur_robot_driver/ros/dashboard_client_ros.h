@@ -34,7 +34,7 @@
 #include <std_srvs/Trigger.h>
 #include <std_srvs/Empty.h>
 
-#include <ur_lib/ur/dashboard_client.h>
+#include <ur_client_library/ur/dashboard_client.h>
 
 #include <ur_dashboard_msgs/AddToLog.h>
 #include <ur_dashboard_msgs/GetLoadedProgram.h>
