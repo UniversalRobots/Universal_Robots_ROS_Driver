@@ -121,7 +121,7 @@ $ source devel/setup.bash
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
 For using the *ur_robot_driver* with a real robot you need to install the
-**externalcontrol-1.0.2.urcap** which can be found inside the **resources** folder of this driver.
+**externalcontrol-1.0.4.urcap** which can be found inside the **resources** folder of this driver.
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of e-Series) is
 necessary.
