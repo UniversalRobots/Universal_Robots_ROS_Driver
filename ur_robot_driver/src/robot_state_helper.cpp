@@ -25,7 +25,7 @@
  */
 //----------------------------------------------------------------------
 
-#include <ur_robot_driver/ros/robot_state_helper.h>
+#include <ur_robot_driver/robot_state_helper.h>
 
 #include <std_srvs/Trigger.h>
 namespace ur_driver

@@ -25,7 +25,7 @@
  */
 //----------------------------------------------------------------------
 #include <pluginlib/class_list_macros.hpp>
-#include <ur_robot_driver/ros/hardware_interface.h>
+#include <ur_robot_driver/hardware_interface.h>
 #include <ur_client_library/ur/tool_communication.h>
 #include <ur_client_library/exceptions.h>
 

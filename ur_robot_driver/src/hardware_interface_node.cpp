@@ -28,7 +28,7 @@
 #include <controller_manager/controller_manager.h>
 
 #include <csignal>
-#include <ur_robot_driver/ros/hardware_interface.h>
+#include <ur_robot_driver/hardware_interface.h>
 
 std::unique_ptr<ur_driver::HardwareInterface> g_hw_interface;
 

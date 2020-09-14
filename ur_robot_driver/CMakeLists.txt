@@ -82,30 +82,30 @@ include_directories(
 )
 
 add_library(ur_robot_driver_plugin
-  src/ros/dashboard_client_ros.cpp
-  src/ros/hardware_interface.cpp
+  src/dashboard_client_ros.cpp
+  src/hardware_interface.cpp
 )
 target_link_libraries(ur_robot_driver_plugin ur_client_library::urcl ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(ur_robot_driver_node
-  src/ros/dashboard_client_ros.cpp
-  src/ros/hardware_interface.cpp
-  src/ros/hardware_interface_node.cpp
+  src/dashboard_client_ros.cpp
+  src/hardware_interface.cpp
+  src/hardware_interface_node.cpp
 )
 target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(dashboard_client
-  src/ros/dashboard_client_ros.cpp
-  src/ros/dashboard_client_node.cpp
+  src/dashboard_client_ros.cpp
+  src/dashboard_client_node.cpp
 )
 target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(robot_state_helper
-  src/ros/robot_state_helper.cpp
-  src/ros/robot_state_helper_node.cpp
+  src/robot_state_helper.cpp
+  src/robot_state_helper_node.cpp
 )
 target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

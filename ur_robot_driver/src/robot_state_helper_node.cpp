@@ -20,24 +20,22 @@
 /*!\file
  *
  * \author  Felix Exner exner@fzi.de
- * \date    2019-10-21
+ * \date    2019-11-04
  *
  */
 //----------------------------------------------------------------------
 
-#include <ros/ros.h>
-#include <ur_robot_driver/ros/dashboard_client_ros.h>
+#include <ur_robot_driver/robot_state_helper.h>
+
+using namespace ur_driver;
 
 int main(int argc, char** argv)
 {
   // Set up ROS.
-  ros::init(argc, argv, "dashboard_client");
-  ros::NodeHandle priv_nh("~");
+  ros::init(argc, argv, "ur_robot_state_helper");
+  ros::NodeHandle nh;
 
-  // The IP address under which the robot is reachable.
-  std::string robot_ip = priv_nh.param<std::string>("robot_ip", "192.168.56.101");
-
-  ur_driver::DashboardClientROS client(priv_nh, robot_ip);
+  RobotStateHelper state_helper(nh);
 
   ros::spin();
   return 0;

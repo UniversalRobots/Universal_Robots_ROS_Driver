@@ -49,7 +49,7 @@
 #include <ur_controllers/scaled_joint_command_interface.h>
 
 #include <ur_client_library/ur/ur_driver.h>
-#include <ur_robot_driver/ros/dashboard_client_ros.h>
+#include <ur_robot_driver/dashboard_client_ros.h>
 
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
