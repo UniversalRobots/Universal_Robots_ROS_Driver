@@ -38,16 +38,3 @@ jobs:
           .github/dockerursim/build_and_run_docker_ursim.sh
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
-
-
-  check_urls:
-    runs-on: ubuntu-latest
-    steps:
-     - uses: actions/checkout@v1
-     - name: check URLs
-       run: |
-         echo "$(pwd)"
-         ls -l
-         ur_robot_driver/scripts/check_urls.sh -r ur_robot_driver/src/ur
-       #working-directory: ./ur_robot_driver
-
