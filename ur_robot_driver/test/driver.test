@@ -14,5 +14,5 @@
 
   <test test-name="switch_on_test" pkg="ur_robot_driver" type="switch_on_test.py" name="switch_on_test1" time-limit="60.0"/>
   <test test-name="io_test" pkg="ur_robot_driver" type="io_test.py" name="io_test1" time-limit="60.0"/>
-  <test test-name="trajectory_test" pkg="ur_robot_driver" type="trajectory_test.py" name="traj_test1" time-limit="120.0"/>
+  <!--<test test-name="trajectory_test" pkg="ur_robot_driver" type="trajectory_test.py" name="traj_test1" time-limit="120.0"/>-->
 </launch>
