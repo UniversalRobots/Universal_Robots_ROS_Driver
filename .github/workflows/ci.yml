@@ -19,7 +19,14 @@ jobs:
       matrix:
         env:
           - ROS_DISTRO: kinetic
-            UPSTREAM_WORKSPACE: .ci.rosinstall
+            UPSTREAM_WORKSPACE: .ur_client_library.rosinstall
+            ROS_REPO: main
+            DOCKER_RUN_OPTS: --network static_test_net
+            BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 192.168.56.101'
+            IMMEDIATE_TEST_OUTPUT: true
+            ROSDEP_SKIP_KEYS: ur_client_library
+          - ROS_DISTRO: melodic
+            UPSTREAM_WORKSPACE: .ur_client_library.rosinstall
             ROS_REPO: main
             DOCKER_RUN_OPTS: --network static_test_net
             BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 192.168.56.101'
@@ -27,11 +34,10 @@ jobs:
             ROSDEP_SKIP_KEYS: ur_client_library
           - ROS_DISTRO: melodic
             UPSTREAM_WORKSPACE: .ci.rosinstall
-            ROS_REPO: main
+            ROS_REPO: testing
             DOCKER_RUN_OPTS: --network static_test_net
             BEFORE_INIT: 'apt-get update -qq && apt-get install -y iproute2 iputils-ping && ip addr && ping -c5 192.168.56.101'
             IMMEDIATE_TEST_OUTPUT: true
-            ROSDEP_SKIP_KEYS: ur_client_library
 
     steps:
       - uses: actions/checkout@v1
