@@ -853,6 +853,10 @@ Should the tool's RS485 interface be forwarded to the ROS machine? This is only 
 
 Whenever the runtime state of the "External Control" program node in the UR-program changes, a message gets published here. So this is equivalent to the information whether the robot accepts commands from ROS side.
 
+ * "**runtime_state**" ([std_msgs/UInt32](http://docs.ros.org/api/std_msgs/html/msg/UInt32.html))
+
+    State of *any* active program on the controller, as defined in the RTDE. (0 - stopping, 1 - stopped, 2 - playing, 3 - pausing, 4 - paused, 5 - resuming)
+
 #### Subscribed topics
 
 ##### script_command ([std_msgs/String](http://docs.ros.org/api/std_msgs/html/msg/String.html))
