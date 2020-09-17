@@ -70,7 +70,7 @@ public:
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            std::unique_ptr<ToolCommSetup> tool_comm_setup, const std::string& calibration_checksum = "",
            const uint32_t reverse_port = 50001, const uint32_t script_sender_port = 50002, int servoj_gain = 2000,
-           double servoj_lookahead_time = 0.03, bool non_blocking_read = false);
+           double servoj_lookahead_time = 0.03, bool non_blocking_read = false, const std::string& reverse_ip = "");
   /*!
    * \brief Constructs a new UrDriver object.
    *
@@ -94,10 +94,10 @@ public:
            const std::string& input_recipe_file, std::function<void(bool)> handle_program_state, bool headless_mode,
            const std::string& calibration_checksum = "", const uint32_t reverse_port = 50001,
            const uint32_t script_sender_port = 50002, int servoj_gain = 2000, double servoj_lookahead_time = 0.03,
-           bool non_blocking_read = false)
+           bool non_blocking_read = false, const std::string& reverse_ip = "")
     : UrDriver(robot_ip, script_file, output_recipe_file, input_recipe_file, handle_program_state, headless_mode,
                std::unique_ptr<ToolCommSetup>{}, calibration_checksum, reverse_port, script_sender_port, servoj_gain,
-               servoj_lookahead_time, non_blocking_read)
+               servoj_lookahead_time, non_blocking_read, reverse_ip)
   {
   }
 

@@ -72,6 +72,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   joint_efforts_ = { { 0, 0, 0, 0, 0, 0 } };
   std::string script_filename;
   std::string wrench_frame_id;
+  std::string reverse_ip;
   std::string output_recipe_filename;
   std::string input_recipe_filename;
 
@@ -81,6 +82,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("robot_ip_") << " not given.");
     return false;
   }
+
+  // IP that will be used for the robot controller to communicate back to the driver.
+  robot_hw_nh.param<std::string>("reverse_ip", reverse_ip, "");
 
   // Port that will be opened to communicate between the driver and the robot controller.
   int reverse_port = robot_hw_nh.param("reverse_port", 50001);
@@ -260,7 +264,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                   std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
                                   headless_mode, std::move(tool_comm_setup), calibration_checksum,
                                   (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
-                                  servoj_lookahead_time, non_blocking_read_));
+                                  servoj_lookahead_time, non_blocking_read_, reverse_ip));
   }
   catch (ur_driver::ToolCommNotAvailable& e)
   {

@@ -4,6 +4,7 @@
   <arg name="use_tool_communication" doc="On e-Series robots tool communication can be enabled with this argument"/>
   <arg name="controller_config_file" doc="Config file used for defining the ROS-Control controllers."/>
   <arg name="robot_ip" doc="IP address by which the robot can be reached."/>
+  <arg name="reverse_ip" default="" doc="IP of the driver, if set to empty it will detect it automatically."/>
   <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
   <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="kinematics_config" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
@@ -37,6 +38,7 @@
     <arg name="controller_config_file" value="$(arg controller_config_file)"/>
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="reverse_port" value="$(arg reverse_port)"/>
+    <arg name="reverse_ip" value="$(arg reverse_ip)"/>
     <arg name="script_sender_port" value="$(arg script_sender_port)"/>
     <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
