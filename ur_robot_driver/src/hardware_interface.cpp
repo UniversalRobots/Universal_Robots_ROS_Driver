@@ -393,7 +393,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         std::stringstream cmd;
         cmd.imbue(std::locale::classic());  // Make sure, decimal divider is actually '.'
         cmd << "sec setup():" << std::endl
-            << " set_payload(" << req.payload << ", [" << req.center_of_gravity.x << ", " << req.center_of_gravity.y
+            << " set_payload(" << req.mass << ", [" << req.center_of_gravity.x << ", " << req.center_of_gravity.y
             << ", " << req.center_of_gravity.z << "])" << std::endl
             << "end";
         resp.success = this->ur_driver_->sendScript(cmd.str());
