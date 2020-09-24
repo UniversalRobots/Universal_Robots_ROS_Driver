@@ -16,6 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         env:
           - ROS_DISTRO: kinetic
