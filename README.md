@@ -3,7 +3,7 @@
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
-<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Series family" style="width: 45%;"/></center>
+<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.jpg" alt="Universal Robot e-Series family" style="width: 80%;"/></center>
 
 With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
@@ -91,6 +91,15 @@ To make sure that robot control isn't affected by system latencies, it is highly
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
+## Preliminary UR16e support
+This driver supports all UR variants including the UR16e. However, upstream support for the UR16e is
+not finished, yet. When using the UR16e there is currently no support for gazebo or MoveIt!.
+
+See [#97](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/pull/97) for details on
+using the latest upstream develop branch of
+[ros_industrial/universal_robot](https://github.com/ros-industrial/universal_robot) which includes
+gazebo support for the ur16e, but no working MoveIt! support at the time of writing.
+
 ## Building
 
 ```bash
@@ -166,7 +175,7 @@ To actually start the robot driver use one of the existing launch files
 
     $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101
 
-where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
+where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e, ur16e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example".
 
 If you calibrated your robot before, pass that calibration to the launch file:
