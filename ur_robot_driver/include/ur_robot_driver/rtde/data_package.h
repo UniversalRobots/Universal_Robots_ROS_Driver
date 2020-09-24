@@ -103,6 +103,19 @@ public:
   size_t serializePackage(uint8_t* buffer);
 
   /*!
+   * \brief Check if a specific data field is of a given type.
+   *
+   * \param name The string identifier for the data field as used in the documentation.
+   *
+   * \returns True, if the data field is of the given type, false otherwise.
+   */
+  template <typename T>
+  static bool isType(const std::string& name)
+  {
+    return g_type_list[name].which() == _rtde_type_variant(T()).which();
+  }
+
+  /*!
    * \brief Get a data field from the DataPackage.
    *
    * The data package contains a lot of different data fields, depending on the recipe.
@@ -114,11 +127,11 @@ public:
    * \returns True on success, false if the field cannot be found inside the package.
    */
   template <typename T>
-  bool getData(const std::string& name, T& val)
+  bool getData(const std::string& name, T& val) const
   {
     if (data_.find(name) != data_.end())
     {
-      val = boost::strict_get<T>(data_[name]);
+      val = boost::strict_get<T>(data_.at(name));
     }
     else
     {
@@ -139,13 +152,13 @@ public:
    * \returns True on success, false if the field cannot be found inside the package.
    */
   template <typename T, size_t N>
-  bool getData(const std::string& name, std::bitset<N>& val)
+  bool getData(const std::string& name, std::bitset<N>& val) const
   {
     static_assert(sizeof(T) * 8 >= N, "Bitset is too large for underlying variable");
 
     if (data_.find(name) != data_.end())
     {
-      val = std::bitset<N>(boost::strict_get<T>(data_[name]));
+      val = std::bitset<N>(boost::strict_get<T>(data_.at(name)));
     }
     else
     {

@@ -53,6 +53,7 @@
 
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
+#include "ur_robot_driver/ros/data_package_publisher.h"
 
 #include <industrial_robot_status_interface/industrial_robot_status_interface.h>
 
@@ -259,6 +260,7 @@ protected:
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>> robot_mode_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>> safety_mode_pub_;
+  std::unique_ptr<rtde_interface::DataPackagePublisher> rtde_data_pub_;
 
   ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;

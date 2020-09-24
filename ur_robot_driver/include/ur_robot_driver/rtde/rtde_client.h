@@ -151,6 +151,16 @@ public:
    */
   RTDEWriter& getWriter();
 
+  /*!
+   * \brief Getter for the RTDE output recipe.
+   *
+   * \returns The output recipe
+   */
+  std::vector<std::string> getOutputRecipe()
+  {
+    return output_recipe_;
+  }
+
 private:
   comm::URStream<RTDEPackage> stream_;
   std::vector<std::string> output_recipe_;

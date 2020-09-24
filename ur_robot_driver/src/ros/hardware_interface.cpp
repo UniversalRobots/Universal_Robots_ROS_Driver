@@ -359,6 +359,40 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   safety_mode_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_dashboard_msgs::SafetyMode>(robot_hw_nh, "safety_mode", 1, true));
 
+  // As we automatically create publishers for raw data of additional fields, we prevent republishing data
+  // that has already been published on ROS-interfaces. This list has to be kept updated by hand.
+  std::string already_published[] = { "actual_q",
+                                      "actual_qd",
+                                      "target_speed_fraction",
+                                      "speed_scaling",
+                                      "runtime_state",
+                                      "actual_TCP_force",
+                                      "actual_TCP_pose",
+                                      "standard_analog_input0",
+                                      "standard_analog_input1",
+                                      "standard_analog_output0",
+                                      "standard_analog_output1",
+                                      "tool_mode",
+                                      "tool_analog_input0",
+                                      "tool_analog_input1",
+                                      "tool_output_voltage",
+                                      "tool_output_current",
+                                      "tool_temperature",
+                                      "actual_digital_input_bits",
+                                      "actual_digital_output_bits",
+                                      "analog_io_types",
+                                      "tool_analog_input_types",
+                                      "robot_mode",
+                                      "safety_mode" };
+  std::vector<std::string> recipe = ur_driver_->getRTDEOutputRecipe();
+  for (auto s : already_published)
+  {
+    recipe.erase(std::remove(recipe.begin(), recipe.end(), s), recipe.end());
+  }
+  // create node_handle in rtde_data namespace
+  ros::NodeHandle rtde_nh(robot_hw_nh, "rtde_data");
+  rtde_data_pub_.reset(new rtde_interface::DataPackagePublisher(recipe, rtde_nh));
+
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
   // doing. Using this with other controllers might lead to unexpected behaviors.
@@ -477,6 +511,8 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+
+    rtde_data_pub_->publishData(*data_pkg);
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))

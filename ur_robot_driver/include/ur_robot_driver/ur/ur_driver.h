@@ -202,6 +202,13 @@ public:
     return robot_version_;
   }
 
+  /*!
+   * \brief Getter for the RTDE output recipe used in the RTDE client.
+   *
+   * \returns The used RTDE output recipe
+   */
+  std::vector<std::string> getRTDEOutputRecipe();
+
 private:
   std::string readScriptFile(const std::string& filename);
   std::string readKeepalive();
