@@ -34,6 +34,13 @@
 
 /* Author: Dave Coleman
    Desc:   Helper ros_control hardware interface that loads configurations
+
+   Note: The code used here is originally from
+   https://github.com/PickNikRobotics/ros_control_boilerplate/blob/melodic-devel/src/generic_hw_interface.cpp
+   with slight modifications
+   1. Removed references to EffortJointInterface, since it's not supported on URs
+   2. Changed logic to get "robot_description" param from parameter server
+      - removed the additional getparam condition in case searchParam fails
 */
 
 #include "ur_robot_driver/ros/hardware_interface.h"

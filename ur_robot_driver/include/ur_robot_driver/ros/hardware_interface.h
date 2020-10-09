@@ -162,7 +162,7 @@ public:
 
 protected:
   /*!
-   * \brief Applies joint limits & soft joint limits on position, velocity & effort defined in URDF / parameter server
+   * \brief Registers joint limits & soft joint limits on position, velocity & effort defined in URDF / parameter server
    *
    */
   void registerJointLimits(ros::NodeHandle& robot_hw_nh, const hardware_interface::JointHandle& joint_handle_position,

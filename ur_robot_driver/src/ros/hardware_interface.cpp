@@ -76,7 +76,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   std::string input_recipe_filename;
 
   // Load URDF file from parameter server
-  loadURDF(robot_hw_nh, "robot_description");
+  loadURDF(root_nh, "robot_description");
 
   // The robot's IP address.
   if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
