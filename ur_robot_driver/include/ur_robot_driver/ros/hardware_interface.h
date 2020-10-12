@@ -45,8 +45,13 @@
 #include <ur_msgs/SetIO.h>
 #include "ur_msgs/SetSpeedSliderFraction.h"
 
+#include <urdf/model.h>
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
+#include <joint_limits_interface/joint_limits.h>
+#include <joint_limits_interface/joint_limits_interface.h>
+#include <joint_limits_interface/joint_limits_rosparam.h>
+#include <joint_limits_interface/joint_limits_urdf.h>
 
 #include "ur_robot_driver/ur/ur_driver.h"
 #include <ur_robot_driver/ros/dashboard_client_ros.h>
@@ -157,6 +162,19 @@ public:
 
 protected:
   /*!
+   * \brief Registers joint limits & soft joint limits on position, velocity & effort defined in URDF / parameter server
+   *
+   */
+  void registerJointLimits(ros::NodeHandle& robot_hw_nh, const hardware_interface::JointHandle& joint_handle_position,
+                           const hardware_interface::JointHandle& joint_handle_velocity, std::size_t joint_id);
+
+  /*!
+   * \brief Loads URDF model from robot_description parameter
+   *
+   * Requires robot_description paramter to be set on the parameter server
+   */
+  void loadURDF(ros::NodeHandle& nh, std::string param_name);
+  /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame.
    *
    * Requires extractToolPose() to be run first.
@@ -223,6 +241,21 @@ protected:
   hardware_interface::VelocityJointInterface vj_interface_;
   ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
+
+  // Joint limits interfaces - Saturation
+  joint_limits_interface::PositionJointSaturationInterface pos_jnt_sat_interface_;
+  joint_limits_interface::VelocityJointSaturationInterface vel_jnt_sat_interface_;
+
+  // Joint limits interfaces - Soft limits
+  joint_limits_interface::PositionJointSoftLimitsInterface pos_jnt_soft_interface_;
+  joint_limits_interface::VelocityJointSoftLimitsInterface vel_jnt_soft_interface_;
+
+  // Copy of limits, in case we need them later in our control stack
+  std::vector<double> joint_position_lower_limits_;
+  std::vector<double> joint_position_upper_limits_;
+  std::vector<double> joint_velocity_limits_;
+
+  urdf::Model* urdf_model_;
 
   vector6d_t joint_position_command_;
   vector6d_t joint_velocity_command_;

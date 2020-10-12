@@ -63,6 +63,9 @@ HardwareInterface::HardwareInterface()
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
+  , joint_position_lower_limits_(6)
+  , joint_position_upper_limits_(6)
+  , joint_velocity_limits_(6)
 {
 }
 
@@ -74,6 +77,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   std::string wrench_frame_id;
   std::string output_recipe_filename;
   std::string input_recipe_filename;
+
+  // Load URDF file from parameter server
+  loadURDF(root_nh, "robot_description");
 
   // The robot's IP address.
   if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
@@ -301,14 +307,18 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                                                                       &joint_velocities_[i], &joint_efforts_[i]));
 
     // Create joint position control interface
-    pj_interface_.registerHandle(
-        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
-    vj_interface_.registerHandle(
-        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
+    hardware_interface::JointHandle joint_handle_position =
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]);
+    pj_interface_.registerHandle(joint_handle_position);
+    hardware_interface::JointHandle joint_handle_velocity =
+        hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]);
+    vj_interface_.registerHandle(joint_handle_velocity);
     spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
     svj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i], &speed_scaling_combined_));
+
+    registerJointLimits(robot_hw_nh, joint_handle_position, joint_handle_velocity, i);
   }
 
   speedsc_interface_.registerHandle(
@@ -538,10 +548,14 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
   {
     if (position_controller_running_)
     {
+      pos_jnt_soft_interface_.enforceLimits(period);
+      pos_jnt_sat_interface_.enforceLimits(period);
       ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
     }
     else if (velocity_controller_running_)
     {
+      vel_jnt_soft_interface_.enforceLimits(period);
+      vel_jnt_sat_interface_.enforceLimits(period);
       ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
     }
     else
