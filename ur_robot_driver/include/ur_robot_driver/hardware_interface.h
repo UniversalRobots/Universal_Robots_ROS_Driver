@@ -37,19 +37,19 @@
 #include <std_msgs/String.h>
 #include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_publisher.h>
-#include "tf2_msgs/TFMessage.h"
+#include <tf2_msgs/TFMessage.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
 #include <ur_msgs/SetIO.h>
-#include "ur_msgs/SetSpeedSliderFraction.h"
+#include <ur_msgs/SetSpeedSliderFraction.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
 
-#include "ur_robot_driver/ur/ur_driver.h"
-#include <ur_robot_driver/ros/dashboard_client_ros.h>
+#include <ur_client_library/ur/ur_driver.h>
+#include <ur_robot_driver/dashboard_client_ros.h>
 
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
@@ -190,9 +190,10 @@ protected:
   bool stopControl(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
   template <typename T>
-  void readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name, T& data);
+  void readData(const std::unique_ptr<urcl::rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
+                T& data);
   template <typename T, size_t N>
-  void readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
+  void readBitsetData(const std::unique_ptr<urcl::rtde_interface::DataPackage>& data_pkg, const std::string& var_name,
                       std::bitset<N>& data);
 
   bool setSpeedSlider(ur_msgs::SetSpeedSliderFractionRequest& req, ur_msgs::SetSpeedSliderFractionResponse& res);
@@ -201,7 +202,7 @@ protected:
   bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
 
-  std::unique_ptr<UrDriver> ur_driver_;
+  std::unique_ptr<urcl::UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
 
   /*!
@@ -224,13 +225,13 @@ protected:
   ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
 
-  vector6d_t joint_position_command_;
-  vector6d_t joint_velocity_command_;
-  vector6d_t joint_positions_;
-  vector6d_t joint_velocities_;
-  vector6d_t joint_efforts_;
-  vector6d_t fts_measurements_;
-  vector6d_t tcp_pose_;
+  urcl::vector6d_t joint_position_command_;
+  urcl::vector6d_t joint_velocity_command_;
+  urcl::vector6d_t joint_positions_;
+  urcl::vector6d_t joint_velocities_;
+  urcl::vector6d_t joint_efforts_;
+  urcl::vector6d_t fts_measurements_;
+  urcl::vector6d_t tcp_pose_;
   std::bitset<18> actual_dig_out_bits_;
   std::bitset<18> actual_dig_in_bits_;
   std::array<double, 2> standard_analog_input_;

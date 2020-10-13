@@ -20,34 +20,25 @@
 /*!\file
  *
  * \author  Felix Exner exner@fzi.de
- * \date    2019-06-06
+ * \date    2019-10-21
  *
  */
 //----------------------------------------------------------------------
 
-#include "ur_robot_driver/ur/tool_communication.h"
+#include <ros/ros.h>
+#include <ur_robot_driver/dashboard_client_ros.h>
 
-namespace ur_driver
+int main(int argc, char** argv)
 {
-ToolCommSetup::ToolCommSetup()
-  : tool_voltage_(ToolVoltage::OFF)
-  , parity_(Parity::ODD)
-  , baud_rate_(9600)
-  , stop_bits_(1, 2)
-  , rx_idle_chars_(1.0, 40.0)
-  , tx_idle_chars_(0.0, 40.0)
-{
-}
+  // Set up ROS.
+  ros::init(argc, argv, "dashboard_client");
+  ros::NodeHandle priv_nh("~");
 
-void ToolCommSetup::setBaudRate(const uint32_t baud_rate)
-{
-  if (baud_rates_allowed_.find(baud_rate) != baud_rates_allowed_.end())
-  {
-    baud_rate_ = baud_rate;
-  }
-  else
-  {
-    throw std::runtime_error("Provided baud rate is not allowed");
-  }
+  // The IP address under which the robot is reachable.
+  std::string robot_ip = priv_nh.param<std::string>("robot_ip", "192.168.56.101");
+
+  ur_driver::DashboardClientROS client(priv_nh, robot_ip);
+
+  ros::spin();
+  return 0;
 }
-}  // namespace ur_driver

@@ -19,30 +19,24 @@
 //----------------------------------------------------------------------
 /*!\file
  *
- * \author  Tristan Schnell schnell@fzi.de
- * \date    2019-04-09
+ * \author  Felix Exner exner@fzi.de
+ * \date    2019-11-04
  *
  */
 //----------------------------------------------------------------------
 
-#include "ur_robot_driver/rtde/control_package_pause.h"
+#include <ur_robot_driver/robot_state_helper.h>
 
-namespace ur_driver
-{
-namespace rtde_interface
-{
-bool ControlPackagePause::parseWith(comm::BinParser& bp)
-{
-  bp.parse(accepted_);
+using namespace ur_driver;
 
-  return true;
+int main(int argc, char** argv)
+{
+  // Set up ROS.
+  ros::init(argc, argv, "ur_robot_state_helper");
+  ros::NodeHandle nh;
+
+  RobotStateHelper state_helper(nh);
+
+  ros::spin();
+  return 0;
 }
-std::string ControlPackagePause::toString() const
-{
-  std::stringstream ss;
-  ss << "accepted: " << static_cast<int>(accepted_);
-
-  return ss.str();
-}
-}  // namespace rtde_interface
-}  // namespace ur_driver

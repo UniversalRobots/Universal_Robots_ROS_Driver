@@ -29,7 +29,7 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 
-#include <ur_robot_driver/ur/datatypes.h>
+#include <ur_client_library/ur/datatypes.h>
 #include <ur_dashboard_msgs/RobotMode.h>
 #include <ur_dashboard_msgs/SafetyMode.h>
 #include <ur_dashboard_msgs/SetModeAction.h>
@@ -89,8 +89,8 @@ private:
   void startActionServer();
   bool is_started_;
 
-  RobotMode robot_mode_;
-  SafetyMode safety_mode_;
+  urcl::RobotMode robot_mode_;
+  urcl::SafetyMode safety_mode_;
 
   ros::Subscriber robot_mode_sub_;
   ros::Subscriber safety_mode_sub_;

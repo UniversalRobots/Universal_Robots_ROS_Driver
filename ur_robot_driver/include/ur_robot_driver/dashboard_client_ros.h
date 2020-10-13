@@ -34,7 +34,7 @@
 #include <std_srvs/Trigger.h>
 #include <std_srvs/Empty.h>
 
-#include <ur_robot_driver/ur/dashboard_client.h>
+#include <ur_client_library/ur/dashboard_client.h>
 
 #include <ur_dashboard_msgs/AddToLog.h>
 #include <ur_dashboard_msgs/GetLoadedProgram.h>
@@ -92,7 +92,7 @@ private:
   bool connect();
 
   ros::NodeHandle nh_;
-  ur_driver::DashboardClient client_;
+  urcl::DashboardClient client_;
 
   // Commanding services
   ros::ServiceServer add_to_log_service_;

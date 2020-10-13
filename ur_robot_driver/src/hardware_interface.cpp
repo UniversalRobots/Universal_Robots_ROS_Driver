@@ -25,9 +25,9 @@
  */
 //----------------------------------------------------------------------
 #include <pluginlib/class_list_macros.hpp>
-#include "ur_robot_driver/ros/hardware_interface.h"
-#include "ur_robot_driver/ur/tool_communication.h"
-#include <ur_robot_driver/exceptions.h>
+#include <ur_robot_driver/hardware_interface.h>
+#include <ur_client_library/ur/tool_communication.h>
+#include <ur_client_library/exceptions.h>
 
 #include <ur_msgs/SetPayload.h>
 
@@ -35,17 +35,19 @@
 
 using industrial_robot_status_interface::RobotMode;
 using industrial_robot_status_interface::TriState;
-using namespace ur_driver::rtde_interface;
+// using namespace urcl::rtde_interface;
+namespace rtde = urcl::rtde_interface;
 
 namespace ur_driver
 {
 // bitset mask is applied to robot safety status bits in order to determine 'in_error' state
-static const std::bitset<11> in_error_bitset_(1 << toUnderlying(UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED) |
-                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED) |
-                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED) |
-                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_VIOLATION) |
-                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_FAULT) |
-                                              1 << toUnderlying(UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY));
+static const std::bitset<11>
+    in_error_bitset_(1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_PROTECTIVE_STOPPED) |
+                     1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_ROBOT_EMERGENCY_STOPPED) |
+                     1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED) |
+                     1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_VIOLATION) |
+                     1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_FAULT) |
+                     1 << urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_STOPPED_DUE_TO_SAFETY));
 
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
@@ -57,7 +59,7 @@ HardwareInterface::HardwareInterface()
   , standard_analog_output_{ { 0, 0 } }
   , joint_names_(6)
   , safety_mode_(ur_dashboard_msgs::SafetyMode::NORMAL)
-  , runtime_state_(static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::STOPPED))
+  , runtime_state_(static_cast<uint32_t>(rtde::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
   , velocity_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
@@ -160,12 +162,12 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as
   // well.
   bool use_tool_communication = robot_hw_nh.param<bool>("use_tool_communication", "false");
-  std::unique_ptr<ToolCommSetup> tool_comm_setup;
+  std::unique_ptr<urcl::ToolCommSetup> tool_comm_setup;
   if (use_tool_communication)
   {
-    tool_comm_setup.reset(new ToolCommSetup());
+    tool_comm_setup.reset(new urcl::ToolCommSetup());
 
-    using ToolVoltageT = std::underlying_type<ToolVoltage>::type;
+    using ToolVoltageT = std::underlying_type<urcl::ToolVoltage>::type;
     ToolVoltageT tool_voltage;
     // Tool voltage that will be set as soon as the UR-Program on the robot is started. Note: This
     // parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.
@@ -175,9 +177,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("tool_voltage") << " not given.");
       return false;
     }
-    tool_comm_setup->setToolVoltage(static_cast<ToolVoltage>(tool_voltage));
+    tool_comm_setup->setToolVoltage(static_cast<urcl::ToolVoltage>(tool_voltage));
 
-    using ParityT = std::underlying_type<Parity>::type;
+    using ParityT = std::underlying_type<urcl::Parity>::type;
     ParityT parity;
     // Parity used for tool communication. Will be set as soon as the UR-Program on the robot is
     // started. Can be 0 (None), 1 (odd) and 2 (even).
@@ -228,7 +230,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       return false;
     }
     tool_comm_setup->setRxIdleChars(rx_idle_chars);
-    tool_comm_setup->setParity(static_cast<Parity>(parity));
+    tool_comm_setup->setParity(static_cast<urcl::Parity>(parity));
 
     int tx_idle_chars;
     // Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the
@@ -256,18 +258,18 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   ROS_INFO_STREAM("Initializing urdriver");
   try
   {
-    ur_driver_.reset(new UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
-                                  std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                                  headless_mode, std::move(tool_comm_setup), calibration_checksum,
-                                  (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
-                                  servoj_lookahead_time, non_blocking_read_));
+    ur_driver_.reset(
+        new urcl::UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
+                           std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
+                           headless_mode, std::move(tool_comm_setup), calibration_checksum, (uint32_t)reverse_port,
+                           (uint32_t)script_sender_port, servoj_gain, servoj_lookahead_time, non_blocking_read_));
   }
-  catch (ur_driver::ToolCommNotAvailable& e)
+  catch (urcl::ToolCommNotAvailable& e)
   {
     ROS_FATAL_STREAM(e.what() << " See parameter '" << robot_hw_nh.resolveName("use_tool_communication") << "'.");
     return false;
   }
-  catch (ur_driver::UrException& e)
+  catch (urcl::UrException& e)
   {
     ROS_FATAL_STREAM(e.what());
     return false;
@@ -402,8 +404,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 }
 
 template <typename T>
-void HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
-                                 const std::string& var_name, T& data)
+void HardwareInterface::readData(const std::unique_ptr<rtde::DataPackage>& data_pkg, const std::string& var_name,
+                                 T& data)
 {
   if (!data_pkg->getData(var_name, data))
   {
@@ -414,8 +416,8 @@ void HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPacka
 }
 
 template <typename T, size_t N>
-void HardwareInterface::readBitsetData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
-                                       const std::string& var_name, std::bitset<N>& data)
+void HardwareInterface::readBitsetData(const std::unique_ptr<rtde::DataPackage>& data_pkg, const std::string& var_name,
+                                       std::bitset<N>& data)
 {
   if (!data_pkg->getData<T, N>(var_name, data))
   {
@@ -436,7 +438,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   robot_status_resource_.in_error = TriState::UNKNOWN;
   robot_status_resource_.error_code = 0;
 
-  std::unique_ptr<rtde_interface::DataPackage> data_pkg = ur_driver_->getDataPackage();
+  std::unique_ptr<rtde::DataPackage> data_pkg = ur_driver_->getDataPackage();
   if (data_pkg)
   {
     packet_read_ = true;
@@ -479,12 +481,12 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     publishRobotAndSafetyMode();
 
     // pausing state follows runtime state when pausing
-    if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSED))
+    if (runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PAUSED))
     {
       pausing_state_ = PausingState::PAUSED;
     }
     // When the robot resumed program execution and pausing state was PAUSED, we enter RAMPUP
-    else if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) &&
+    else if (runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PLAYING) &&
              pausing_state_ == PausingState::PAUSED)
     {
       speed_scaling_combined_ = 0.0;
@@ -501,7 +503,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
         pausing_state_ = PausingState::RUNNING;
       }
     }
-    else if (runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::RESUMING))
+    else if (runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::RESUMING))
     {
       // We have to keep speed scaling on ROS side at 0 during RESUMING to prevent controllers from
       // continuing to interpolate
@@ -532,17 +534,17 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
 
 void HardwareInterface::write(const ros::Time& time, const ros::Duration& period)
 {
-  if ((runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PLAYING) ||
-       runtime_state_ == static_cast<uint32_t>(rtde_interface::RUNTIME_STATE::PAUSING)) &&
+  if ((runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PLAYING) ||
+       runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PAUSING)) &&
       robot_program_running_ && (!non_blocking_read_ || packet_read_))
   {
     if (position_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_position_command_, comm::ControlMode::MODE_SERVOJ);
+      ur_driver_->writeJointCommand(joint_position_command_, urcl::comm::ControlMode::MODE_SERVOJ);
     }
     else if (velocity_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_velocity_command_, comm::ControlMode::MODE_SPEEDJ);
+      ur_driver_->writeJointCommand(joint_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDJ);
     }
     else
     {
@@ -715,22 +717,21 @@ void HardwareInterface::publishPose()
 
 void HardwareInterface::extractRobotStatus()
 {
-  using namespace rtde_interface;
+  robot_status_resource_.mode =
+      robot_status_bits_[urcl::toUnderlying(rtde::UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED)] ? RobotMode::MANUAL :
+                                                                                                     RobotMode::AUTO;
 
-  robot_status_resource_.mode = robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_TEACH_BUTTON_PRESSED)] ?
-                                    RobotMode::MANUAL :
-                                    RobotMode::AUTO;
-
-  robot_status_resource_.e_stopped = safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ?
-                                         TriState::TRUE :
-                                         TriState::FALSE;
+  robot_status_resource_.e_stopped =
+      safety_status_bits_[urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_EMERGENCY_STOPPED)] ? TriState::TRUE :
+                                                                                                    TriState::FALSE;
 
   // Note that this is true as soon as the drives are powered,
   // even if the brakes are still closed
   // which is in slight contrast to the comments in the
   // message definition
   robot_status_resource_.drives_powered =
-      robot_status_bits_[toUnderlying(UrRtdeRobotStatusBits::IS_POWER_ON)] ? TriState::TRUE : TriState::FALSE;
+      robot_status_bits_[urcl::toUnderlying(rtde::UrRtdeRobotStatusBits::IS_POWER_ON)] ? TriState::TRUE :
+                                                                                         TriState::FALSE;
 
   // I found no way to reliably get information if the robot is moving
   robot_status_resource_.in_motion = TriState::UNKNOWN;
@@ -747,7 +748,7 @@ void HardwareInterface::extractRobotStatus()
   // Motion is not possible if controller is either in error or in safeguard stop.
   // TODO: Check status of robot program "external control" here as well
   if (robot_status_resource_.in_error == TriState::TRUE ||
-      safety_status_bits_[toUnderlying(UrRtdeSafetyStatusBits::IS_SAFEGUARD_STOPPED)])
+      safety_status_bits_[urcl::toUnderlying(rtde::UrRtdeSafetyStatusBits::IS_SAFEGUARD_STOPPED)])
   {
     robot_status_resource_.motion_possible = TriState::FALSE;
   }
