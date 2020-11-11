@@ -1,0 +1,101 @@
+# Beware: This file is auto-generated from PolyScope.
+# NOTE: The SafetyParameters section is protected by a CRC checksum, please use the supplied tool
+
+## SafetyParameters ##
+[NormalModeSafetyLimits]
+maxTcpSpeed = 1.5
+maxForce = 150.0
+maxElbowSpeed = 1.5
+maxElbowForce = 150.0
+maxStoppingDistance = 0.5
+maxStoppingTime = 0.4
+maxPower = 300.0
+maxMomentum = 25.0
+maxJointSpeed = [3.3415926, 3.3415926, 3.3415926, 3.3415926, 3.3415926, 3.3415926]
+minJointPosition = [6.2308254, 6.2308254, 6.2308254, 6.2308254, 6.2308254, 6.2308254]
+maxJointPosition = [0.05235988, 0.05235988, 0.05235988, 0.05235988, 0.05235988, 0.05235988]
+minJointRevolutions = [-2, -2, -2, -2, -2, -2]
+maxJointRevolutions = [1, 1, 1, 1, 1, 1]
+plane0 = [0.0, 0.0, 0.0, 0.0, 0]
+plane1 = [0.0, 0.0, 0.0, 0.0, 0]
+plane2 = [0.0, 0.0, 0.0, 0.0, 0]
+plane3 = [0.0, 0.0, 0.0, 0.0, 0]
+plane4 = [0.0, 0.0, 0.0, 0.0, 0]
+plane5 = [0.0, 0.0, 0.0, 0.0, 0]
+plane6 = [0.0, 0.0, 0.0, 0.0, 0]
+plane7 = [0.0, 0.0, 0.0, 0.0, 0]
+tcpOrientationVector = [0.0, 0.0, 1.0]
+maximumTcpOrientationDeviation = 6.2831855
+
+[ReducedModeSafetyLimits]
+maxTcpSpeed = 0.75
+maxForce = 120.0
+maxElbowSpeed = 0.75
+maxElbowForce = 120.0
+maxStoppingDistance = 0.3
+maxStoppingTime = 0.3
+maxPower = 200.0
+maxMomentum = 10.0
+maxJointSpeed = [3.3415926, 3.3415926, 3.3415926, 3.3415926, 3.3415926, 3.3415926]
+minJointPosition = [6.2308254, 6.2308254, 6.2308254, 6.2308254, 6.2308254, 6.2308254]
+maxJointPosition = [0.05235988, 0.05235988, 0.05235988, 0.05235988, 0.05235988, 0.05235988]
+minJointRevolutions = [-2, -2, -2, -2, -2, -2]
+maxJointRevolutions = [1, 1, 1, 1, 1, 1]
+plane0 = [0.0, 0.0, 0.0, 0.0, 0]
+plane1 = [0.0, 0.0, 0.0, 0.0, 0]
+plane2 = [0.0, 0.0, 0.0, 0.0, 0]
+plane3 = [0.0, 0.0, 0.0, 0.0, 0]
+plane4 = [0.0, 0.0, 0.0, 0.0, 0]
+plane5 = [0.0, 0.0, 0.0, 0.0, 0]
+plane6 = [0.0, 0.0, 0.0, 0.0, 0]
+plane7 = [0.0, 0.0, 0.0, 0.0, 0]
+tcpOrientationVector = [0.0, 0.0, 1.0]
+maximumTcpOrientationDeviation = 6.2831855
+
+[MiscConfiguration]
+teach_pendant = 1
+euromap67 = 0
+
+[SafetyIOConfiguration]
+emergencyStopInputA = 255
+emergencyStopInputB = 255
+reducedModeInputA = 255
+reducedModeInputB = 255
+safeguardStopResetInputA = 0
+safeguardStopResetInputB = 1
+threePositionEnablingInputA = 255
+threePositionEnablingInputB = 255
+operationalModeInputA = 255
+operationalModeInputB = 255
+systemEmergencyStopOutputA = 255
+systemEmergencyStopOutputB = 255
+robotMovingOutputA = 255
+robotMovingOutputB = 255
+robotNotStoppingOutputA = 255
+robotNotStoppingOutputB = 255
+reducedModeOutputA = 255
+reducedModeOutputB = 255
+notReducedModeOutputA = 255
+notReducedModeOutputB = 255
+
+[ReducedModeTriggerPlanes]
+plane0 = [0.0, 0.0, 0.0, 0.0, 0]
+plane1 = [0.0, 0.0, 0.0, 0.0, 0]
+plane2 = [0.0, 0.0, 0.0, 0.0, 0]
+plane3 = [0.0, 0.0, 0.0, 0.0, 0]
+plane4 = [0.0, 0.0, 0.0, 0.0, 0]
+plane5 = [0.0, 0.0, 0.0, 0.0, 0]
+plane6 = [0.0, 0.0, 0.0, 0.0, 0]
+plane7 = [0.0, 0.0, 0.0, 0.0, 0]
+
+[WorkpieceConfiguration]
+toolSpheres = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+toolDirectionInclination = 0.0
+toolDirectionAzimuth = 0.0
+
+
+## SafetyParameters ##
+[Checksum]
+safetyParameters = 3478627865
+majorVersion = 5
+minorVersion = 0

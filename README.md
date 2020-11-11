@@ -1,10 +1,9 @@
-[![Build Status](https://travis-ci.org/UniversalRobots/Universal_Robots_ROS_Driver.svg?branch=master)](https://travis-ci.org/UniversalRobots/Universal_Robots_ROS_Driver)
-
+[![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
-<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Series family" style="width: 45%;"/></center>
+<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.jpg" alt="Universal Robot e-Series family" style="width: 80%;"/></center>
 
 With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
@@ -92,7 +91,27 @@ To make sure that robot control isn't affected by system latencies, it is highly
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
+## Preliminary UR16e support
+This driver supports all UR variants including the UR16e. However, upstream support for the UR16e is
+not finished, yet. When using the UR16e there is currently no support for gazebo or MoveIt!.
+
+See [#97](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/pull/97) for details on
+using the latest upstream develop branch of
+[ros_industrial/universal_robot](https://github.com/ros-industrial/universal_robot) which includes
+gazebo support for the ur16e, but no working MoveIt! support at the time of writing.
+
 ## Building
+
+**Note:** The driver consists of a [C++
+library](https://github.com/UniversalRobots/Universal_Robots_Client_Library) that abstracts the
+robot's interfaces and a ROS driver on top of that. As the library can be built without ROS support,
+it is not a catkin package and therefore requires a different treatment when being built inside the
+workspace. See The alternative build method below if you'd like to build the library from source.
+
+If you don't want to build the library from source, it is available as a binary package through the
+ROS distribution of ROS kinetic, melodic and noetic. It will be installed automatically if you
+follow the steps below. If you'd like to also build the library from source, please follow the steps
+explained in the [next section](#alternative-all-source-build).
 
 ```bash
 # source global ros
@@ -104,25 +123,43 @@ $ mkdir -p catkin_ws/src && cd catkin_ws
 # clone the driver
 $ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 
-# clone fork of the description to use the calibration feature
+# clone fork of the description. This is currently necessary, until the changes are merged upstream.
 $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
 
 # install dependencies
 $ sudo apt update -qq
 $ rosdep update
-$ rosdep install --from-path src --ignore-src -y
+$ rosdep install --from-paths src --ignore-src -y
 
-# build the workspace
+# build the workspace. We need an isolated build because of the non-catkin library package.
 $ catkin_make
 
 # activate the workspace (ie: source it)
 $ source devel/setup.bash
 ```
 
+### Alternative: All-source build
+If you would like to also build the library from source, clone the library into your workspace, as
+well and build it using either `catkin_make_isolated` or [`catkin
+build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html).
+
+```bash
+$ source /opt/ros/<your_ros_version>/setup.bash
+$ mkdir -p catkin_ws/src && cd catkin_ws
+$ git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git src/Universal_Robots_Client_Library
+$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
+$ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
+$ sudo apt update -qq
+$ rosdep update
+$ rosdep install --from-paths src --ignore-src -y
+$ catkin_make_isolated
+$ source devel_isolated/setup.bash
+```
+
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
 For using the *ur_robot_driver* with a real robot you need to install the
-**externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
+**externalcontrol-1.0.4.urcap** which can be found inside the **resources** folder of this driver.
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of e-Series) is
 necessary.
@@ -158,14 +195,16 @@ We recommend keeping calibrations for all robots in your organization in a commo
 [package's documentation](ur_calibration/README.md) for details.
 
 #### Quick start
-Once the driver is built and the **externalcontrol** URCap is installed and running on the robot, you are good
-to go ahead starting the driver. (**Note**: We do recommend, though, to calibrate your robot first.)
+Once the driver is built and the **externalcontrol** URCap is installed on the
+robot, you are good to go ahead starting the driver. (**Note**: We do
+recommend, though, to [extract your robot's
+calibration](#extract-calibration-information) first.)
 
 To actually start the robot driver use one of the existing launch files
 
     $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101
 
-where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
+where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e, ur16e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example".
 
 If you calibrated your robot before, pass that calibration to the launch file:
@@ -178,15 +217,18 @@ an error during startup, but will remain usable.
 
 For more information on the launch file's parameters see its own documentation.
 
-Once the robot driver is started, load the previously generated program on the robot panel and
-execute it. From that moment on the robot is fully functional. You can make use of the pause
-function or even stop the program. Simply press the play button again and the ROS driver will
-reconnect.
+Once the robot driver is started, load the [previously generated program](#prepare-the-robot) on the
+robot panel that will start the *External Control* program node and execute it. From that moment on
+the robot is fully functional. You can make use of the *Pause* function or even *Stop* (:stop_button:) the
+program.  Simply press the *Play* button (:arrow_forward:) again and the ROS driver will reconnect.
+
+Inside the ROS terminal running the driver you should see the output `Robot ready to receive control commands.`
+
 
 To control the robot using ROS, use the action server on
 
 ```bash
-/scaled_pos_traj_controller/follow_joint_trajectory
+/scaled_pos_joint_traj_controller/follow_joint_trajectory
 ```
 
 Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the
@@ -226,6 +268,10 @@ Make sure, the IP address setup is correct, as described in the setup guides ([C
 **Note:** This error can also show up, when the ROS driver is not running.
 
 ### When starting the program on the TP, I get a `C207A0` error.
+**Note:** With the current driver version this issue can only happen when the fieldbus is enabled
+*after* the ROS driver has been started. Otherwise you will run into [#204](../../issues/204) when starting the driver
+with an enabled EtherNet/IP fieldbus.
+
 Most probably, the EtherNet/IP fieldbus is enabled in the robot's installation. If your setup includes an
 Ethernet/IP fieldbus (note: EtherNet/IP != ethernet), make sure that it is
 connected properly. In the Ethernet/IP fieldbus Installation screen
@@ -236,3 +282,46 @@ to the fieldbus scanner can be established (note: This is only to get the
 `External Control` running. You probably want to make sure that a connection to
 the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
 fieldbusses at all, you can disable it in the same installation screen. 
+
+### When starting the driver, it crashes with `Variable 'speed_slider_mask' is currently controlled by another RTDE client`
+Probably, you are running into [#204](../../issues/204). Currently, this driver cannot be used together with an enabled
+EtherNet/IP fieldbus. Disable EtherNet/IP to workaround this error. [#204](../../issues/204) contains a guide how to do
+this.
+
+
+### I cannot get a realtime kernel running together with an NVIDIA graphics card
+This is a known issue and unfortunately we don't have a solution for this. The Nvidia kernel module
+seems to not compile with every kernel. We recommend to use a multi-machine ROS setup in this
+situation where a realtime-system is running the robot driver and a separate machine is performing
+the computations requiring the graphics card.
+
+### Why can't the driver use the extracted calibration info on startup?
+This is mainly because parameters are loaded onto the parameter server before any nodes are started.
+
+The `robot_description` concept inside ROS is not designed to be changed while a system is running.
+Consumers of the urdf/`robot_description` (in terms of other ROS nodes) will not update the model
+they have been loading initially. While technically the `robot_description` parameter could be altered during runtime
+and any node that is started *afterwards* would see the updated model, this would lead to an inconsistent
+application state (as some nodes will use the old model, while others use the updated one). In other words: It's not the driver that needs/benefits from this calibrated urdf, it's the rest of the ROS application and that will only see it *if* the calibrated version is present on the parameter server *before* nodes are started.
+
+Additionally: If the calibration stored on the ROS side doesn't match the one of the robot controller, there's a good chance there is a reason for this and it
+would be better to make updating it a conscious decision by a human (as the driver would not know *when* updating the model would be convenient or safe). Having to run the calibration
+extraction/transformation as a separate step makes this possible and doesn't hide this step from the
+end user.
+
+### Can this driver be used inside a combined hardware interface?
+Yes, this is possible. However, if used inside a [combined HW
+interface](http://wiki.ros.org/combined_robot_hw) we recommend to enable [non-blocking read
+functinality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
+
+### I sent raw script code to the robot but it is not executed
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept script code from an external source.
+This has to be switched from the Teach-Pendant.
+
+### Using the dashboard doesn't work
+On the e-Series the robot has to be in [remote control
+mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on the dashboard server.
+See [Available dashboard
+commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
+for details.

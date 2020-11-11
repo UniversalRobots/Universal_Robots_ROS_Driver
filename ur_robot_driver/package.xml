@@ -10,8 +10,8 @@
   <author>Lea Steffen</author>
   <author>Tristan Schnell</author>
   <maintainer email="exner@fzi.de">Felix Exner</maintainer>
-  <license>Apache 2.0</license>
-  <license>BSD 2-clause</license>
+  <license>Apache-2.0</license>
+  <license>BSD-2-Clause</license>
   <license>Zlib</license>
 
   <url type="website">http://wiki.ros.org/ur_robot_driver</url>
@@ -21,6 +21,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>boost</build_depend>
+  <build_depend>industrial_robot_status_interface</build_depend>
 
   <depend>actionlib</depend>
   <depend>control_msgs</depend>
@@ -36,16 +37,22 @@
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
   <depend>ur_dashboard_msgs</depend>
+  <depend>ur_client_library</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
 
+  <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
+  <exec_depend>industrial_robot_status_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>socat</exec_depend>
   <exec_depend>ur_description</exec_depend>
+  <exec_depend>ur_e_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
+
+  <test_depend>rostest</test_depend>
 
   <export>
     <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />

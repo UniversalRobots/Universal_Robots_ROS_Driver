@@ -33,10 +33,9 @@ CalibrationConsumer::CalibrationConsumer() : calibrated_(false)
 {
 }
 
-bool CalibrationConsumer::consume(
-    std::shared_ptr<ur_driver::comm::URPackage<ur_driver::primary_interface::PackageHeader>> product)
+bool CalibrationConsumer::consume(std::shared_ptr<urcl::primary_interface::PrimaryPackage> product)
 {
-  auto kin_info = std::dynamic_pointer_cast<ur_driver::primary_interface::KinematicsInfo>(product);
+  auto kin_info = std::dynamic_pointer_cast<urcl::primary_interface::KinematicsInfo>(product);
   if (kin_info != nullptr)
   {
     LOG_INFO("%s", product->toString().c_str());

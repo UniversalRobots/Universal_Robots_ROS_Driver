@@ -5,28 +5,15 @@
   <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
   <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
-  <arg name="controllers" default="joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller" doc="Controllers that are activated by default."/>
-  <arg name="stopped_controllers" default="pos_traj_controller joint_group_vel_controller" doc="Controllers that are initally loaded, but not started."/>
+  <arg name="controllers" default="joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller" doc="Controllers that are activated by default."/>
+  <arg name="stopped_controllers" default="pos_joint_traj_controller joint_group_vel_controller" doc="Controllers that are initally loaded, but not started."/>
   <arg name="controller_config_file" default="$(find ur_robot_driver)/config/ur5_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
   <arg name="robot_description_file" default="$(find ur_description)/launch/ur5_upload.launch" doc="Robot description launch file."/>
   <arg name="kinematics_config" default="$(find ur_description)/config/ur5_default.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="limited" default="false" doc="Use the description in limited mode (Every axis rotates from -PI to PI)"/>
   <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
 
-  <include file="$(find ur_robot_driver)/launch/ur_common.launch">
-    <arg name="debug" value="$(arg debug)"/>
+  <include file="$(find ur_robot_driver)/launch/ur_common.launch" pass_all_args="true">
     <arg name="use_tool_communication" value="false"/>
-    <arg name="controller_config_file" value="$(arg controller_config_file)"/>
-    <arg name="robot_description_file" value="$(arg robot_description_file)"/>
-    <arg name="robot_ip" value="$(arg robot_ip)"/>
-    <arg name="reverse_port" value="$(arg reverse_port)"/>
-    <arg name="script_sender_port" value="$(arg script_sender_port)"/>
-    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
-    <arg name="limited" value="$(arg limited)"/>
-    <arg name="tf_prefix" value="$(arg tf_prefix)"/>
-    <arg name="controllers" value="$(arg controllers)"/>
-    <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
-    <arg name="headless_mode" value="$(arg headless_mode)"/>
   </include>
-
 </launch>

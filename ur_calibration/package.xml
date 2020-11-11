@@ -13,7 +13,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>Apache 2.0</license>
+  <license>Apache-2.0</license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
@@ -51,7 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>eigen</depend>
   <depend>roscpp</depend>
-  <depend>ur_robot_driver</depend>
+  <depend>ur_client_library</depend>
   <depend>yaml-cpp</depend>
 
 
