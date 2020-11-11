@@ -20,39 +20,23 @@
 /*!\file
  *
  * \author  Felix Exner exner@fzi.de
- * \date    2019-05-28
+ * \date    2019-11-04
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_client_library/comm/pipeline.h>
+#include <ur_robot_driver/robot_state_helper.h>
 
-#include <ur_client_library/primary/robot_state/kinematics_info.h>
+using namespace ur_driver;
 
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+int main(int argc, char** argv)
 {
-class CalibrationConsumer : public urcl::comm::IConsumer<urcl::primary_interface::PrimaryPackage>
-{
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
+  // Set up ROS.
+  ros::init(argc, argv, "ur_robot_state_helper");
+  ros::NodeHandle nh;
 
-  virtual bool consume(std::shared_ptr<urcl::primary_interface::PrimaryPackage> product);
+  RobotStateHelper state_helper(nh);
 
-  bool isCalibrated() const
-  {
-    return calibrated_;
-  }
-
-  YAML::Node getCalibrationParameters() const;
-
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+  ros::spin();
+  return 0;
+}

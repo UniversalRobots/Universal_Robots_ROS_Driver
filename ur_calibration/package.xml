@@ -51,7 +51,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>eigen</depend>
   <depend>roscpp</depend>
-  <depend>ur_robot_driver</depend>
+  <depend>ur_client_library</depend>
   <depend>yaml-cpp</depend>
 
 

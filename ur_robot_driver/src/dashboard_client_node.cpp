@@ -20,39 +20,25 @@
 /*!\file
  *
  * \author  Felix Exner exner@fzi.de
- * \date    2019-05-28
+ * \date    2019-10-21
  *
  */
 //----------------------------------------------------------------------
 
-#ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#define UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
-#include <ur_client_library/comm/pipeline.h>
+#include <ros/ros.h>
+#include <ur_robot_driver/dashboard_client_ros.h>
 
-#include <ur_client_library/primary/robot_state/kinematics_info.h>
-
-#include <ur_calibration/calibration.h>
-
-namespace ur_calibration
+int main(int argc, char** argv)
 {
-class CalibrationConsumer : public urcl::comm::IConsumer<urcl::primary_interface::PrimaryPackage>
-{
-public:
-  CalibrationConsumer();
-  virtual ~CalibrationConsumer() = default;
+  // Set up ROS.
+  ros::init(argc, argv, "dashboard_client");
+  ros::NodeHandle priv_nh("~");
 
-  virtual bool consume(std::shared_ptr<urcl::primary_interface::PrimaryPackage> product);
+  // The IP address under which the robot is reachable.
+  std::string robot_ip = priv_nh.param<std::string>("robot_ip", "192.168.56.101");
 
-  bool isCalibrated() const
-  {
-    return calibrated_;
-  }
+  ur_driver::DashboardClientROS client(priv_nh, robot_ip);
 
-  YAML::Node getCalibrationParameters() const;
-
-private:
-  bool calibrated_;
-  YAML::Node calibration_parameters_;
-};
-}  // namespace ur_calibration
-#endif  // ifndef UR_CALIBRATION_CALIBRATION_CONSUMER_H_INCLUDED
+  ros::spin();
+  return 0;
+}

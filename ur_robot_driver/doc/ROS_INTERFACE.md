@@ -14,7 +14,7 @@ Standalone launchfile to startup a ur3e. This requires a robot reachable via a n
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -50,13 +50,17 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
 ##### tf_prefix (default: "")
 
 tf_prefix used for the robot.
+
+##### wrench_frame_id (default: "wrench")
+
+Parameter to set the id of the wrench frame, required if using multiple robots
 
 ##### tool_baud_rate (default: "115200")
 
@@ -104,7 +108,7 @@ Standalone launchfile to startup a ur10 robot. This requires a robot reachable v
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -140,7 +144,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -158,7 +162,7 @@ Robot bringup launchfile without the robot description. Include this, if you wan
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller vel_based_pos_traj_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller vel_based_pos_joint_traj_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -256,7 +260,7 @@ Launchfile that starts a robot description with robot_state publisher and the dr
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -292,7 +296,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -346,7 +350,7 @@ Standalone launchfile to startup a ur5 robot. This requires a robot reachable vi
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -382,7 +386,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -400,7 +404,7 @@ Standalone launchfile to startup a ur5e robot. This requires a robot reachable v
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -436,7 +440,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -490,7 +494,7 @@ Standalone launchfile to startup a ur3 robot. This requires a robot reachable vi
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -526,7 +530,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -544,7 +548,7 @@ Standalone launchfile to startup a ur10e robot. This requires a robot reachable 
 
 Config file used for defining the ROS-Control controllers.
 
-##### controllers (default: "joint_state_controller scaled_pos_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
+##### controllers (default: "joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller")
 
 Controllers that are activated by default.
 
@@ -580,7 +584,7 @@ IP address by which the robot can be reached.
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
 
-##### stopped_controllers (default: "pos_traj_controller joint_group_vel_controller")
+##### stopped_controllers (default: "pos_joint_traj_controller joint_group_vel_controller")
 
 Controllers that are initally loaded, but not started.
 
@@ -751,6 +755,10 @@ Setup the mounted payload through a ROS service
 ##### set_speed_slider (ur_msgs/SetSpeedSliderFraction)
 
 Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
+ 
+#### set_payload (ur_msgs/SetPayload)
+
+Setup the mounted payload through a ROS service
 
 ##### zero_ftsensor ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
 

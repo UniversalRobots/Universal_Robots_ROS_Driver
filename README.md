@@ -3,7 +3,7 @@
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
-<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.png" alt="Universal Robot e-Series family" style="width: 45%;"/></center>
+<center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.jpg" alt="Universal Robot e-Series family" style="width: 80%;"/></center>
 
 With the release of UR’s new e-Series, the demand for a ROS driver that supports the new manipulators and the newest ROS releases and paradigms like ROS-control has increased further. The goal of this driver is to provide a stable and sustainable interface between UR robots and ROS that strongly benefit all parties.
 
@@ -91,7 +91,27 @@ To make sure that robot control isn't affected by system latencies, it is highly
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
+## Preliminary UR16e support
+This driver supports all UR variants including the UR16e. However, upstream support for the UR16e is
+not finished, yet. When using the UR16e there is currently no support for gazebo or MoveIt!.
+
+See [#97](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/pull/97) for details on
+using the latest upstream develop branch of
+[ros_industrial/universal_robot](https://github.com/ros-industrial/universal_robot) which includes
+gazebo support for the ur16e, but no working MoveIt! support at the time of writing.
+
 ## Building
+
+**Note:** The driver consists of a [C++
+library](https://github.com/UniversalRobots/Universal_Robots_Client_Library) that abstracts the
+robot's interfaces and a ROS driver on top of that. As the library can be built without ROS support,
+it is not a catkin package and therefore requires a different treatment when being built inside the
+workspace. See The alternative build method below if you'd like to build the library from source.
+
+If you don't want to build the library from source, it is available as a binary package through the
+ROS distribution of ROS kinetic, melodic and noetic. It will be installed automatically if you
+follow the steps below. If you'd like to also build the library from source, please follow the steps
+explained in the [next section](#alternative-all-source-build).
 
 ```bash
 # source global ros
@@ -111,17 +131,35 @@ $ sudo apt update -qq
 $ rosdep update
 $ rosdep install --from-paths src --ignore-src -y
 
-# build the workspace
+# build the workspace. We need an isolated build because of the non-catkin library package.
 $ catkin_make
 
 # activate the workspace (ie: source it)
 $ source devel/setup.bash
 ```
 
+### Alternative: All-source build
+If you would like to also build the library from source, clone the library into your workspace, as
+well and build it using either `catkin_make_isolated` or [`catkin
+build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html).
+
+```bash
+$ source /opt/ros/<your_ros_version>/setup.bash
+$ mkdir -p catkin_ws/src && cd catkin_ws
+$ git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git src/Universal_Robots_Client_Library
+$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
+$ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
+$ sudo apt update -qq
+$ rosdep update
+$ rosdep install --from-paths src --ignore-src -y
+$ catkin_make_isolated
+$ source devel_isolated/setup.bash
+```
+
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
 For using the *ur_robot_driver* with a real robot you need to install the
-**externalcontrol-1.0.urcap** which can be found inside the **resources** folder of this driver.
+**externalcontrol-1.0.4.urcap** which can be found inside the **resources** folder of this driver.
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 or 5.1 (in case of e-Series) is
 necessary.
@@ -166,7 +204,7 @@ To actually start the robot driver use one of the existing launch files
 
     $ roslaunch ur_robot_driver <robot_type>_bringup.launch robot_ip:=192.168.56.101
 
-where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e*. Note that in this example we
+where **<robot_type>** is one of *ur3, ur5, ur10, ur3e, ur5e, ur10e, ur16e*. Note that in this example we
 load the calibration parameters for the robot "ur10_example".
 
 If you calibrated your robot before, pass that calibration to the launch file:
@@ -181,8 +219,8 @@ For more information on the launch file's parameters see its own documentation.
 
 Once the robot driver is started, load the [previously generated program](#prepare-the-robot) on the
 robot panel that will start the *External Control* program node and execute it. From that moment on
-the robot is fully functional. You can make use of the *Pause* function or even *Stop* (◾) the
-program.  Simply press the *Play* button (▶) again and the ROS driver will reconnect.
+the robot is fully functional. You can make use of the *Pause* function or even *Stop* (:stop_button:) the
+program.  Simply press the *Play* button (:arrow_forward:) again and the ROS driver will reconnect.
 
 Inside the ROS terminal running the driver you should see the output `Robot ready to receive control commands.`
 
@@ -190,7 +228,7 @@ Inside the ROS terminal running the driver you should see the output `Robot read
 To control the robot using ROS, use the action server on
 
 ```bash
-/scaled_pos_traj_controller/follow_joint_trajectory
+/scaled_pos_joint_traj_controller/follow_joint_trajectory
 ```
 
 Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or simply the

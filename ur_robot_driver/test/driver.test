@@ -1,0 +1,18 @@
+<launch>
+  <!--
+    This file is meant to run with a ursim robot running inside a docker container
+    Therefore, certain assumptions are met like the robot model and the robot's IP address.
+    -->
+
+  <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
+    <arg name="robot_ip" value="192.168.56.101"/>
+    <arg name="headless_mode" value="true"/>
+  </include>
+
+  <!--If the default controller changes, this remap has to be adapted, as well-->
+  <remap from="follow_joint_trajectory" to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
+
+  <test test-name="switch_on_test" pkg="ur_robot_driver" type="switch_on_test.py" name="switch_on_test1" time-limit="60.0"/>
+  <test test-name="io_test" pkg="ur_robot_driver" type="io_test.py" name="io_test1" time-limit="60.0"/>
+  <!--<test test-name="trajectory_test" pkg="ur_robot_driver" type="trajectory_test.py" name="traj_test1" time-limit="120.0"/>-->
+</launch>

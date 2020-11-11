@@ -37,6 +37,7 @@
   <depend>trajectory_msgs</depend>
   <depend>ur_controllers</depend>
   <depend>ur_dashboard_msgs</depend>
+  <depend>ur_client_library</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
 
@@ -50,6 +51,8 @@
   <exec_depend>ur_description</exec_depend>
   <exec_depend>ur_e_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
+
+  <test_depend>rostest</test_depend>
 
   <export>
     <hardware_interface plugin="${prefix}/hardware_interface_plugin.xml" />
