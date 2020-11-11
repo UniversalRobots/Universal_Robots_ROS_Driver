@@ -742,7 +742,6 @@ When in headless mode, this sends the URScript program to the robot for executio
 
 ##### set_io (ur_msgs/SetIO)
 
-<<<<<<< HEAD
 Service to set any of the robot's IOs
 
 ##### set_payload (ur_msgs/SetPayload)
