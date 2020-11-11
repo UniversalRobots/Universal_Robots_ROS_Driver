@@ -151,10 +151,6 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
-  // Allows the hardware_interface parameter to be in the local (rather than global) namespace
-  // of the driver. This allows multiple drivers to be started in the same namespace.
-  bool use_local_hardware_interface_param = robot_hw_nh.param("use_local_hardware_interface_param", false);
-
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
@@ -288,17 +284,6 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   //   set_digital_out(0, True)
   // end
   command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
-
-  ros::NodeHandle* hardware_interface_nh;
-
-  if (use_local_hardware_interface_param)
-  {
-    hardware_interface_nh = &robot_hw_nh;
-  }
-  else
-  {
-    hardware_interface_nh = &root_nh;
-  }
 
   // Names of the joints. Usually, this is given in the controller config file.
   if (!robot_hw_nh.getParam("joints", joint_names_))
