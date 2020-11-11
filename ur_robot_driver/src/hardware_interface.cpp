@@ -31,8 +31,6 @@
 
 #include <ur_msgs/SetPayload.h>
 
-#include <ur_msgs/SetPayload.h>
-
 #include <Eigen/Geometry>
 
 using industrial_robot_status_interface::RobotMode;
