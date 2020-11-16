@@ -98,8 +98,8 @@ socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 control_mode = MODE_UNINITIALIZED
 thread_move = 0
 global keepalive = -2
+params_mult = socket_read_binary_integer(1+6+1, "reverse_socket", 0)
 textmsg("ExternalControl: External control active")
-params_mult = socket_read_binary_integer(1+6+1, "reverse_socket")
 keepalive = params_mult[1]
 while keepalive > 0 and control_mode > MODE_STOPPED:
   enter_critical
