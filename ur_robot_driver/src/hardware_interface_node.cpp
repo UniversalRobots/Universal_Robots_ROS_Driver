@@ -57,8 +57,11 @@ int main(int argc, char** argv)
   signal(SIGINT, signalHandler);
 
   std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
-  bool has_realtime;
-  realtime_file >> has_realtime;
+  bool has_realtime = false;
+  if (realtime_file.is_open())
+  {
+    realtime_file >> has_realtime;
+  }
   if (has_realtime)
   {
     const int max_thread_priority = sched_get_priority_max(SCHED_FIFO);
