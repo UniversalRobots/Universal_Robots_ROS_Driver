@@ -31,6 +31,7 @@
 #include <hardware_interface/force_torque_sensor_interface.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
+#include <cartesian_interface/cartesian_command_interface.h>
 #include <cartesian_interface/cartesian_state_handle.h>
 #include <pass_through_controllers/trajectory_interface.h>
 #include <algorithm>
@@ -44,6 +45,9 @@
 
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <control_msgs/FollowJointTrajectoryFeedback.h>
+#include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
+#include <cartesian_control_msgs/FollowCartesianTrajectoryFeedback.h>
+
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
 #include <ur_msgs/SetIO.h>
@@ -59,6 +63,7 @@
 #include <ur_dashboard_msgs/SafetyMode.h>
 
 #include <industrial_robot_status_interface/industrial_robot_status_interface.h>
+#include <kdl/frames.hpp>
 
 namespace ur_driver
 {
@@ -219,6 +224,8 @@ protected:
 
   void startJointInterpolation(const hardware_interface::JointTrajectory& trajectory);
 
+  void startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory);
+
   void cancelInterpolation();
 
   ros::ServiceServer deactivate_srv_;
@@ -233,9 +240,12 @@ protected:
   ur_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
   hardware_interface::JointTrajectoryInterface jnt_traj_interface_;
+  hardware_interface::CartesianTrajectoryInterface cart_traj_interface_;
 
   hardware_interface::JointTrajectory jnt_traj_cmd_;
   hardware_interface::JointTrajectoryFeedback jnt_traj_feedback_;
+  hardware_interface::CartesianTrajectory cart_traj_cmd_;
+  hardware_interface::CartesianTrajectoryFeedback cart_traj_feedback_;
 
   urcl::vector6d_t joint_position_command_;
   urcl::vector6d_t joint_velocity_command_;
@@ -285,6 +295,7 @@ protected:
   bool position_controller_running_;
   bool velocity_controller_running_;
   bool joint_forward_controller_running_;
+  bool cartesian_forward_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
