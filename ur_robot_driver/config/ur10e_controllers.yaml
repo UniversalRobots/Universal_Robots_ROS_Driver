@@ -130,6 +130,10 @@ joint_group_vel_controller:
    type: velocity_controllers/JointGroupVelocityController
    joints: *robot_joints
 
+forward_joint_traj_controller:
+    type: "joint_trajectory_controllers/PassThroughController"
+    joints: *robot_joints
+
 robot_status_controller:
    type: industrial_robot_status_controller/IndustrialRobotStatusController
    handle_name: industrial_robot_status_handle
