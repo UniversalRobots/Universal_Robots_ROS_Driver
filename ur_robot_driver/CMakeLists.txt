@@ -30,6 +30,7 @@ find_package(catkin REQUIRED
     ur_dashboard_msgs
     ur_msgs
     pass_through_controllers
+    kdl_parser
 )
 find_package(Boost REQUIRED)
 find_package(ur_client_library REQUIRED)
@@ -45,6 +46,7 @@ catkin_package(
     control_msgs
     geometry_msgs
     hardware_interface
+    kdl_parser
     pass_through_controllers
     pluginlib
     roscpp

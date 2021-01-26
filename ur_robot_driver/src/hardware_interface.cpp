@@ -66,6 +66,7 @@ HardwareInterface::HardwareInterface()
   , position_controller_running_(false)
   , velocity_controller_running_(false)
   , joint_forward_controller_running_(false)
+  , cartesian_forward_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -349,6 +350,15 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
       std::bind(&HardwareInterface::cancelInterpolation, this));
   jnt_traj_interface_.registerHandle(joint_trajectory_handle);
+
+  // Initialize and register Cartesian trajectory command handles for PassThroughControllers
+  hardware_interface::CartesianTrajectoryHandle cartesian_trajectory_handle =
+      hardware_interface::CartesianTrajectoryHandle(
+          &cart_traj_cmd_, &cart_traj_feedback_,
+          std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1),
+          std::bind(&HardwareInterface::cancelInterpolation, this));
+  cart_traj_interface_.registerHandle(cartesian_trajectory_handle);
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -359,6 +369,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&fts_interface_);
   registerInterface(&robot_status_interface_);
   registerInterface(&jnt_traj_interface_);
+  registerInterface(&cart_traj_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -578,6 +589,10 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     {
       ur_driver_->writeTrajectoryControlMessage(0);
     }
+    else if (cartesian_forward_controller_running_)
+    {
+      ur_driver_->writeTrajectoryControlMessage(0);
+    }
     else
     {
       ur_driver_->writeKeepalive();
@@ -639,6 +654,13 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           joint_forward_controller_running_ = false;
         }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
+        {
+          cartesian_forward_controller_running_ = false;
+        }
       }
     }
   }
@@ -669,6 +691,13 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
                                               "control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
         {
           joint_forward_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
+        {
+          cartesian_forward_controller_running_ = true;
         }
       }
     }
@@ -1043,6 +1072,33 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
     p[5] = point.positions[5];
     double next_time = point.time_from_start.toSec();
     ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    last_time = next_time;
+  }
+  ROS_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  ROS_DEBUG("Starting cartesian trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(1, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
+  {
+    cartesian_control_msgs::CartesianTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.pose.position.x;
+    p[1] = point.pose.position.y;
+    p[2] = point.pose.position.z;
+
+    KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
+                                                  point.pose.orientation.z, point.pose.orientation.w);
+
+    p[3] = rot.GetRot().x();
+    p[4] = rot.GetRot().y();
+    p[5] = rot.GetRot().z();
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");

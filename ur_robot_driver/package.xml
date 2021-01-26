@@ -24,10 +24,11 @@
   <build_depend>industrial_robot_status_interface</build_depend>
 
   <depend>actionlib</depend>
-  <depend>control_msgs</depend>
   <depend>controller_manager</depend>
+  <depend>control_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
+  <depend>kdl_parser</depend>
   <depend>pass_through_controllers</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
