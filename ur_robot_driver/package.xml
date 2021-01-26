@@ -28,6 +28,7 @@
   <depend>controller_manager</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
+  <depend>pass_through_controllers</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
   <depend>scaled_joint_trajectory_controller</depend>

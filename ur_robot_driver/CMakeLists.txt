@@ -29,6 +29,7 @@ find_package(catkin REQUIRED
     trajectory_msgs
     ur_dashboard_msgs
     ur_msgs
+    pass_through_controllers
 )
 find_package(Boost REQUIRED)
 find_package(ur_client_library REQUIRED)
@@ -40,10 +41,11 @@ catkin_package(
     ur_robot_driver_plugin
   CATKIN_DEPENDS
     actionlib
-    control_msgs
     controller_manager
+    control_msgs
     geometry_msgs
     hardware_interface
+    pass_through_controllers
     pluginlib
     roscpp
     scaled_joint_trajectory_controller
