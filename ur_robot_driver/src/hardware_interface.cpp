@@ -328,21 +328,18 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       "industrial_robot_status_handle", robot_status_resource_));
 
   // Initialize and register trajectory command handles for PassThroughControllers
-  hardware_interface::JointTrajectoryHandle joint_trajectory_handle =
-    hardware_interface::JointTrajectoryHandle(
-      &jnt_traj_cmd_,
-      &jnt_traj_feedback_,
+  hardware_interface::JointTrajectoryHandle joint_trajectory_handle = hardware_interface::JointTrajectoryHandle(
+      &jnt_traj_cmd_, &jnt_traj_feedback_,
       std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
       std::bind(&HardwareInterface::cancelInterpolation, this));
   jnt_traj_interface_.registerHandle(joint_trajectory_handle);
 
   // Initialize and register Cartesian trajectory command handles for PassThroughControllers
   hardware_interface::CartesianTrajectoryHandle cartesian_trajectory_handle =
-    hardware_interface::CartesianTrajectoryHandle(
-      &cart_traj_cmd_,
-      &cart_traj_feedback_,
-      std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1),
-      std::bind(&HardwareInterface::cancelInterpolation, this));
+      hardware_interface::CartesianTrajectoryHandle(
+          &cart_traj_cmd_, &cart_traj_feedback_,
+          std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1),
+          std::bind(&HardwareInterface::cancelInterpolation, this));
   cart_traj_interface_.registerHandle(cartesian_trajectory_handle);
 
   // Register interfaces
@@ -634,11 +631,16 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           velocity_controller_running_ = false;
         }
-        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::FollowJointTrajectoryGoal_<std::allocator<void> >, control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::"
+                                              "FollowJointTrajectoryGoal_<std::allocator<void> >, "
+                                              "control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
         {
           joint_forward_controller_running_ = false;
         }
-        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::FollowCartesianTrajectoryGoal_<std::allocator<void> >, cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::allocator<void> > >")
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
         {
           cartesian_forward_controller_running_ = false;
         }
@@ -667,11 +669,16 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           velocity_controller_running_ = true;
         }
-        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::FollowJointTrajectoryGoal_<std::allocator<void> >, control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::"
+                                              "FollowJointTrajectoryGoal_<std::allocator<void> >, "
+                                              "control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
         {
           joint_forward_controller_running_ = true;
         }
-        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::FollowCartesianTrajectoryGoal_<std::allocator<void> >, cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::allocator<void> > >")
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
         {
           cartesian_forward_controller_running_ = true;
         }
@@ -1063,7 +1070,8 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
     p[1] = point.pose.position.y;
     p[2] = point.pose.position.z;
 
-    KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y, point.pose.orientation.z, point.pose.orientation.w);
+    KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
+                                                  point.pose.orientation.z, point.pose.orientation.w);
 
     p[3] = rot.GetRot().x();
     p[4] = rot.GetRot().y();
