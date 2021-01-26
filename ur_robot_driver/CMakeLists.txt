@@ -27,6 +27,7 @@ find_package(catkin REQUIRED
     ur_controllers
     ur_dashboard_msgs
     ur_msgs
+    pass_through_controllers
 )
 find_package(Boost REQUIRED)
 find_package(ur_client_library REQUIRED)
@@ -53,6 +54,7 @@ catkin_package(
     ur_dashboard_msgs
     ur_msgs
     std_srvs
+    pass_through_controllers
   DEPENDS
     Boost
     ur_client_library

@@ -40,6 +40,7 @@
   <depend>ur_client_library</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>pass_through_controllers</depend>
 
   <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>

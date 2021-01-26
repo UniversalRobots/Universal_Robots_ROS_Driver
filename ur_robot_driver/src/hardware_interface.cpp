@@ -30,6 +30,9 @@
 #include <ur_client_library/exceptions.h>
 
 #include <ur_msgs/SetPayload.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <control_msgs/FollowJointTrajectoryAction.h>
 
 #include <Eigen/Geometry>
 
@@ -62,6 +65,7 @@ HardwareInterface::HardwareInterface()
   , runtime_state_(static_cast<uint32_t>(rtde::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
   , velocity_controller_running_(false)
+  , joint_forward_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -322,6 +326,14 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
 
+  // Initialize and register trajectory command handles for PassThroughControllers
+  hardware_interface::JointTrajectoryHandle joint_trajectory_handle =
+    hardware_interface::JointTrajectoryHandle(
+      &jnt_traj_cmd_,
+      &jnt_traj_feedback_,
+      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
+      std::bind(&HardwareInterface::cancelInterpolation, this));
+  jnt_traj_interface_.registerHandle(joint_trajectory_handle);
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -331,6 +343,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
   registerInterface(&robot_status_interface_);
+  registerInterface(&jnt_traj_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -546,6 +559,10 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     {
       ur_driver_->writeJointCommand(joint_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDJ);
     }
+    else if (joint_forward_controller_running_)
+    {
+      ur_driver_->writeTrajectoryControlMessage(0);
+    }
     else
     {
       ur_driver_->writeKeepalive();
@@ -601,6 +618,10 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           velocity_controller_running_ = false;
         }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::FollowJointTrajectoryGoal_<std::allocator<void> >, control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        {
+          joint_forward_controller_running_ = false;
+        }
       }
     }
   }
@@ -625,6 +646,10 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
         {
           velocity_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::FollowJointTrajectoryGoal_<std::allocator<void> >, control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        {
+          joint_forward_controller_running_ = true;
         }
       }
     }
@@ -976,6 +1001,36 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
   }
   return false;
 }
+
+void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  LOG_DEBUG("Starting joint-based trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(1, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
+  {
+    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.positions[0];
+    p[1] = point.positions[1];
+    p[2] = point.positions[2];
+    p[3] = point.positions[3];
+    p[4] = point.positions[4];
+    p[5] = point.positions[5];
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    last_time = next_time;
+  }
+  LOG_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::cancelInterpolation()
+{
+  LOG_DEBUG("Cancelling Trajectory");
+  ur_driver_->writeTrajectoryControlMessage(-1);
+}
+
 }  // namespace ur_driver
 
 PLUGINLIB_EXPORT_CLASS(ur_driver::HardwareInterface, hardware_interface::RobotHW)
