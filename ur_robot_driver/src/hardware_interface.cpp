@@ -551,6 +551,13 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     cart_twist_.angular.y = tcp_speed_[4];
     cart_twist_.angular.z = tcp_speed_[5];
 
+    KDL::Vector vec = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+
+    double angle = vec.Normalize();
+
+    KDL::Rotation rot = KDL::Rotation::Rot(vec, angle);
+    rot.GetQuaternion(cart_pose_.orientation.x, cart_pose_.orientation.y, cart_pose_.orientation.z,
+                      cart_pose_.orientation.w);
     extractRobotStatus();
 
     publishIOData();
