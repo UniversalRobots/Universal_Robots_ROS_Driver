@@ -243,6 +243,7 @@ protected:
   hardware_interface::CartesianTrajectoryInterface cart_traj_interface_;
   cartesian_ros_control::CartesianStateInterface cart_interface_;
   cartesian_ros_control::TwistCommandInterface twist_interface_;
+  cartesian_ros_control::PoseCommandInterface pose_interface_;
 
   hardware_interface::JointTrajectory jnt_traj_cmd_;
   hardware_interface::JointTrajectoryFeedback jnt_traj_feedback_;
@@ -254,6 +255,8 @@ protected:
   geometry_msgs::Accel cart_accel_;
   geometry_msgs::Accel cart_jerk_;
   geometry_msgs::Twist twist_command_;
+  geometry_msgs::Pose pose_command_;
+
   urcl::vector6d_t joint_position_command_;
   urcl::vector6d_t joint_velocity_command_;
   urcl::vector6d_t joint_positions_;
@@ -262,6 +265,7 @@ protected:
   urcl::vector6d_t fts_measurements_;
   urcl::vector6d_t tcp_pose_;
   urcl::vector6d_t cartesian_velocity_command_;
+  urcl::vector6d_t cartesian_pose_command_;
   std::bitset<18> actual_dig_out_bits_;
   std::bitset<18> actual_dig_in_bits_;
   std::array<double, 2> standard_analog_input_;
@@ -305,6 +309,7 @@ protected:
   bool joint_forward_controller_running_;
   bool cartesian_forward_controller_running_;
   bool twist_controller_running_;
+  bool pose_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
