@@ -27,6 +27,7 @@ find_package(catkin REQUIRED
     ur_controllers
     ur_dashboard_msgs
     ur_msgs
+    twist_controller
     pass_through_controllers
     kdl_parser
 )
@@ -55,6 +56,7 @@ catkin_package(
     ur_dashboard_msgs
     ur_msgs
     std_srvs
+    twist_controller
     pass_through_controllers
     kdl_parser
   DEPENDS

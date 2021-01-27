@@ -17,6 +17,7 @@ MODE_IDLE = 0
 MODE_SERVOJ = 1
 MODE_SPEEDJ = 2
 MODE_FORWARD = 3
+MODE_SPEEDL = 4
 
 TRAJECTORY_MODE_RECEIVE = 1
 TRAJECTORY_MODE_CANCEL = -1
@@ -30,10 +31,10 @@ global cmd_servo_state = SERVO_UNINITIALIZED
 global cmd_servo_qd = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 global cmd_servo_q = get_actual_joint_positions()
 global cmd_servo_q_last = get_actual_joint_positions()
+global cmd_twist = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 global extrapolate_count = 0
 global extrapolate_max_count = 0
 global control_mode = MODE_UNINITIALIZED
-cmd_speedj_active = True
 
 global trajectory_points_left = 0
 
@@ -158,6 +159,22 @@ def clear_remaining_trajectory_points():
   end
 end
 
+# Helpers for speed control
+def set_speedl(twist):
+  cmd_twist = twist
+  control_mode = MODE_SPEEDL
+end
+
+thread speedlThread():
+  textmsg("Starting speedl thread")
+  while control_mode == MODE_SPEEDL:
+    twist = cmd_twist
+    speedl(twist, 40.0, steptime)
+  end
+  textmsg("speedl thread ended")
+  stopj(5.0)
+end
+
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 #TODO add replace or const for IP
 socket_open("{{SERVER_IP_REPLACE}}", 50010, "joint_trajectory_socket")
@@ -189,6 +206,8 @@ while keepalive > 0 and control_mode > MODE_STOPPED:
         thread_move = run speedThread()
       elif control_mode == MODE_FORWARD:
         kill thread_move
+      elif control_mode == MODE_SPEEDL:
+        thread_move = run speedlThread()
       end
     end
     if control_mode == MODE_SERVOJ:
@@ -208,6 +227,9 @@ while keepalive > 0 and control_mode > MODE_STOPPED:
         kill thread_trajectory
         clear_remaining_trajectory_points()
       end
+    elif control_mode == MODE_SPEEDL:
+      twist = [params_mult[2] / MULT_jointstate, params_mult[3] / MULT_jointstate, params_mult[4] / MULT_jointstate, params_mult[5] / MULT_jointstate, params_mult[6] / MULT_jointstate, params_mult[7] / MULT_jointstate]
+      set_speedl(twist)
     end
   else:
     keepalive = keepalive - 1

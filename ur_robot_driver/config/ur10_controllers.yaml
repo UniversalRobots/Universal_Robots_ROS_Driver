@@ -138,6 +138,12 @@ forward_cartesian_traj_controller:
     type: "cartesian_trajectory_controllers/PassThroughController"
     joints: *robot_joints
 
+twist_controller:
+  type: "cartesian_ros_controllers/TwistController"
+  frame_id: "tool0_controller"
+  publish_rate: *loop_hz
+  joints: *robot_joints
+
 robot_status_controller:
    type: industrial_robot_status_controller/IndustrialRobotStatusController
    handle_name: industrial_robot_status_handle

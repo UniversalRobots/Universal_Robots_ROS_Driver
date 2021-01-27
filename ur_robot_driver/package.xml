@@ -40,6 +40,7 @@
   <depend>ur_client_library</depend>
   <depend>ur_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>twist_controller</depend>
   <depend>pass_through_controllers</depend>
   <depend>kdl_parser</depend>
 
