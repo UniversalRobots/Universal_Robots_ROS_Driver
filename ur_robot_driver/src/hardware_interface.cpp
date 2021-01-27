@@ -33,6 +33,7 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
+#include <tf/transform_datatypes.h>
 
 #include <Eigen/Geometry>
 
@@ -507,6 +508,13 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
+
+    cart_pose_.position.x = tcp_pose_[0];
+    cart_pose_.position.y = tcp_pose_[1];
+    cart_pose_.position.z = tcp_pose_[2];
+    tf::Quaternion q;
+    q.setRPY(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+    tf::quaternionTFToMsg(q, cart_pose_.orientation);
 
     extractRobotStatus();
 
