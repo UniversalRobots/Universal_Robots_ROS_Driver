@@ -245,8 +245,10 @@ protected:
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
   hardware_interface::JointTrajectoryInterface jnt_traj_interface_;
   hardware_interface::CartesianTrajectoryInterface cart_traj_interface_;
+
   ros_controllers_cartesian::CartesianStateInterface cart_interface_;
   ros_controllers_cartesian::TwistCommandInterface twist_interface_;
+  ros_controllers_cartesian::PoseCommandInterface pose_interface_;
 
   geometry_msgs::Pose cart_pose_;
   geometry_msgs::Twist cart_twist_;
@@ -322,6 +324,7 @@ protected:
   bool joint_forward_controller_running_;
   bool cartesian_forward_controller_running_;
   bool twist_controller_running_;
+  bool pose_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
