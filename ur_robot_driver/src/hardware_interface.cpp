@@ -33,7 +33,6 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
-#include <tf/transform_datatypes.h>
 
 #include <Eigen/Geometry>
 
@@ -347,9 +346,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
           std::bind(&HardwareInterface::cancelInterpolation, this));
   cart_traj_interface_.registerHandle(cartesian_trajectory_handle);
 
-  cartesian_ros_control::CartesianStateHandle handle("base", "tool0_controller", &cart_pose_, &cart_twist_,
-                                                     &cart_accel_, &cart_jerk_);
-  cart_interface_.registerHandle(handle);
+  cartesian_ros_control::CartesianStateHandle cart_state_handle("base", "tool0_controller", &cart_pose_, &cart_twist_,
+                                                                &cart_accel_, &cart_jerk_);
+  cart_interface_.registerHandle(cart_state_handle);
   twist_interface_.registerHandle(
       cartesian_ros_control::TwistCommandHandle(cart_interface_.getHandle("tool0_controller"), &twist_command_));
   twist_interface_.getHandle("tool0_controller");
@@ -512,10 +511,14 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     cart_pose_.position.x = tcp_pose_[0];
     cart_pose_.position.y = tcp_pose_[1];
     cart_pose_.position.z = tcp_pose_[2];
-    tf::Quaternion q;
-    q.setRPY(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
-    tf::quaternionTFToMsg(q, cart_pose_.orientation);
 
+    KDL::Vector vec = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+
+    double angle = vec.Normalize();
+
+    KDL::Rotation rot = KDL::Rotation::Rot(vec, angle);
+    rot.GetQuaternion(cart_pose_.orientation.x, cart_pose_.orientation.y, cart_pose_.orientation.z,
+                      cart_pose_.orientation.w);
     extractRobotStatus();
 
     publishIOData();
