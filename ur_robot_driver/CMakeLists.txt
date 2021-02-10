@@ -123,7 +123,7 @@ install(TARGETS ur_robot_driver_plugin ur_robot_driver_node robot_state_helper d
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(PROGRAMS scripts/tool_communication
+catkin_install_python(PROGRAMS scripts/tool_communication
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY config launch resources
