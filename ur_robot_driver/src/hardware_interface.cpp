@@ -670,11 +670,11 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     }
     else if (joint_forward_controller_running_)
     {
-      ur_driver_->writeTrajectoryControlMessage(0);
+      ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_NOOP);
     }
     else if (cartesian_forward_controller_running_)
     {
-      ur_driver_->writeTrajectoryControlMessage(0);
+      ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_NOOP);
     }
     else if (twist_controller_running_)
     {
@@ -1186,7 +1186,7 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
 {
   size_t point_number = trajectory.trajectory.points.size();
   LOG_DEBUG("Starting joint-based trajectory forward");
-  ur_driver_->writeTrajectoryControlMessage(1, point_number);
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_START, point_number);
   double last_time = 0.0;
   for (size_t i = 0; i < point_number; i++)
   {
@@ -1209,7 +1209,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
 {
   size_t point_number = trajectory.trajectory.points.size();
   LOG_DEBUG("Starting cartesian trajectory forward");
-  ur_driver_->writeTrajectoryControlMessage(1, point_number);
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_START, point_number);
   double last_time = 0.0;
   for (size_t i = 0; i < point_number; i++)
   {
@@ -1235,7 +1235,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
 void HardwareInterface::cancelInterpolation()
 {
   LOG_DEBUG("Cancelling Trajectory");
-  ur_driver_->writeTrajectoryControlMessage(-1);
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_CANCEL);
 }
 
 }  // namespace ur_driver
