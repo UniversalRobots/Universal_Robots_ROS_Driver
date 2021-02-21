@@ -33,6 +33,7 @@
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
+#include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
 
 #include <Eigen/Geometry>
 
@@ -483,11 +484,16 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     packet_read_ = true;
     readData(data_pkg, "actual_q", joint_positions_);
     readData(data_pkg, "actual_qd", joint_velocities_);
+    readData(data_pkg, "target_q", target_joint_positions_);
+    readData(data_pkg, "target_qd", target_joint_velocities_);
     readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
     readData(data_pkg, "speed_scaling", speed_scaling_);
     readData(data_pkg, "runtime_state", runtime_state_);
     readData(data_pkg, "actual_TCP_force", fts_measurements_);
     readData(data_pkg, "actual_TCP_pose", tcp_pose_);
+    readData(data_pkg, "actual_TCP_speed", tcp_speed_);
+    readData(data_pkg, "target_TCP_pose", target_tcp_pose_);
+    readData(data_pkg, "target_TCP_speed", target_tcp_speed_);
     readData(data_pkg, "standard_analog_input0", standard_analog_input_[0]);
     readData(data_pkg, "standard_analog_input1", standard_analog_input_[1]);
     readData(data_pkg, "standard_analog_output0", standard_analog_output_[0]);
@@ -508,6 +514,25 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
 
+    cart_pose_.position.x = tcp_pose_[0];
+    cart_pose_.position.y = tcp_pose_[1];
+    cart_pose_.position.z = tcp_pose_[2];
+
+    tcp_vec_ = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+
+    tcp_angle_ = tcp_vec_.Normalize();
+
+    tcp_pose_rot_ = KDL::Rotation::Rot(tcp_vec_, tcp_angle_);
+    tcp_pose_rot_.GetQuaternion(cart_pose_.orientation.x, cart_pose_.orientation.y, cart_pose_.orientation.z,
+                                cart_pose_.orientation.w);
+
+    cart_twist_.linear.x = tcp_speed_[0];
+    cart_twist_.linear.y = tcp_speed_[1];
+    cart_twist_.linear.z = tcp_speed_[2];
+    cart_twist_.angular.x = tcp_speed_[3];
+    cart_twist_.angular.y = tcp_speed_[4];
+    cart_twist_.angular.z = tcp_speed_[5];
+
     extractRobotStatus();
 
     publishIOData();
@@ -518,6 +543,64 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+
+    // Action feedback for joint trajectory forwarding
+    if (joint_forward_controller_running_)
+    {
+      control_msgs::FollowJointTrajectoryFeedback feedback = control_msgs::FollowJointTrajectoryFeedback();
+      for (size_t i = 0; i < 6; i++)
+      {
+        feedback.desired.positions.push_back(target_joint_positions_[i]);
+        feedback.desired.velocities.push_back(target_joint_velocities_[i]);
+        feedback.actual.positions.push_back(joint_positions_[i]);
+        feedback.actual.velocities.push_back(joint_velocities_[i]);
+        feedback.error.positions.push_back(std::abs(joint_positions_[i] - target_joint_positions_[i]));
+        feedback.error.velocities.push_back(std::abs(joint_velocities_[i] - target_joint_velocities_[i]));
+      }
+      jnt_traj_interface_.getHandle("joint_trajectory_handle").setFeedback(feedback);
+    }
+
+    // Action feedback for cartesian trajectory forwarding
+    if (cartesian_forward_controller_running_)
+    {
+      cartesian_control_msgs::FollowCartesianTrajectoryFeedback feedback =
+          cartesian_control_msgs::FollowCartesianTrajectoryFeedback();
+
+      target_cart_pose_.position.x = target_tcp_pose_[0];
+      target_cart_pose_.position.y = target_tcp_pose_[1];
+      target_cart_pose_.position.z = target_tcp_pose_[2];
+
+      tcp_vec_ = KDL::Vector(target_tcp_pose_[3], target_tcp_pose_[4], target_tcp_pose_[5]);
+      tcp_angle_ = tcp_vec_.Normalize();
+
+      target_tcp_pose_rot_ = KDL::Rotation::Rot(tcp_vec_, tcp_angle_);
+      target_tcp_pose_rot_.GetQuaternion(target_cart_pose_.orientation.x, target_cart_pose_.orientation.y,
+                                         target_cart_pose_.orientation.z, target_cart_pose_.orientation.w);
+
+      target_cart_twist_.linear.x = target_tcp_speed_[0];
+      target_cart_twist_.linear.y = target_tcp_speed_[1];
+      target_cart_twist_.linear.z = target_tcp_speed_[2];
+      target_cart_twist_.angular.x = target_tcp_speed_[3];
+      target_cart_twist_.angular.y = target_tcp_speed_[4];
+      target_cart_twist_.angular.z = target_tcp_speed_[5];
+
+      error_cart_pose_.position.x = std::abs(cart_pose_.position.x - target_cart_pose_.position.x);
+      error_cart_pose_.position.y = std::abs(cart_pose_.position.y - target_cart_pose_.position.y);
+      error_cart_pose_.position.z = std::abs(cart_pose_.position.z - target_cart_pose_.position.z);
+
+      error_cart_twist_.linear.x = std::abs(cart_twist_.linear.x - target_cart_twist_.linear.x);
+      error_cart_twist_.linear.y = std::abs(cart_twist_.linear.y - target_cart_twist_.linear.y);
+      error_cart_twist_.linear.z = std::abs(cart_twist_.linear.z - target_cart_twist_.linear.z);
+      error_cart_twist_.angular.x = std::abs(cart_twist_.angular.x - target_cart_twist_.angular.x);
+      error_cart_twist_.angular.y = std::abs(cart_twist_.angular.y - target_cart_twist_.angular.y);
+      error_cart_twist_.angular.z = std::abs(cart_twist_.angular.z - target_cart_twist_.angular.z);
+
+      feedback.desired.pose = target_cart_pose_;
+      feedback.desired.twist = target_cart_twist_;
+      feedback.actual.pose = cart_pose_;
+      feedback.actual.twist = cart_twist_;
+      cart_traj_interface_.getHandle("cartesian_trajectory_handle").setFeedback(feedback);
+    }
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PAUSED))

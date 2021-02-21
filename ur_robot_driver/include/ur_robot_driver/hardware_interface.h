@@ -245,13 +245,37 @@ protected:
   hardware_interface::CartesianTrajectory cart_traj_cmd_;
   hardware_interface::CartesianTrajectoryFeedback cart_traj_feedback_;
 
+  geometry_msgs::Pose cart_pose_;
+  geometry_msgs::Twist cart_twist_;
+  geometry_msgs::Accel cart_accel_;
+  geometry_msgs::Accel cart_jerk_;
+  geometry_msgs::Twist twist_command_;
+  geometry_msgs::Pose pose_command_;
+  geometry_msgs::Pose target_cart_pose_;
+  geometry_msgs::Twist target_cart_twist_;
+  geometry_msgs::Pose error_cart_pose_;
+  geometry_msgs::Twist error_cart_twist_;
+
+  KDL::Vector tcp_vec_;
+  double tcp_angle_;
+  KDL::Rotation tcp_pose_rot_;
+  KDL::Rotation target_tcp_pose_rot_;
+
   urcl::vector6d_t joint_position_command_;
   urcl::vector6d_t joint_velocity_command_;
   urcl::vector6d_t joint_positions_;
   urcl::vector6d_t joint_velocities_;
+  urcl::vector6d_t target_joint_positions_;
+  urcl::vector6d_t target_joint_velocities_;
   urcl::vector6d_t joint_efforts_;
   urcl::vector6d_t fts_measurements_;
   urcl::vector6d_t tcp_pose_;
+  urcl::vector6d_t tcp_speed_;
+  urcl::vector6d_t target_tcp_pose_;
+  urcl::vector6d_t target_tcp_speed_;
+  urcl::vector6d_t cartesian_velocity_command_;
+  urcl::vector6d_t cartesian_pose_command_;
+
   std::bitset<18> actual_dig_out_bits_;
   std::bitset<18> actual_dig_in_bits_;
   std::array<double, 2> standard_analog_input_;
