@@ -113,7 +113,7 @@ thread jointTrajectoryThread():
     textmsg("Waiting to read point")
     enter_critical
     #reading trajectory point + blend radius + type of point (cartesian/joint based)
-    raw_point = socket_read_binary_integer(TRAJECTORY_DATA_DIMENSION+1+1, "joint_trajectory_socket")
+    raw_point = socket_read_binary_integer(TRAJECTORY_DATA_DIMENSION+1+1, "trajectory_socket")
     trajectory_points_left = trajectory_points_left - 1
     exit_critical
     if raw_point[0] > 0:
@@ -155,7 +155,7 @@ end
 
 def clear_remaining_trajectory_points():
   while trajectory_points_left > 0:
-    raw_point = socket_read_binary_integer(TRAJECTORY_DATA_DIMENSION+2, "joint_trajectory_socket")
+    raw_point = socket_read_binary_integer(TRAJECTORY_DATA_DIMENSION+2, "trajectory_socket")
     trajectory_points_left = trajectory_points_left - 1
   end
 end
@@ -216,13 +216,14 @@ end
 def set_servo_pose(pose):
   cmd_servo_state = SERVO_RUNNING
   cmd_servo_q_last = cmd_servo_q
+  textmsg(pose)
   cmd_servo_q = get_inverse_kin(pose, cmd_servo_q)
 end
 
 
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
-#TODO add replace or const for IP
-socket_open("{{SERVER_IP_REPLACE}}", 50010, "joint_trajectory_socket")
+trajectory_port = {{SERVER_PORT_REPLACE}}+10
+socket_open("{{SERVER_IP_REPLACE}}", trajectory_port, "trajectory_socket")
 
 control_mode = MODE_UNINITIALIZED
 thread_move = 0
