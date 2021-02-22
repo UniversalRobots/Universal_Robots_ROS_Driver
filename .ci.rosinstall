@@ -2,3 +2,11 @@
     uri: https://github.com/fmauch/universal_robot.git
     local-name: universal_robot
     version: calibration_devel
+- git:
+    uri: https://github.com/UniversalRobots/Universal_Robots_Client_Library
+    local-name: ur_client_library
+    version: beta-testing
+- git:
+    uri: https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control
+    local-name: cartesian_ros_control
+    version: beta-testing
