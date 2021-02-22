@@ -518,6 +518,8 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     cart_pose_.position.y = tcp_pose_[1];
     cart_pose_.position.z = tcp_pose_[2];
 
+    // UR robots operate in axis angle representation
+
     tcp_vec_ = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
 
     tcp_angle_ = tcp_vec_.Normalize();
@@ -1222,6 +1224,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
     KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
                                                   point.pose.orientation.z, point.pose.orientation.w);
 
+    // UR robots use axis angle representation.
     p[3] = rot.GetRot().x();
     p[4] = rot.GetRot().y();
     p[5] = rot.GetRot().z();
