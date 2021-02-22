@@ -131,33 +131,33 @@ joint_group_vel_controller:
    joints: *robot_joints
 
 forward_joint_traj_controller:
-    type: "joint_trajectory_controllers/PassThroughController"
+    type: joint_trajectory_controllers/PassThroughController
     joints: *robot_joints
 
 forward_cartesian_traj_controller:
-    type: "cartesian_trajectory_controllers/PassThroughController"
+    type: cartesian_trajectory_controllers/PassThroughController
     joints: *robot_joints
 
 twist_controller:
-  type: "cartesian_ros_controllers/TwistController"
-  frame_id: "tool0_controller"
+  type: cartesian_ros_controllers/TwistController
+  frame_id: tool0_controller
   publish_rate: *loop_hz
   joints: *robot_joints
 
 pose_based_cartesian_traj_controller:
-    type: "pose_controllers/CartesianTrajectoryController"
+    type: pose_controllers/CartesianTrajectoryController
 
     # UR driver convention
-    base: "base"
-    tip: "tool0_controller"
+    base: base
+    tip: tool0_controller
     joints: *robot_joints
 
 joint_based_cartesian_traj_controller:
-    type: "position_controllers/CartesianTrajectoryController"
+    type: position_controllers/CartesianTrajectoryController
 
     # UR driver convention
-    base: "base"
-    tip: "tool0"
+    base: base
+    tip: tool0
     joints: *robot_joints
 
 robot_status_controller:
