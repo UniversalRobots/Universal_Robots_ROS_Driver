@@ -68,6 +68,9 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    recovery from safety events can be done using ROS service- and action calls. See the driver's
    [dashboard services](ur_robot_driver/doc/ROS_INTERFACE.md#ur_robot_driver_node) and the
    [robot_state_helper node](ur_robot_driver/doc/ROS_INTERFACE.md#robot_state_helper) for details.
+ * **BETA FEATURE**: Enable Cartesian trajectory control in your applications. Specify
+   waypoints in task space using a new [Cartesian trajectory interface](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_control_msgs) and a new [Cartesian trajectory controller](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_trajectory_controller) 
+ * **BETA FEATURE**: Use on-the-robot interpolation for both Cartesian and joint-based trajectories. Special types of [passthrough controllers](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/pass_through_controllers) forward the trajectories directly to the robot driver. The robot then takes care of interpolation between the waypoints to achieve best performance.
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 
