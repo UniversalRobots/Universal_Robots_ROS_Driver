@@ -51,7 +51,7 @@ While it uses the same FollowJointTrajectory interface as the previously existin
 control, during execution no control commands other than a keepalive signal are sent to the robot.
 A cancellation of the trajectory is still possible.
 
-Of special not for the forwarded trajectory is that, currently, blending is activated on the robot.
+Note that blending is activated for forwarded trajectories by default.
 This produces smoother trajectories, but causes target points other than the last to not
 necessarily be reached.
 One of the objectives of this beta test is to gather feedback for this behaviour and look into
