@@ -30,6 +30,10 @@
 #include <ur_client_library/exceptions.h>
 
 #include <ur_msgs/SetPayload.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <trajectory_msgs/JointTrajectory.h>
+#include <control_msgs/FollowJointTrajectoryAction.h>
+#include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
 
 #include <Eigen/Geometry>
 
@@ -52,6 +56,8 @@ static const std::bitset<11>
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
+  , cartesian_velocity_command_({ 0, 0, 0, 0, 0, 0 })
+  , cartesian_pose_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
@@ -62,6 +68,10 @@ HardwareInterface::HardwareInterface()
   , runtime_state_(static_cast<uint32_t>(rtde::RUNTIME_STATE::STOPPED))
   , position_controller_running_(false)
   , velocity_controller_running_(false)
+  , joint_forward_controller_running_(false)
+  , cartesian_forward_controller_running_(false)
+  , twist_controller_running_(false)
+  , pose_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -322,6 +332,32 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
 
+  // Initialize and register trajectory command handles for PassThroughControllers
+  hardware_interface::JointTrajectoryHandle joint_trajectory_handle = hardware_interface::JointTrajectoryHandle(
+      &jnt_traj_cmd_, &jnt_traj_feedback_,
+      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
+      std::bind(&HardwareInterface::cancelInterpolation, this));
+  jnt_traj_interface_.registerHandle(joint_trajectory_handle);
+
+  // Initialize and register Cartesian trajectory command handles for PassThroughControllers
+  hardware_interface::CartesianTrajectoryHandle cartesian_trajectory_handle =
+      hardware_interface::CartesianTrajectoryHandle(
+          &cart_traj_cmd_, &cart_traj_feedback_,
+          std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1),
+          std::bind(&HardwareInterface::cancelInterpolation, this));
+  cart_traj_interface_.registerHandle(cartesian_trajectory_handle);
+
+  cartesian_ros_control::CartesianStateHandle cart_state_handle("base", "tool0_controller", &cart_pose_, &cart_twist_,
+                                                                &cart_accel_, &cart_jerk_);
+  cart_interface_.registerHandle(cart_state_handle);
+  twist_interface_.registerHandle(
+      cartesian_ros_control::TwistCommandHandle(cart_interface_.getHandle("tool0_controller"), &twist_command_));
+  twist_interface_.getHandle("tool0_controller");
+
+  pose_interface_.registerHandle(
+      cartesian_ros_control::PoseCommandHandle(cart_interface_.getHandle("tool0_controller"), &pose_command_));
+  pose_interface_.getHandle("tool0_controller");
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -331,6 +367,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&speedsc_interface_);
   registerInterface(&fts_interface_);
   registerInterface(&robot_status_interface_);
+  registerInterface(&jnt_traj_interface_);
+  registerInterface(&cart_traj_interface_);
+  registerInterface(&twist_interface_);
+  registerInterface(&pose_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -444,11 +484,16 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     packet_read_ = true;
     readData(data_pkg, "actual_q", joint_positions_);
     readData(data_pkg, "actual_qd", joint_velocities_);
+    readData(data_pkg, "target_q", target_joint_positions_);
+    readData(data_pkg, "target_qd", target_joint_velocities_);
     readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
     readData(data_pkg, "speed_scaling", speed_scaling_);
     readData(data_pkg, "runtime_state", runtime_state_);
     readData(data_pkg, "actual_TCP_force", fts_measurements_);
     readData(data_pkg, "actual_TCP_pose", tcp_pose_);
+    readData(data_pkg, "actual_TCP_speed", tcp_speed_);
+    readData(data_pkg, "target_TCP_pose", target_tcp_pose_);
+    readData(data_pkg, "target_TCP_speed", target_tcp_speed_);
     readData(data_pkg, "standard_analog_input0", standard_analog_input_[0]);
     readData(data_pkg, "standard_analog_input1", standard_analog_input_[1]);
     readData(data_pkg, "standard_analog_output0", standard_analog_output_[0]);
@@ -469,6 +514,27 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
 
+    cart_pose_.position.x = tcp_pose_[0];
+    cart_pose_.position.y = tcp_pose_[1];
+    cart_pose_.position.z = tcp_pose_[2];
+
+    // UR robots operate in axis angle representation
+
+    tcp_vec_ = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+
+    tcp_angle_ = tcp_vec_.Normalize();
+
+    tcp_pose_rot_ = KDL::Rotation::Rot(tcp_vec_, tcp_angle_);
+    tcp_pose_rot_.GetQuaternion(cart_pose_.orientation.x, cart_pose_.orientation.y, cart_pose_.orientation.z,
+                                cart_pose_.orientation.w);
+
+    cart_twist_.linear.x = tcp_speed_[0];
+    cart_twist_.linear.y = tcp_speed_[1];
+    cart_twist_.linear.z = tcp_speed_[2];
+    cart_twist_.angular.x = tcp_speed_[3];
+    cart_twist_.angular.y = tcp_speed_[4];
+    cart_twist_.angular.z = tcp_speed_[5];
+
     extractRobotStatus();
 
     publishIOData();
@@ -479,6 +545,64 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+
+    // Action feedback for joint trajectory forwarding
+    if (joint_forward_controller_running_)
+    {
+      control_msgs::FollowJointTrajectoryFeedback feedback = control_msgs::FollowJointTrajectoryFeedback();
+      for (size_t i = 0; i < 6; i++)
+      {
+        feedback.desired.positions.push_back(target_joint_positions_[i]);
+        feedback.desired.velocities.push_back(target_joint_velocities_[i]);
+        feedback.actual.positions.push_back(joint_positions_[i]);
+        feedback.actual.velocities.push_back(joint_velocities_[i]);
+        feedback.error.positions.push_back(std::abs(joint_positions_[i] - target_joint_positions_[i]));
+        feedback.error.velocities.push_back(std::abs(joint_velocities_[i] - target_joint_velocities_[i]));
+      }
+      jnt_traj_interface_.getHandle("joint_trajectory_handle").setFeedback(feedback);
+    }
+
+    // Action feedback for cartesian trajectory forwarding
+    if (cartesian_forward_controller_running_)
+    {
+      cartesian_control_msgs::FollowCartesianTrajectoryFeedback feedback =
+          cartesian_control_msgs::FollowCartesianTrajectoryFeedback();
+
+      target_cart_pose_.position.x = target_tcp_pose_[0];
+      target_cart_pose_.position.y = target_tcp_pose_[1];
+      target_cart_pose_.position.z = target_tcp_pose_[2];
+
+      tcp_vec_ = KDL::Vector(target_tcp_pose_[3], target_tcp_pose_[4], target_tcp_pose_[5]);
+      tcp_angle_ = tcp_vec_.Normalize();
+
+      target_tcp_pose_rot_ = KDL::Rotation::Rot(tcp_vec_, tcp_angle_);
+      target_tcp_pose_rot_.GetQuaternion(target_cart_pose_.orientation.x, target_cart_pose_.orientation.y,
+                                         target_cart_pose_.orientation.z, target_cart_pose_.orientation.w);
+
+      target_cart_twist_.linear.x = target_tcp_speed_[0];
+      target_cart_twist_.linear.y = target_tcp_speed_[1];
+      target_cart_twist_.linear.z = target_tcp_speed_[2];
+      target_cart_twist_.angular.x = target_tcp_speed_[3];
+      target_cart_twist_.angular.y = target_tcp_speed_[4];
+      target_cart_twist_.angular.z = target_tcp_speed_[5];
+
+      error_cart_pose_.position.x = std::abs(cart_pose_.position.x - target_cart_pose_.position.x);
+      error_cart_pose_.position.y = std::abs(cart_pose_.position.y - target_cart_pose_.position.y);
+      error_cart_pose_.position.z = std::abs(cart_pose_.position.z - target_cart_pose_.position.z);
+
+      error_cart_twist_.linear.x = std::abs(cart_twist_.linear.x - target_cart_twist_.linear.x);
+      error_cart_twist_.linear.y = std::abs(cart_twist_.linear.y - target_cart_twist_.linear.y);
+      error_cart_twist_.linear.z = std::abs(cart_twist_.linear.z - target_cart_twist_.linear.z);
+      error_cart_twist_.angular.x = std::abs(cart_twist_.angular.x - target_cart_twist_.angular.x);
+      error_cart_twist_.angular.y = std::abs(cart_twist_.angular.y - target_cart_twist_.angular.y);
+      error_cart_twist_.angular.z = std::abs(cart_twist_.angular.z - target_cart_twist_.angular.z);
+
+      feedback.desired.pose = target_cart_pose_;
+      feedback.desired.twist = target_cart_twist_;
+      feedback.actual.pose = cart_pose_;
+      feedback.actual.twist = cart_twist_;
+      cart_traj_interface_.getHandle("cartesian_trajectory_handle").setFeedback(feedback);
+    }
 
     // pausing state follows runtime state when pausing
     if (runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PAUSED))
@@ -546,6 +670,38 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     {
       ur_driver_->writeJointCommand(joint_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDJ);
     }
+    else if (joint_forward_controller_running_)
+    {
+      ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_NOOP);
+    }
+    else if (cartesian_forward_controller_running_)
+    {
+      ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_NOOP);
+    }
+    else if (twist_controller_running_)
+    {
+      cartesian_velocity_command_[0] = twist_command_.linear.x;
+      cartesian_velocity_command_[1] = twist_command_.linear.y;
+      cartesian_velocity_command_[2] = twist_command_.linear.z;
+      cartesian_velocity_command_[3] = twist_command_.angular.x;
+      cartesian_velocity_command_[4] = twist_command_.angular.y;
+      cartesian_velocity_command_[5] = twist_command_.angular.z;
+      ur_driver_->writeJointCommand(cartesian_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDL);
+    }
+    else if (pose_controller_running_)
+    {
+      cartesian_pose_command_[0] = pose_command_.position.x;
+      cartesian_pose_command_[1] = pose_command_.position.y;
+      cartesian_pose_command_[2] = pose_command_.position.z;
+
+      KDL::Rotation rot = KDL::Rotation::Quaternion(pose_command_.orientation.x, pose_command_.orientation.y,
+                                                    pose_command_.orientation.z, pose_command_.orientation.w);
+      cartesian_pose_command_[3] = rot.GetRot().x();
+      cartesian_pose_command_[4] = rot.GetRot().y();
+      cartesian_pose_command_[5] = rot.GetRot().z();
+
+      ur_driver_->writeJointCommand(cartesian_pose_command_, urcl::comm::ControlMode::MODE_POSE);
+    }
     else
     {
       ur_driver_->writeKeepalive();
@@ -601,6 +757,28 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           velocity_controller_running_ = false;
         }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::"
+                                              "FollowJointTrajectoryGoal_<std::allocator<void> >, "
+                                              "control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        {
+          joint_forward_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
+        {
+          cartesian_forward_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "cartesian_ros_control::TwistCommandInterface")
+        {
+          twist_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "cartesian_ros_control::PoseCommandInterface")
+        {
+          ROS_INFO_STREAM("Stopping pose controller");
+          pose_controller_running_ = false;
+        }
       }
     }
   }
@@ -625,6 +803,28 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         if (resource_it.hardware_interface == "hardware_interface::VelocityJointInterface")
         {
           velocity_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<control_msgs::"
+                                              "FollowJointTrajectoryGoal_<std::allocator<void> >, "
+                                              "control_msgs::FollowJointTrajectoryFeedback_<std::allocator<void> > >")
+        {
+          joint_forward_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "hardware_interface::TrajectoryInterface<cartesian_control_msgs::"
+                                              "FollowCartesianTrajectoryGoal_<std::allocator<void> >, "
+                                              "cartesian_control_msgs::FollowCartesianTrajectoryFeedback_<std::"
+                                              "allocator<void> > >")
+        {
+          cartesian_forward_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "cartesian_ros_control::TwistCommandInterface")
+        {
+          twist_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "cartesian_ros_control::PoseCommandInterface")
+        {
+          ROS_INFO_STREAM("Starting pose controller");
+          pose_controller_running_ = true;
         }
       }
     }
@@ -974,8 +1174,73 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
       }
     }
   }
+  for (const std::string& jt : claimed_resources)
+  {
+    if ("tool0_controller" == jt)
+    {
+      return true;
+    }
+  }
   return false;
 }
+
+void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  LOG_DEBUG("Starting joint-based trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
+  {
+    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.positions[0];
+    p[1] = point.positions[1];
+    p[2] = point.positions[2];
+    p[3] = point.positions[3];
+    p[4] = point.positions[4];
+    p[5] = point.positions[5];
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    last_time = next_time;
+  }
+  LOG_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  LOG_DEBUG("Starting cartesian trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
+  {
+    cartesian_control_msgs::CartesianTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.pose.position.x;
+    p[1] = point.pose.position.y;
+    p[2] = point.pose.position.z;
+
+    KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
+                                                  point.pose.orientation.z, point.pose.orientation.w);
+
+    // UR robots use axis angle representation.
+    p[3] = rot.GetRot().x();
+    p[4] = rot.GetRot().y();
+    p[5] = rot.GetRot().z();
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
+    last_time = next_time;
+  }
+  LOG_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::cancelInterpolation()
+{
+  LOG_DEBUG("Cancelling Trajectory");
+  ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_CANCEL);
+}
+
 }  // namespace ur_driver
 
 PLUGINLIB_EXPORT_CLASS(ur_driver::HardwareInterface, hardware_interface::RobotHW)

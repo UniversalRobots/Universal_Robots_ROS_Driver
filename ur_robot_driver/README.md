@@ -4,6 +4,74 @@ This package contains the actual driver for UR robots. It is part of the *univer
 repository and requires other packages from that repository. Also, see the [main repository's
 README](../README.md) for information on how to install and startup this driver.
 
+
+## About this branch
+
+This branch is a beta test of new interfaces towards the robot.
+It is, as such, to be considered under development, and documentation may in parts be missing and
+things might change in the near future.
+It is required to use the beta-testing branch of the [Universal Robots Client Library](https://github.com/UniversalRobots/Universal_Robots_Client_Library). 
+
+Additionally, the packages in the [cartesian ros control
+repository](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control) are needed,
+both for the provided cartesian interface definitions and new controllers utilizing the new
+interfaces to the robot.
+
+### Features
+
+This branch introduces several new interfaces via which to communicate with the robot.
+
+* Cartesian pose streaming
+* Cartesian velocity streaming
+* Joint-based trajectory forwarding
+* Cartesian trajectory forwarding
+* Cartesian control using the joint-based robot interface
+
+All of them can be used with corresponding ROS controllers.
+More information about the controllers can be found in the cartesian ros control repository.
+
+##### Cartesian pose streaming
+
+Start the preloaded `pose_traj_controller`.
+This controller allows ROS-level interpolation and streaming of cartesian poses to the robot.
+It uses the newly created FollowCartesianTrajectory action.
+
+##### Cartesian velocity streaming
+
+Start the preloaded `twist_controller`.
+This controller allows for streaming twist commands via the `twist_controller/command` topic to be
+interpreted as cartesian velocity control commands by the robot.
+
+##### Joint-based trajectory forwarding
+
+Start the preloaded `forward_joint_traj_controller`.
+This controllers allows for forwarding full trajectories to the robot, to be interpolated and
+executed completely by the internal robot control.
+While it uses the same FollowJointTrajectory interface as the previously existing trajectory
+control, during execution no control commands other than a keepalive signal are sent to the robot.
+A cancellation of the trajectory is still possible.
+
+Note that blending is activated for forwarded trajectories by default.
+This produces smoother trajectories, but causes target points other than the last to not
+necessarily be reached.
+One of the objectives of this beta test is to gather feedback for this behaviour and look into
+feasible ways to control this blending radius, that has to directly corresponding field in the ROS
+trajectory interface definition, to be set based on the commanded trajectory.
+
+##### Cartesian trajectory forwarding
+
+Start the preloaded `forward_cartesian_traj_controller`.
+Similar to the previous controller, this offers forwarding cartesian trajectories to the robot.
+It is used in the same general structure and also utilizes blending.
+
+##### Cartesian control using joint-based robot interface
+
+Start the preloaded `vendor_cartesian_traj_controller`.
+This controller offers the same ROS-level interface as the `pose_traj_controller`.
+The difference is the way these commands are executed by the robot.
+This controller transforms the cartesian trajectory into joint-based trajectory commands, before
+streaming these to the robot, thus using the joint interface provided by it.
+
 ## ROS-API
 The ROS API is documented in a [standalone document](doc/ROS_INTERFACE.md). It is auto-generated
 using [catkin_doc](https://github.com/fzi-forschungszentrum-informatik/catkin_doc).
