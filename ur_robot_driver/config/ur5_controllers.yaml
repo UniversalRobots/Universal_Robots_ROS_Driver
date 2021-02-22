@@ -144,7 +144,7 @@ twist_controller:
   publish_rate: *loop_hz
   joints: *robot_joints
 
-pose_traj_controller:
+pose_based_cartesian_traj_controller:
     type: "pose_controllers/CartesianTrajectoryController"
 
     # UR driver convention
@@ -152,7 +152,7 @@ pose_traj_controller:
     tip: "tool0_controller"
     joints: *robot_joints
 
-vendor_cartesian_traj_controller:
+joint_based_cartesian_traj_controller:
     type: "position_controllers/CartesianTrajectoryController"
 
     # UR driver convention
