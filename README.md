@@ -111,7 +111,7 @@ $ source /opt/ros/<your_ros_version>/setup.bash
 $ mkdir -p catkin_ws/src && cd catkin_ws
 $ git clone -b beta-testing-boost https://github.com/UniversalRobots/Universal_Robots_Client_Library.git src/Universal_Robots_Client_Library
 $ git clone -b beta-testing https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
-$ git clone -b beta-testing https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control.git
+$ git clone -b beta-testing https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control.git src/cartesian_ros_control
 $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
 $ sudo apt update -qq
 $ rosdep update
