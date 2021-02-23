@@ -1,5 +1,14 @@
 [![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
+---
+**Beta version** available on a [separate branch](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/tree/beta-testing) with
+
+- Cartesian trajectory control
+- Robot-side trajectory interpolation
+- and more..
+
+---
+
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
