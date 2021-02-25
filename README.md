@@ -1,6 +1,29 @@
 [![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
-# Universal_Robots_ROS_Driver
+---
+# = Beta version =
+
+Welcome! This is the beta version of the driver with [new features](#Features) around Cartesian control.
+We are currently testing new enhancements, which means that things here and there might not (yet) work as expected.
+If you would like to help - any feedback, suggestion or contribution - is highly appreciated!
+
+This driver still has the two main components: the driver itself, and the ROS-independent [client library](https://github.com/UniversalRobots/Universal_Robots_Client_Library/tree/beta-testing-boost).
+Additionally, there is the new package of [Cartesian ROS control](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing) that brings new ROS-specific functionality.
+In the spirit of ROS control, these things are best kept robot-independent so that more robots can use them. That's why you'll find this package apart.
+
+The adapted [build instructions](#Building) show you how to set things up quickly.
+Reporting issues is handle on the three main repositories:
+- [Issues concerning the driver](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues) (please mark them with *beta-testing*)
+- [Issues concerning the client library](https://github.com/UniversalRobots/Universal_Robots_Client_Library/issues) (please also mark with *beta-testing*)
+- and [issues concerning cartesian_ros_control](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/issues).
+
+Please give us feedback to [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
+
+Happy testing!
+
+---
+
+## Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
 <center><img src="ur_robot_driver/doc/initial_setup_images/e-Series.jpg" alt="Universal Robot e-Series family" style="width: 80%;"/></center>
@@ -68,9 +91,21 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    recovery from safety events can be done using ROS service- and action calls. See the driver's
    [dashboard services](ur_robot_driver/doc/ROS_INTERFACE.md#ur_robot_driver_node) and the
    [robot_state_helper node](ur_robot_driver/doc/ROS_INTERFACE.md#robot_state_helper) for details.
- * **BETA FEATURE**: Enable Cartesian trajectory control in your applications. Specify
-   waypoints in task space using a new [Cartesian trajectory interface](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_control_msgs) and a new [Cartesian trajectory controller](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_trajectory_controller) 
- * **BETA FEATURE**: Use on-the-robot interpolation for both Cartesian and joint-based trajectories. Special types of [passthrough controllers](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/pass_through_controllers) forward the trajectories directly to the robot driver. The robot then takes care of interpolation between the waypoints to achieve best performance.
+---
+ * **BETA FEATURE**: Enable Cartesian trajectory control in your applications.
+   Specify waypoints in task space using a new [Cartesian trajectory
+   interface](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_control_msgs)
+   and a new [Cartesian trajectory
+   controller](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/cartesian_trajectory_controller).
+
+ * **BETA FEATURE**: Use on-the-robot interpolation for both Cartesian and
+   joint-based trajectories. This is extremely helpful if your application can
+   not meet the real-time requirements of the driver. Special types of
+   [passthrough
+   controllers](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/pass_through_controllers)
+   forward the trajectories directly to the robot, which then takes
+   care of interpolation between the waypoints to achieve best performance.
+---
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 
