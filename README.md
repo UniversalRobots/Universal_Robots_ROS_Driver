@@ -17,7 +17,7 @@ Reporting issues is handle on the three main repositories:
 - [Issues concerning the client library](https://github.com/UniversalRobots/Universal_Robots_Client_Library/issues) (please also mark with *beta-testing*)
 - and [issues concerning cartesian_ros_control](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/issues).
 
-Additionally, please feel free to email further suggestions, inquiries or any other feedback to [ROS@universal-robots.com](mailto:ROS@universal-robots.com).
+Please give us feedback to [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
 
 Happy testing!
 
