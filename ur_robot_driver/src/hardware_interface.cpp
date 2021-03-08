@@ -868,7 +868,7 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
   }
   else
   {
-    LOG_ERROR("Cannot execute function %u. This is not (yet) supported.", req.fun);
+    ROS_ERROR("Cannot execute function %u. This is not (yet) supported.", req.fun);
     res.success = false;
   }
 

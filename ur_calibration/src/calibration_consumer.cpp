@@ -38,7 +38,7 @@ bool CalibrationConsumer::consume(std::shared_ptr<urcl::primary_interface::Prima
   auto kin_info = std::dynamic_pointer_cast<urcl::primary_interface::KinematicsInfo>(product);
   if (kin_info != nullptr)
   {
-    LOG_INFO("%s", product->toString().c_str());
+    ROS_INFO("%s", product->toString().c_str());
     DHRobot my_robot;
     for (size_t i = 0; i < kin_info->dh_a_.size(); ++i)
     {
