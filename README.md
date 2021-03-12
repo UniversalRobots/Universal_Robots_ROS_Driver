@@ -5,7 +5,8 @@
 
 Welcome! This is the beta version of the driver with [new features](#Features) around Cartesian control.
 We are currently testing new enhancements, which means that things here and there might not (yet) work as expected.
-If you would like to help - any feedback, suggestion or contribution - is highly appreciated!
+
+If you would like to help [**fill in the Survey**](https://share.hsforms.com/1_SsLjqMcT8SfaRUiYWwcrA1kep1) - any feedback, suggestion or contribution - is highly appreciated!
 
 This driver still has the two main components: the driver itself, and the ROS-independent [client library](https://github.com/UniversalRobots/Universal_Robots_Client_Library/tree/beta-testing-boost).
 Additionally, there is the new package of [Cartesian ROS control](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing) that brings new ROS-specific functionality.
@@ -17,7 +18,7 @@ Reporting issues is handle on the three main repositories:
 - [Issues concerning the client library](https://github.com/UniversalRobots/Universal_Robots_Client_Library/issues) (please also mark with *beta-testing*)
 - and [issues concerning cartesian_ros_control](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/issues).
 
-Please give us feedback to [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
+Please give us feedback through the [**survey**](https://share.hsforms.com/1_SsLjqMcT8SfaRUiYWwcrA1kep1) or [ROS@universal-robots.com](mailto:ROS@universal-robots.com) on what you have tested and how it worked out.
 
 Happy testing!
 
