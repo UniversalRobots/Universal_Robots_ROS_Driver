@@ -384,6 +384,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // work when the robot is in remote-control mode.
   tare_sensor_srv_ = robot_hw_nh.advertiseService("zero_ftsensor", &HardwareInterface::zeroFTSensor, this);
 
+  // Calling this service will reset the revolution counter for the robot's wrist_3_link. Note: On e-Series robots this will only
+  // work when the robot is in remote-control mode.
+  reset_revolution_counter_srv_ = robot_hw_nh.advertiseService("reset_revolution_counter", &HardwareInterface::resetRevolutionCounter, this);
+
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
@@ -909,6 +913,15 @@ bool HardwareInterface::zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::Tr
 end
 )");
   }
+  return true;
+}
+
+bool HardwareInterface::resetRevolutionCounter(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = this->ur_driver_->sendScript(R"(sec resetRevolutionCounter():
+  reset_revolution_counter()
+end
+)");
   return true;
 }
 
