@@ -1186,20 +1186,50 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
 
 void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
 {
+  // Take joint order into consideration by
+  // computing the map between msg indices to expected indices.
+  // If msg is {C, B} and expected is {A, B, C, D}, the associated mapping vector is {2, 1}
+  //
+  auto msg = trajectory.trajectory.joint_names;
+  auto expected = joint_names_;
+  std::vector<size_t> msg_joints(msg.size());
+  if (msg.size() > expected.size())
+  {
+    // msg must be a subset of expected
+    LOG_WARN("Not forwarding trajectory. It contains too many joints");
+    return;
+  }
+  for (auto msg_it = msg.begin(); msg_it != msg.end(); ++msg_it)
+  {
+    auto expected_it = std::find(expected.begin(), expected.end(), *msg_it);
+    if (expected.end() == expected_it)
+    {
+      LOG_WARN("Not forwarding trajectory. It does not contain the expected joints");
+      return;
+    }
+    else
+    {
+      const size_t msg_dist = std::distance(msg.begin(), msg_it);
+      const size_t expected_dist = std::distance(expected.begin(), expected_it);
+      msg_joints[msg_dist] = expected_dist;
+    }
+  }
+
   size_t point_number = trajectory.trajectory.points.size();
   LOG_DEBUG("Starting joint-based trajectory forward");
   ur_driver_->writeTrajectoryControlMessage(urcl::comm::TrajectoryControlMessage::TRAJECTORY_START, point_number);
   double last_time = 0.0;
-  for (size_t i = 0; i < point_number; i++)
+  for (auto point : trajectory.trajectory.points)
   {
-    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
-    urcl::vector6d_t p;
-    p[0] = point.positions[0];
-    p[1] = point.positions[1];
-    p[2] = point.positions[2];
-    p[3] = point.positions[3];
-    p[4] = point.positions[4];
-    p[5] = point.positions[5];
+    // Only write to joints that are contained in the new point.
+    // Keep the other joints unchanged.
+    urcl::vector6d_t p = joint_positions_;
+    for (size_t i = 0; i < msg_joints.size(); ++i)
+    {
+      auto jnt_id = msg_joints[i];
+      p[jnt_id] = point.positions[i];
+    }
+
     double next_time = point.time_from_start.toSec();
     ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
     last_time = next_time;
