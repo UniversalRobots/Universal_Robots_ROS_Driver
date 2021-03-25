@@ -918,10 +918,16 @@ end
 
 bool HardwareInterface::resetRevolutionCounter(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
 {
+  std_msgs::Bool msg;
+  msg.data = false;
+  program_state_pub_.publish(msg);
   res.success = this->ur_driver_->sendScript(R"(sec resetRevolutionCounter():
   reset_revolution_counter()
 end
 )");
+  ros::Duration(0.1).sleep(); // wait for the reset to be done
+  msg.data = true;
+  program_state_pub_.publish(msg);
   return true;
 }
 
