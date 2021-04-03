@@ -1,5 +1,7 @@
 {{BEGIN_REPLACE}}
 
+# HEADER_BEGIN
+
 steptime = get_steptime()
 
 textmsg("ExternalControl: steptime=", steptime)
@@ -93,6 +95,10 @@ thread speedThread():
   stopj(5.0)
 end
 
+# HEADER_END
+
+# NODE_CONTROL_LOOP_BEGINS
+
 socket_open("{{SERVER_IP_REPLACE}}", {{SERVER_PORT_REPLACE}}, "reverse_socket")
 
 control_mode = MODE_UNINITIALIZED
@@ -134,3 +140,5 @@ control_mode = MODE_STOPPED
 join thread_move
 textmsg("ExternalControl: All threads ended")
 socket_close("reverse_socket")
+
+# NODE_CONTROL_LOOP_ENDS
