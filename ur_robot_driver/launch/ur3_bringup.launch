@@ -2,6 +2,7 @@
 <launch>
   <arg name="debug" default="false" doc="Debug flag that will get passed on to ur_common.launch"/>
   <arg name="robot_ip" doc="IP address by which the robot can be reached."/>
+  <arg name="reverse_ip" default="" doc="IP of the driver, if set to empty it will detect it automatically."/>
   <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
   <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>

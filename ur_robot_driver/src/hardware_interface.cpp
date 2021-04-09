@@ -84,6 +84,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // IP that will be used for the robot controller to communicate back to the driver.
+  std::string reverse_ip = robot_hw_nh.param<std::string>("reverse_ip", "");
+
   // Port that will be opened to communicate between the driver and the robot controller.
   int reverse_port = robot_hw_nh.param("reverse_port", 50001);
 
@@ -258,11 +261,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   ROS_INFO_STREAM("Initializing urdriver");
   try
   {
-    ur_driver_.reset(
-        new urcl::UrDriver(robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
-                           std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1),
-                           headless_mode, std::move(tool_comm_setup), calibration_checksum, (uint32_t)reverse_port,
-                           (uint32_t)script_sender_port, servoj_gain, servoj_lookahead_time, non_blocking_read_));
+    ur_driver_.reset(new urcl::UrDriver(
+        robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
+        std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1), headless_mode,
+        std::move(tool_comm_setup), calibration_checksum, (uint32_t)reverse_port, (uint32_t)script_sender_port,
+        servoj_gain, servoj_lookahead_time, non_blocking_read_, reverse_ip));
   }
   catch (urcl::ToolCommNotAvailable& e)
   {
