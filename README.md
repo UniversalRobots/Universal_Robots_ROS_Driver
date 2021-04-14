@@ -140,7 +140,7 @@ $ sudo apt update -qq
 $ rosdep update
 $ rosdep install --from-paths src --ignore-src -y
 
-# build the workspace. We need an isolated build because of the non-catkin library package.
+# build the workspace
 $ catkin_make
 
 # activate the workspace (ie: source it)
