@@ -17,6 +17,7 @@
 | support of CB2 robots                                 | yes              | -                     |
 | trajectory extrapolation on robot on missing packages | no<sup>2</sup>   | yes                   |
 | use ROS as drop-in for TP-programs                    | -                | yes   |
+| headless mode                                         | yes              | yes   |
 | extract calibration from robot                        | -                | yes                   |
 | send custom script commands to robot                  | yes              | yes               |
 | ROS 2 support                                         | ?                | (planned)<sup>3</sup> |
