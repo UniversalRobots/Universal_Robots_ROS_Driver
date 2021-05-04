@@ -328,3 +328,6 @@ mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on 
 See [Available dashboard
 commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
 for details.
+
+### The robot does not fully reach trajectory points even though I have specified the path tolerance to be 0
+If you are using a control modes that forwards trajectories to the robot, currently the path tolerance is ignored. The corresponding interface on the robot and client-library level exists in the form of a "blend radius", but is not utilized by this ROS driver. For more information see this [issue](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/352).
