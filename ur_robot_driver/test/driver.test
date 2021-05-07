@@ -3,9 +3,11 @@
     This file is meant to run with a ursim robot running inside a docker container
     Therefore, certain assumptions are met like the robot model and the robot's IP address.
     -->
+  <arg name="robot_ip" default="192.168.56.101"/>
+  <arg name="robot_type" default="ur5e"/>
 
-  <include file="$(find ur_robot_driver)/launch/ur5e_bringup.launch">
-    <arg name="robot_ip" value="192.168.56.101"/>
+  <include file="$(find ur_robot_driver)/launch/$(arg robot_type)_bringup.launch">
+    <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="headless_mode" value="true"/>
   </include>
 
