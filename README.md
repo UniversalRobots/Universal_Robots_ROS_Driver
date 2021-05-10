@@ -331,3 +331,11 @@ for details.
 
 ### The robot does not fully reach trajectory points even though I have specified the path tolerance to be 0
 If you are using a control modes that forwards trajectories to the robot, currently the path tolerance is ignored. The corresponding interface on the robot and client-library level exists in the form of a "blend radius", but is not utilized by this ROS driver. For more information see this [issue](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/352).
+
+### Can I use the Cartesian controllers together with MoveIt!?
+Not directly, no. MoveIt! plans a Cartesian path and then creates a joint trajectory out of that for
+execution, as the common interface to robot drivers in ROS is the
+[FollowJointTrajectory](http://docs.ros.org/en/noetic/api/control_msgs/html/action/FollowJointTrajectory.html)
+action.
+
+For supporting Cartesian controllers inside MoveIt! changes would have to be made to MoveIt! itself.
