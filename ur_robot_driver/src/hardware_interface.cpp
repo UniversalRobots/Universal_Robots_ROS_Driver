@@ -694,6 +694,10 @@ void HardwareInterface::extractToolPose(const ros::Time& timestamp)
   {
     rotation.setRotation(rotation_vec.normalized(), tcp_angle);
   }
+  else
+  {
+    rotation.setValue(0.0, 0.0, 0.0, 1.0);  // default Quaternion is 0,0,0,0 which is invalid
+  }
   tcp_transform_.header.stamp = timestamp;
   tcp_transform_.transform.translation.x = tcp_pose_[0];
   tcp_transform_.transform.translation.y = tcp_pose_[1];
