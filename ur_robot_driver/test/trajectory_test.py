@@ -80,7 +80,6 @@ class TrajectoryTest(unittest.TestCase):
                          FollowJointTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
-    def test_illegal_trajectory(self):
         """Test trajectory server. This is more of a validation test that the testing suite does the
         right thing."""
         goal = FollowJointTrajectoryGoal()
@@ -107,7 +106,6 @@ class TrajectoryTest(unittest.TestCase):
                          FollowJointTrajectoryResult.INVALID_GOAL)
         rospy.loginfo("Received result INVALID_GOAL")
 
-    def test_scaled_trajectory(self):
         """Test robot movement"""
         goal = FollowJointTrajectoryGoal()
 
