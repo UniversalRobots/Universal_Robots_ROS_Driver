@@ -9,53 +9,82 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 from trajectory_msgs.msg import JointTrajectoryPoint
+from ur_msgs.srv import SetIO, SetIORequest
+from ur_msgs.msg import IOStates
 
 PKG = 'ur_robot_driver'
-NAME = 'trajectory_test'
+NAME = 'integration_test'
 
 
-class TrajectoryTest(unittest.TestCase):
+class IntegrationTest(unittest.TestCase):
     def __init__(self, *args):
-        super(TrajectoryTest, self).__init__(*args)
-        rospy.init_node('trajectory_testing_client')
-        self.client = actionlib.SimpleActionClient(
-            'follow_joint_trajectory', FollowJointTrajectoryAction)
-        timeout = rospy.Duration(30)
-        try:
-            self.client.wait_for_server(timeout)
-        except rospy.exceptions.ROSException as err:
-            self.fail(
-                "Could not reach controller action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+        super(IntegrationTest, self).__init__(*args)
 
         self.init_robot()
 
     def init_robot(self):
         """Make sure the robot is booted and ready to receive commands"""
-        mode_client = actionlib.SimpleActionClient(
-            '/ur_hardware_interface/set_mode', SetModeAction)
+
+        rospy.init_node('ur_robot_driver_integration_test')
         timeout = rospy.Duration(30)
+
+        self.set_mode_client = actionlib.SimpleActionClient(
+            '/ur_hardware_interface/set_mode', SetModeAction)
         try:
-            mode_client.wait_for_server(timeout)
+            self.set_mode_client.wait_for_server(timeout)
         except rospy.exceptions.ROSException as err:
             self.fail(
                 "Could not reach set_mode action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
+
+        self.trajectory_client = actionlib.SimpleActionClient(
+            'follow_joint_trajectory', FollowJointTrajectoryAction)
+        try:
+            self.trajectory_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
+        try:
+            self.set_io_client.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach SetIO service. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+        timeout = rospy.Duration(30)
+
+
+    def test_switch_on_and_off(self):
+        """Do full integration test of robot driver"""
+        #### Switch on test ####
         goal = SetModeGoal()
         goal.target_robot_mode = RobotMode.RUNNING
         goal.play_program = False # we use headless mode during tests
 
-        mode_client.send_goal(goal)
-        mode_client.wait_for_result()
+        self.set_mode_client.send_goal(goal)
+        self.set_mode_client.wait_for_result()
 
-        self.assertTrue(mode_client.get_result().success)
+        self.assertTrue(self.set_mode_client.get_result().success)
+
+
+    def trajectory_test(self):
+        """Test robot movement"""
+        #### Make sure the controller is up and running ####
+        goal = SetModeGoal()
+        goal.target_robot_mode = RobotMode.RUNNING
+        goal.play_program = False # we use headless mode during tests
+
+        self.set_mode_client.send_goal(goal)
+        self.set_mode_client.wait_for_result()
+
+        rospy.sleep(2) # TODO properly wait until the robot is running
 
         send_program_srv = rospy.ServiceProxy("/ur_hardware_interface/resend_robot_program", Trigger)
         send_program_srv.call()
-        rospy.sleep(5)
+        rospy.sleep(2) # TODO properly wait until the controller is running
 
-    def test_trajectory(self):
-        """Test robot movement"""
         goal = FollowJointTrajectoryGoal()
 
         goal.trajectory.joint_names = ["elbow_joint", "shoulder_lift_joint", "shoulder_pan_joint",
@@ -73,14 +102,13 @@ class TrajectoryTest(unittest.TestCase):
 
         rospy.loginfo("Sending simple goal")
 
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
+        self.trajectory_client.send_goal(goal)
+        self.trajectory_client.wait_for_result()
 
-        self.assertEqual(self.client.get_result().error_code,
+        self.assertEqual(self.trajectory_client.get_result().error_code,
                          FollowJointTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
-    def test_illegal_trajectory(self):
         """Test trajectory server. This is more of a validation test that the testing suite does the
         right thing."""
         goal = FollowJointTrajectoryGoal()
@@ -99,15 +127,14 @@ class TrajectoryTest(unittest.TestCase):
             goal.trajectory.points.append(point)
 
         rospy.loginfo("Sending illegal goal")
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
+        self.trajectory_client.send_goal(goal)
+        self.trajectory_client.wait_for_result()
 
         # As timings are illegal, we expect the result to be INVALID_GOAL
-        self.assertEqual(self.client.get_result().error_code,
+        self.assertEqual(self.trajectory_client.get_result().error_code,
                          FollowJointTrajectoryResult.INVALID_GOAL)
         rospy.loginfo("Received result INVALID_GOAL")
 
-    def test_scaled_trajectory(self):
         """Test robot movement"""
         goal = FollowJointTrajectoryGoal()
 
@@ -124,24 +151,55 @@ class TrajectoryTest(unittest.TestCase):
             goal.trajectory.points.append(point)
 
         rospy.loginfo("Sending scaled goal without time restrictions")
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
+        self.trajectory_client.send_goal(goal)
+        self.trajectory_client.wait_for_result()
 
-        self.assertEqual(self.client.get_result().error_code,
+        self.assertEqual(self.trajectory_client.get_result().error_code,
                          FollowJointTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
         # Now do the same again, but with a goal time constraint
         rospy.loginfo("Sending scaled goal with time restrictions")
         goal.goal_time_tolerance = rospy.Duration(0.01)
-        self.client.send_goal(goal)
-        self.client.wait_for_result()
+        self.trajectory_client.send_goal(goal)
+        self.trajectory_client.wait_for_result()
 
-        self.assertEqual(self.client.get_result().error_code,
+        self.assertEqual(self.trajectory_client.get_result().error_code,
                          FollowJointTrajectoryResult.GOAL_TOLERANCE_VIOLATED)
         rospy.loginfo("Received result GOAL_TOLERANCE_VIOLATED")
 
 
+    def test_set_io(self):
+        """Test to set an IO and check whether it has been set."""
+        maximum_messages = 5
+        pin = 0
+        self.assertEqual(maximum_messages, 5)
+
+        self.set_io_client(1, pin, 0)
+        messages = 0
+        pin_state = True
+
+        while(pin_state):
+            if messages >= maximum_messages:
+                self.fail("Could not read desired state after {} messages.".format(maximum_messages))
+            io_state = rospy.wait_for_message('/ur_hardware_interface/io_states', IOStates)
+            pin_state = io_state.digital_out_states[pin].state
+            messages += 1
+        self.assertEqual(pin_state, 0)
+
+        self.set_io_client(SetIORequest.FUN_SET_DIGITAL_OUT, pin, 1)
+        messages = 0
+        pin_state = False
+
+        while(not pin_state):
+            if messages >= maximum_messages:
+                self.fail("Could not read desired state after {} messages.".format(maximum_messages))
+            io_state = rospy.wait_for_message('/ur_hardware_interface/io_states', IOStates)
+            pin_state = io_state.digital_out_states[pin].state
+            messages += 1
+        self.assertEqual(pin_state, 1)
+
+
 if __name__ == '__main__':
     import rostest
-    rostest.run(PKG, NAME, TrajectoryTest, sys.argv)
+    rostest.run(PKG, NAME, IntegrationTest, sys.argv)
