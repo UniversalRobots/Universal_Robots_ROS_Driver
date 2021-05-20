@@ -123,7 +123,7 @@ class IntegrationTest(unittest.TestCase):
 
     def set_robot_to_mode(self, target_mode):
         goal = SetModeGoal()
-        goal.target_robot_mode = target_mode
+        goal.target_robot_mode.mode = RobotMode.RUNNING
         goal.play_program = False # we use headless mode during tests
         # This might be a bug to hunt down. We have to reset the program before calling `resend_robot_program`
         goal.stop_program = True

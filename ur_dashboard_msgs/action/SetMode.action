@@ -2,7 +2,7 @@
 # non-critical state (e.g. NORMAL or REDUCED), for example after a safety incident happened.
 
 # goal
-int8 target_robot_mode
+ur_dashboard_msgs/RobotMode target_robot_mode
 
 # Stop program execution before restoring the target mode. Can be used together with 'play_program'.
 bool stop_program
