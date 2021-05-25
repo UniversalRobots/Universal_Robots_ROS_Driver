@@ -1,0 +1,16 @@
+- git:
+    uri: https://github.com/ros-industrial/universal_robot.git
+    local-name: universal_robot
+    version: melodic-devel-staging
+- git:
+    uri: https://github.com/UniversalRobots/Universal_Robots_Client_Library
+    local-name: ur_client_library
+    version: beta-testing-boost
+- git:
+    uri: https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control
+    local-name: cartesian_ros_control
+    version: beta-testing
+- git:
+    uri: https://github.com/ros-industrial/ur_msgs.git
+    local-name: ur_msgs
+    version: melodic-devel
