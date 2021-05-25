@@ -60,7 +60,7 @@ class IntegrationTest(unittest.TestCase):
         """Do full integration test of robot driver"""
         #### Switch on test ####
         goal = SetModeGoal()
-        goal.target_robot_mode = RobotMode.RUNNING
+        goal.target_robot_mode.mode = RobotMode.RUNNING
         goal.play_program = False # we use headless mode during tests
 
         self.set_mode_client.send_goal(goal)
@@ -73,7 +73,7 @@ class IntegrationTest(unittest.TestCase):
         """Test robot movement"""
         #### Make sure the controller is up and running ####
         goal = SetModeGoal()
-        goal.target_robot_mode = RobotMode.RUNNING
+        goal.target_robot_mode.mode = RobotMode.RUNNING
         goal.play_program = False # we use headless mode during tests
 
         self.set_mode_client.send_goal(goal)
