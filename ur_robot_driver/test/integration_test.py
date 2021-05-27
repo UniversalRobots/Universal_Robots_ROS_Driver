@@ -53,37 +53,39 @@ class IntegrationTest(unittest.TestCase):
             self.fail(
                 "Could not reach SetIO service. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
-        timeout = rospy.Duration(30)
 
+        self.send_program_srv = rospy.ServiceProxy('/ur_hardware_interface/resend_robot_program',
+                                                   Trigger)
+        try:
+            self.send_program_srv.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach resend_robot_program service. Make sure that the driver is "
+                "actually running in headless mode."
+                " Msg: {}".format(err))
 
-    def test_switch_on_and_off(self):
-        """Do full integration test of robot driver"""
-        #### Switch on test ####
+    def set_robot_to_mode(self, target_mode):
         goal = SetModeGoal()
-        goal.target_robot_mode = RobotMode.RUNNING
+        goal.target_robot_mode = target_mode
         goal.play_program = False # we use headless mode during tests
+        # This might be a bug to hunt down. We have to reset the program before calling `resend_robot_program`
+        goal.stop_program = True
 
         self.set_mode_client.send_goal(goal)
         self.set_mode_client.wait_for_result()
+        return self.set_mode_client.get_result().success
 
-        self.assertTrue(self.set_mode_client.get_result().success)
 
-
-    def trajectory_test(self):
+    def test_trajectories(self):
         """Test robot movement"""
-        #### Make sure the controller is up and running ####
-        goal = SetModeGoal()
-        goal.target_robot_mode = RobotMode.RUNNING
-        goal.play_program = False # we use headless mode during tests
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
 
-        self.set_mode_client.send_goal(goal)
-        self.set_mode_client.wait_for_result()
-
-        rospy.sleep(2) # TODO properly wait until the robot is running
-
-        send_program_srv = rospy.ServiceProxy("/ur_hardware_interface/resend_robot_program", Trigger)
-        send_program_srv.call()
-        rospy.sleep(2) # TODO properly wait until the controller is running
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
 
         goal = FollowJointTrajectoryGoal()
 
