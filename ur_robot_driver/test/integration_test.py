@@ -5,15 +5,40 @@ import unittest
 
 import rospy
 import actionlib
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, FollowJointTrajectoryResult
+import std_msgs.msg
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+    FollowJointTrajectoryResult)
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 from trajectory_msgs.msg import JointTrajectoryPoint
 from ur_msgs.srv import SetIO, SetIORequest
 from ur_msgs.msg import IOStates
 
+from cartesian_control_msgs.msg import (
+    FollowCartesianTrajectoryAction,
+    FollowCartesianTrajectoryGoal,
+    FollowCartesianTrajectoryResult,
+    CartesianTrajectoryPoint)
+import geometry_msgs.msg
+
+from controller_manager_msgs.srv import SwitchControllerRequest, SwitchController
+
 PKG = 'ur_robot_driver'
 NAME = 'integration_test'
+ALL_CONTROLLERS = [
+        "scaled_pos_joint_traj_controller",
+        "pos_joint_traj_controller",
+        "scaled_vel_joint_traj_controller",
+        "vel_joint_traj_controller",
+        "joint_group_vel_controller",
+        "forward_joint_traj_controller",
+        "forward_cartesian_traj_controller",
+        "twist_controller",
+        "pose_based_cartesian_traj_controller",
+        "joint_based_cartesian_traj_controller",
+        ]
 
 
 class IntegrationTest(unittest.TestCase):
@@ -46,12 +71,30 @@ class IntegrationTest(unittest.TestCase):
                 "Could not reach controller action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
+        self.cartesian_trajectory_client = actionlib.SimpleActionClient(
+            'follow_cartesian_trajectory', FollowCartesianTrajectoryAction)
+        try:
+            self.cartesian_trajectory_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach cartesian controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
         self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
         try:
             self.set_io_client.wait_for_service(timeout)
         except rospy.exceptions.ROSException as err:
             self.fail(
                 "Could not reach SetIO service. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.switch_controllers_client = rospy.ServiceProxy('/controller_manager/switch_controller',
+                SwitchController)
+        try:
+            self.switch_controllers_client.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach controller switch service. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
         self.send_program_srv = rospy.ServiceProxy('/ur_hardware_interface/resend_robot_program',
@@ -63,6 +106,8 @@ class IntegrationTest(unittest.TestCase):
                 "Could not reach resend_robot_program service. Make sure that the driver is "
                 "actually running in headless mode."
                 " Msg: {}".format(err))
+
+        self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
 
     def set_robot_to_mode(self, target_mode):
         goal = SetModeGoal()
@@ -76,7 +121,7 @@ class IntegrationTest(unittest.TestCase):
         return self.set_mode_client.get_result().success
 
 
-    def trajectory_test(self):
+    def test_joint_trajectory_position_interface(self):
         """Test robot movement"""
         #### Power cycle the robot in order to make sure it is running correctly####
         self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
@@ -86,6 +131,7 @@ class IntegrationTest(unittest.TestCase):
 
         self.send_program_srv.call()
         rospy.sleep(0.5) # TODO properly wait until the controller is running
+        self.switch_on_controller("scaled_pos_joint_traj_controller")
 
         goal = FollowJointTrajectoryGoal()
 
@@ -201,6 +247,49 @@ class IntegrationTest(unittest.TestCase):
             messages += 1
         self.assertEqual(pin_state, 1)
 
+    def test_cartesian_trajectory_pose_interface(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        # Make sure the robot is at a valid start position for our cartesian motions
+        self.script_publisher.publish("movej([1, -1.7, -1.7, -1, -1.57, -2])")
+        # As we don't have any feedback from that interface, sleep for a while
+        rospy.sleep(5)
+
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("pose_based_cartesian_traj_controller")
+
+        position_list = [geometry_msgs.msg.Vector3(0.4,0.4,0.4)]
+        position_list.append(geometry_msgs.msg.Vector3(0.5,0.5,0.5))
+        duration_list = [3.0, 6.0]
+        goal = FollowCartesianTrajectoryGoal()
+
+        for i, position in enumerate(position_list):
+            point = CartesianTrajectoryPoint()
+            point.pose = geometry_msgs.msg.Pose(position, geometry_msgs.msg.Quaternion(0,0,0,1))
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        self.cartesian_trajectory_client.send_goal(goal)
+        self.cartesian_trajectory_client.wait_for_result()
+        self.assertEqual(self.cartesian_trajectory_client.get_result().error_code,
+                         FollowCartesianTrajectoryResult.SUCCESSFUL)
+        rospy.loginfo("Received result SUCCESSFUL")
+
+    def switch_on_controller(self, controller_name):
+        """Switches on the given controller stopping all other known controllers with best_effort
+        strategy."""
+        srv = SwitchControllerRequest()
+        srv.stop_controllers = ALL_CONTROLLERS
+        srv.start_controllers = [controller_name]
+        srv.strictness = SwitchControllerRequest.BEST_EFFORT
+        result = self.switch_controllers_client(srv)
+        self.assertTrue(result.ok)
 
 if __name__ == '__main__':
     import rostest
