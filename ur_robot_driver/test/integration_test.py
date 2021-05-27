@@ -69,7 +69,7 @@ class IntegrationTest(unittest.TestCase):
         self.assertTrue(self.set_mode_client.get_result().success)
 
 
-    def trajectory_test(self):
+    def test_trajectories(self):
         """Test robot movement"""
         #### Make sure the controller is up and running ####
         goal = SetModeGoal()
