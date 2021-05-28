@@ -9,7 +9,8 @@ import std_msgs.msg
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
-    FollowJointTrajectoryResult)
+    FollowJointTrajectoryResult,
+    JointTolerance)
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 from trajectory_msgs.msg import JointTrajectoryPoint
@@ -78,6 +79,24 @@ class IntegrationTest(unittest.TestCase):
         except rospy.exceptions.ROSException as err:
             self.fail(
                 "Could not reach cartesian controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.cartesian_passthrough_trajectory_client = actionlib.SimpleActionClient(
+            'forward_cartesian_trajectory', FollowCartesianTrajectoryAction)
+        try:
+            self.cartesian_passthrough_trajectory_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach cartesian passthrough controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.joint_passthrough_trajectory_client = actionlib.SimpleActionClient(
+            'forward_joint_trajectory', FollowJointTrajectoryAction)
+        try:
+            self.joint_passthrough_trajectory_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach joint passthrough controller action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
         self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
@@ -275,10 +294,83 @@ class IntegrationTest(unittest.TestCase):
             point.pose = geometry_msgs.msg.Pose(position, geometry_msgs.msg.Quaternion(0,0,0,1))
             point.time_from_start = rospy.Duration(duration_list[i])
             goal.trajectory.points.append(point)
+        goal.goal_time_tolerance = rospy.Duration(0.6)
+
         self.cartesian_trajectory_client.send_goal(goal)
         self.cartesian_trajectory_client.wait_for_result()
         self.assertEqual(self.cartesian_trajectory_client.get_result().error_code,
                          FollowCartesianTrajectoryResult.SUCCESSFUL)
+        rospy.loginfo("Received result SUCCESSFUL")
+
+    def test_cartesian_passthrough(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        # Make sure the robot is at a valid start position for our cartesian motions
+        self.script_publisher.publish("movej([1, -1.7, -1.7, -1, -1.57, -2])")
+        # As we don't have any feedback from that interface, sleep for a while
+        rospy.sleep(5)
+
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("forward_cartesian_traj_controller")
+
+        position_list = [geometry_msgs.msg.Vector3(0.4,0.4,0.4)]
+        position_list.append(geometry_msgs.msg.Vector3(0.5,0.5,0.5))
+        duration_list = [3.0, 6.0]
+        goal = FollowCartesianTrajectoryGoal()
+
+        for i, position in enumerate(position_list):
+            point = CartesianTrajectoryPoint()
+            point.pose = geometry_msgs.msg.Pose(position, geometry_msgs.msg.Quaternion(0,0,0,1))
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        self.cartesian_passthrough_trajectory_client.send_goal(goal)
+        self.cartesian_passthrough_trajectory_client.wait_for_result()
+        self.assertEqual(self.cartesian_passthrough_trajectory_client.get_result().error_code,
+                         FollowCartesianTrajectoryResult.SUCCESSFUL)
+        rospy.loginfo("Received result SUCCESSFUL")
+
+    def test_joint_passthrough(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("forward_joint_traj_controller")
+        goal = FollowJointTrajectoryGoal()
+
+        goal.trajectory.joint_names = ["elbow_joint", "shoulder_lift_joint", "shoulder_pan_joint",
+                                       "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"]
+
+        position_list = [[0,-1.57,-1.57,0,0,0]]
+        position_list.append([0.2,-1.57,-1.57,0,0,0])
+        position_list.append([-0.5,-1.57,-1.2,0,0,0])
+        duration_list = [3.0, 7.0, 10.0]
+
+        for i, position in enumerate(position_list):
+            point = JointTrajectoryPoint()
+            point.positions = position
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        for i, joint_name in enumerate(goal.trajectory.joint_names):
+            goal.goal_tolerance.append(JointTolerance(joint_name, 0.2, 0.2, 0.2))
+
+        goal.goal_time_tolerance = rospy.Duration(0.6)
+        self.joint_passthrough_trajectory_client.send_goal(goal)
+        self.joint_passthrough_trajectory_client.wait_for_result()
+
+        self.assertEqual(self.joint_passthrough_trajectory_client.get_result().error_code,
+                         FollowJointTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
     def switch_on_controller(self, controller_name):
