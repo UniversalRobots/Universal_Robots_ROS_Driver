@@ -9,4 +9,4 @@
 - git:
     uri: https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control
     local-name: cartesian_ros_control
-    version: beta-testing
+    version: master
