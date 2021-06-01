@@ -18,8 +18,13 @@ With the release of UR’s new e-Series, the demand for a ROS driver that suppor
 
 It is the core value of Universal Robots, to empower people to achieve any goal within automation. The success criteria of this driver release is to follow this vision, by providing the ROS community with an easy to use, stable and powerful driver, that empowers the community to reach their goals in research and automation without struggling with unimportant technical challenges, instability or lacking features.
 
-## Acknowledgement
+## Acknowledgment
 This driver is forked from the [ur_modern_driver](https://github.com/ros-industrial/ur_modern_driver).
+
+Developed in collaboration between:
+
+[<img height="60" alt="Universal Robots A/S" src="ur_robot_driver/doc/resources/ur_logo.jpg">](https://www.universal-robots.com/) &nbsp; and &nbsp;
+[<img height="60" alt="FZI Research Center for Information Technology" src="ur_robot_driver/doc/resources/fzi-logo_transparenz.png">](https://www.fzi.de).
 
 <!-- 
     ROSIN acknowledgement from the ROSIN press kit
@@ -39,9 +44,6 @@ More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
 This project has received funding from the European Union’s Horizon 2020  
 research and innovation programme under grant agreement no. 732287. 
-
-It was developed in collaboration between [Universal Robots](https://www.universal-robots.com/) and
-the [FZI Research Center for Information Technology](https://www.fzi.de).
 
 
 ## How to report an issue
