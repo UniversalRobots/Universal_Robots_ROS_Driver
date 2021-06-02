@@ -25,6 +25,7 @@
  */
 //----------------------------------------------------------------------
 #include <pluginlib/class_list_macros.hpp>
+#include <ur_client_library/control/trajectory_point_interface.h>
 #include <ur_robot_driver/hardware_interface.h>
 #include <ur_client_library/ur/tool_communication.h>
 #include <ur_client_library/exceptions.h>
@@ -36,6 +37,7 @@
 #include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
 
 #include <Eigen/Geometry>
+#include <stdexcept>
 
 using industrial_robot_status_interface::RobotMode;
 using industrial_robot_status_interface::TriState;
@@ -297,6 +299,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
                      "[https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information] "
                      "for details.");
   }
+  ur_driver_->registerTrajectoryDoneCallback(
+      std::bind(&HardwareInterface::passthroughTrajectoryDoneCb, this, std::placeholders::_1));
 
   // Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in
   // remote-control mode.
@@ -1196,6 +1200,36 @@ void HardwareInterface::cancelInterpolation()
   ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_CANCEL);
 }
 
+void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryResult result)
+{
+  // This should be forwarded to the passthrough controller. Probably there's a better way than
+  // using a member function, this is just an example of registering a callback for the trajectory
+  // end.
+  switch (result)
+  {
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_SUCCESS:
+    {
+      ROS_INFO_STREAM("Forwarded trajectory finished successful.");
+      break;
+    }
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_CANCELED:
+    {
+      ROS_INFO_STREAM("Forwarded trajectory execution preempted by user.");
+      break;
+    }
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_FAILURE:
+    {
+      ROS_INFO_STREAM("Forwarded trajectory execution failed.");
+      break;
+    }
+    default:
+    {
+      std::stringstream ss;
+      ss << "Unknown trajectory result: " << urcl::toUnderlying(result);
+      throw(std::invalid_argument(ss.str()));
+    }
+  }
+}
 }  // namespace ur_driver
 
 PLUGINLIB_EXPORT_CLASS(ur_driver::HardwareInterface, hardware_interface::RobotHW)

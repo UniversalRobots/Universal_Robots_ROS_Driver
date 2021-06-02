@@ -46,6 +46,7 @@
 #include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
 #include <cartesian_control_msgs/FollowCartesianTrajectoryFeedback.h>
 
+#include <ur_client_library/control/trajectory_point_interface.h>
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
 #include <ur_msgs/SetIO.h>
@@ -225,6 +226,8 @@ protected:
   void startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory);
 
   void cancelInterpolation();
+
+  void passthroughTrajectoryDoneCb(urcl::control::TrajectoryResult result);
 
   ros::ServiceServer deactivate_srv_;
   ros::ServiceServer tare_sensor_srv_;
