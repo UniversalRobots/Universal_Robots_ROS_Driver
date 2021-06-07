@@ -92,6 +92,7 @@ add_executable(ur_robot_driver_node
   src/dashboard_client_ros.cpp
   src/hardware_interface.cpp
   src/hardware_interface_node.cpp
+  src/urcl_log_handler.cpp
 )
 target_link_libraries(ur_robot_driver_node ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -99,6 +100,7 @@ add_dependencies(ur_robot_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 add_executable(dashboard_client
   src/dashboard_client_ros.cpp
   src/dashboard_client_node.cpp
+  src/urcl_log_handler.cpp
 )
 target_link_libraries(dashboard_client ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -106,6 +108,7 @@ add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 add_executable(robot_state_helper
   src/robot_state_helper.cpp
   src/robot_state_helper_node.cpp
+  src/urcl_log_handler.cpp
 )
 target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
