@@ -349,20 +349,13 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   robot_status_interface_.registerHandle(industrial_robot_status_interface::IndustrialRobotStatusHandle(
       "industrial_robot_status_handle", robot_status_resource_));
 
-  // Initialize and register trajectory command handles for PassThroughControllers
-  hardware_interface::JointTrajectoryHandle joint_trajectory_handle = hardware_interface::JointTrajectoryHandle(
-      &jnt_traj_cmd_, &jnt_traj_feedback_,
-      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1),
-      std::bind(&HardwareInterface::cancelInterpolation, this));
-  jnt_traj_interface_.registerHandle(joint_trajectory_handle);
-
-  // Initialize and register Cartesian trajectory command handles for PassThroughControllers
-  hardware_interface::CartesianTrajectoryHandle cartesian_trajectory_handle =
-      hardware_interface::CartesianTrajectoryHandle(
-          &cart_traj_cmd_, &cart_traj_feedback_,
-          std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1),
-          std::bind(&HardwareInterface::cancelInterpolation, this));
-  cart_traj_interface_.registerHandle(cartesian_trajectory_handle);
+  // Register callbacks for trajectory passthrough
+  jnt_traj_interface_.registerGoalCallback(
+      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1));
+  jnt_traj_interface_.registerCancelCallback(std::bind(&HardwareInterface::cancelInterpolation, this));
+  cart_traj_interface_.registerGoalCallback(
+      std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1));
+  cart_traj_interface_.registerCancelCallback(std::bind(&HardwareInterface::cancelInterpolation, this));
 
   // Register interfaces
   registerInterface(&js_interface_);
@@ -563,7 +556,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
         feedback.error.positions.push_back(std::abs(joint_positions_[i] - target_joint_positions_[i]));
         feedback.error.velocities.push_back(std::abs(joint_velocities_[i] - target_joint_velocities_[i]));
       }
-      jnt_traj_interface_.getHandle("joint_trajectory_handle").setFeedback(feedback);
+      jnt_traj_interface_.setFeedback(feedback);
     }
 
     // Action feedback for cartesian trajectory forwarding
@@ -605,7 +598,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
       feedback.desired.twist = target_cart_twist_;
       feedback.actual.pose = cart_pose_;
       feedback.actual.twist = cart_twist_;
-      cart_traj_interface_.getHandle("cartesian_trajectory_handle").setFeedback(feedback);
+      cart_traj_interface_.setFeedback(feedback);
     }
 
     // pausing state follows runtime state when pausing
@@ -1202,23 +1195,24 @@ void HardwareInterface::cancelInterpolation()
 
 void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryResult result)
 {
-  // This should be forwarded to the passthrough controller. Probably there's a better way than
-  // using a member function, this is just an example of registering a callback for the trajectory
-  // end.
+  hardware_interface::ExecutionState final_state;
   switch (result)
   {
     case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_SUCCESS:
     {
+      final_state = hardware_interface::ExecutionState::SUCCESS;
       ROS_INFO_STREAM("Forwarded trajectory finished successful.");
       break;
     }
     case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_CANCELED:
     {
+      final_state = hardware_interface::ExecutionState::SUCCESS;
       ROS_INFO_STREAM("Forwarded trajectory execution preempted by user.");
       break;
     }
     case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_FAILURE:
     {
+      final_state = hardware_interface::ExecutionState::SUCCESS;
       ROS_INFO_STREAM("Forwarded trajectory execution failed.");
       break;
     }
@@ -1228,6 +1222,19 @@ void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryRes
       ss << "Unknown trajectory result: " << urcl::toUnderlying(result);
       throw(std::invalid_argument(ss.str()));
     }
+  }
+
+  if (joint_forward_controller_running_)
+  {
+    jnt_traj_interface_.setDone(final_state);
+  }
+  else if (cartesian_forward_controller_running_)
+  {
+    cart_traj_interface_.setDone(final_state);
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Received forwarded trajectory result with no forwarding controller running.");
   }
 }
 }  // namespace ur_driver

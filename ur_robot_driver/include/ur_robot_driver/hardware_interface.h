@@ -243,11 +243,6 @@ protected:
   hardware_interface::JointTrajectoryInterface jnt_traj_interface_;
   hardware_interface::CartesianTrajectoryInterface cart_traj_interface_;
 
-  hardware_interface::JointTrajectory jnt_traj_cmd_;
-  hardware_interface::JointTrajectoryFeedback jnt_traj_feedback_;
-  hardware_interface::CartesianTrajectory cart_traj_cmd_;
-  hardware_interface::CartesianTrajectoryFeedback cart_traj_feedback_;
-
   geometry_msgs::Pose cart_pose_;
   geometry_msgs::Twist cart_twist_;
   geometry_msgs::Accel cart_accel_;
