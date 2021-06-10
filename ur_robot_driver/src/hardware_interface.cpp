@@ -1206,13 +1206,13 @@ void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryRes
     }
     case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_CANCELED:
     {
-      final_state = hardware_interface::ExecutionState::SUCCESS;
+      final_state = hardware_interface::ExecutionState::PREEMPTED;
       ROS_INFO_STREAM("Forwarded trajectory execution preempted by user.");
       break;
     }
     case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_FAILURE:
     {
-      final_state = hardware_interface::ExecutionState::SUCCESS;
+      final_state = hardware_interface::ExecutionState::ABORTED;
       ROS_INFO_STREAM("Forwarded trajectory execution failed.");
       break;
     }
