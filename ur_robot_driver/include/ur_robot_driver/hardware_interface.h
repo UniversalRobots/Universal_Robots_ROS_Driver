@@ -220,7 +220,7 @@ protected:
   hardware_interface::JointStateInterface js_interface_;
   scaled_controllers::ScaledPositionJointInterface spj_interface_;
   hardware_interface::PositionJointInterface pj_interface_;
-  hardware_interface::SpeedScalingInterface speedsc_interface_;
+  scaled_controllers::SpeedScalingInterface speedsc_interface_;
   hardware_interface::VelocityJointInterface vj_interface_;
   scaled_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
