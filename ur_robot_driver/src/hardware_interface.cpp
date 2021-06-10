@@ -307,14 +307,14 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i]));
     vj_interface_.registerHandle(
         hardware_interface::JointHandle(js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i]));
-    spj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
+    spj_interface_.registerHandle(scaled_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_position_command_[i], &speed_scaling_combined_));
-    svj_interface_.registerHandle(ur_controllers::ScaledJointHandle(
+    svj_interface_.registerHandle(scaled_controllers::ScaledJointHandle(
         js_interface_.getHandle(joint_names_[i]), &joint_velocity_command_[i], &speed_scaling_combined_));
   }
 
   speedsc_interface_.registerHandle(
-      ur_controllers::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
+      hardware_interface::SpeedScalingHandle("speed_scaling_factor", &speed_scaling_combined_));
 
   fts_interface_.registerHandle(hardware_interface::ForceTorqueSensorHandle(
       wrench_frame_id, tf_prefix_ + "tool0_controller", fts_measurements_.begin(), fts_measurements_.begin() + 3));
@@ -585,7 +585,7 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
     {
       if (checkControllerClaims(resource_it.resources))
       {
-        if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+        if (resource_it.hardware_interface == "scaled_controllers::ScaledPositionJointInterface")
         {
           position_controller_running_ = false;
         }
@@ -593,7 +593,7 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           position_controller_running_ = false;
         }
-        if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+        if (resource_it.hardware_interface == "scaled_controllers::ScaledVelocityJointInterface")
         {
           velocity_controller_running_ = false;
         }
@@ -610,7 +610,7 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
     {
       if (checkControllerClaims(resource_it.resources))
       {
-        if (resource_it.hardware_interface == "ur_controllers::ScaledPositionJointInterface")
+        if (resource_it.hardware_interface == "scaled_controllers::ScaledPositionJointInterface")
         {
           position_controller_running_ = true;
         }
@@ -618,7 +618,7 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           position_controller_running_ = true;
         }
-        if (resource_it.hardware_interface == "ur_controllers::ScaledVelocityJointInterface")
+        if (resource_it.hardware_interface == "scaled_controllers::ScaledVelocityJointInterface")
         {
           velocity_controller_running_ = true;
         }

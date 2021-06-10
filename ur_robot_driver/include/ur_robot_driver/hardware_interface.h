@@ -45,8 +45,8 @@
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
 
-#include <ur_controllers/speed_scaling_interface.h>
-#include <ur_controllers/scaled_joint_command_interface.h>
+#include <speed_scaling_interface/speed_scaling_interface.h>
+#include <scaled_joint_trajectory_controller/scaled_joint_command_interface.h>
 
 #include <ur_client_library/ur/ur_driver.h>
 #include <ur_robot_driver/dashboard_client_ros.h>
@@ -218,11 +218,11 @@ protected:
   ros::ServiceServer set_payload_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
-  ur_controllers::ScaledPositionJointInterface spj_interface_;
+  scaled_controllers::ScaledPositionJointInterface spj_interface_;
   hardware_interface::PositionJointInterface pj_interface_;
-  ur_controllers::SpeedScalingInterface speedsc_interface_;
+  hardware_interface::SpeedScalingInterface speedsc_interface_;
   hardware_interface::VelocityJointInterface vj_interface_;
-  ur_controllers::ScaledVelocityJointInterface svj_interface_;
+  scaled_controllers::ScaledVelocityJointInterface svj_interface_;
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
 
   urcl::vector6d_t joint_position_command_;

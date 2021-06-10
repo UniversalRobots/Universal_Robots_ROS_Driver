@@ -30,16 +30,18 @@
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>scaled_joint_trajectory_controller</depend>
   <depend>sensor_msgs</depend>
-  <depend>tf</depend>
-  <depend>tf2_msgs</depend>
-  <depend>tf2_geometry_msgs</depend>
-  <depend>trajectory_msgs</depend>
-  <depend>ur_controllers</depend>
-  <depend>ur_dashboard_msgs</depend>
-  <depend>ur_client_library</depend>
-  <depend>ur_msgs</depend>
+  <depend>speed_scaling_interface</depend>
+  <depend>speed_scaling_state_controller</depend>
   <depend>std_srvs</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>tf</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>ur_client_library</depend>
+  <depend>ur_dashboard_msgs</depend>
+  <depend>ur_msgs</depend>
 
   <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
