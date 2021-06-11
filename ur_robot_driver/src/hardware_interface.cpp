@@ -101,6 +101,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // The driver will offer an interface to receive the program's URScript on this port.
   int script_sender_port = robot_hw_nh.param("script_sender_port", 50002);
 
+  // Port that will be opened to send trajectory points from the driver to the robot
+  int trajectory_port = robot_hw_nh.param("trajectory_port", 50003);
+
   // When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order
   // to publish correct frame names for frames reported by the robot directly.
   robot_hw_nh.param<std::string>("tf_prefix", tf_prefix_, "");
@@ -273,7 +276,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
         std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1), headless_mode,
         std::move(tool_comm_setup), (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
-        servoj_lookahead_time, non_blocking_read_, reverse_ip));
+        servoj_lookahead_time, non_blocking_read_, reverse_ip, trajectory_port));
   }
   catch (urcl::ToolCommNotAvailable& e)
   {
