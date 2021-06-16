@@ -52,7 +52,7 @@ communication setup guide](doc/setup_tool_communication.md) for details.
 
 This driver is using [ROS-Control](https://wiki.ros.org/ros_control) for any control statements.
 Therefore, it can be used with all position-based controllers available in ROS-Control. However, we
-recommend using the controllers from the `scaled_trajectory_controller` package. See it's
+recommend using the controllers from the `scaled_trajectory_controller` package. See its
 [documentation](https://github.com/UniversalRobots/Universal_Robots_ROS_scaled_controllers/tree/main/scaled_joint_trajectory_controller) for details. **Note: Speed scaling support will only be
 available using the controllers from `scaled_trajectory_controller`**
 
