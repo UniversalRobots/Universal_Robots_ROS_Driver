@@ -6,7 +6,3 @@
     uri: https://github.com/ros-industrial/ur_msgs.git
     local-name: ur_msgs
     version: melodic-devel
-- git:
-    uri: https://github.com/UniversalRobots/Universal_Robots_ROS_scaled_controllers
-    local-name: scaled_controllers
-    version: main

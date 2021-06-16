@@ -2,7 +2,3 @@
     uri: https://github.com/ros-industrial/universal_robot.git
     local-name: universal_robot
     version: melodic-devel-staging
-- git:
-    uri: https://github.com/UniversalRobots/Universal_Robots_ROS_scaled_controllers
-    local-name: scaled_controllers
-    version: main
