@@ -52,6 +52,9 @@
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
 
+#include <cartesian_interface/cartesian_command_interface.h>
+#include <cartesian_interface/cartesian_state_handle.h>
+
 #include <speed_scaling_interface/speed_scaling_interface.h>
 #include <scaled_joint_trajectory_controller/scaled_joint_command_interface.h>
 
@@ -242,6 +245,8 @@ protected:
   hardware_interface::ForceTorqueSensorInterface fts_interface_;
   hardware_interface::JointTrajectoryInterface jnt_traj_interface_;
   hardware_interface::CartesianTrajectoryInterface cart_traj_interface_;
+  ros_controllers_cartesian::CartesianStateInterface cart_interface_;
+  ros_controllers_cartesian::TwistCommandInterface twist_interface_;
 
   geometry_msgs::Pose cart_pose_;
   geometry_msgs::Twist cart_twist_;
@@ -316,6 +321,7 @@ protected:
   bool velocity_controller_running_;
   bool joint_forward_controller_running_;
   bool cartesian_forward_controller_running_;
+  bool twist_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;

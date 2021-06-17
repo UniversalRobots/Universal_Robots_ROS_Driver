@@ -29,6 +29,7 @@ find_package(catkin REQUIRED
     trajectory_msgs
     ur_dashboard_msgs
     ur_msgs
+    twist_controller
     pass_through_controllers
     kdl_parser
 )
@@ -59,6 +60,7 @@ catkin_package(
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
+    twist_controller
     ur_dashboard_msgs
     ur_msgs
   DEPENDS
