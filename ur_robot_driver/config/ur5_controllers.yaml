@@ -24,7 +24,7 @@ force_torque_sensor_controller:
 
 # Publish speed_scaling factor
 speed_scaling_state_controller:
-   type:         ur_controllers/SpeedScalingStateController
+   type:         scaled_controllers/SpeedScalingStateController
    publish_rate: *loop_hz
 
 # Joint Trajectory Controller - position based -------------------------------

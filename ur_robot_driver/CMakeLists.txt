@@ -18,13 +18,15 @@ find_package(catkin REQUIRED
     industrial_robot_status_interface
     pluginlib
     roscpp
+    scaled_joint_trajectory_controller
     sensor_msgs
+    speed_scaling_interface
+    speed_scaling_state_controller
     std_srvs
     tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
-    ur_controllers
     ur_dashboard_msgs
     ur_msgs
 )
@@ -44,15 +46,17 @@ catkin_package(
     hardware_interface
     pluginlib
     roscpp
+    scaled_joint_trajectory_controller
     sensor_msgs
+    speed_scaling_interface
+    speed_scaling_state_controller
+    std_srvs
     tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
-    ur_controllers
     ur_dashboard_msgs
     ur_msgs
-    std_srvs
   DEPENDS
     Boost
     ur_client_library

@@ -90,8 +90,6 @@ This repository contains the new **ur_robot_driver** and a couple of helper pack
     commands sent from ROS.
   * **ur_calibration**: Package around extracting and converting a robot's factory calibration
     information to make it usable by the robot_description.
-  * **ur_controllers**: Controllers introduced with this driver, such as speed-scaling-aware
-    controllers.
   * **ur_robot_driver**: The actual driver package.
 
 ## Requirements
