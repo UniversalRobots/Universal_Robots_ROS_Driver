@@ -786,11 +786,11 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           cartesian_forward_controller_running_ = false;
         }
-        if (resource_it.hardware_interface == "cartesian_ros_control::TwistCommandInterface")
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::TwistCommandInterface")
         {
           twist_controller_running_ = false;
         }
-        if (resource_it.hardware_interface == "cartesian_ros_control::PoseCommandInterface")
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
         {
           ROS_INFO_STREAM("Stopping pose controller");
           pose_controller_running_ = false;
@@ -833,11 +833,11 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           cartesian_forward_controller_running_ = true;
         }
-        if (resource_it.hardware_interface == "cartesian_ros_control::TwistCommandInterface")
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::TwistCommandInterface")
         {
           twist_controller_running_ = true;
         }
-        if (resource_it.hardware_interface == "cartesian_ros_control::PoseCommandInterface")
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
         {
           ROS_INFO_STREAM("Starting pose controller");
           pose_controller_running_ = true;
