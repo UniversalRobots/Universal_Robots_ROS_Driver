@@ -264,8 +264,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     ur_driver_.reset(new urcl::UrDriver(
         robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
         std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1), headless_mode,
-        std::move(tool_comm_setup), calibration_checksum, (uint32_t)reverse_port, (uint32_t)script_sender_port,
-        servoj_gain, servoj_lookahead_time, non_blocking_read_, reverse_ip));
+        std::move(tool_comm_setup), (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
+        servoj_lookahead_time, non_blocking_read_, reverse_ip));
   }
   catch (urcl::ToolCommNotAvailable& e)
   {
@@ -276,6 +276,20 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     ROS_FATAL_STREAM(e.what());
     return false;
+  }
+  URCL_LOG_INFO("Checking if calibration data matches connected robot.");
+  if (ur_driver_->checkCalibration(calibration_checksum))
+  {
+    ROS_INFO_STREAM("Calibration checked successfully.");
+  }
+  else
+  {
+    ROS_ERROR_STREAM("The calibration parameters of the connected robot don't match the ones from the given kinematics "
+                     "config file. Please be aware that this can lead to critical inaccuracies of tcp positions. Use "
+                     "the ur_calibration tool to extract the correct calibration from the robot and pass that into the "
+                     "description. See "
+                     "[https://github.com/UniversalRobots/Universal_Robots_ROS_Driver#extract-calibration-information] "
+                     "for details.");
   }
 
   // Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in
