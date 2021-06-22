@@ -120,7 +120,7 @@ it is not a catkin package and therefore requires a different treatment when bei
 workspace. See The alternative build method below if you'd like to build the library from source.
 
 If you don't want to build the library from source, it is available as a binary package through the
-ROS distribution of ROS kinetic, melodic and noetic. It will be installed automatically if you
+ROS distribution of ROS melodic and noetic. It will be installed automatically if you
 follow the steps below. If you'd like to also build the library from source, please follow the steps
 explained in the [next section](#alternative-all-source-build).
 
