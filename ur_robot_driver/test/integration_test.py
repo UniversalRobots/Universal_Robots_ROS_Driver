@@ -36,6 +36,9 @@ ALL_CONTROLLERS = [
         "joint_group_vel_controller",
         "forward_joint_traj_controller",
         "forward_cartesian_traj_controller",
+        "twist_controller",
+        "pose_based_cartesian_traj_controller",
+        "joint_based_cartesian_traj_controller",
         ]
 
 
@@ -85,6 +88,15 @@ class IntegrationTest(unittest.TestCase):
         except rospy.exceptions.ROSException as err:
             self.fail(
                 "Could not reach joint passthrough controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.cartesian_trajectory_client = actionlib.SimpleActionClient(
+            'follow_cartesian_trajectory', FollowCartesianTrajectoryAction)
+        try:
+            self.cartesian_trajectory_client.wait_for_server(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach cartesian controller action. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
         self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
@@ -323,6 +335,40 @@ class IntegrationTest(unittest.TestCase):
 
         self.assertEqual(self.joint_passthrough_trajectory_client.get_result().error_code,
                          FollowJointTrajectoryResult.SUCCESSFUL)
+        rospy.loginfo("Received result SUCCESSFUL")
+
+    def test_cartesian_trajectory_pose_interface(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        # Make sure the robot is at a valid start position for our cartesian motions
+        self.script_publisher.publish("movej([1, -1.7, -1.7, -1, -1.57, -2])")
+        # As we don't have any feedback from that interface, sleep for a while
+        rospy.sleep(5)
+
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("pose_based_cartesian_traj_controller")
+
+        position_list = [geometry_msgs.msg.Vector3(0.4,0.4,0.4)]
+        position_list.append(geometry_msgs.msg.Vector3(0.5,0.5,0.5))
+        duration_list = [3.0, 6.0]
+        goal = FollowCartesianTrajectoryGoal()
+
+        for i, position in enumerate(position_list):
+            point = CartesianTrajectoryPoint()
+            point.pose = geometry_msgs.msg.Pose(position, geometry_msgs.msg.Quaternion(0,0,0,1))
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        self.cartesian_trajectory_client.send_goal(goal)
+        self.cartesian_trajectory_client.wait_for_result()
+        self.assertEqual(self.cartesian_trajectory_client.get_result().error_code,
+                         FollowCartesianTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
     def switch_on_controller(self, controller_name):
