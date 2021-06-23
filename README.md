@@ -79,6 +79,13 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    recovery from safety events can be done using ROS service- and action calls. See the driver's
    [dashboard services](ur_robot_driver/doc/ROS_INTERFACE.md#ur_robot_driver_node) and the
    [robot_state_helper node](ur_robot_driver/doc/ROS_INTERFACE.md#robot_state_helper) for details.
+ * Use **on-the-robot interpolation** for both Cartesian and
+   joint-based trajectories. This is extremely helpful if your application can
+   not meet the real-time requirements of the driver. Special types of
+   [passthrough
+   controllers](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/pass_through_controllers)
+   forward the trajectories directly to the robot, which then takes
+   care of interpolation between the waypoints to achieve best performance.
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 
@@ -362,3 +369,14 @@ mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on 
 See [Available dashboard
 commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
 for details.
+
+### Passthrough controllers: The robot does not fully reach trajectory points even though I have specified the path tolerance to be 0
+If you are using a control modes that forwards trajectories to the robot, currently the path tolerance is ignored. The corresponding interface on the robot and client-library level exists in the form of a "blend radius", but is not utilized by this ROS driver. For more information see this [issue](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/352).
+
+### Can I use the Cartesian controllers together with MoveIt!?
+Not directly, no. MoveIt! plans a Cartesian path and then creates a joint trajectory out of that for
+execution, as the common interface to robot drivers in ROS is the
+[FollowJointTrajectory](http://docs.ros.org/en/noetic/api/control_msgs/html/action/FollowJointTrajectory.html)
+action.
+
+For supporting Cartesian controllers inside MoveIt! changes would have to be made to MoveIt! itself.
