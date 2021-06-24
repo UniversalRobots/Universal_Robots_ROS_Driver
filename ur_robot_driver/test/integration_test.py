@@ -13,6 +13,7 @@ from control_msgs.msg import (
     JointTolerance)
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
+import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
 from ur_msgs.srv import SetIO, SetIORequest
 from ur_msgs.msg import IOStates
@@ -127,6 +128,8 @@ class IntegrationTest(unittest.TestCase):
                 " Msg: {}".format(err))
 
         self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
+        self.tf_listener = tf.TransformListener()
+        self.twist_pub = rospy.Publisher("/twist_controller/command", geometry_msgs.msg.Twist, queue_size=1)
 
     def set_robot_to_mode(self, target_mode):
         goal = SetModeGoal()
@@ -370,6 +373,55 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(self.cartesian_trajectory_client.get_result().error_code,
                          FollowCartesianTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
+
+    def test_twist_interface(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        # Make sure the robot is at a valid start position for our cartesian motions
+        self.script_publisher.publish("movej([1, -1.7, -1.7, -1, -1.57, -2])")
+        # As we don't have any feedback from that interface, sleep for a while
+        rospy.sleep(5)
+
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("twist_controller")
+
+        # Lookup tcp in base_frame
+        (trans_start, rot_start) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+
+        twist = geometry_msgs.msg.Twist()
+        twist.linear.x = 0.1
+        twist.linear.y = 0.0
+        twist.linear.z = 0.0
+        twist.angular.x = 0.0
+        twist.angular.y = 0.0
+        twist.angular.z = 0.0
+
+        # publish twist
+        self.twist_pub.publish(twist)
+
+        # wait 1 sec
+        rospy.sleep(1)
+
+        # stop robot
+        twist.linear.x = 0.0
+        self.twist_pub.publish(twist)
+
+        (trans_end, rot_end) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+
+        self.assertAlmostEqual(rot_start[0], rot_end[0], delta=3e-6)
+        self.assertAlmostEqual(rot_start[1], rot_end[1], delta=1e-6)
+        self.assertAlmostEqual(rot_start[2], rot_end[2], delta=1e-6)
+        self.assertAlmostEqual(trans_start[1], trans_end[1], delta=1e-6)
+        self.assertAlmostEqual(trans_start[2], trans_end[2], delta=1e-6)
+        self.assertTrue(trans_end[0] > trans_start[0])
+
 
     def switch_on_controller(self, controller_name):
         """Switches on the given controller stopping all other known controllers with best_effort
