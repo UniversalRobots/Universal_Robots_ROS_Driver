@@ -58,6 +58,8 @@ static const std::bitset<11>
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
+  , cartesian_velocity_command_({ 0, 0, 0, 0, 0, 0 })
+  , cartesian_pose_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
@@ -70,6 +72,8 @@ HardwareInterface::HardwareInterface()
   , velocity_controller_running_(false)
   , joint_forward_controller_running_(false)
   , cartesian_forward_controller_running_(false)
+  , twist_controller_running_(false)
+  , pose_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
   , controllers_initialized_(false)
@@ -360,6 +364,16 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1));
   cart_traj_interface_.registerCancelCallback(std::bind(&HardwareInterface::cancelInterpolation, this));
 
+  ros_controllers_cartesian::CartesianStateHandle handle(tf_prefix_ + "base", tf_prefix_ + "tool0_controller",
+                                                         &cart_pose_, &cart_twist_, &cart_accel_, &cart_jerk_);
+  cart_interface_.registerHandle(handle);
+  twist_interface_.registerHandle(ros_controllers_cartesian::TwistCommandHandle(
+      cart_interface_.getHandle(tf_prefix_ + "tool0_controller"), &twist_command_));
+  twist_interface_.getHandle(tf_prefix_ + "tool0_controller");
+  pose_interface_.registerHandle(ros_controllers_cartesian::PoseCommandHandle(
+      cart_interface_.getHandle(tf_prefix_ + "tool0_controller"), &pose_command_));
+  pose_interface_.getHandle(tf_prefix_ + "tool0_controller");
+
   // Register interfaces
   registerInterface(&js_interface_);
   registerInterface(&spj_interface_);
@@ -371,6 +385,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   registerInterface(&robot_status_interface_);
   registerInterface(&jnt_traj_interface_);
   registerInterface(&cart_traj_interface_);
+  registerInterface(&twist_interface_);
+  registerInterface(&pose_interface_);
 
   tcp_pose_pub_.reset(new realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>(root_nh, "/tf", 100));
   io_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::IOStates>(robot_hw_nh, "io_states", 1));
@@ -535,6 +551,13 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     cart_twist_.angular.y = tcp_speed_[4];
     cart_twist_.angular.z = tcp_speed_[5];
 
+    KDL::Vector vec = KDL::Vector(tcp_pose_[3], tcp_pose_[4], tcp_pose_[5]);
+
+    double angle = vec.Normalize();
+
+    KDL::Rotation rot = KDL::Rotation::Rot(vec, angle);
+    rot.GetQuaternion(cart_pose_.orientation.x, cart_pose_.orientation.y, cart_pose_.orientation.z,
+                      cart_pose_.orientation.w);
     extractRobotStatus();
 
     publishIOData();
@@ -678,6 +701,30 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     {
       ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_NOOP);
     }
+    else if (twist_controller_running_)
+    {
+      cartesian_velocity_command_[0] = twist_command_.linear.x;
+      cartesian_velocity_command_[1] = twist_command_.linear.y;
+      cartesian_velocity_command_[2] = twist_command_.linear.z;
+      cartesian_velocity_command_[3] = twist_command_.angular.x;
+      cartesian_velocity_command_[4] = twist_command_.angular.y;
+      cartesian_velocity_command_[5] = twist_command_.angular.z;
+      ur_driver_->writeJointCommand(cartesian_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDL);
+    }
+    else if (pose_controller_running_)
+    {
+      cartesian_pose_command_[0] = pose_command_.position.x;
+      cartesian_pose_command_[1] = pose_command_.position.y;
+      cartesian_pose_command_[2] = pose_command_.position.z;
+
+      KDL::Rotation rot = KDL::Rotation::Quaternion(pose_command_.orientation.x, pose_command_.orientation.y,
+                                                    pose_command_.orientation.z, pose_command_.orientation.w);
+      cartesian_pose_command_[3] = rot.GetRot().x();
+      cartesian_pose_command_[4] = rot.GetRot().y();
+      cartesian_pose_command_[5] = rot.GetRot().z();
+
+      ur_driver_->writeJointCommand(cartesian_pose_command_, urcl::comm::ControlMode::MODE_POSE);
+    }
     else
     {
       ur_driver_->writeKeepalive();
@@ -746,6 +793,14 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         {
           cartesian_forward_controller_running_ = false;
         }
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::TwistCommandInterface")
+        {
+          twist_controller_running_ = false;
+        }
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
+        {
+          pose_controller_running_ = false;
+        }
       }
     }
   }
@@ -783,6 +838,14 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
                                               "allocator<void> > >")
         {
           cartesian_forward_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::TwistCommandInterface")
+        {
+          twist_controller_running_ = true;
+        }
+        if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
+        {
+          pose_controller_running_ = true;
         }
       }
     }
@@ -1134,6 +1197,13 @@ bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claim
       {
         return true;
       }
+    }
+  }
+  for (const std::string& jt : claimed_resources)
+  {
+    if ("tool0_controller" == jt)
+    {
+      return true;
     }
   }
   return false;
