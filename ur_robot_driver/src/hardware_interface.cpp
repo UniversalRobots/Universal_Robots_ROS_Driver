@@ -799,7 +799,6 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         }
         if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
         {
-          ROS_INFO_STREAM("Stopping pose controller");
           pose_controller_running_ = false;
         }
       }
@@ -846,7 +845,6 @@ void HardwareInterface::doSwitch(const std::list<hardware_interface::ControllerI
         }
         if (resource_it.hardware_interface == "ros_controllers_cartesian::PoseCommandInterface")
         {
-          ROS_INFO_STREAM("Starting pose controller");
           pose_controller_running_ = true;
         }
       }
