@@ -41,7 +41,6 @@
   <depend>tf2_msgs</depend>
   <depend>tf</depend>
   <depend>trajectory_msgs</depend>
-  <depend>twist_controller</depend>
   <depend>ur_client_library</depend>
   <depend>ur_dashboard_msgs</depend>
   <depend>ur_msgs</depend>
@@ -54,6 +53,7 @@
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>socat</exec_depend>
+  <exec_depend>twist_controller</exec_depend>
   <exec_depend>ur_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
