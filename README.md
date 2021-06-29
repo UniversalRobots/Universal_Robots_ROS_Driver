@@ -1,7 +1,8 @@
 [![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
 ---
-**Beta version** available on a [separate branch](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/tree/beta-testing) with
+**Beta version** available on a [separate
+branch](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/tree/staging) with
 
 - Cartesian trajectory control
 - Robot-side trajectory interpolation
