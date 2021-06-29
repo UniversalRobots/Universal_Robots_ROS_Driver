@@ -2,9 +2,12 @@
 
 | Feature                                               | this_driver           |
 | ---                                                   | ---                   |
-| position-based control                                | yes                   |
-| scaled position-based control                         | yes                   |
-| velocity-based control                                | yes                   |
+| joint position-based control                          | yes                   |
+| scaled joint position-based control                   | yes                   |
+| joint-velocity-based control                          | yes                   |
+| Cartesian position-based control                      | yes                   |
+| Cartesian twist-based control                         | yes                   |
+| Trajectory forwarding for execution on robot          | yes                   |
 | reporting of tcp wrench                               | yes                   |
 | reporting of tcp wrench in tcp link                   | yes                   |
 | pausing of programs                                   | yes                   |
