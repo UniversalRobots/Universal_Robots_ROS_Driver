@@ -1,32 +1,28 @@
-# Feature comparison and roadmap
+# Quick feature overview
 
-| Feature                                               | ur_modern_driver | this_driver           |
-| ---                                                   | ---              | ---                   |
-| position-based control                                | yes              | yes                   |
-| scaled position-based control                         | -                | yes                   |
-| velocity-based control                                | yes              | yes                   |
-| reporting of tcp wrench                               | yes              | yes                   |
-| reporting of tcp wrench in tcp link                   | -                | yes                   |
-| pausing of programs                                   | -                | yes                   |
-| continue trajectories after EM-Stop resume            | -                | yes                   |
-| continue trajectories after protective stop           | -                | yes                   |
-| panel interaction in between possible                 | no<sup>1</sup>   | yes                   |
-| get and set IO states                                 | yes              | yes               |
-| use tool communication on e-series                    | -                | yes                   |
-| use the driver without a teach pendant necessary      | -                | yes               |
-| support of CB2 robots                                 | yes              | -                     |
-| trajectory extrapolation on robot on missing packages | no<sup>2</sup>   | yes                   |
-| use ROS as drop-in for TP-programs                    | -                | yes   |
-| headless mode                                         | yes              | yes   |
-| extract calibration from robot                        | -                | yes                   |
-| send custom script commands to robot                  | yes              | yes                   |
-| ROS 2 support                                         | ?                | (no)<sup>3</sup>      |
-| Reconnect on a disconnected robot                     | yes              | yes           |
+| Feature                                               | this_driver           |
+| ---                                                   | ---                   |
+| position-based control                                | yes                   |
+| scaled position-based control                         | yes                   |
+| velocity-based control                                | yes                   |
+| reporting of tcp wrench                               | yes                   |
+| reporting of tcp wrench in tcp link                   | yes                   |
+| pausing of programs                                   | yes                   |
+| continue trajectories after EM-Stop resume            | yes                   |
+| continue trajectories after protective stop           | yes                   |
+| panel interaction in between possible                 | yes                   |
+| get and set IO states                                 | yes               |
+| use tool communication on e-series                    | yes                   |
+| use the driver without a teach pendant necessary      | yes               |
+| support of CB2 robots                                 | -                     |
+| trajectory extrapolation on robot on missing packages | yes                   |
+| use ROS as drop-in for TP-programs                    | yes   |
+| headless mode                                         | yes   |
+| extract calibration from robot                        | yes                   |
+| send custom script commands to robot                  | yes                   |
+| ROS 2 support                                         | (no)<sup>1</sup>      |
+| Reconnect on a disconnected robot                     | yes           |
 
-<sup>1</sup> Depending on the mode the driver is running the panel won't react or using the panel
-will stop the program without notifying the ROS user.
 
-<sup>2</sup> In velocity mode this is implicitly given.
-
-<sup>3</sup> The ROS2 driver lives in its own repository: https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver
+<sup>1</sup> The ROS2 driver lives in its own repository: https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver
 
