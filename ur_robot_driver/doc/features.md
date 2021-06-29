@@ -19,8 +19,8 @@
 | use ROS as drop-in for TP-programs                    | -                | yes   |
 | headless mode                                         | yes              | yes   |
 | extract calibration from robot                        | -                | yes                   |
-| send custom script commands to robot                  | yes              | yes               |
-| ROS 2 support                                         | ?                | (planned)<sup>3</sup> |
+| send custom script commands to robot                  | yes              | yes                   |
+| ROS 2 support                                         | ?                | (no)<sup>3</sup>      |
 | Reconnect on a disconnected robot                     | yes              | yes           |
 
 <sup>1</sup> Depending on the mode the driver is running the panel won't react or using the panel
@@ -28,8 +28,5 @@ will stop the program without notifying the ROS user.
 
 <sup>2</sup> In velocity mode this is implicitly given.
 
-<sup>3</sup> There is no specific plan to do this inside of the first driver development. However,
-it is structured in a way so that a ROS2 driver should be developed as easy as possible by keeping
-as much as possible in a ros-independent library.
-
+<sup>3</sup> The ROS2 driver lives in its own repository: https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver
 
