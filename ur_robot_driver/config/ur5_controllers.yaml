@@ -24,7 +24,7 @@ force_torque_sensor_controller:
 
 # Publish speed_scaling factor
 speed_scaling_state_controller:
-   type:         ur_controllers/SpeedScalingStateController
+   type:         scaled_controllers/SpeedScalingStateController
    publish_rate: *loop_hz
 
 # Joint Trajectory Controller - position based -------------------------------
@@ -129,6 +129,36 @@ vel_joint_traj_controller:
 joint_group_vel_controller:
    type: velocity_controllers/JointGroupVelocityController
    joints: *robot_joints
+
+forward_joint_traj_controller:
+    type: "pass_through_controllers/JointTrajectoryController"
+    joints: *robot_joints
+
+forward_cartesian_traj_controller:
+    type: "pass_through_controllers/CartesianTrajectoryController"
+    joints: *robot_joints
+
+twist_controller:
+  type: "ros_controllers_cartesian/TwistController"
+  frame_id: "tool0_controller"
+  publish_rate: *loop_hz
+  joints: *robot_joints
+
+pose_based_cartesian_traj_controller:
+    type: pose_controllers/CartesianTrajectoryController
+
+    # UR driver convention
+    base: base
+    tip: tool0_controller
+    joints: *robot_joints
+
+joint_based_cartesian_traj_controller:
+    type: position_controllers/CartesianTrajectoryController
+
+    # UR driver convention
+    base: base
+    tip: tool0
+    joints: *robot_joints
 
 robot_status_controller:
    type: industrial_robot_status_controller/IndustrialRobotStatusController
