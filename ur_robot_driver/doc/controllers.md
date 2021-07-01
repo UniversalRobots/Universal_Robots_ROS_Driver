@@ -151,6 +151,10 @@ trajectory to the robot for execution leaving the robot in charge of calculating
 speeds. Therefore, this will lead to motions most similar to what you could configure on the teach
 pendant.
 
+As this uses the robot controller's trajectory execution, trajectories will be slightly different to
+the streaming controllers such as the `scaled_pos_joint_traj_controller`. Each setpoint will be
+blended with a (currently [hard coded]()https://github.com/UniversalRobots/Universal_Robots_Client_Library/blob/125f4f7a48b299b07e298cf479e3ba6882c3af3a/include/ur_client_library/ur/ur_driver.h#L203) blend radius.
+
 ### `forward_cartesian_traj_controller`
 **Type:** [`pass_through_controllers/JointTrajectoryController`](http://wiki.ros.org/pass_through_controllers)
 
@@ -163,6 +167,10 @@ pendant.
 
 Note that this controller does not check for configuration changes in the robot's kinematics, so
 trajectories executed with this controller can potentially result in a protective stop.
+
+As this uses the robot controller's trajectory execution, trajectories will be slightly different to
+the streaming controllers such as the `scaled_pos_joint_traj_controller`. Each setpoint will be
+blended with a (currently [hard coded]()https://github.com/UniversalRobots/Universal_Robots_Client_Library/blob/125f4f7a48b299b07e298cf479e3ba6882c3af3a/include/ur_client_library/ur/ur_driver.h#L203) blend radius.
 
 ### `pose_based_cartesian_traj_controller`
 **Type:** [`pose_controllers/CartesianTrajectoryController`](http://wiki.ros.org/ros_controllers_cartesian)
