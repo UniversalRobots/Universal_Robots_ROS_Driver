@@ -29,7 +29,7 @@
 
 #include <csignal>
 #include <ur_robot_driver/hardware_interface.h>
-#include "ur_robot_driver/urcl_log_handler.h"
+#include <ur_robot_driver/urcl_log_handler.h>
 
 std::unique_ptr<ur_driver::HardwareInterface> g_hw_interface;
 

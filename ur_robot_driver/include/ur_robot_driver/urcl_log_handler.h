@@ -31,7 +31,7 @@
 #ifndef UR_DRIVER_URCL_LOG_HANDLER_H_INCLUDED
 #define UR_DRIVER_URCL_LOG_HANDLER_H_INCLUDED
 
-#include "ur_client_library/log.h"
+#include <ur_client_library/log.h>
 
 namespace ur_driver
 {
@@ -60,6 +60,8 @@ public:
 
 private:
   std::string log_name_;
+
+  void logMessage(const char* file, int line, ros::console::Level level, const char* message);
 };
 
 /*!

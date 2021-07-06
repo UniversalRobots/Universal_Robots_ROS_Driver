@@ -28,8 +28,8 @@
 // please contact legal@universal-robots.com.
 // -- END LICENSE BLOCK ------------------------------------------------
 
-#include "ur_robot_driver/urcl_log_handler.h"
 #include <ros/console.h>
+#include <ur_robot_driver/urcl_log_handler.h>
 
 namespace ur_driver
 {
@@ -45,57 +45,31 @@ void UrclLogHandler::log(const char* file, int line, urcl::LogLevel loglevel, co
   switch (loglevel)
   {
     case urcl::LogLevel::DEBUG:
-    {
-      ROSCONSOLE_DEFINE_LOCATION(true, ros::console::levels::Debug, log_name_);
-      if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
-      {
-        ros::console::print(NULL, __rosconsole_define_location__loc.logger_, ros::console::levels::Debug, file, line,
-                            "", "%s", message);
-      }
-    }
-    break;
+      logMessage(file, line, ros::console::levels::Debug, message);
+      break;
     case urcl::LogLevel::INFO:
-    {
-      ROSCONSOLE_DEFINE_LOCATION(true, ros::console::levels::Info, log_name_);
-      if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
-      {
-        ros::console::print(NULL, __rosconsole_define_location__loc.logger_, ros::console::levels::Info, file, line, "",
-                            "%s", message);
-      }
-    }
-    break;
+      logMessage(file, line, ros::console::levels::Info, message);
+      break;
     case urcl::LogLevel::WARN:
-    {
-      ROSCONSOLE_DEFINE_LOCATION(true, ros::console::levels::Warn, log_name_);
-      if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
-      {
-        ros::console::print(NULL, __rosconsole_define_location__loc.logger_, ros::console::levels::Warn, file, line, "",
-                            "%s", message);
-      }
-    }
-    break;
+      logMessage(file, line, ros::console::levels::Warn, message);
+      break;
     case urcl::LogLevel::ERROR:
-    {
-      ROSCONSOLE_DEFINE_LOCATION(true, ros::console::levels::Error, log_name_);
-      if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
-      {
-        ros::console::print(NULL, __rosconsole_define_location__loc.logger_, ros::console::levels::Error, file, line,
-                            "", "%s", message);
-      }
-    }
-    break;
+      logMessage(file, line, ros::console::levels::Error, message);
+      break;
     case urcl::LogLevel::FATAL:
-    {
-      ROSCONSOLE_DEFINE_LOCATION(true, ros::console::levels::Fatal, log_name_);
-      if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
-      {
-        ros::console::print(NULL, __rosconsole_define_location__loc.logger_, ros::console::levels::Fatal, file, line,
-                            "", "%s", message);
-      }
-    }
-    break;
+      logMessage(file, line, ros::console::levels::Fatal, message);
+      break;
     default:
       break;
+  }
+}
+
+void UrclLogHandler::logMessage(const char* file, int line, ros::console::Level level, const char* message)
+{
+  ROSCONSOLE_DEFINE_LOCATION(true, level, log_name_);
+  if (ROS_UNLIKELY(__rosconsole_define_location__enabled))
+  {
+    ros::console::print(NULL, __rosconsole_define_location__loc.logger_, level, file, line, "", "%s", message);
   }
 }
 

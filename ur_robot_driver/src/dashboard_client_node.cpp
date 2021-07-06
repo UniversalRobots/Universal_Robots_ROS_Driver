@@ -28,7 +28,7 @@
 #include <ros/ros.h>
 #include <ur_robot_driver/dashboard_client_ros.h>
 
-#include "ur_robot_driver/urcl_log_handler.h"
+#include <ur_robot_driver/urcl_log_handler.h>
 
 int main(int argc, char** argv)
 {

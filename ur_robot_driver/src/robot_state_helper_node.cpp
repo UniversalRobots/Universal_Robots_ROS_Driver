@@ -26,7 +26,6 @@
 //----------------------------------------------------------------------
 
 #include <ur_robot_driver/robot_state_helper.h>
-#include "ur_robot_driver/urcl_log_handler.h"
 
 using namespace ur_driver;
 
@@ -35,8 +34,6 @@ int main(int argc, char** argv)
   // Set up ROS.
   ros::init(argc, argv, "ur_robot_state_helper");
   ros::NodeHandle nh;
-
-  registerUrclLogHandler();
 
   RobotStateHelper state_helper(nh);
 

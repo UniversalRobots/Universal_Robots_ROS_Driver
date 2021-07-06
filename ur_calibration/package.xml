@@ -53,6 +53,7 @@
   <depend>roscpp</depend>
   <depend>ur_client_library</depend>
   <depend>yaml-cpp</depend>
+  <depend>ur_robot_driver</depend>
 
 
   <test_depend>rosunit</test_depend>

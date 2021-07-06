@@ -6,6 +6,7 @@ add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  ur_robot_driver
 )
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -17,6 +18,7 @@ set(YAML_CPP_INCLUDE_DIRS ${YAML_CPP_INCLUDE_DIR})
 catkin_package(
   CATKIN_DEPENDS
     roscpp
+    ur_robot_driver
   DEPENDS
     YAML_CPP
     ur_client_library

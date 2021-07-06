@@ -36,6 +36,7 @@ catkin_package(
     include
   LIBRARIES
     ur_robot_driver_plugin
+    urcl_log_handler
   CATKIN_DEPENDS
     actionlib
     control_msgs
@@ -88,6 +89,11 @@ add_library(ur_robot_driver_plugin
 target_link_libraries(ur_robot_driver_plugin ur_client_library::urcl ${catkin_LIBRARIES})
 add_dependencies(ur_robot_driver_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_library(urcl_log_handler
+  src/urcl_log_handler.cpp
+)
+target_link_libraries(urcl_log_handler ${catkin_LIBRARIES} ur_client_library::urcl)
+
 add_executable(ur_robot_driver_node
   src/dashboard_client_ros.cpp
   src/hardware_interface.cpp
@@ -108,7 +114,6 @@ add_dependencies(dashboard_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 add_executable(robot_state_helper
   src/robot_state_helper.cpp
   src/robot_state_helper_node.cpp
-  src/urcl_log_handler.cpp
 )
 target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -120,7 +125,7 @@ if(CATKIN_ENABLE_TESTING)
 endif()
 
 
-install(TARGETS ur_robot_driver_plugin ur_robot_driver_node robot_state_helper dashboard_client
+install(TARGETS ur_robot_driver_plugin urcl_log_handler ur_robot_driver_node robot_state_helper dashboard_client
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
