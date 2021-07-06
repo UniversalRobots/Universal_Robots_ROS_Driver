@@ -168,18 +168,6 @@ $ catkin_make_isolated
 $ source devel_isolated/setup.bash
 ```
 
-### Note for noetic users
-If you are using ROS noetic, make sure to also clone [`ur_msgs`](https://github.com/ros-industrial/ur_msgs) to your workspace as it is currently not released for ROS noetic (see https://github.com/ros-industrial/ur_msgs/issues/13).
-```
-$ git clone https://github.com/ros-industrial/ur_msgs.git src/ur_msgs
-```
-
-Otherwise you will get build errors such as 
-```
-error: ‘ur_msgs::SetPayload::Request {aka struct ur_msgs::SetPayloadRequest_<std::allocator<void> >}’ has no member named ‘center_of_gravity’
-```
-
-
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
 For using the *ur_robot_driver* with a real robot you need to install the
