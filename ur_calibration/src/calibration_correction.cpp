@@ -39,7 +39,6 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>
 #include <ros/package.h>
-#include <ros/console.h>
 
 #include <boost/filesystem.hpp>
 
