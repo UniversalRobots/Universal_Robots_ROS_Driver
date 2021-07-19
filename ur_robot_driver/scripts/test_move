@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+
+import sys
+
+import rospy
+import actionlib
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+    FollowJointTrajectoryResult,
+    JointTolerance)
+from trajectory_msgs.msg import JointTrajectoryPoint
+
+JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
+               'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
+TRAJECTORY_SERVER = '/scaled_pos_joint_traj_controller/follow_joint_trajectory'
+
+
+class TrajectoryClient(object):
+    """Small trajectory client to test a joint trajectory"""
+
+    def __init__(self):
+        rospy.init_node('NodeName')
+
+        timeout = rospy.Duration(5)
+        self.trajectory_client = actionlib.SimpleActionClient(
+            TRAJECTORY_SERVER, FollowJointTrajectoryAction)
+        print("Waiting for server at {}".format(TRAJECTORY_SERVER))
+        if self.trajectory_client.wait_for_server(timeout):
+            print("Actionserver connected.")
+        else:
+            rospy.logfatal("Did not find trajectory server. Exiting.")
+            sys.exit(1)
+
+    def send_trajectory(self):
+        rospy.loginfo("Sending trajectory...")
+        goal = FollowJointTrajectoryGoal()
+
+        goal.trajectory.joint_names = JOINT_NAMES
+        position_list = [[0,-1.57,-1.57,0,0,0]]
+        position_list.append([0.2,-1.57,-1.57,0,0,0])
+        position_list.append([-0.5,-1.57,-1.2,0,0,0])
+        duration_list = [3.0, 7.0, 10.0]
+
+        for i, position in enumerate(position_list):
+            point = JointTrajectoryPoint()
+            point.positions = position
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        for i, joint_name in enumerate(goal.trajectory.joint_names):
+            goal.goal_tolerance.append(JointTolerance(joint_name, 0.2, 0.2, 0.2))
+
+        goal.goal_time_tolerance = rospy.Duration(0.6)
+        self.trajectory_client.send_goal(goal)
+        self.trajectory_client.wait_for_result()
+
+        result = self.trajectory_client.get_result()
+
+        rospy.loginfo("Trajectory execution finished in state {}".format(result.error_code))
+
+
+if __name__ == '__main__':
+    client = TrajectoryClient()
+    client.send_trajectory()
+
