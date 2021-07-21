@@ -250,6 +250,12 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
 
+You may need to install rqt_joint_trajectory_controller by running: 
+```
+sudo apt install ros-<ROS-DISTRO>-rqt-joint-trajectory-controller
+```
+where ROS-DISTRO will be replaced with your version of ROS.
+
 ### Replacing the robot description
 
 In a real-world scenario you will want to replace the robot description with a description
