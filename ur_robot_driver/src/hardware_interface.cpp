@@ -357,7 +357,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   }
   for (size_t i = 0; i < joint_names_.size(); i++)
   {
-    JTPublisherPtr joint_temperature_pub(new realtime_tools::RealtimePublisher<sensor_msgs::Temperature>(robot_hw_nh, "joint_temperatures", 1));
+    JTPublisherPtr joint_temperature_pub(new realtime_tools::RealtimePublisher<sensor_msgs::Temperature>(root_nh, "joint_temperatures/"+joint_names_[i], 1));
     joint_temperature_pubs_.push_back(joint_temperature_pub);
   }
 
