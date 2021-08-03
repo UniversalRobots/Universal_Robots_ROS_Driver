@@ -55,6 +55,7 @@ HardwareInterface::HardwareInterface()
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
+  , joint_temperatures_{ { 0, 0, 0, 0, 0, 0 } }
   , standard_analog_input_{ { 0, 0 } }
   , standard_analog_output_{ { 0, 0 } }
   , joint_names_(6)
@@ -354,6 +355,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     io_pub_->msg_.analog_out_states[i].pin = i;
   }
+  joint_temperatures_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::Temperature>(robot_hw_nh, "joint_temperatures", 1));
+
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
   robot_mode_pub_.reset(
@@ -449,6 +452,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "runtime_state", runtime_state_);
     readData(data_pkg, "actual_TCP_force", fts_measurements_);
     readData(data_pkg, "actual_TCP_pose", tcp_pose_);
+    readData(data_pkg, "joint_temperatures", joint_temperatures_);
     readData(data_pkg, "standard_analog_input0", standard_analog_input_[0]);
     readData(data_pkg, "standard_analog_input1", standard_analog_input_[1]);
     readData(data_pkg, "standard_analog_output0", standard_analog_output_[0]);
@@ -478,6 +482,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     extractToolPose(time);
     transformForceTorque();
     publishPose();
+    publishJointTemperatures(time);
     publishRobotAndSafetyMode();
 
     // pausing state follows runtime state when pausing
@@ -715,6 +720,24 @@ void HardwareInterface::publishPose()
       tcp_pose_pub_->msg_.transforms.clear();
       tcp_pose_pub_->msg_.transforms.push_back(tcp_transform_);
       tcp_pose_pub_->unlockAndPublish();
+    }
+  }
+}
+
+void HardwareInterface::publishJointTemperatures(const ros::Time& timestamp)
+{
+  if (joint_temperatures_pub_)
+  {
+    for (size_t i = 0; i < joint_names_.size(); i++)
+    {
+      if (joint_temperatures_pub_->trylock())
+      {
+        joint_temperatures_pub_->msg_.header.stamp = timestamp;
+        joint_temperatures_pub_->msg_.header.frame_id = joint_names_[i];
+        joint_temperatures_pub_->msg_.temperature = joint_temperatures_[i];
+
+        joint_temperatures_pub_->unlockAndPublish();
+      }
     }
   }
 }
