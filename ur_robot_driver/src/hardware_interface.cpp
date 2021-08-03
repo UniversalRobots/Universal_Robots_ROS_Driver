@@ -355,7 +355,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   {
     io_pub_->msg_.analog_out_states[i].pin = i;
   }
-  joint_temperatures_pub_.reset(new realtime_tools::RealtimePublisher<sensor_msgs::Temperature>(robot_hw_nh, "joint_temperatures", 1));
+  for (size_t i = 0; i < joint_names_.size(); i++)
+  {
+    JTPublisherPtr joint_temperature_pub(new realtime_tools::RealtimePublisher<sensor_msgs::Temperature>(robot_hw_nh, "joint_temperatures", 1));
+    joint_temperature_pubs_.push_back(joint_temperature_pub);
+  }
 
   tool_data_pub_.reset(new realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>(robot_hw_nh, "tool_data", 1));
 
@@ -726,17 +730,17 @@ void HardwareInterface::publishPose()
 
 void HardwareInterface::publishJointTemperatures(const ros::Time& timestamp)
 {
-  if (joint_temperatures_pub_)
+  for (size_t i = 0; i < joint_names_.size(); i++)
   {
-    for (size_t i = 0; i < joint_names_.size(); i++)
+    if (joint_temperature_pubs_[i])
     {
-      if (joint_temperatures_pub_->trylock())
+      if (joint_temperature_pubs_[i]->trylock())
       {
-        joint_temperatures_pub_->msg_.header.stamp = timestamp;
-        joint_temperatures_pub_->msg_.header.frame_id = joint_names_[i];
-        joint_temperatures_pub_->msg_.temperature = joint_temperatures_[i];
+        joint_temperature_pubs_[i]->msg_.header.stamp = timestamp;
+        joint_temperature_pubs_[i]->msg_.header.frame_id = joint_names_[i];
+        joint_temperature_pubs_[i]->msg_.temperature = joint_temperatures_[i];
 
-        joint_temperatures_pub_->unlockAndPublish();
+        joint_temperature_pubs_[i]->unlockAndPublish();
       }
     }
   }

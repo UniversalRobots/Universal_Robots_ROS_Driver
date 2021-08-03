@@ -1,6 +1,7 @@
 timestamp
 actual_q
 actual_qd
+joint_temperatures
 speed_scaling
 target_speed_fraction
 runtime_state
