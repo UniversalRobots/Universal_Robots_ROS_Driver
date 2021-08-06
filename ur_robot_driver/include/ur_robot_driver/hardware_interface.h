@@ -270,17 +270,17 @@ protected:
   industrial_robot_status_interface::IndustrialRobotStatusInterface robot_status_interface_{};
 
   uint32_t runtime_state_;
-  bool position_controller_running_;
-  bool velocity_controller_running_;
+  std::atomic<bool> position_controller_running_;
+  std::atomic<bool> velocity_controller_running_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
 
   std::string tcp_link_;
-  bool robot_program_running_;
+  std::atomic<bool> robot_program_running_;
   ros::Publisher program_state_pub_;
 
-  bool controller_reset_necessary_;
+  std::atomic<bool> controller_reset_necessary_;
   bool controllers_initialized_;
 
   bool packet_read_;
