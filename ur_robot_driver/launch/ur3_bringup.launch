@@ -13,6 +13,7 @@
   <arg name="robot_description_file" default="$(find ur_description)/launch/load_ur3.launch" doc="Robot description launch file."/>
   <arg name="kinematics_config" default="$(find ur_description)/config/ur3/default_kinematics.yaml" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
+  <arg name="ur_hardware_interface_node_required" default="true" doc="Shut down ros environment if ur_hardware_interface-node dies."/>
 
   <include file="$(find ur_robot_driver)/launch/ur_common.launch" pass_all_args="true">
     <arg name="use_tool_communication" value="false"/>
