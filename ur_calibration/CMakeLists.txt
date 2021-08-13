@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(ur_client_library REQUIRED)
+find_package(console_bridge REQUIRED)
 
 # create alias for the '_INCLUDE_DIR' variable, to help Catkin export it
 set(YAML_CPP_INCLUDE_DIRS ${YAML_CPP_INCLUDE_DIR})
@@ -50,6 +51,7 @@ target_link_libraries(calibration_correction
   ${catkin_LIBRARIES}
   ${YAML_CPP_LIBRARIES}
   ur_client_library::urcl
+  console_bridge::console_bridge
 )
 
 install(DIRECTORY launch
