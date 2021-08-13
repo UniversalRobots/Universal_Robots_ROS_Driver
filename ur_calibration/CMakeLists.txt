@@ -4,6 +4,8 @@ project(ur_calibration)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
+add_definitions(-D__STDC_FORMAT_MACROS)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   ur_robot_driver
