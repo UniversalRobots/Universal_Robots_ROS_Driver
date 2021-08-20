@@ -11,7 +11,7 @@ for the UR10e robot.
 As this driver uses ROS-control all controllers are managed by the
 [`controller_manager`](http://wiki.ros.org/controller_manager). During startup, a default set of
 running controllers is loaded and started, another set is loaded in stopped mode. Stopped
-controllers won't be usable, but their ROS interfaces are visible on the command line e.g. by
+controllers won't be usable right away, but their ROS interfaces are still visible on the command line e.g. by
 `rostopic list`.
 
 For switching controllers, use the methods offered by the
@@ -78,7 +78,7 @@ Similar to the non-scaled version it implements the
 [`control_msgs/FollowJointTrajectory`](http://docs.ros.org/en/latest/api/control_msgs/html/action/FollowJointTrajectory.html)
 interface. For controlling the robot it will send joint position commands.
 
-In contras to the non-scaled version, the speed slider position or any other speed-modifying action
+In contrast to the non-scaled version, the speed slider position or any other speed-modifying action
 such as pausing, EM-Stop or speed scaling due to limits configured on the robot will be respected by
 this controller.  If a trajectory is given with time constraints and the trajectory is slowed down
 during execution, the action fails. If no time constraints are set and the motion is slowed down
@@ -135,7 +135,7 @@ Similar to the non-scaled version it implements the
 [`control_msgs/FollowJointTrajectory`](http://docs.ros.org/en/latest/api/control_msgs/html/action/FollowJointTrajectory.html)
 interface. For controlling the robot it will send joint velocity commands.
 
-In contras to the non-scaled version, the speed slider position or any other speed-modifying action
+In contrast to the non-scaled version, the speed slider position or any other speed-modifying action
 such as pausing, EM-Stop or speed scaling due to limits configured on the robot will be respected by
 this controller.  If a trajectory is given with time constraints and the trajectory is slowed down
 during execution, the action fails. If no time constraints are set and the motion is slowed down
