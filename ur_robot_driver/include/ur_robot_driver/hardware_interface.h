@@ -44,6 +44,7 @@
 #include <ur_msgs/ToolDataMsg.h>
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
+#include <sensor_msgs/Temperature.h>
 
 #include <ur_controllers/speed_scaling_interface.h>
 #include <ur_controllers/scaled_joint_command_interface.h>
@@ -177,6 +178,7 @@ protected:
    */
   void publishPose();
 
+  void publishJointTemperatures(const ros::Time& timestamp);
   void publishIOData();
   void publishToolData();
   void publishRobotAndSafetyMode();
@@ -230,6 +232,7 @@ protected:
   urcl::vector6d_t joint_positions_;
   urcl::vector6d_t joint_velocities_;
   urcl::vector6d_t joint_efforts_;
+  urcl::vector6d_t joint_temperatures_;
   urcl::vector6d_t fts_measurements_;
   urcl::vector6d_t tcp_pose_;
   std::bitset<18> actual_dig_out_bits_;
@@ -256,6 +259,8 @@ protected:
   std::bitset<11> safety_status_bits_;
 
   std::unique_ptr<realtime_tools::RealtimePublisher<tf2_msgs::TFMessage>> tcp_pose_pub_;
+  typedef std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::Temperature>> JTPublisherPtr;
+  std::vector<JTPublisherPtr> joint_temperature_pubs_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::IOStates>> io_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_msgs::ToolDataMsg>> tool_data_pub_;
   std::unique_ptr<realtime_tools::RealtimePublisher<ur_dashboard_msgs::RobotMode>> robot_mode_pub_;
