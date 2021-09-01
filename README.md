@@ -257,6 +257,9 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
 
+For a more elaborate tutorial on how to get started, please see the
+[usage example](ur_robot_driver/doc/usage_example.md).
+
 ### Replacing the robot description
 
 In a real-world scenario you will want to replace the robot description with a description
