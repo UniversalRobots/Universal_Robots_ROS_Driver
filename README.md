@@ -116,7 +116,7 @@ it is not a catkin package and therefore requires a different treatment when bei
 workspace. See The alternative build method below if you'd like to build the library from source.
 
 If you don't want to build the library from source, it is available as a binary package through the
-ROS distribution of ROS kinetic, melodic and noetic. It will be installed automatically if you
+ROS distribution of ROS melodic and noetic. It will be installed automatically if you
 follow the steps below. If you'd like to also build the library from source, please follow the steps
 explained in the [next section](#alternative-all-source-build).
 
@@ -162,18 +162,6 @@ $ rosdep install --from-paths src --ignore-src -y
 $ catkin_make_isolated
 $ source devel_isolated/setup.bash
 ```
-
-### Note for noetic users
-If you are using ROS noetic, make sure to also clone [`ur_msgs`](https://github.com/ros-industrial/ur_msgs) to your workspace as it is currently not released for ROS noetic (see https://github.com/ros-industrial/ur_msgs/issues/13).
-```
-$ git clone https://github.com/ros-industrial/ur_msgs.git src/ur_msgs
-```
-
-Otherwise you will get build errors such as 
-```
-error: ‘ur_msgs::SetPayload::Request {aka struct ur_msgs::SetPayloadRequest_<std::allocator<void> >}’ has no member named ‘center_of_gravity’
-```
-
 
 ## Setting up a UR robot for ur_robot_driver
 ### Prepare the robot
@@ -256,6 +244,12 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 ```
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
+
+You may need to install rqt_joint_trajectory_controller by running: 
+```
+sudo apt install ros-<ROS-DISTRO>-rqt-joint-trajectory-controller
+```
+where ROS-DISTRO will be replaced with your version of ROS.
 
 For a more elaborate tutorial on how to get started, please see the
 [usage example](ur_robot_driver/doc/usage_example.md).

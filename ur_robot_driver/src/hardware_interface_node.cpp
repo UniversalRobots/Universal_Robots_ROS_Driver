@@ -30,6 +30,7 @@
 
 #include <csignal>
 #include <ur_robot_driver/hardware_interface.h>
+#include <ur_robot_driver/urcl_log_handler.h>
 
 std::unique_ptr<ur_driver::HardwareInterface> g_hw_interface;
 
@@ -56,6 +57,8 @@ int main(int argc, char** argv)
 
   // register signal SIGINT and signal handler
   signal(SIGINT, signalHandler);
+
+  ur_driver::registerUrclLogHandler();
 
   std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
   bool has_realtime = false;

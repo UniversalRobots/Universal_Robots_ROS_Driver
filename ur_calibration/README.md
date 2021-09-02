@@ -53,7 +53,7 @@ respective launchfile in the driver:
 ```bash
 # Replace your actual catkin_ws folder
 $ cd <catkin_ws>/src/example_organization_ur_launch/launch
-$ roscp ur_client_library ur10_bringup.launch ex-ur10-1.launch
+$ roscp ur_robot_driver ur10_bringup.launch ex-ur10-1.launch
 ```
 
 Next, modify the parameter section of the new launchfile to match your actual calibration:

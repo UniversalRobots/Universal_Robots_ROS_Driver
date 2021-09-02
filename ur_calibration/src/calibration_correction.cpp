@@ -35,6 +35,8 @@
 #include <ur_client_library/primary/package_header.h>
 #include <ur_client_library/primary/primary_parser.h>
 
+#include <ur_robot_driver/urcl_log_handler.h>
+
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_listener.h>
 #include <ros/package.h>
@@ -162,6 +164,8 @@ int main(int argc, char* argv[])
 {
   ros::init(argc, argv, "ur_calibration");
   ros::NodeHandle nh("~");
+
+  ur_driver::registerUrclLogHandler();
 
   try
   {
