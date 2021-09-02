@@ -1,15 +1,5 @@
 [![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
----
-**Beta version** available on a [separate
-branch](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/tree/staging) with
-
-- Cartesian trajectory control
-- Robot-side trajectory interpolation
-- and more..
-
----
-
 # Universal_Robots_ROS_Driver
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
@@ -80,6 +70,13 @@ If you need help using this driver, please see the ROS-category in the [UR+ Deve
    recovery from safety events can be done using ROS service- and action calls. See the driver's
    [dashboard services](ur_robot_driver/doc/ROS_INTERFACE.md#ur_robot_driver_node) and the
    [robot_state_helper node](ur_robot_driver/doc/ROS_INTERFACE.md#robot_state_helper) for details.
+ * Use **on-the-robot interpolation** for both Cartesian and
+   joint-based trajectories. This is extremely helpful if your application can
+   not meet the real-time requirements of the driver. Special types of
+   [passthrough
+   controllers](https://github.com/fzi-forschungszentrum-informatik/cartesian_ros_control/tree/beta-testing/pass_through_controllers)
+   forward the trajectories directly to the robot, which then takes
+   care of interpolation between the waypoints to achieve best performance.
 
 Please see the external [feature list](ur_robot_driver/doc/features.md) for a listing of all features supported by this driver.
 
@@ -91,8 +88,6 @@ This repository contains the new **ur_robot_driver** and a couple of helper pack
     commands sent from ROS.
   * **ur_calibration**: Package around extracting and converting a robot's factory calibration
     information to make it usable by the robot_description.
-  * **ur_controllers**: Controllers introduced with this driver, such as speed-scaling-aware
-    controllers.
   * **ur_robot_driver**: The actual driver package.
 
 ## Requirements
@@ -256,6 +251,9 @@ sudo apt install ros-<ROS-DISTRO>-rqt-joint-trajectory-controller
 ```
 where ROS-DISTRO will be replaced with your version of ROS.
 
+For a more elaborate tutorial on how to get started, please see the
+[usage example](ur_robot_driver/doc/usage_example.md).
+
 ### Replacing the robot description
 
 In a real-world scenario you will want to replace the robot description with a description
@@ -359,3 +357,14 @@ mode](ur-robot-driver/README.md#remote-control-mode) to accept certain calls on 
 See [Available dashboard
 commands](https://www.universal-robots.com/articles/ur-articles/dashboard-server-cb-series-port-29999/)
 for details.
+
+### Passthrough controllers: The robot does not fully reach trajectory points even though I have specified the path tolerance to be 0
+If you are using a control modes that forwards trajectories to the robot, currently the path tolerance is ignored. The corresponding interface on the robot and client-library level exists in the form of a "blend radius", but is not utilized by this ROS driver. For more information see this [issue](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/352).
+
+### Can I use the Cartesian controllers together with MoveIt!?
+Not directly, no. MoveIt! plans a Cartesian path and then creates a joint trajectory out of that for
+execution, as the common interface to robot drivers in ROS is the
+[FollowJointTrajectory](http://docs.ros.org/en/noetic/api/control_msgs/html/action/FollowJointTrajectory.html)
+action.
+
+For supporting Cartesian controllers inside MoveIt! changes would have to be made to MoveIt! itself.

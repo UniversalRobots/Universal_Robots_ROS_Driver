@@ -9,11 +9,15 @@
   <include file="$(find ur_robot_driver)/launch/$(arg robot_type)_bringup.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="headless_mode" value="true"/>
+    <arg name="stopped_controllers" value="forward_joint_traj_controller forward_cartesian_traj_controller twist_controller pose_based_cartesian_traj_controller joint_based_cartesian_traj_controller"/>
   </include>
 
   <!--If the default controller changes, this remap has to be adapted, as well-->
   <remap from="follow_joint_trajectory" to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
+  <remap from="forward_cartesian_trajectory" to="/forward_cartesian_traj_controller/follow_cartesian_trajectory" />
+  <remap from="forward_joint_trajectory" to="/forward_joint_traj_controller/follow_joint_trajectory" />
+  <remap from="follow_cartesian_trajectory" to="/pose_based_cartesian_traj_controller/follow_cartesian_trajectory" />
 
-  <test test-name="integration test" pkg="ur_robot_driver" type="integration_test.py" name="integration_test" time-limit="60.0"/>
+  <test test-name="integration test" pkg="ur_robot_driver" type="integration_test.py" name="integration_test" time-limit="300.0"/>
 
 </launch>

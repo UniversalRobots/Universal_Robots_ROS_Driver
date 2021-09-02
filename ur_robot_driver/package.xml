@@ -24,23 +24,28 @@
   <build_depend>industrial_robot_status_interface</build_depend>
 
   <depend>actionlib</depend>
-  <depend>control_msgs</depend>
   <depend>controller_manager</depend>
+  <depend>control_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
+  <depend>kdl_parser</depend>
+  <depend>pass_through_controllers</depend>
   <depend>pluginlib</depend>
   <depend>roscpp</depend>
+  <depend>scaled_joint_trajectory_controller</depend>
   <depend>sensor_msgs</depend>
-  <depend>tf</depend>
-  <depend>tf2_msgs</depend>
-  <depend>tf2_geometry_msgs</depend>
-  <depend>trajectory_msgs</depend>
-  <depend>ur_controllers</depend>
-  <depend>ur_dashboard_msgs</depend>
-  <depend>ur_client_library</depend>
-  <depend>ur_msgs</depend>
+  <depend>speed_scaling_interface</depend>
+  <depend>speed_scaling_state_controller</depend>
   <depend>std_srvs</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>tf</depend>
+  <depend>trajectory_msgs</depend>
+  <depend>ur_client_library</depend>
+  <depend>ur_dashboard_msgs</depend>
+  <depend>ur_msgs</depend>
 
+  <exec_depend>cartesian_trajectory_controller</exec_depend>
   <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>industrial_robot_status_controller</exec_depend>
@@ -48,6 +53,7 @@
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>socat</exec_depend>
+  <exec_depend>twist_controller</exec_depend>
   <exec_depend>ur_description</exec_depend>
   <exec_depend>velocity_controllers</exec_depend>
 
