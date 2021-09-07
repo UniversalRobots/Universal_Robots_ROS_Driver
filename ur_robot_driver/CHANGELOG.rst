@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.0.0 (2021-09-07)
+------------------
 * Merge pull request `#408 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/408>`_ from UniversalRobots/staging
   Adds new features to the driver:
   - Cartesian position-based control

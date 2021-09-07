@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.0.0 (2021-09-07)
+------------------
 * Add new features to the driver:
   - Cartesian position-based control
   - Cartesian twist-based control

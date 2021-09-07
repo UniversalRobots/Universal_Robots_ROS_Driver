@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>ur_robot_driver</name>
-  <version>0.0.3</version>
+  <version>2.0.0</version>
   <description>The new driver for Universal Robots UR3, UR5 and UR10 robots with CB3 controllers and the e-series.</description>
   <author>Thomas Timm Andersen</author>
   <author>Simon Rasmussen</author>

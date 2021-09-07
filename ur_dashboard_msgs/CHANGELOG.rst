@@ -2,8 +2,8 @@
 Changelog for package ur_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-09-07)
+------------------
 * Initial release
 * Fix package dependencies `#132 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/132>`_ from UniversalRobots/fix_dependencies
 * Use SPDX license identifiers. (`#145 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/145>`_)
