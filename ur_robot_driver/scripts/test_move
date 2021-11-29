@@ -40,6 +40,10 @@ from cartesian_control_msgs.msg import (
     CartesianTrajectoryPoint,
 )
 
+# Compatibility for python2 and python3
+if sys.version_info[0] < 3:
+    input = raw_input
+
 # If your robot description is created with a tf_prefix, those would have to be adapted
 JOINT_NAMES = [
     "shoulder_pan_joint",
