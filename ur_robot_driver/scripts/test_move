@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # -- BEGIN LICENSE BLOCK ----------------------------------------------
 # Copyright 2021 FZI Forschungszentrum Informatik
@@ -25,7 +25,6 @@
 #
 #
 # ---------------------------------------------------------------------
-
 import sys
 
 import rospy
@@ -40,6 +39,10 @@ from cartesian_control_msgs.msg import (
     FollowCartesianTrajectoryGoal,
     CartesianTrajectoryPoint,
 )
+
+# Compatibility for python2 and python3
+if sys.version_info[0] < 3:
+    input = raw_input
 
 # If your robot description is created with a tf_prefix, those would have to be adapted
 JOINT_NAMES = [
@@ -199,7 +202,7 @@ class TrajectoryClient:
             )
             valid = input_str in ["y", "n"]
             if not valid:
-                print("Please confirm by entering 'y' or abort by entering 'n'")
+                rospy.loginfo("Please confirm by entering 'y' or abort by entering 'n'")
             else:
                 confirmed = input_str == "y"
         if not confirmed:
@@ -208,11 +211,11 @@ class TrajectoryClient:
 
     def choose_controller(self):
         """Ask the user to select the desired controller from the available list."""
-        print("Available trajectory controllers:")
+        rospy.loginfo("Available trajectory controllers:")
         for (index, name) in enumerate(JOINT_TRAJECTORY_CONTROLLERS):
-            print("{} (joint-based): {}".format(index, name))
+            rospy.loginfo("{} (joint-based): {}".format(index, name))
         for (index, name) in enumerate(CARTESIAN_TRAJECTORY_CONTROLLERS):
-            print("{} (Cartesian): {}".format(index + len(JOINT_TRAJECTORY_CONTROLLERS), name))
+            rospy.loginfo("{} (Cartesian): {}".format(index + len(JOINT_TRAJECTORY_CONTROLLERS), name))
         choice = -1
         while choice < 0:
             input_str = input(
@@ -224,13 +227,13 @@ class TrajectoryClient:
                 if choice < 0 or choice >= len(JOINT_TRAJECTORY_CONTROLLERS) + len(
                     CARTESIAN_TRAJECTORY_CONTROLLERS
                 ):
-                    print(
+                    rospy.loginfo(
                         "{} not inside the list of options. "
                         "Please enter a valid index from the list above.".format(choice)
                     )
                     choice = -1
             except ValueError:
-                print("Input is not a valid number. Please try again.")
+                rospy.loginfo("Input is not a valid number. Please try again.")
         if choice < len(JOINT_TRAJECTORY_CONTROLLERS):
             self.joint_trajectory_controller = JOINT_TRAJECTORY_CONTROLLERS[choice]
             return "joint_based"
