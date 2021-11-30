@@ -1254,8 +1254,29 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
     p[3] = point.positions[3];
     p[4] = point.positions[4];
     p[5] = point.positions[5];
+    urcl::vector6d_t v{ 0, 0, 0, 0, 0, 0 };
+    if (point.velocities.size() == 6)
+    {
+      v[0] = point.velocities[0];
+      v[1] = point.velocities[1];
+      v[2] = point.velocities[2];
+      v[3] = point.velocities[3];
+      v[4] = point.velocities[4];
+      v[5] = point.velocities[5];
+    }
+    urcl::vector6d_t a{ 0, 0, 0, 0, 0, 0 };
+    if (point.accelerations.size() == 6)
+    {
+      a[0] = point.accelerations[0];
+      a[1] = point.accelerations[1];
+      a[2] = point.accelerations[2];
+      a[3] = point.accelerations[3];
+      a[4] = point.accelerations[4];
+      a[5] = point.accelerations[5];
+    }
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    ur_driver_->writeTrajectoryPoint(p, v, a, urcl::control::TrajectoryPointInterface::PointType::JOINT_SPLINE,
+                                     next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
@@ -1283,7 +1304,8 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
     p[4] = rot.GetRot().y();
     p[5] = rot.GetRot().z();
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
+    ur_driver_->writeTrajectoryPoint(p, urcl::control::TrajectoryPointInterface::PointType::CARTESIAN_POINT,
+                                     next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
