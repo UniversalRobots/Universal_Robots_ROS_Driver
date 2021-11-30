@@ -1247,7 +1247,7 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
       a[5] = point.accelerations[5];
     }
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, v, a, false, next_time - last_time);
+    ur_driver_->writeTrajectoryPoint(p, v, a, urcl::control::TrajectoryPointInterface::PointType::JOINT_SPLINE, next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
@@ -1275,7 +1275,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
     p[4] = rot.GetRot().y();
     p[5] = rot.GetRot().z();
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
+    ur_driver_->writeTrajectoryPoint(p, urcl::control::TrajectoryPointInterface::PointType::CARTESIAN_POINT, next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
