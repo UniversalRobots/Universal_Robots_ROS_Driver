@@ -1,3 +1,5 @@
+- builder: sphinx
+  sphinx_root_dir: doc
 - builder: doxygen
   name: C++ API
   output_dir: c++
