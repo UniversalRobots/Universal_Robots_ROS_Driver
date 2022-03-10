@@ -15,7 +15,7 @@ On the welcome screen click on the hamburger menu in the top-right corner and se
 
 
 .. image:: initial_setup_images/es_01_welcome.png
-   :width: 800
+   :width: 100%
    :alt: Welcome screen of an e-Series robot
 
 
@@ -26,7 +26,7 @@ the **externalcontrol-1.0.5.urcap** file and click *open*. Your URCaps view shou
 now.
 
 .. image:: initial_setup_images/es_05_urcaps_installed.png
-   :width: 800
+   :width: 100%
    :alt: URCaps screen with installed urcaps
 
 
@@ -35,7 +35,7 @@ For this select *Program Robot* on the welcome screen, select the *Installation*
 **External Control** from the list.
 
 .. image:: initial_setup_images/es_07_installation_excontrol.png
-   :width: 800
+   :width: 100%
    :alt: Installation screen of URCaps
 
 
@@ -45,7 +45,7 @@ connection with each other to minimize network disturbances. The custom port sho
 untouched for now.
 
 .. image:: initial_setup_images/es_10_prog_structure_urcaps.png
-   :width: 800
+   :width: 100%
    :alt: Insert the external control node
 
 
@@ -53,7 +53,7 @@ To use the new URCaps, create a new program and insert the **External Control** 
 the program tree
 
 .. image:: initial_setup_images/es_11_program_view_excontrol.png
-   :width: 800
+   :width: 100%
    :alt: Program view of external control
 
 
