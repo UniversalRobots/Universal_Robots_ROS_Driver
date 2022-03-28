@@ -52,6 +52,7 @@
 #include <ur_msgs/ToolDataMsg.h>
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
+#include <bluehill/Diagnostics.h>
 
 #include <cartesian_interface/cartesian_command_interface.h>
 #include <cartesian_interface/cartesian_state_handle.h>
@@ -189,6 +190,7 @@ protected:
    */
   void publishPose();
 
+  void publish_heartbeat();
   void publishIOData();
   void publishToolData();
   void publishRobotAndSafetyMode();
@@ -332,7 +334,7 @@ protected:
 
   std::string tcp_link_;
   bool robot_program_running_;
-  ros::Publisher program_state_pub_;
+  ros::Publisher program_state_pub_, diagnostics_pub_;
 
   bool controller_reset_necessary_;
   bool controllers_initialized_;
