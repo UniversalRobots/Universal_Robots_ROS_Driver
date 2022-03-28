@@ -82,11 +82,14 @@ class ROSParameterInterface(ParameterInterface):
                 "have an instance of the driver running."
             )
 
+
 def loginfo(msg):
     rospy.loginfo(msg)
 
+
 def logerr(msg):
     rospy.logerr(msg)
+
 
 class ConnectionDebugger:
     """Small utility to debug a connection to a UR robot"""
@@ -113,7 +116,7 @@ class ConnectionDebugger:
             ]
         )
 
-    def reverse_connect(self):
+    def reverse_connect(self, **kwargs):
         return self._check_run(
             [
                 "sshpass",
@@ -121,7 +124,7 @@ class ConnectionDebugger:
                 self.parameters.remote_password,
                 "ssh",
                 f"{self.parameters.remote_user}@{self.parameters.robot_ip}",
-                f"nc -zv -w 2 {self.parameters.reverse_ip} {self.parameters.reverse_port}",
+                f"nc -zv -w 2 {self.parameters.reverse_ip} {kwargs['port']}",
             ]
         )
 
@@ -155,9 +158,13 @@ class ConnectionDebugger:
             return False
         return True
 
-    def _run_check(self, msg, fun, hints):
+    def _run_check(self, msg, fun, hints, **kwargs):
         loginfo(msg)
-        if fun():
+        if kwargs:
+            result = fun(**kwargs)
+        else:
+            result = fun()
+        if result:
             loginfo(f"Success: {msg}\n")
         else:
             logerr(f"FAILED: {msg}")
@@ -189,6 +196,7 @@ class ConnectionDebugger:
                 "This could potentially mean that there is a firewall "
                 + f"restricting access to port {self.parameters.reverse_port}",
             ],
+            port=self.parameters.reverse_port,
         )
         self._run_check(
             msg=f"Trying to request program on port {self.parameters.script_sender_port}",
@@ -199,6 +207,17 @@ class ConnectionDebugger:
                 "This could potentially mean that there is a firewall "
                 + f"restricting access to port {self.parameters.script_sender_port}",
             ],
+        )
+        self._run_check(
+            msg=f"Trying to connect to trajectory_port {self.parameters.trajectory_port}",
+            fun=self.reverse_connect,
+            hints=[
+                "The ur_robot_driver is not running",
+                "The robot does not have ssh enabled / installed (e.g. when using a docker image)",
+                "This could potentially mean that there is a firewall "
+                + f"restricting access to port {self.parameters.trajectory_port}",
+            ],
+            port=self.parameters.trajectory_port,
         )
 
 
