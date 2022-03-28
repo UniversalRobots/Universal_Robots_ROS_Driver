@@ -194,7 +194,10 @@ class ConnectionDebugger:
                 "The ur_robot_driver is not running",
                 "The robot does not have ssh enabled / installed (e.g. when using a docker image)",
                 "This could potentially mean that there is a firewall "
-                + f"restricting access to port {self.parameters.reverse_port}",
+                + f"restricting access to port {self.parameters.reverse_port}"
+                + "See "
+                + "(https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/check_firewalls.md)"
+                + "on a short introduction to firewalls.",
             ],
             port=self.parameters.reverse_port,
         )
@@ -205,7 +208,10 @@ class ConnectionDebugger:
                 "The ur_robot_driver is not running",
                 "The robot does not have ssh enabled / installed (e.g. when using a docker image)",
                 "This could potentially mean that there is a firewall "
-                + f"restricting access to port {self.parameters.script_sender_port}",
+                + f"restricting access to port {self.parameters.script_sender_port}"
+                + "See "
+                + "(https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/check_firewalls.md)"
+                + "on a short introduction to firewalls.",
             ],
         )
         self._run_check(
@@ -215,7 +221,10 @@ class ConnectionDebugger:
                 "The ur_robot_driver is not running",
                 "The robot does not have ssh enabled / installed (e.g. when using a docker image)",
                 "This could potentially mean that there is a firewall "
-                + f"restricting access to port {self.parameters.trajectory_port}",
+                + f"restricting access to port {self.parameters.trajectory_port}"
+                + "\nSee"
+                + " (https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/check_firewalls.md)"
+                + " on a short introduction to firewalls.",
             ],
             port=self.parameters.trajectory_port,
         )
