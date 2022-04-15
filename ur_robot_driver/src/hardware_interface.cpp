@@ -93,7 +93,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // The robot's IP address.
   if (!robot_hw_nh.getParam("robot_ip", robot_ip_))
   {
-    ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("robot_ip_") << " not given.");
+    ROS_ERROR_STREAM("Required parameter " << robot_hw_nh.resolveName("robot_ip") << " not given.");
     return false;
   }
 
