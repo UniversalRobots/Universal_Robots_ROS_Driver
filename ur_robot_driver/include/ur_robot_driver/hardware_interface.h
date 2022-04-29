@@ -227,6 +227,8 @@ protected:
 
   void startJointInterpolation(const hardware_interface::JointTrajectory& trajectory);
 
+  void startJointSplineInterpolation(const hardware_interface::JointTrajectory& trajectory);
+
   void startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory);
 
   void cancelInterpolation();

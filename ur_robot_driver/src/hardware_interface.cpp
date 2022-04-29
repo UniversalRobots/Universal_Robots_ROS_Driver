@@ -176,6 +176,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // True if splines should be used as interpolation on the robot controller when forwarding trajectory, if false movej
+  // or movel commands are used
+  bool use_spline_interpolation = robot_hw_nh.param<bool>("use_spline_interpolation", "false");
+
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
@@ -366,8 +370,16 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       "industrial_robot_status_handle", robot_status_resource_));
 
   // Register callbacks for trajectory passthrough
-  jnt_traj_interface_.registerGoalCallback(
-      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1));
+  if (use_spline_interpolation)
+  {
+    jnt_traj_interface_.registerGoalCallback(
+        std::bind(&HardwareInterface::startJointSplineInterpolation, this, std::placeholders::_1));
+  }
+  else
+  {
+    jnt_traj_interface_.registerGoalCallback(
+        std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1));
+  }
   jnt_traj_interface_.registerCancelCallback(std::bind(&HardwareInterface::cancelInterpolation, this));
   cart_traj_interface_.registerGoalCallback(
       std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1));
@@ -1254,29 +1266,65 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
     p[3] = point.positions[3];
     p[4] = point.positions[4];
     p[5] = point.positions[5];
-    urcl::vector6d_t v{ 0, 0, 0, 0, 0, 0 };
-    if (point.velocities.size() == 6)
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    last_time = next_time;
+  }
+  ROS_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::startJointSplineInterpolation(const hardware_interface::JointTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  ROS_DEBUG("Starting joint-based trajectory forward using splines");
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number,
+                                            true);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
+  {
+    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.positions[0];
+    p[1] = point.positions[1];
+    p[2] = point.positions[2];
+    p[3] = point.positions[3];
+    p[4] = point.positions[4];
+    p[5] = point.positions[5];
+    double next_time = point.time_from_start.toSec();
+
+    if (point.velocities.size() == 6 && point.accelerations.size() == 6)
     {
+      urcl::vector6d_t v, a;
       v[0] = point.velocities[0];
       v[1] = point.velocities[1];
       v[2] = point.velocities[2];
       v[3] = point.velocities[3];
       v[4] = point.velocities[4];
       v[5] = point.velocities[5];
-    }
-    urcl::vector6d_t a{ 0, 0, 0, 0, 0, 0 };
-    if (point.accelerations.size() == 6)
-    {
+
       a[0] = point.accelerations[0];
       a[1] = point.accelerations[1];
       a[2] = point.accelerations[2];
       a[3] = point.accelerations[3];
       a[4] = point.accelerations[4];
       a[5] = point.accelerations[5];
+      ur_driver_->writeSplinePoint(p, v, a, next_time - last_time);
     }
-    double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, v, a, urcl::control::TrajectoryPointInterface::PointType::JOINT_SPLINE,
-                                     next_time - last_time);
+    else if (point.velocities.size() == 6)
+    {
+      urcl::vector6d_t v;
+      v[0] = point.velocities[0];
+      v[1] = point.velocities[1];
+      v[2] = point.velocities[2];
+      v[3] = point.velocities[3];
+      v[4] = point.velocities[4];
+      v[5] = point.velocities[5];
+      ur_driver_->writeSplinePoint(p, v, next_time - last_time);
+    }
+    else
+    {
+      ur_driver_->writeSplinePoint(p, next_time - last_time);
+    }
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
@@ -1304,8 +1352,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
     p[4] = rot.GetRot().y();
     p[5] = rot.GetRot().z();
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, urcl::control::TrajectoryPointInterface::PointType::CARTESIAN_POINT,
-                                     next_time - last_time);
+    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");
