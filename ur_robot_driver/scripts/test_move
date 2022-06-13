@@ -107,6 +107,12 @@ class TrajectoryClient:
             FollowJointTrajectoryAction,
         )
 
+        # Wait for action server to be ready
+        timeout = rospy.Duration(5)
+        if not trajectory_client.wait_for_server(timeout):
+            rospy.logerr("Could not reach controller action server.")
+            sys.exit(-1)
+
         # Create and fill trajectory goal
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = JOINT_NAMES
@@ -142,6 +148,12 @@ class TrajectoryClient:
             "{}/follow_cartesian_trajectory".format(self.cartesian_trajectory_controller),
             FollowCartesianTrajectoryAction,
         )
+
+        # Wait for action server to be ready
+        timeout = rospy.Duration(5)
+        if not trajectory_client.wait_for_server(timeout):
+            rospy.logerr("Could not reach controller action server.")
+            sys.exit(-1)
 
         # The following list are arbitrary positions
         # Change to your own needs if desired
