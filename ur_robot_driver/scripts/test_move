@@ -33,6 +33,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 from trajectory_msgs.msg import JointTrajectoryPoint
 from controller_manager_msgs.srv import SwitchControllerRequest, SwitchController
 from controller_manager_msgs.srv import LoadControllerRequest, LoadController
+from controller_manager_msgs.srv import ListControllers, ListControllersRequest
 import geometry_msgs.msg as geometry_msgs
 from cartesian_control_msgs.msg import (
     FollowCartesianTrajectoryAction,
@@ -88,6 +89,7 @@ class TrajectoryClient:
             "controller_manager/switch_controller", SwitchController
         )
         self.load_srv = rospy.ServiceProxy("controller_manager/load_controller", LoadController)
+        self.list_srv = rospy.ServiceProxy("controller_manager/list_controllers", ListControllers)
         try:
             self.switch_srv.wait_for_service(timeout.to_sec())
         except rospy.exceptions.ROSException as err:
@@ -264,6 +266,12 @@ class TrajectoryClient:
         )
 
         other_controllers.remove(target_controller)
+
+        srv = ListControllersRequest()
+        response = self.list_srv(srv)
+        for controller in response.controller:
+            if controller.name == target_controller and controller.state == "running":
+                return
 
         srv = LoadControllerRequest()
         srv.name = target_controller
