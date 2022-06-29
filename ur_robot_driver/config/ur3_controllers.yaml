@@ -5,12 +5,12 @@ hardware_control_loop:
 # Settings for ros_control hardware interface
 ur_hardware_interface:
   joints: &robot_joints
-    - shoulder_pan_joint
-    - shoulder_lift_joint
-    - elbow_joint
-    - wrist_1_joint
-    - wrist_2_joint
-    - wrist_3_joint
+    - &joint1 shoulder_pan_joint
+    - &joint2 shoulder_lift_joint
+    - &joint3 elbow_joint
+    - &joint4 wrist_1_joint
+    - &joint5 wrist_2_joint
+    - &joint6 wrist_3_joint
 
 # Publish all joint states ----------------------------------
 joint_state_controller:
@@ -35,12 +35,12 @@ scaled_pos_joint_traj_controller:
   constraints:
     goal_time: 0.6
     stopped_velocity_tolerance: 0.05
-    shoulder_pan_joint: {trajectory: 0.2, goal: 0.1}
-    shoulder_lift_joint: {trajectory: 0.2, goal: 0.1}
-    elbow_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_1_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_2_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_3_joint: {trajectory: 0.2, goal: 0.1}
+    *joint1: {trajectory: 0.2, goal: 0.1}
+    *joint2: {trajectory: 0.2, goal: 0.1}
+    *joint3: {trajectory: 0.2, goal: 0.1}
+    *joint4: {trajectory: 0.2, goal: 0.1}
+    *joint5: {trajectory: 0.2, goal: 0.1}
+    *joint6: {trajectory: 0.2, goal: 0.1}
   stop_trajectory_duration: 0.5
   state_publish_rate: *loop_hz
   action_monitor_rate: 20
@@ -51,12 +51,12 @@ pos_joint_traj_controller:
   constraints:
     goal_time: 0.6
     stopped_velocity_tolerance: 0.05
-    shoulder_pan_joint: {trajectory: 0.2, goal: 0.1}
-    shoulder_lift_joint: {trajectory: 0.2, goal: 0.1}
-    elbow_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_1_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_2_joint: {trajectory: 0.2, goal: 0.1}
-    wrist_3_joint: {trajectory: 0.2, goal: 0.1}
+    *joint1: {trajectory: 0.2, goal: 0.1}
+    *joint2: {trajectory: 0.2, goal: 0.1}
+    *joint3: {trajectory: 0.2, goal: 0.1}
+    *joint4: {trajectory: 0.2, goal: 0.1}
+    *joint5: {trajectory: 0.2, goal: 0.1}
+    *joint6: {trajectory: 0.2, goal: 0.1}
   stop_trajectory_duration: 0.5
   state_publish_rate: *loop_hz
   action_monitor_rate: 20
@@ -67,28 +67,28 @@ scaled_vel_joint_traj_controller:
   constraints:
     goal_time: 0.6
     stopped_velocity_tolerance: 0.05
-    shoulder_pan_joint: {trajectory: 0.1, goal: 0.1}
-    shoulder_lift_joint: {trajectory: 0.1, goal: 0.1}
-    elbow_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_1_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_2_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_3_joint: {trajectory: 0.1, goal: 0.1}
+    *joint1: {trajectory: 0.1, goal: 0.1}
+    *joint2: {trajectory: 0.1, goal: 0.1}
+    *joint3: {trajectory: 0.1, goal: 0.1}
+    *joint4: {trajectory: 0.1, goal: 0.1}
+    *joint5: {trajectory: 0.1, goal: 0.1}
+    *joint6: {trajectory: 0.1, goal: 0.1}
   gains:
     #!!These values have not been optimized!!
-    shoulder_pan_joint:  {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    shoulder_lift_joint: {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    elbow_joint:         {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_1_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_2_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_3_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
+    *joint1: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint2: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint3: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint4: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint5: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint6: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
   # Use a feedforward term to reduce the size of PID gains
   velocity_ff:
-    shoulder_pan_joint: 1.0
-    shoulder_lift_joint: 1.0
-    elbow_joint: 1.0
-    wrist_1_joint: 1.0
-    wrist_2_joint: 1.0
-    wrist_3_joint: 1.0
+    *joint1: 1.0
+    *joint2: 1.0
+    *joint3: 1.0
+    *joint4: 1.0
+    *joint5: 1.0
+    *joint6: 1.0
   stop_trajectory_duration: 0.5
   state_publish_rate: *loop_hz
   action_monitor_rate: 20
@@ -99,28 +99,28 @@ vel_joint_traj_controller:
   constraints:
     goal_time: 0.6
     stopped_velocity_tolerance: 0.05
-    shoulder_pan_joint: {trajectory: 0.1, goal: 0.1}
-    shoulder_lift_joint: {trajectory: 0.1, goal: 0.1}
-    elbow_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_1_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_2_joint: {trajectory: 0.1, goal: 0.1}
-    wrist_3_joint: {trajectory: 0.1, goal: 0.1}
+    *joint1: {trajectory: 0.1, goal: 0.1}
+    *joint2: {trajectory: 0.1, goal: 0.1}
+    *joint3: {trajectory: 0.1, goal: 0.1}
+    *joint4: {trajectory: 0.1, goal: 0.1}
+    *joint5: {trajectory: 0.1, goal: 0.1}
+    *joint6: {trajectory: 0.1, goal: 0.1}
   gains:
     #!!These values have not been optimized!!
-    shoulder_pan_joint:  {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    shoulder_lift_joint: {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    elbow_joint:         {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_1_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_2_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
-    wrist_3_joint:       {p: 5.0,  i: 0.05, d: 0.1, i_clamp: 1}
+    *joint1: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint2: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint3: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint4: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint5: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
+    *joint6: {p: 5.0, i: 0.05, d: 0.1, i_clamp: 1}
   # Use a feedforward term to reduce the size of PID gains
   velocity_ff:
-    shoulder_pan_joint: 1.0
-    shoulder_lift_joint: 1.0
-    elbow_joint: 1.0
-    wrist_1_joint: 1.0
-    wrist_2_joint: 1.0
-    wrist_3_joint: 1.0
+    *joint1: 1.0
+    *joint2: 1.0
+    *joint3: 1.0
+    *joint4: 1.0
+    *joint5: 1.0
+    *joint6: 1.0
   stop_trajectory_duration: 0.5
   state_publish_rate: *loop_hz
   action_monitor_rate: 20
