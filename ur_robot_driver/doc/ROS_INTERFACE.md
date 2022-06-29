@@ -65,6 +65,10 @@ tf_prefix used for the robot.
 
 Parameter to set the id of the wrench frame, required if using multiple robots
 
+##### speed_scaling_id (default: "speed_scaling_factor")
+
+Set the topic on which this robot publishes its speed scaling factor.
+
 ##### tool_baud_rate (default: "115200")
 
 Baud rate used for tool communication. Only used, when `use_tool_communication` is set to true.
