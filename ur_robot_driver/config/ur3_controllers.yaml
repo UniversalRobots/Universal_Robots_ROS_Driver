@@ -131,16 +131,16 @@ joint_group_vel_controller:
   joints: *robot_joints
 
 forward_joint_traj_controller:
-  type: "pass_through_controllers/JointTrajectoryController"
+  type: pass_through_controllers/JointTrajectoryController
   joints: *robot_joints
 
 forward_cartesian_traj_controller:
-  type: "pass_through_controllers/CartesianTrajectoryController"
+  type: pass_through_controllers/CartesianTrajectoryController
   joints: *robot_joints
 
 twist_controller:
-  type: "ros_controllers_cartesian/TwistController"
-  frame_id: "tool0_controller"
+  type: ros_controllers_cartesian/TwistController
+  frame_id: tool0_controller
   publish_rate: *loop_hz
   joints: *robot_joints
 
