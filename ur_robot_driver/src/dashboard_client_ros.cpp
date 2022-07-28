@@ -152,6 +152,9 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   // Service to query the current robot mode
   robot_mode_service_ = nh_.advertiseService("get_robot_mode", &DashboardClientROS::handleRobotModeQuery, this);
 
+  // Service to query whether the robot is in remote control
+  is_in_remote_control_service_ = nh_.advertiseService("is_in_remote_control", &DashboardClientROS::handleRemoteControlQuery, this);
+
   // Service to add a message to the robot's log
   add_to_log_service_ =
       nh_.advertiseService<ur_dashboard_msgs::AddToLog::Request, ur_dashboard_msgs::AddToLog::Response>(
@@ -216,6 +219,22 @@ bool DashboardClientROS::handleSavedQuery(ur_dashboard_msgs::IsProgramSaved::Req
   {
     resp.program_saved = (match[1] == "true");
     resp.program_name = match[2];
+  }
+
+  return true;
+}
+
+bool DashboardClientROS::handleRemoteControlQuery(ur_dashboard_msgs::IsInRemoteControl::Request& req,
+                                                  ur_dashboard_msgs::IsInRemoteControl::Response& resp)
+{
+  resp.answer = this->client_.sendAndReceive("is in remote control\n");
+  std::regex expected("(true|false)");
+  std::smatch match;
+  resp.success = std::regex_match(resp.answer, match, expected);
+
+  if (resp.success)
+  {
+    resp.in_remote_control = (match[1] == "true");
   }
 
   return true;
