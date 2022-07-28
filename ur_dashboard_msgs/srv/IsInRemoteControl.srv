@@ -1,0 +1,4 @@
+---
+string answer
+bool in_remote_control # is a program running?
+bool success # Did the dashboard server call succeed?

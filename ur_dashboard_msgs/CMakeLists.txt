@@ -62,6 +62,7 @@ add_service_files(
   GetProgramState.srv
   GetRobotMode.srv
   GetSafetyMode.srv
+  IsInRemoteControl.srv
   IsProgramRunning.srv
   IsProgramSaved.srv
   Load.srv
