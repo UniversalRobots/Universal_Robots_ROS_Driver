@@ -120,6 +120,9 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
   // Query whether the current program is saved
   is_program_saved_service_ = nh_.advertiseService("program_saved", &DashboardClientROS::handleSavedQuery, this);
 
+  // Query whether the robot is in remote control
+  is_in_remote_control_service_ = nh_.advertiseService("in_remote_control", &DashboardClientROS::handleRemoteControlQuery, this);
+
   // Service to show a popup on the UR Teach pendant.
   popup_service_ = nh_.advertiseService<ur_dashboard_msgs::Popup::Request, ur_dashboard_msgs::Popup::Response>(
       "popup", [&](ur_dashboard_msgs::Popup::Request& req, ur_dashboard_msgs::Popup::Response& resp) {
@@ -151,9 +154,6 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
 
   // Service to query the current robot mode
   robot_mode_service_ = nh_.advertiseService("get_robot_mode", &DashboardClientROS::handleRobotModeQuery, this);
-
-  // Service to query whether the robot is in remote control
-  is_in_remote_control_service_ = nh_.advertiseService("is_in_remote_control", &DashboardClientROS::handleRemoteControlQuery, this);
 
   // Service to add a message to the robot's log
   add_to_log_service_ =
