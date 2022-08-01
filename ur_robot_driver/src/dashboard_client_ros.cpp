@@ -122,7 +122,7 @@ DashboardClientROS::DashboardClientROS(const ros::NodeHandle& nh, const std::str
 
   // Query whether the robot is in remote control
   is_in_remote_control_service_ =
-      nh_.advertiseService("in_remote_control", &DashboardClientROS::handleRemoteControlQuery, this);
+      nh_.advertiseService("is_in_remote_control", &DashboardClientROS::handleRemoteControlQuery, this);
 
   // Service to show a popup on the UR Teach pendant.
   popup_service_ = nh_.advertiseService<ur_dashboard_msgs::Popup::Request, ur_dashboard_msgs::Popup::Response>(
