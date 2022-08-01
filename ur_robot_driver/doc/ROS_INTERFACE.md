@@ -738,7 +738,7 @@ Query whether the current program is saved
 
 ##### dashboard/in_remote_control ([ur_dashboard_msgs/IsInRemoteControl](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsInRemoteControl.html))
 
-Query whether the robot is in remote control
+Query whether the robot is currently in remote control mode. This is only available on e-Series models.
 
 ##### dashboard/program_state ([ur_dashboard_msgs/GetProgramState](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetProgramState.html))
 
@@ -783,7 +783,7 @@ Service to set any of the robot's IOs
 ##### set_speed_slider (ur_msgs/SetSpeedSliderFraction)
 
 Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1. Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're doing. Using this with other controllers might lead to unexpected behaviors.
- 
+
 ##### set_payload (ur_msgs/SetPayload)
 
 Setup the mounted payload through a ROS service
@@ -850,26 +850,25 @@ Specify lookahead time for servoing to position in joint space. A longer lookahe
 
 When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order to publish correct frame names for frames reported by the robot directly.
 
-
 ##### tool_baud_rate (Required)
 
-Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Baud rate used for tool communication. Will be set as soon as the UR-Program on the robot is started. See UR documentation for valid baud rates. Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
 ##### tool_parity (Required)
 
-Parity used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 0 (None), 1 (odd) and 2 (even).  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Parity used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 0 (None), 1 (odd) and 2 (even). Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
 ##### tool_rx_idle_chars (Required)
 
-Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=1.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=1.0, max=40.0 Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
 ##### tool_stop_bits (Required)
 
-Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 1 or 2.  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of stop bits used for tool communication. Will be set as soon as the UR-Program on the robot is started. Can be 1 or 2. Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
 ##### tool_tx_idle_chars (Required)
 
-Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=0.0, max=40.0  Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE.  Then, this parameter is required.
+Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the robot is started. Valid values: min=0.0, max=40.0 Note: This parameter is only evaluated, when the parameter "use_tool_communication" is set to TRUE. Then, this parameter is required.
 
 ##### tool_voltage (Required)
 
@@ -889,11 +888,9 @@ Whenever the runtime state of the "External Control" program node in the UR-prog
 
 ##### script_command ([std_msgs/String](http://docs.ros.org/api/std_msgs/html/msg/String.html))
 
-Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in remote-control mode.  Sending scripts to this will stop program execution unless wrapped in a secondary program:  sec myProgram(): set_digital_out(0, True) end
+Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in remote-control mode. Sending scripts to this will stop program execution unless wrapped in a secondary program: sec myProgram(): set_digital_out(0, True) end
 
 ### dashboard_client
-
-
 
 #### Advertised Services
 
@@ -1009,7 +1006,7 @@ The IP address under which the robot is reachable.
 
 ### robot_state_helper
 
-This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop).  It should best be started inside the hardware interface's namespace
+This node prints the robot- and safety mode to ROS logging and offers an action to set the robot to a specific mode (e.g. for initial startup or recovery after a protective stop or EM-Stop). It should best be started inside the hardware interface's namespace
 
 #### Service Clients
 
@@ -1064,4 +1061,3 @@ By default, socat will create a pty in /dev/pts/N with n being an increasing num
 ##### ~robot_ip (Required)
 
 IP address of the robot
-
