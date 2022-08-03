@@ -154,7 +154,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Specify gain for servoing to position in joint space.
   // A higher gain can sharpen the trajectory.
-  int servoj_gain = robot_hw_nh.param("servoj_gain", 1000);
+  int servoj_gain = robot_hw_nh.param("servoj_gain", 800);
   if ((servoj_gain > 2000) || (servoj_gain < 100))
   {
     ROS_ERROR_STREAM("servoj_gain is " << servoj_gain << ", must be in range [100, 2000]");
@@ -163,7 +163,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Specify lookahead time for servoing to position in joint space.
   // A longer lookahead time can smooth the trajectory.
-  double servoj_lookahead_time = robot_hw_nh.param("servoj_lookahead_time", 0.1);
+  double servoj_lookahead_time = robot_hw_nh.param("servoj_lookahead_time", 0.12);
   if ((servoj_lookahead_time > 0.2) || (servoj_lookahead_time < 0.03))
   {
     ROS_ERROR_STREAM("servoj_lookahead_time is " << servoj_lookahead_time << ", must be in range [0.03, 0.2]");
@@ -176,9 +176,6 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
   tcp_transform_.header.frame_id = tf_prefix_ + "base";
   tcp_transform_.child_frame_id = tf_prefix_ + "tool0_controller";
-
-  // For heartbeat
-  diagnostics_pub_ = robot_hw_nh.advertise<bluehill::Diagnostics>("/bluehill/diagnostic_message", 10);
 
   // Should the tool's RS485 interface be forwarded to the ROS machine? This is only available on
   // e-Series models. Setting this parameter to TRUE requires multiple other parameters to be set,as
@@ -564,11 +561,6 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
                       cart_pose_.orientation.w);
     extractRobotStatus();
 
-    static auto last_publish_heartbeat_time = ros::Time(0);
-    if(ros::Time::now() - last_publish_heartbeat_time > ros::Duration(1.0)) {
-        publish_heartbeat();
-        last_publish_heartbeat_time = ros::Time::now();
-    }
     publishIOData();
     publishToolData();
 
@@ -577,7 +569,14 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     extractToolPose(time);
     transformForceTorque();
     publishPose();
-    publishRobotAndSafetyMode();
+
+    static auto last_publish_heartbeat_time = ros::Time(0);
+    if(ros::Time::now() - last_publish_heartbeat_time > ros::Duration(1.0) || robot_mode_pub_->msg_.mode != robot_mode_ ||
+      safety_mode_pub_->msg_.mode != safety_mode_)
+    {  
+        publishRobotAndSafetyMode();
+        last_publish_heartbeat_time = ros::Time::now();
+    }
 
     // Action feedback for joint trajectory forwarding
     if (joint_forward_controller_running_)
@@ -1002,14 +1001,6 @@ void HardwareInterface::extractRobotStatus()
   robot_status_resource_.error_code = 0;
 }
 
-void HardwareInterface::publish_heartbeat() {
-    bluehill::Diagnostics heartbeat_msg;
-    heartbeat_msg.header.stamp = ros::Time::now();
-    heartbeat_msg.name = "ur_driver_node";
-    heartbeat_msg.severity = bluehill::Diagnostics::HEARTBEAT;
-    diagnostics_pub_.publish(heartbeat_msg);
-}
-
 void HardwareInterface::publishIOData()
 {
   if (io_pub_)
@@ -1183,24 +1174,18 @@ void HardwareInterface::publishRobotAndSafetyMode()
 {
   if (robot_mode_pub_)
   {
-    if (robot_mode_pub_->msg_.mode != robot_mode_)
+    if (robot_mode_pub_->trylock())
     {
-      if (robot_mode_pub_->trylock())
-      {
-        robot_mode_pub_->msg_.mode = robot_mode_;
-        robot_mode_pub_->unlockAndPublish();
-      }
+      robot_mode_pub_->msg_.mode = robot_mode_;
+      robot_mode_pub_->unlockAndPublish();
     }
   }
   if (safety_mode_pub_)
   {
-    if (safety_mode_pub_->msg_.mode != safety_mode_)
+    if (safety_mode_pub_->trylock())
     {
-      if (safety_mode_pub_->trylock())
-      {
-        safety_mode_pub_->msg_.mode = safety_mode_;
-        safety_mode_pub_->unlockAndPublish();
-      }
+      safety_mode_pub_->msg_.mode = safety_mode_;
+      safety_mode_pub_->unlockAndPublish();
     }
   }
 }
