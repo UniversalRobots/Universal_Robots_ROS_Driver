@@ -171,8 +171,6 @@ public:
 protected:
   /*!
    * \brief Transforms force-torque measurements reported from the robot from base to tool frame.
-   *
-   * Requires extractToolPose() to be run first.
    */
   void transformForceTorque();
 
@@ -283,6 +281,7 @@ protected:
   urcl::vector6d_t target_tcp_speed_;
   urcl::vector6d_t cartesian_velocity_command_;
   urcl::vector6d_t cartesian_pose_command_;
+  urcl::vector6d_t tcp_offset_;
 
   std::bitset<18> actual_dig_out_bits_;
   std::bitset<18> actual_dig_in_bits_;
@@ -295,8 +294,6 @@ protected:
   int32_t tool_output_voltage_;
   double tool_output_current_;
   double tool_temperature_;
-  tf2::Vector3 tcp_force_;
-  tf2::Vector3 tcp_torque_;
   geometry_msgs::TransformStamped tcp_transform_;
   double speed_scaling_;
   double target_speed_fraction_;
