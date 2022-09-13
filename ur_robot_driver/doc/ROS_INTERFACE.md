@@ -736,6 +736,10 @@ Query whether there is currently a program running
 
 Query whether the current program is saved
 
+##### dashboard/is_in_remote_control ([ur_dashboard_msgs/IsInRemoteControl](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsInRemoteControl.html))
+
+Query whether the robot is currently in remote control mode. This is only available on e-Series models.
+
 ##### dashboard/program_state ([ur_dashboard_msgs/GetProgramState](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetProgramState.html))
 
 Service to query the current program state

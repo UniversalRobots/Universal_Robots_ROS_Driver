@@ -47,6 +47,7 @@
 #include <ur_dashboard_msgs/ProgramState.h>
 #include <ur_dashboard_msgs/GetRobotMode.h>
 #include <ur_dashboard_msgs/GetSafetyMode.h>
+#include <ur_dashboard_msgs/IsInRemoteControl.h>
 #include <ur_dashboard_msgs/RawRequest.h>
 
 namespace ur_driver
@@ -89,6 +90,8 @@ private:
                              ur_dashboard_msgs::GetSafetyMode::Response& resp);
   bool handleRobotModeQuery(ur_dashboard_msgs::GetRobotMode::Request& req,
                             ur_dashboard_msgs::GetRobotMode::Response& resp);
+  bool handleRemoteControlQuery(ur_dashboard_msgs::IsInRemoteControl::Request& req,
+                                ur_dashboard_msgs::IsInRemoteControl::Response& resp);
 
   bool connect();
 
@@ -118,6 +121,7 @@ private:
   ros::ServiceServer running_service_;
   ros::ServiceServer get_loaded_program_service_;
   ros::ServiceServer is_program_saved_service_;
+  ros::ServiceServer is_in_remote_control_service_;
   ros::ServiceServer program_state_service_;
   ros::ServiceServer polyscope_version_service_;
   ros::ServiceServer safety_mode_service_;
