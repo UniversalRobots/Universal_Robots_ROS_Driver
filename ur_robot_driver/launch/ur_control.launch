@@ -77,8 +77,7 @@
 
   <!-- load other controller -->
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="--stopped $(arg stopped_controllers)" />
-
+    output="screen" args="--stopped $(arg stopped_controllers)" unless="$(eval arg('stopped_controllers') == '')"/>
 
   <node name="controller_stopper" pkg="controller_stopper" type="node" respawn="false" output="screen">
     <remap from="robot_running" to="ur_hardware_interface/robot_program_running"/>
