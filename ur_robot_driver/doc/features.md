@@ -24,6 +24,7 @@
 | send custom script commands to robot                  | yes                   |
 | ROS 2 support                                         | (yes)<sup>3</sup>      |
 | Reconnect on a disconnected robot                     | yes           |
+| activate and deactivate freedrive mode (with axis constraints)   | yes           |
 
 <sup>1</sup> Requires URCap (included in
 [resources](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/tree/master/ur_robot_driver/resources)):

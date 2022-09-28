@@ -37,6 +37,9 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <cartesian_control_msgs/FollowCartesianTrajectoryAction.h>
 
+#include "ros/ros.h"
+#include "std_msgs/String.h"
+
 #include <Eigen/Geometry>
 #include <stdexcept>
 
@@ -178,6 +181,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
   program_state_pub_ = robot_hw_nh.advertise<std_msgs::Bool>("robot_program_running", 10, true);
+  status_pub = robot_hw_nh.advertise<std_msgs::String>("/overseer/ur_hw_status", 5);
   tcp_transform_.header.frame_id = tf_prefix_ + "base";
   tcp_transform_.child_frame_id = tf_prefix_ + "tool0_controller";
 
@@ -323,7 +327,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   //   set_digital_out(0, True)
   // end
   command_sub_ = robot_hw_nh.subscribe("script_command", 1, &HardwareInterface::commandCallback, this);
-
+  freedrive_sub_ = robot_hw_nh.subscribe("enable_freedrive_mode", 1, &HardwareInterface::freedriveCallback, this);
+  
   // Names of the joints. Usually, this is given in the controller config file.
   if (!robot_hw_nh.getParam("joints", joint_names_))
   {
@@ -679,6 +684,9 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     if (!non_blocking_read_)
     {
       ROS_ERROR("Could not get fresh data package from robot");
+      std_msgs::String str;
+      str.data = "ERR404";
+      status_pub.publish(str);
     }
   }
 }
@@ -1139,6 +1147,46 @@ end
 )");
   }
   return true;
+}
+
+void HardwareInterface::freedriveCallback(const std_msgs::StringPtr& msg)
+{
+  // Recieve a std::String message with data = "[X,Y,Z,RX,RY,RZ]"
+  // where X,Y,Z,RX,RY,RZ are 0 or 1 depending on the axis that 
+  // are unconstrained
+  std::stringstream freedrive_script;
+  freedrive_script << "def freedriveProgram():\n";
+  
+  // Freedrive mode will remain active until either the program is 
+  // returned to External Control OR if data = "[0,0,0,0,0,0]"
+  if (msg->data.compare("[0,0,0,0,0,0]") != 0)
+  {
+    freedrive_script << "\t freedrive_mode(freeAxes=" << msg->data << ")\n";
+    freedrive_script << "\t while True:\n";
+    freedrive_script << "\t\t sleep(3.0)\n";
+    freedrive_script << "\t end\n";
+    freedrive_script << "end\n";
+  }
+  else
+  {
+    freedrive_script << "\t end_freedrive_mode()\n";
+    freedrive_script << "end\n";
+  }
+
+  if (ur_driver_ == nullptr)
+  {
+    throw std::runtime_error("Trying to use the ur_driver_ member before it is initialized. This should not happen, "
+                             "please contact the package maintainer.");
+  }
+
+  if (ur_driver_->sendScript(freedrive_script.str()))
+  {
+    ROS_WARN_STREAM("Sent freedrive mode script to robot - you will have to restart the External Control program.");
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Error sending freedrive mode script to robot");
+  }
 }
 
 void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
