@@ -212,6 +212,7 @@ protected:
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
   bool resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
+  bool resetRevolutionCounter(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
 
   std::unique_ptr<urcl::UrDriver> ur_driver_;
@@ -235,6 +236,7 @@ protected:
 
   ros::ServiceServer deactivate_srv_;
   ros::ServiceServer tare_sensor_srv_;
+  ros::ServiceServer reset_revolution_counter_srv_;
   ros::ServiceServer set_payload_srv_;
 
   hardware_interface::JointStateInterface js_interface_;

@@ -792,6 +792,10 @@ Setup the mounted payload through a ROS service
 
 Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only work when the robot is in remote-control mode.
 
+##### reset_revolution_counter ([std_srvs/Trigger](http://docs.ros.org/api/std_srvs/html/srv/Trigger.html))
+
+Calling this service will reset the revolution counter for the robot's wrist_3_link. Note: On e-Series robots this will only work when the robot is in remote-control mode.
+
 #### Parameters
 
 ##### dashboard/receive_timeout (Required)
