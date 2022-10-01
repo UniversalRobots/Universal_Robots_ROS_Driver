@@ -34,6 +34,7 @@ find_package(catkin REQUIRED
 )
 find_package(Boost REQUIRED)
 find_package(ur_client_library REQUIRED)
+find_package(console_bridge REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -100,7 +101,7 @@ add_dependencies(ur_robot_driver_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${ca
 add_library(urcl_log_handler
   src/urcl_log_handler.cpp
 )
-target_link_libraries(urcl_log_handler ${catkin_LIBRARIES} ur_client_library::urcl)
+target_link_libraries(urcl_log_handler ${catkin_LIBRARIES} ur_client_library::urcl console_bridge::console_bridge)
 
 add_executable(ur_robot_driver_node
   src/dashboard_client_ros.cpp
