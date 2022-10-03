@@ -163,7 +163,7 @@ roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=192.168.56.101
 ```
 
 ```
-roslaunch ur5e_moveit_config ur5e_moveit_planning_execution.launch
+roslaunch ur5e_moveit_config moveit_planning_execution.launch
 ```
 
 ```
