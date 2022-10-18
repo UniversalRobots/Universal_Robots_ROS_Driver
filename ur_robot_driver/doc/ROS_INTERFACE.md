@@ -49,6 +49,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -150,6 +154,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -210,6 +218,10 @@ Recipe file used for the RTDE-inputs. Only change this if you know what you're d
 ##### rtde_output_recipe_file (default: "$(find ur_robot_driver)/resources/rtde_output_recipe.txt")
 
 Recipe file used for the RTDE-outputs. Only change this if you know what you're doing.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -308,6 +320,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -401,6 +417,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -457,6 +477,10 @@ Robot description launch file.
 ##### robot_ip (Required)
 
 IP address by which the robot can be reached.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -551,6 +575,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -607,6 +635,10 @@ Robot description launch file.
 ##### robot_ip (Required)
 
 IP address by which the robot can be reached.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -833,6 +865,10 @@ The robot's IP address.
 ##### script_file (Required)
 
 Path to the urscript code that will be sent to the robot.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (Required)
 
