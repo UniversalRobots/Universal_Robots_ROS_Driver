@@ -42,7 +42,7 @@
     <arg name="reverse_port" value="$(arg reverse_port)"/>
     <arg name="script_sender_port" value="$(arg script_sender_port)"/>
     <arg name="trajectory_port" value="$(arg trajectory_port)"/>
-    <param name="script_command_port" value="$(arg script_command_port)"/>
+    <arg name="script_command_port" value="$(arg script_command_port)"/>
     <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>
