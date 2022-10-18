@@ -1136,10 +1136,7 @@ bool HardwareInterface::zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::Tr
   }
   else
   {
-    res.success = this->ur_driver_->sendScript(R"(sec tareSensor():
-  zero_ftsensor()
-end
-)");
+    res.success = ur_driver_->zeroFTSensor();
   }
   return true;
 }
