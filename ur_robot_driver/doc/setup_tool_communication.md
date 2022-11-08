@@ -10,7 +10,7 @@ This document will guide you through installing the URCap needed for this and se
 launch files to utilize the robot's tool communication.
 
 ## Robot setup
-For setting up the robot, please install the **rs485-1.0.urcap** found in the **resources** folder.
+For setting up the robot, please install the **rs485-x.x.x.urcap** found [here](https://github.com/UniversalRobots/Universal_Robots_ToolComm_Forwarder_URCap/releases).
 Installing a URCap is explained in the [setup guide](install_urcap_e_series.md) for the **external-control** URCap.
 
 After installing the URCap the robot will expose its tool communication device to the network.
