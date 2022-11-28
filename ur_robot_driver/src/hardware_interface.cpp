@@ -444,6 +444,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
+  ur_driver_->getRTDEWriter().sendInputIntRegister(24, servoj_gain);
+  ur_driver_->getRTDEWriter().sendInputDoubleRegister(24, servoj_lookahead_time);
+
   // Setup the mounted payload through a ROS service
   set_payload_srv_ = robot_hw_nh.advertiseService<ur_msgs::SetPayload::Request, ur_msgs::SetPayload::Response>(
       "set_payload", [&](ur_msgs::SetPayload::Request& req, ur_msgs::SetPayload::Response& resp) {
@@ -454,6 +457,24 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
             << ", " << req.center_of_gravity.z << "])" << std::endl
             << "end";
         resp.success = this->ur_driver_->sendScript(cmd.str());
+        return true;
+      });
+
+  // Setup sharpness through a ROS service
+  set_sharpness_srv_ = robot_hw_nh.advertiseService<ur_msgs::SetPayload::Request, ur_msgs::SetPayload::Response>(
+      "set_sharpness", [&](ur_msgs::SetPayload::Request& req, ur_msgs::SetPayload::Response& resp) {
+        // convex combination between (100, 0.2) -> (2000, 0.03)
+        // FIXME configure as rosparam
+        double sharpness = req.mass;
+        if(sharpness > 1 || sharpness < 0) {
+          resp.success = false;
+        } else {
+          uint32_t servoj_gain = (1 - sharpness) * 100 + sharpness * 2000;
+          double servoj_lookahead_time = (1 - sharpness) * 0.2 + sharpness * 0.03;
+          ur_driver_->getRTDEWriter().sendInputIntRegister(24, servoj_gain);
+          ur_driver_->getRTDEWriter().sendInputDoubleRegister(24, servoj_lookahead_time);
+          resp.success = true;
+        }
         return true;
       });
 

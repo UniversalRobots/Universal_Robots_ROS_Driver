@@ -10,3 +10,5 @@ standard_analog_output_mask
 standard_analog_output_type
 standard_analog_output_0
 standard_analog_output_1
+input_double_register_24
+input_int_register_24
