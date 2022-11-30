@@ -8,6 +8,7 @@
   <arg name="reverse_port" default="50001" doc="Port that will be opened by the driver to allow direct communication between the driver and the robot controller."/>
   <arg name="script_sender_port" default="50002" doc="The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately."/>
   <arg name="trajectory_port" default="50003" doc="Port that will be opened by the driver to allow trajectory forwarding."/>
+  <arg name="script_command_port" default="50004" doc="Port that will be opened by the driver to allow forwarding script commands to the robot."/>
   <arg name="kinematics_config" doc="Kinematics config file used for calibration correction. This will be used to verify the robot's calibration is matching the robot_description."/>
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
   <arg name="controllers" default="joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller robot_status_controller" doc="Controllers that are activated by default."/>
@@ -41,6 +42,7 @@
     <arg name="reverse_port" value="$(arg reverse_port)"/>
     <arg name="script_sender_port" value="$(arg script_sender_port)"/>
     <arg name="trajectory_port" value="$(arg trajectory_port)"/>
+    <arg name="script_command_port" value="$(arg script_command_port)"/>
     <arg name="kinematics_config" value="$(arg kinematics_config)"/>
     <arg name="tf_prefix" value="$(arg tf_prefix)"/>
     <arg name="controllers" value="$(arg controllers)"/>

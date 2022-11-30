@@ -31,7 +31,6 @@
 #include <ur_client_library/ur/tool_communication.h>
 #include <ur_client_library/exceptions.h>
 
-#include <ur_msgs/SetPayload.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
@@ -109,6 +108,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Port that will be opened to send trajectory points from the driver to the robot
   int trajectory_port = robot_hw_nh.param("trajectory_port", 50003);
+
+  // Port that will be opened to forward script commands from the driver to the robot
+  int script_command_port = robot_hw_nh.param("script_command_port", 50004);
 
   // When the robot's URDF is being loaded with a prefix, we need to know it here, as well, in order
   // to publish correct frame names for frames reported by the robot directly.
@@ -285,7 +287,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         robot_ip_, script_filename, output_recipe_filename, input_recipe_filename,
         std::bind(&HardwareInterface::handleRobotProgramState, this, std::placeholders::_1), headless_mode,
         std::move(tool_comm_setup), (uint32_t)reverse_port, (uint32_t)script_sender_port, servoj_gain,
-        servoj_lookahead_time, non_blocking_read_, reverse_ip, trajectory_port));
+        servoj_lookahead_time, non_blocking_read_, reverse_ip, trajectory_port, script_command_port));
   }
   catch (urcl::ToolCommNotAvailable& e)
   {
@@ -440,25 +442,14 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Calling this service will make the "External Control" program node on the UR-Program return.
   deactivate_srv_ = robot_hw_nh.advertiseService("hand_back_control", &HardwareInterface::stopControl, this);
 
-  // Calling this service will zero the robot's ftsensor. Note: On e-Series robots this will only
-  // work when the robot is in remote-control mode.
+  // Calling this service will zero the robot's ftsensor (only available for e-Series).
   tare_sensor_srv_ = robot_hw_nh.advertiseService("zero_ftsensor", &HardwareInterface::zeroFTSensor, this);
+
+  // Setup the mounted payload through a ROS service
+  set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
-
-  // Setup the mounted payload through a ROS service
-  set_payload_srv_ = robot_hw_nh.advertiseService<ur_msgs::SetPayload::Request, ur_msgs::SetPayload::Response>(
-      "set_payload", [&](ur_msgs::SetPayload::Request& req, ur_msgs::SetPayload::Response& resp) {
-        std::stringstream cmd;
-        cmd.imbue(std::locale::classic());  // Make sure, decimal divider is actually '.'
-        cmd << "sec setup():" << std::endl
-            << " set_payload(" << req.mass << ", [" << req.center_of_gravity.x << ", " << req.center_of_gravity.y
-            << ", " << req.center_of_gravity.z << "])" << std::endl
-            << "end";
-        resp.success = this->ur_driver_->sendScript(cmd.str());
-        return true;
-      });
 
   return true;
 }
@@ -1095,6 +1086,10 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
   {
     res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOutput(req.pin, req.state);
   }
+  else if (req.fun == req.FUN_SET_TOOL_VOLTAGE && ur_driver_ != nullptr)
+  {
+    res.success = ur_driver_->setToolVoltage(static_cast<urcl::ToolVoltage>(req.state));
+  }
   else
   {
     ROS_ERROR("Cannot execute function %u. This is not (yet) supported.", req.fun);
@@ -1133,11 +1128,18 @@ bool HardwareInterface::zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::Tr
   }
   else
   {
-    res.success = this->ur_driver_->sendScript(R"(sec tareSensor():
-  zero_ftsensor()
-end
-)");
+    res.success = this->ur_driver_->zeroFTSensor();
   }
+  return true;
+}
+
+bool HardwareInterface::setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res)
+{
+  urcl::vector3d_t cog;
+  cog[0] = req.center_of_gravity.x;
+  cog[1] = req.center_of_gravity.y;
+  cog[2] = req.center_of_gravity.z;
+  res.success = this->ur_driver_->setPayload(req.mass, cog);
   return true;
 }
 
