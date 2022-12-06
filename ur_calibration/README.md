@@ -31,7 +31,7 @@ exist)
 ```bash
 # Replace your actual catkin_ws folder
 $ cd <catkin_ws>/src
-$ catkin_create_pkg example_organization_ur_launch ur_client_library \
+$ catkin_create_pkg example_organization_ur_launch ur_robot_driver \
 -D "Package containing calibrations and launch files for our UR robots."
 # Create a skeleton package
 $ mkdir -p example_organization_ur_launch/etc
