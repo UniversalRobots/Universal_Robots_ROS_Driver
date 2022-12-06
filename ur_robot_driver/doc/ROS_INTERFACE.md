@@ -49,6 +49,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -64,6 +68,10 @@ tf_prefix used for the robot.
 ##### wrench_frame_id (default: "wrench")
 
 Parameter to set the id of the wrench frame, required if using multiple robots
+
+##### speed_scaling_id (default: "speed_scaling_factor")
+
+Set the topic on which this robot publishes its speed scaling factor.
 
 ##### tool_baud_rate (default: "115200")
 
@@ -146,6 +154,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -207,6 +219,10 @@ Recipe file used for the RTDE-inputs. Only change this if you know what you're d
 
 Recipe file used for the RTDE-outputs. Only change this if you know what you're doing.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -251,7 +267,7 @@ Number of idle chars in TX channel used for tool communication. Only used, when 
 
 Tool voltage set at the beginning of the UR program. Only used, when `use_tool_communication` is set to true.
 
-##### urscript_file (default: "$(find ur_robot_driver)/resources/ros_control.urscript")
+##### urscript_file (default: "$(find ur_client_library)/resources/external_control.urscript")
 
 Path to URScript that will be sent to the robot and that forms the main control program.
 
@@ -303,6 +319,10 @@ Robot description launch file.
 ##### robot_ip (Required)
 
 IP address by which the robot can be reached.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -397,6 +417,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -453,6 +477,10 @@ Robot description launch file.
 ##### robot_ip (Required)
 
 IP address by which the robot can be reached.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -547,6 +575,10 @@ Robot description launch file.
 
 IP address by which the robot can be reached.
 
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
+
 ##### script_sender_port (default: "50002")
 
 The driver will offer an interface to receive the program's URScript on this port. If the robot cannot connect to this port, `External Control` will stop immediately.
@@ -603,6 +635,10 @@ Robot description launch file.
 ##### robot_ip (Required)
 
 IP address by which the robot can be reached.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (default: "50002")
 
@@ -732,6 +768,10 @@ Query whether there is currently a program running
 
 Query whether the current program is saved
 
+##### dashboard/is_in_remote_control ([ur_dashboard_msgs/IsInRemoteControl](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/IsInRemoteControl.html))
+
+Query whether the robot is currently in remote control mode. This is only available on e-Series models.
+
 ##### dashboard/program_state ([ur_dashboard_msgs/GetProgramState](http://docs.ros.org/api/ur_dashboard_msgs/html/srv/GetProgramState.html))
 
 Service to query the current program state
@@ -825,6 +865,10 @@ The robot's IP address.
 ##### script_file (Required)
 
 Path to the urscript code that will be sent to the robot.
+
+##### script_command_port (default: "50004")
+
+Port that will be opened to forward script commands to the robot when in local control mode.
 
 ##### script_sender_port (Required)
 

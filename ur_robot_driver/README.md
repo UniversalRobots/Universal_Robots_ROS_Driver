@@ -51,10 +51,10 @@ forward the robot's tool communication interface to a local device on the ROS PC
 communication setup guide](doc/setup_tool_communication.md) for details.
 
 This driver is using [ROS-Control](https://wiki.ros.org/ros_control) for any control statements.
-Therefor, it can be used with all position-based controllers available in ROS-Control. However, we
-recommend using the controllers from the `ur_controllers` package. See it's
-[documentation](../ur_controllers/README.md) for details. **Note: Speed scaling support will only be
-available using the controllers from `ur_controllers`**
+Therefore, it can be used with all position-based controllers available in ROS-Control. However, we
+recommend using the controllers from the `scaled_trajectory_controller` package. See its
+[documentation](https://github.com/UniversalRobots/Universal_Robots_ROS_scaled_controllers/tree/main/scaled_joint_trajectory_controller) for details. **Note: Speed scaling support will only be
+available using the controllers from `scaled_trajectory_controller`**
 
 ## A note about modes
 The term **mode** is used in different meanings inside this driver.

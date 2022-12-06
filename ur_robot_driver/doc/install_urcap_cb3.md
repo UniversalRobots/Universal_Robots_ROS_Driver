@@ -1,7 +1,8 @@
 # Installing a URCap on a CB3 robot
 
 For using the *ur_robot_driver* with a real robot you need to install the
-**externalcontrol-1.0.5.urcap** which can be found inside the **resources** folder of this driver.
+**externalcontrol-x.x.x.urcap** which can be found
+[here](https://github.com/UniversalRobots/Universal_Robots_ExternalControl_URCap/releases).
 
 **Note**: For installing this URCap a minimal PolyScope version of 3.7 is necessary.
 
@@ -15,7 +16,7 @@ screen.
 
 There, click the little plus sign at the bottom to open the file selector. There you should see
 all urcap files stored inside the robot's programs folder or a plugged USB drive.  Select and open
-the **externalcontrol-1.0.5.urcap** file and click *open*. Your URCaps view should now show the
+the **externalcontrol-x.x.x.urcap** file and click *open*. Your URCaps view should now show the
 **External Control** in the list of active URCaps and a notification to restart the robot. Do that
 now.
 

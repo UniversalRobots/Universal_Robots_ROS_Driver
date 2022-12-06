@@ -1,0 +1,3 @@
+<launch>
+  <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen" args="-d $(find ur_robot_driver)/resources/example_rviz_config.rviz"/>
+</launch>

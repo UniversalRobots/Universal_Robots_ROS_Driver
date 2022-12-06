@@ -18,15 +18,19 @@ find_package(catkin REQUIRED
     industrial_robot_status_interface
     pluginlib
     roscpp
+    scaled_joint_trajectory_controller
     sensor_msgs
+    speed_scaling_interface
+    speed_scaling_state_controller
     std_srvs
     tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
-    ur_controllers
     ur_dashboard_msgs
     ur_msgs
+    pass_through_controllers
+    kdl_parser
 )
 find_package(Boost REQUIRED)
 find_package(ur_client_library REQUIRED)
@@ -39,37 +43,29 @@ catkin_package(
     urcl_log_handler
   CATKIN_DEPENDS
     actionlib
-    control_msgs
     controller_manager
+    control_msgs
     geometry_msgs
     hardware_interface
+    kdl_parser
+    pass_through_controllers
     pluginlib
     roscpp
+    scaled_joint_trajectory_controller
     sensor_msgs
+    speed_scaling_interface
+    speed_scaling_state_controller
+    std_srvs
     tf
     tf2_geometry_msgs
     tf2_msgs
     trajectory_msgs
-    ur_controllers
     ur_dashboard_msgs
     ur_msgs
-    std_srvs
   DEPENDS
     Boost
     ur_client_library
 )
-
-# check c++11 / c++0x
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-  add_compile_options(-std=c++11)
-elseif(COMPILER_SUPPORTS_CXX0X)
-  add_compile_options(-std=c++0x)
-else()
-  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler. Suggested solution: update the pkg build-essential ")
-endif()
 
 add_compile_options(-Wall)
 add_compile_options(-Wextra)
@@ -129,7 +125,7 @@ install(TARGETS ur_robot_driver_plugin urcl_log_handler ur_robot_driver_node rob
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-catkin_install_python(PROGRAMS scripts/tool_communication
+catkin_install_python(PROGRAMS scripts/tool_communication scripts/test_move
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY config launch resources
