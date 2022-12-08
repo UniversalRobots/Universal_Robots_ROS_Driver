@@ -2,8 +2,8 @@
 Changelog for package ur_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2022-12-08)
+------------------
 * Use the RobotMode message inside the SetMode action (`#381 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/381>`_)
   This way we can make use of the predefined constants inside the RobotMode message.
 * Drop old C++ compiler flags (`#577 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/577>`_)

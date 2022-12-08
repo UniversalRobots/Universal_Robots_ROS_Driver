@@ -2,8 +2,8 @@
 Changelog for package controller_stopper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.0 (2022-12-08)
+------------------
 * Drop old C++ compiler flags (`#577 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/577>`_)
   Co-authored-by: Jochen Sprickerhof <git@jochen.sprickerhof.de>
 * Remove boilerplate comments from package.xml files (`#528 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/528>`_)
