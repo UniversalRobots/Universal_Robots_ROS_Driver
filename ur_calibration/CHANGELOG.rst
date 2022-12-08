@@ -1,3 +1,11 @@
+Forthcoming
+-----------
+* fix dependency for the organization calibration package (`#549 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/549>`_)
+* Drop old C++ compiler flags (`#577 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/577>`_)
+  Co-authored-by: Jochen Sprickerhof <git@jochen.sprickerhof.de>
+* Remove boilerplate comments from package.xml files (`#528 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/528>`_)
+* Contributors: Captain Yoshi, Felix Exner, Michael Görner
+
 2.0.0 (2021-09-07)
 ------------------
 * Add new features to the driver:
