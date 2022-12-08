@@ -102,16 +102,16 @@ void RobotStateHelper::updateRobotState()
         static_cast<ur_dashboard_msgs::SetModeFeedback::_current_safety_mode_type>(safety_mode_);
     set_mode_as_.publishFeedback(feedback_);
 
-    if (robot_mode_ < static_cast<urcl::RobotMode>(goal_->target_robot_mode) ||
+    if (robot_mode_ < static_cast<urcl::RobotMode>(goal_->target_robot_mode.mode) ||
         safety_mode_ > urcl::SafetyMode::REDUCED)
     {
       // Transition to next mode
       ROS_DEBUG_STREAM("Current robot mode is "
                        << robotModeString(robot_mode_) << " while target mode is "
-                       << robotModeString(static_cast<urcl::RobotMode>(goal_->target_robot_mode)));
+                       << robotModeString(static_cast<urcl::RobotMode>(goal_->target_robot_mode.mode)));
       doTransition();
     }
-    else if (robot_mode_ == static_cast<urcl::RobotMode>(goal_->target_robot_mode))
+    else if (robot_mode_ == static_cast<urcl::RobotMode>(goal_->target_robot_mode.mode))
     {
       // Final mode reached
       result_.success = true;
@@ -142,7 +142,7 @@ void RobotStateHelper::updateRobotState()
 
 void RobotStateHelper::doTransition()
 {
-  if (static_cast<urcl::RobotMode>(goal_->target_robot_mode) < robot_mode_)
+  if (static_cast<urcl::RobotMode>(goal_->target_robot_mode.mode) < robot_mode_)
   {
     // Go through power_off if lower mode is requested
     safeDashboardTrigger(&this->power_off_srv_);
@@ -208,7 +208,7 @@ void RobotStateHelper::setModeGoalCallback()
 {
   goal_ = set_mode_as_.acceptNewGoal();
 
-  urcl::RobotMode target_mode = static_cast<urcl::RobotMode>(goal_->target_robot_mode);
+  urcl::RobotMode target_mode = static_cast<urcl::RobotMode>(goal_->target_robot_mode.mode);
 
   // Do some input sanitation first.
   switch (target_mode)
