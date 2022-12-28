@@ -9,6 +9,7 @@
   <include file="$(find ur_robot_driver)/launch/$(arg robot_type)_bringup.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
     <arg name="headless_mode" value="true"/>
+    <arg name="simulated_robot" value="true"/>
     <arg name="stopped_controllers" value="forward_joint_traj_controller forward_cartesian_traj_controller twist_controller pose_based_cartesian_traj_controller joint_based_cartesian_traj_controller"/>
   </include>
 
