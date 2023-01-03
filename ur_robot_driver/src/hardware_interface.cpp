@@ -296,7 +296,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   }
   catch (urcl::UrException& e)
   {
-    ROS_FATAL_STREAM(e.what());
+    ROS_FATAL_STREAM(e.what() << std::endl
+                              << "Please note that the minimum software version required is 3.12.0 for CB3 robots and "
+                                 "5.5.1 for e-Series robots. The error above could be related to a non-supported "
+                                 "polyscope version. Please update your robot's software accordingly.");
     return false;
   }
   URCL_LOG_INFO("Checking if calibration data matches connected robot.");
