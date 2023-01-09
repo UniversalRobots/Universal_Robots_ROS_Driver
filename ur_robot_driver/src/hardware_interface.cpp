@@ -456,6 +456,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // Setup the mounted payload through a ROS service
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
 
+  // Calling this service will set the robot in force mode
+  set_force_mode_srv_ = robot_hw_nh.advertiseService("set_force_mode", &HardwareInterface::setForceMode, this);
+
   // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
   // trajectories to the UR robot.
   activate_spline_interpolation_srv_ = robot_hw_nh.advertiseService(
@@ -1199,6 +1202,31 @@ bool HardwareInterface::getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersion
   res.bugfix = version_info.bugfix;
   res.build = version_info.build;
   return true;
+}
+
+bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest& req, ur_msgs::SetForceModeResponse& res)
+{
+  if (req.task_frame.size() != 6 || req.selection_vector.size() != 6 || req.wrench.size() != 6 ||
+      req.limits.size() != 6)
+  {
+    URCL_LOG_WARN("Size of received SetForceMode message is wrong");
+    res.success = false;
+    return false;
+  }
+  urcl::vector6d_t task_frame;
+  urcl::vector6uint32_t selection_vector;
+  urcl::vector6d_t wrench;
+  urcl::vector6d_t limits;
+  for (size_t i = 0; i < 6; i++)
+  {
+    task_frame[i] = req.task_frame[i];
+    selection_vector[i] = req.selection_vector[i];
+    wrench[i] = req.wrench[i];
+    limits[i] = req.limits[i];
+  }
+  unsigned int type = req.type;
+  res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits);
+  return res.success;
 }
 
 void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
