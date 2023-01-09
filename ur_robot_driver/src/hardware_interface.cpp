@@ -178,7 +178,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // True if splines should be used as interpolation on the robot controller when forwarding trajectory, if false movej
   // or movel commands are used
-  bool use_spline_interpolation = robot_hw_nh.param<bool>("use_spline_interpolation", "false");
+  use_spline_interpolation_ = robot_hw_nh.param<bool>("use_spline_interpolation", "false");
 
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
@@ -370,16 +370,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       "industrial_robot_status_handle", robot_status_resource_));
 
   // Register callbacks for trajectory passthrough
-  if (use_spline_interpolation)
-  {
-    jnt_traj_interface_.registerGoalCallback(
-        std::bind(&HardwareInterface::startJointSplineInterpolation, this, std::placeholders::_1));
-  }
-  else
-  {
-    jnt_traj_interface_.registerGoalCallback(
-        std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1));
-  }
+  jnt_traj_interface_.registerGoalCallback(
+      std::bind(&HardwareInterface::startJointInterpolation, this, std::placeholders::_1));
   jnt_traj_interface_.registerCancelCallback(std::bind(&HardwareInterface::cancelInterpolation, this));
   cart_traj_interface_.registerGoalCallback(
       std::bind(&HardwareInterface::startCartesianInterpolation, this, std::placeholders::_1));
@@ -462,6 +454,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Setup the mounted payload through a ROS service
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
+
+  // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
+  // trajectories to the UR robot.
+  activate_spline_interpolation_srv_ = robot_hw_nh.advertiseService(
+      "activate_spline_interpolation", &HardwareInterface::activateSplineInterpolation, this);
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
@@ -1202,6 +1199,21 @@ void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
   }
 }
 
+bool HardwareInterface::activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+{
+  use_spline_interpolation_ = req.data;
+  if (use_spline_interpolation_)
+  {
+    res.message = "Activated spline interpolation in forward trajectory mode";
+  }
+  else
+  {
+    res.message = "Deactivated spline interpolation in forward trajectory mode";
+  }
+  res.success = true;
+  return true;
+}
+
 void HardwareInterface::publishRobotAndSafetyMode()
 {
   if (robot_mode_pub_)
@@ -1267,63 +1279,45 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
     p[4] = point.positions[4];
     p[5] = point.positions[5];
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
-    last_time = next_time;
-  }
-  ROS_DEBUG("Finished Sending Trajectory");
-}
-
-void HardwareInterface::startJointSplineInterpolation(const hardware_interface::JointTrajectory& trajectory)
-{
-  size_t point_number = trajectory.trajectory.points.size();
-  ROS_DEBUG("Starting joint-based trajectory forward using splines");
-  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number,
-                                            true);
-  double last_time = 0.0;
-  for (size_t i = 0; i < point_number; i++)
-  {
-    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
-    urcl::vector6d_t p;
-    p[0] = point.positions[0];
-    p[1] = point.positions[1];
-    p[2] = point.positions[2];
-    p[3] = point.positions[3];
-    p[4] = point.positions[4];
-    p[5] = point.positions[5];
-    double next_time = point.time_from_start.toSec();
-
-    if (point.velocities.size() == 6 && point.accelerations.size() == 6)
+    if (!use_spline_interpolation_)
     {
-      urcl::vector6d_t v, a;
-      v[0] = point.velocities[0];
-      v[1] = point.velocities[1];
-      v[2] = point.velocities[2];
-      v[3] = point.velocities[3];
-      v[4] = point.velocities[4];
-      v[5] = point.velocities[5];
-
-      a[0] = point.accelerations[0];
-      a[1] = point.accelerations[1];
-      a[2] = point.accelerations[2];
-      a[3] = point.accelerations[3];
-      a[4] = point.accelerations[4];
-      a[5] = point.accelerations[5];
-      ur_driver_->writeSplinePoint(p, v, a, next_time - last_time);
+      ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
     }
-    else if (point.velocities.size() == 6)
+    else  // Use spline interpolation
     {
-      urcl::vector6d_t v;
-      v[0] = point.velocities[0];
-      v[1] = point.velocities[1];
-      v[2] = point.velocities[2];
-      v[3] = point.velocities[3];
-      v[4] = point.velocities[4];
-      v[5] = point.velocities[5];
-      ur_driver_->writeSplinePoint(p, v, next_time - last_time);
-    }
-    else
-    {
-      ur_driver_->writeSplinePoint(p, next_time - last_time);
+      if (point.velocities.size() == 6 && point.accelerations.size() == 6)
+      {
+        urcl::vector6d_t v, a;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
+
+        a[0] = point.accelerations[0];
+        a[1] = point.accelerations[1];
+        a[2] = point.accelerations[2];
+        a[3] = point.accelerations[3];
+        a[4] = point.accelerations[4];
+        a[5] = point.accelerations[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, a, next_time - last_time);
+      }
+      else if (point.velocities.size() == 6)
+      {
+        urcl::vector6d_t v;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, next_time - last_time);
+      }
+      else
+      {
+        ur_driver_->writeTrajectorySplinePoint(p, next_time - last_time);
+      }
     }
     last_time = next_time;
   }
