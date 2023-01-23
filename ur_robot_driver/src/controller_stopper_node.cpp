@@ -28,7 +28,7 @@
 
 #include <ros/ros.h>
 
-#include <controller_stopper/controller_stopper.h>
+#include <ur_robot_driver/controller_stopper.h>
 
 int main(int argc, char** argv)
 {

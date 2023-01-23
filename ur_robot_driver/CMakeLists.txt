@@ -13,6 +13,7 @@ find_package(catkin REQUIRED
     actionlib
     control_msgs
     controller_manager
+    controller_manager_msgs
     geometry_msgs
     hardware_interface
     industrial_robot_status_interface
@@ -43,8 +44,9 @@ catkin_package(
     urcl_log_handler
   CATKIN_DEPENDS
     actionlib
-    controller_manager
     control_msgs
+    controller_manager
+    controller_manager_msgs
     geometry_msgs
     hardware_interface
     kdl_parser
@@ -112,6 +114,16 @@ add_executable(robot_state_helper
 target_link_libraries(robot_state_helper ${catkin_LIBRARIES} ur_client_library::urcl)
 add_dependencies(robot_state_helper ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+
+add_executable(controller_stopper_node
+  src/controller_stopper.cpp
+  src/controller_stopper_node.cpp
+)
+add_dependencies(controller_stopper_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(controller_stopper_node
+  ${catkin_LIBRARIES}
+)
+
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
 
@@ -119,7 +131,7 @@ if(CATKIN_ENABLE_TESTING)
 endif()
 
 
-install(TARGETS ur_robot_driver_plugin urcl_log_handler ur_robot_driver_node robot_state_helper dashboard_client
+install(TARGETS ur_robot_driver_plugin urcl_log_handler ur_robot_driver_node robot_state_helper dashboard_client controller_stopper_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

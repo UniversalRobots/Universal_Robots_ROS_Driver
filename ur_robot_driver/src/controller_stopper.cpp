@@ -26,7 +26,7 @@
  */
 //----------------------------------------------------------------------
 
-#include <controller_stopper/controller_stopper.h>
+#include <ur_robot_driver/controller_stopper.h>
 
 #include <controller_manager_msgs/SwitchController.h>
 #include <controller_manager_msgs/ListControllers.h>
