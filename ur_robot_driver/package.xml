@@ -24,8 +24,9 @@
   <build_depend>industrial_robot_status_interface</build_depend>
 
   <depend>actionlib</depend>
-  <depend>controller_manager</depend>
   <depend>control_msgs</depend>
+  <depend>controller_manager</depend>
+  <depend>controller_manager_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
   <depend>kdl_parser</depend>
@@ -46,7 +47,6 @@
   <depend>ur_msgs</depend>
 
   <exec_depend>cartesian_trajectory_controller</exec_depend>
-  <exec_depend>controller_stopper</exec_depend>
   <exec_depend>force_torque_sensor_controller</exec_depend>
   <exec_depend>industrial_robot_status_controller</exec_depend>
   <exec_depend>joint_state_controller</exec_depend>

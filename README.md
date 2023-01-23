@@ -83,9 +83,6 @@ Please see the external [feature list](ur_robot_driver/doc/features.md) for a li
 ## Contents
 This repository contains the new **ur_robot_driver** and a couple of helper packages, such as:
 
-  * **controller_stopper**: A small external tool that stops and restarts ros-controllers based on
-    the robot's state. This can be helpful when the robot is in a state where it won't accept
-    commands sent from ROS.
   * **ur_calibration**: Package around extracting and converting a robot's factory calibration
     information to make it usable by the robot_description.
   * **ur_robot_driver**: The actual driver package.
