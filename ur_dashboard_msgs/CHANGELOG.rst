@@ -2,6 +2,11 @@
 Changelog for package ur_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add license file at root and in msgs package (`#594 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/594>`_)
+* Contributors: Felix Exner (fexner)
+
 2.1.1 (2023-01-23)
 ------------------
 
