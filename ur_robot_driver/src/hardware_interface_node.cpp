@@ -45,6 +45,57 @@ void signalHandler(int signum)
   exit(signum);
 }
 
+bool setFiFoScheduling(pthread_t& thread, const int priority)
+{
+  struct sched_param params;
+  params.sched_priority = priority;
+  int ret = pthread_setschedparam(thread, SCHED_FIFO, &params);
+  if (ret != 0)
+  {
+    switch (ret)
+    {
+      case EPERM:
+      {
+        ROS_ERROR_STREAM("Your system/user seems not to be setup for FIFO scheduling. We recommend using a lowlatency "
+                         "kernel with FIFO scheduling. See "
+                         "https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/"
+                         "doc/real_time.md for details.");
+        break;
+      }
+      default:
+
+      {
+        ROS_ERROR_STREAM("Unsuccessful in setting thread to FIFO scheduling with priority " << priority << ". "
+                                                                                            << strerror(ret));
+      }
+    }
+  }
+  // Now verify the change in thread priority
+  int policy = 0;
+  ret = pthread_getschedparam(thread, &policy, &params);
+  if (ret != 0)
+  {
+    ROS_ERROR("Couldn't retrieve scheduling parameters");
+    return false;
+  }
+
+  // Check the correct policy was applied
+  if (policy != SCHED_FIFO)
+  {
+    ROS_ERROR("Scheduling is NOT SCHED_FIFO!");
+    return false;
+  }
+  else
+  {
+    ROS_INFO_STREAM("SCHED_FIFO OK, priority " << params.sched_priority);
+    if (params.sched_priority != priority)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 int main(int argc, char** argv)
 {
   // Set up ROS.
@@ -60,57 +111,10 @@ int main(int argc, char** argv)
 
   ur_driver::registerUrclLogHandler();
 
-  std::ifstream realtime_file("/sys/kernel/realtime", std::ios::in);
-  bool has_realtime = false;
-  if (realtime_file.is_open())
-  {
-    realtime_file >> has_realtime;
-  }
-  if (has_realtime)
-  {
-    const int max_thread_priority = sched_get_priority_max(SCHED_FIFO);
-    if (max_thread_priority != -1)
-    {
-      // We'll operate on the currently running thread.
-      pthread_t this_thread = pthread_self();
-
-      // struct sched_param is used to store the scheduling priority
-      struct sched_param params;
-
-      // We'll set the priority to the maximum.
-      params.sched_priority = max_thread_priority;
-
-      int ret = pthread_setschedparam(this_thread, SCHED_FIFO, &params);
-      if (ret != 0)
-      {
-        ROS_ERROR_STREAM("Unsuccessful in setting main thread realtime priority. Error code: " << ret);
-      }
-      // Now verify the change in thread priority
-      int policy = 0;
-      ret = pthread_getschedparam(this_thread, &policy, &params);
-      if (ret != 0)
-      {
-        std::cout << "Couldn't retrieve real-time scheduling paramers" << std::endl;
-      }
-
-      // Check the correct policy was applied
-      if (policy != SCHED_FIFO)
-      {
-        ROS_ERROR("Main thread: Scheduling is NOT SCHED_FIFO!");
-      }
-      else
-      {
-        ROS_INFO("Main thread: SCHED_FIFO OK");
-      }
-
-      // Print thread scheduling priority
-      ROS_INFO_STREAM("Main thread priority is " << params.sched_priority);
-    }
-    else
-    {
-      ROS_ERROR("Could not get maximum thread priority for main thread");
-    }
-  }
+  pthread_t this_thread = pthread_self();
+  const int max_thread_priority = sched_get_priority_max(SCHED_FIFO);
+  bool is_fifo = setFiFoScheduling(this_thread, max_thread_priority);
+  ROS_INFO_STREAM("The driver's control thread uses " << (is_fifo ? "" : "NO") << " FIFO scheduling");
 
   // Set up timers
   ros::Time timestamp;

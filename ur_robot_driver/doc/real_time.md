@@ -1,9 +1,35 @@
 # Setting up Ubuntu with a PREEMPT_RT kernel
 In order to run the `universal_robot_driver`, we highly recommend to setup a ubuntu system with
-real-time capabilities. Especially with a robot from the e-Series the higher control frequency
-might lead to non-smooth trajectory execution if not run using a real-time-enabled system.
+(close-to) real-time capabilities. Especially with a robot from the e-Series the higher control frequency
+might lead to connection breakdowns if not run using a real-time-enabled system.
 
 You might still be able to control the robot using a non-real-time system. This is, however, not recommended.
+
+For getting an almost real-time capable systems there are two methods available:
+
+1. A **lowlatency kernel** is a standard Linux kernel which is configured for more time-restricted
+   environments. See [this blog post series](https://ubuntu.com/blog/industrial-embedded-systems) for details.
+1. A **PREEMPT_RT-patched kernel** is a kernel that has been slightly modified in order to achieve a
+   more real-time capable system.
+
+After [doing some
+tests](https://github.com/fmauch/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/real_time_benchmarking.md)
+we recommend using at least a lowlatency kernel for running the driver.
+
+## Lowlatency kernel
+
+Using a lowlatency kernel is definitively easier to setup then using a PREEMPT_RT kernel. In order
+to install a lowlatency kernel, simply run
+
+```bash
+sudo apt install linux-lowlatency
+```
+
+Then, continue with [setting up permissions](#setup-user-privileges-to-use-real-time-scheduling).
+
+## PREEMPT_RT patched kernel
+
+TODO: Bring this up-to-date. A current 5.xx kernel has a couple of more dependencies.
 
 To get real-time support into a ubuntu system, the following steps have to be performed:
  1. Get the sources of a real-time kernel
@@ -12,7 +38,7 @@ To get real-time support into a ubuntu system, the following steps have to be pe
 
 This guide will help you setup your system with a real-time kernel.
 
-## Preparing
+### Preparing
 To build the kernel, you will need a couple of tools available on your system. You can install them
 using
 
@@ -41,7 +67,7 @@ $ cd ${HOME}/rt_kernel_build
 All future commands are expected to be run inside this folder. If the folder is different, the `$`
 sign will be prefixed with a path relative to the above folder.
 
-## Getting the sources for a real-time kernel
+### Getting the sources for a real-time kernel
 To build a real-time kernel, we first need to get the kernel sources and the real-time patch.
 
 First, we must decide on the kernel version that we want to use. Above, we
@@ -67,7 +93,7 @@ $ xz -dk patch-4.14.139-rt66.patch.xz
 $ xz -d linux-4.14.139.tar.xz
 ```
 
-### Verification
+#### Verification
 Technically, you can skip this section, it is however highly recommended to verify the file
 integrity of such a core component of your system!
 
@@ -133,7 +159,7 @@ Primary key fingerprint: 5BDF C45C 2ECC 5387 D50C  E5EF DE09 8267 78A3 8521
      Subkey fingerprint: ACF8 5F98 16A8 D5F0 96AE  1FD2 0129 F385 52C3 8DF1
 ```
 
-## Compilation
+### Compilation
 Before we can compile the sources, we have to extract the tar archive and apply the patch
 
 ```bash
@@ -174,8 +200,9 @@ linux-4.14.139$ sudo apt install ../linux-headers-4.14.139-rt66_*.deb ../linux-i
 ```
 
 ## Setup user privileges to use real-time scheduling
-To be able to schedule threads with user privileges (what the driver will do) you'll have to change
-the user's limits by changing `/etc/security/limits.conf` (See [the manpage](https://manpages.ubuntu.com/manpages/bionic/man5/limits.conf.5.html) for details)
+No matter whether you use a lowlatency kernel or a PREEMPT_RT-patched kernel (or even a standard
+kernel) - in order to use FIFO-scheduling with user privileges (what the driver will do) you'll have to change
+the user's limits by changing `/etc/security/limits.conf` (See [the manpage](https://manpages.ubuntu.com/manpages/focal/man5/limits.conf.5.html) for details)
 
 We recommend to setup a group for real-time users instead of writing a fixed username into the config
 file:
@@ -213,45 +240,32 @@ $ awk -F\' '/menuentry |submenu / {print $1 $2}' /boot/grub/grub.cfg
 
 menuentry Ubuntu
 submenu Advanced options for Ubuntu
-    menuentry Ubuntu, with Linux 4.15.0-62-generic
-    menuentry Ubuntu, with Linux 4.15.0-62-generic (recovery mode)
-    menuentry Ubuntu, with Linux 4.15.0-60-generic
-    menuentry Ubuntu, with Linux 4.15.0-60-generic (recovery mode)
-    menuentry Ubuntu, with Linux 4.15.0-58-generic
-    menuentry Ubuntu, with Linux 4.15.0-58-generic (recovery mode)
-    menuentry Ubuntu, with Linux 4.14.139-rt66
-    menuentry Ubuntu, with Linux 4.14.139-rt66 (recovery mode)
-menuentry Memory test (memtest86+)
-menuentry Memory test (memtest86+, serial console 115200)
-menuentry Windows 7 (on /dev/sdc2)
-menuentry Windows 7 (on /dev/sdc3)
+        menuentry Ubuntu, with Linux 5.15.86-rt56
+        menuentry Ubuntu, with Linux 5.15.86-rt56 (recovery mode)
+        menuentry Ubuntu, with Linux 5.15.0-58-lowlatency
+        menuentry Ubuntu, with Linux 5.15.0-58-lowlatency (recovery mode)
+        menuentry Ubuntu, with Linux 5.15.0-58-generic
+        menuentry Ubuntu, with Linux 5.15.0-58-generic (recovery mode)
+menuentry Ubuntu
 ```
 
-From the output above, we'll need to generate a string with the pattern `"submenu_name>entry_name"`. In our case this would be
+From the output above, we'll need to generate a string with the pattern `"submenu_name>entry_name"`. In our case (for booting the PREEMPT_RT kernel) this would be
 
 ```
-"Advanced options for Ubuntu>Ubuntu, with Linux 4.14.139-rt66"
+"Advanced options for Ubuntu>Ubuntu, with Linux 5.15.86-rt56"
 ```
 **The double quotes and no spaces around the `>` are important!**
 
 With this, we can setup the default grub entry and then update the grub menu entries. Don't forget this last step!
 
 ```bash
-$ sudo sed -i 's/^GRUB_DEFAULT=.*/GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 4.14.139-rt66"/' /etc/default/grub
+$ sudo sed -i 's/^GRUB_DEFAULT=.*/GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 5.15.86-rt56"/' /etc/default/grub
 $ sudo update-grub
 ```
 
 ## Reboot the PC
 After having performed the above mentioned steps, reboot the PC. It should boot into the correct
 kernel automatically.
-
-## Check for preemption capabilities
-Make sure that the kernel does indeed support real-time scheduling:
-
-```bash
-$ uname -v | cut -d" " -f1-4 
-#1 SMP PREEMPT RT
-```
 
 ## Optional: Disable CPU speed scaling
 Many modern CPUs support changing their clock frequency dynamically depending on the currently
