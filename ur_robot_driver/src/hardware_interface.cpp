@@ -457,7 +457,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
 
   // Calling this service will set the robot in force mode
-  set_force_mode_srv_ = robot_hw_nh.advertiseService("set_force_mode", &HardwareInterface::setForceMode, this);
+  start_force_mode_srv_ = robot_hw_nh.advertiseService("start_force_mode", &HardwareInterface::startForceMode, this);
+
+  // Calling this service will stop the robot from being in force mode
+  end_force_mode_srv_ = robot_hw_nh.advertiseService("end_force_mode", &HardwareInterface::endForceMode, this);
 
   // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
   // trajectories to the UR robot.
@@ -1217,15 +1220,45 @@ bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest& req, ur_msgs:
   urcl::vector6uint32_t selection_vector;
   urcl::vector6d_t wrench;
   urcl::vector6d_t limits;
-  for (size_t i = 0; i < 6; i++)
-  {
-    task_frame[i] = req.task_frame[i];
-    selection_vector[i] = req.selection_vector[i];
-    wrench[i] = req.wrench[i];
-    limits[i] = req.limits[i];
-  }
+
+  task_frame[0] = req.task_frame.pose.position.x;
+  task_frame[1] = req.task_frame.pose.position.x;
+  task_frame[2] = req.task_frame.pose.position.x;
+  KDL::Rotation rot = KDL::Rotation::Quaternion(req.task_frame.pose.orientation.x, req.task_frame.pose.orientation.y,
+                                                req.task_frame.pose.orientation.z, req.task_frame.pose.orientation.w);
+  task_frame[3] = rot.GetRot().x();
+  task_frame[4] = rot.GetRot().y();
+  task_frame[5] = rot.GetRot().z();
+
+  selection_vector[0] = req.selection_vector_x;
+  selection_vector[1] = req.selection_vector_y;
+  selection_vector[2] = req.selection_vector_z;
+  selection_vector[3] = req.selection_vector_rx;
+  selection_vector[4] = req.selection_vector_ry;
+  selection_vector[5] = req.selection_vector_rz;
+
+  wrench[0] = req.wrench.wrench.force.x;
+  wrench[1] = req.wrench.wrench.force.y;
+  wrench[2] = req.wrench.wrench.force.z;
+  wrench[3] = req.wrench.wrench.torque.x;
+  wrench[4] = req.wrench.wrench.torque.y;
+  wrench[5] = req.wrench.wrench.torque.z;
+
+  limits[0] = req.limits.twist.linear.x;
+  limits[1] = req.limits.twist.linear.y;
+  limits[2] = req.limits.twist.linear.z;
+  limits[3] = req.limits.twist.angular.x;
+  limits[4] = req.limits.twist.angular.y;
+  limits[5] = req.limits.twist.angular.z;
+
   unsigned int type = req.type;
   res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits);
+  return res.success;
+}
+
+bool HardwareInterface::endForceMode(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = this->ur_driver_->endForceMode();
   return res.success;
 }
 
