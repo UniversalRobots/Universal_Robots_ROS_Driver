@@ -1,3 +1,9 @@
+2.1.2 (2023-01-23)
+------------------
+
+2.1.1 (2023-01-23)
+------------------
+
 2.1.0 (2022-12-08)
 ------------------
 * fix dependency for the organization calibration package (`#549 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/549>`_)

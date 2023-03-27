@@ -1,3 +1,14 @@
+2.1.2 (2023-01-23)
+------------------
+
+2.1.1 (2023-01-23)
+------------------
+* Move controller_stopper to ur_robot_driver
+  Since a standalone package with that name was declined during the release
+  process, we decided to move the controller_stopper package over to the driver.
+* Update minimal required polyscope version in docs
+* Contributors: Felix Exner
+
 2.1.0 (2022-12-08)
 ------------------
 * delete ros_control.urscript (`#593 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/593>`_)
