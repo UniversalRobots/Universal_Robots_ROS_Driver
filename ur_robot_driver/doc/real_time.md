@@ -139,7 +139,7 @@ Before we can compile the sources, we have to extract the tar archive and apply 
 ```bash
 $ tar xf linux-4.14.139.tar
 $ cd linux-4.14.139
-linux-4.14.139$ xzcat ../patch-4.14.139-rt66.patch.xz | patch -p1 
+$ xzcat ../patch-4.14.139-rt66.patch.xz | patch -p1 
 ```
 
 Now to configure your kernel, just type
