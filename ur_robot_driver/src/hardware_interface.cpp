@@ -178,7 +178,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // True if splines should be used as interpolation on the robot controller when forwarding trajectory, if false movej
   // or movel commands are used
-  use_spline_interpolation_ = robot_hw_nh.param<bool>("use_spline_interpolation", "false");
+  use_spline_interpolation_ = robot_hw_nh.param<bool>("use_spline_interpolation", "true");
 
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
