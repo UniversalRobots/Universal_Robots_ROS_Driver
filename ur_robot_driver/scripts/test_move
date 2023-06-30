@@ -124,10 +124,15 @@ class TrajectoryClient:
         position_list = [[0, -1.57, -1.57, 0, 0, 0]]
         position_list.append([0.2, -1.57, -1.57, 0, 0, 0])
         position_list.append([-0.5, -1.57, -1.2, 0, 0, 0])
+
+        velocity_list = [[0.2, 0, 0, 0, 0, 0]]
+        velocity_list.append([-0.2, 0, 0, 0, 0, 0])
+        velocity_list.append([0, 0, 0, 0, 0, 0])
         duration_list = [3.0, 7.0, 10.0]
         for i, position in enumerate(position_list):
             point = JointTrajectoryPoint()
             point.positions = position
+            point.velocities = velocity_list[i]
             point.time_from_start = rospy.Duration(duration_list[i])
             goal.trajectory.points.append(point)
 
