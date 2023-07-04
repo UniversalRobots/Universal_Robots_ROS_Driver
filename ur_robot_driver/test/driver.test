@@ -12,6 +12,9 @@
     <arg name="stopped_controllers" value="forward_joint_traj_controller forward_cartesian_traj_controller twist_controller pose_based_cartesian_traj_controller joint_based_cartesian_traj_controller"/>
   </include>
 
+  <node name="ursim" pkg="ur_client_library" type="start_ursim.sh" respawn="false" output="screen">
+  </node>
+
   <!--If the default controller changes, this remap has to be adapted, as well-->
   <remap from="follow_joint_trajectory" to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
   <remap from="forward_cartesian_trajectory" to="/forward_cartesian_traj_controller/follow_cartesian_trajectory" />

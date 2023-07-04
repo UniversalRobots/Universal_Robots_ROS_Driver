@@ -75,11 +75,11 @@
 
   <!-- spawn controller manager -->
   <node name="ros_control_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="$(arg controllers)" />
+    output="screen" args="$(arg controllers) --timeout 600" />
 
   <!-- load other controller -->
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="--stopped $(arg stopped_controllers)" unless="$(eval arg('stopped_controllers') == '')"/>
+    output="screen" args="--stopped $(arg stopped_controllers) --timeout 600" unless="$(eval arg('stopped_controllers') == '')"/>
 
   <node name="controller_stopper" pkg="ur_robot_driver" type="controller_stopper_node" respawn="false" output="screen">
     <remap from="robot_running" to="ur_hardware_interface/robot_program_running"/>
