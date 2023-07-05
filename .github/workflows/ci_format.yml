@@ -1,9 +1,11 @@
 name: Clang-Format check
 on:
   push:
+    branches:
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   format_check:
