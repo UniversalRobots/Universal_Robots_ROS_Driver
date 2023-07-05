@@ -20,3 +20,4 @@ jobs:
       ros_distro: noetic
       ros_repo: main
       ref_for_scheduled_build: master
+      upstream_workspace: .noetic.rosinstall
