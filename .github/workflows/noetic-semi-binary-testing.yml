@@ -18,5 +18,6 @@ jobs:
     uses: ./.github/workflows/reusable_ici.yml
     with:
       ros_distro: noetic
-      ros_repo: main
+      ros_repo: testing
       ref_for_scheduled_build: master
+      upstream_workspace: .noetic.rosinstall
