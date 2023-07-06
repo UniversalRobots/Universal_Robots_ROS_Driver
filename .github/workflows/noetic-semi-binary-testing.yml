@@ -1,4 +1,4 @@
-name: Noetic Binary Build Main
+name: Noetic Semi-Binary Build Testing
 on:
   workflow_dispatch:
     branches:
