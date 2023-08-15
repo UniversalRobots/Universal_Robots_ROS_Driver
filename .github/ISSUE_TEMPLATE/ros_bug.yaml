@@ -1,0 +1,136 @@
+name: ROS Issue Report
+description: File a ROS related issue report
+title: "Issue name"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report. Before submitting the bug, please first search on the [issue track](../) before creating one.
+
+        Please fill out the following as much as possible, to help us reproducing the problem.
+        Alternatively, if you do not want to share the issue publicly, send a email to ROS@universal-robots.com with the same information.
+
+  - type: input
+    id: ros-driver-version
+    attributes:
+      label: Affected ROS Driver version(s)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ros-distribution
+    attributes:
+      label: Used ROS distribution.
+      multiple: true
+      options:
+        - Melodic
+        - Noetic
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ros-platform
+    attributes:
+      label: Which combination of platform is the ROS driver running on.
+      multiple: true
+      options:
+        - Linux without realtime patch
+        - Linux with realtime patch
+        - Linux in a virtual machine
+        - Docker
+        - Windows using WSL2
+        - Windows
+        - Linux
+        - Mac
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ros-driver-install
+    attributes:
+      label: How is the UR ROS Driver installed.
+      options:
+        - From binary packets
+        - Build the driver from source and using the UR Client Library from binary
+        - Build both the ROS driver and UR Client Library from source
+    validations:
+      required: true
+
+  - type: dropdown
+    id: robot-platform
+    attributes:
+      label: Which robot platform is the driver connected to.
+      multiple: true
+      options:
+        - UR CB3 robot
+        - UR E-series robot
+        - Real robot
+        - URSim in docker
+        - URSim in a virtual machine
+        - URSim in linux
+    validations:
+      required: true
+
+  - type: input
+    id: robot-sw-version
+    attributes:
+      label: Robot SW / URSim version(s)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: headless
+    attributes:
+      label: How is the ROS driver used.
+      multiple: true
+      options:
+        - Headless without using the teach pendant
+        - Through the robot teach pendant using External Control URCap
+        - Others
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Issue details
+      description: This part is important in order for us to understand the problem and to clarify the severity of the issue.
+      value: |
+        # Summary
+        *Short introduction to the issue and how it impact you and why*
+
+        ## Issue details
+        *Detailed description help us understand the problem. Code are welcome!*
+
+        ## Steps to Reproduce
+        *Make simple example to reproduce the issue. Try to remove dependencies to other hardware and software components, if it is possible.*
+
+        ## Expected Behavior
+        *What did you expect and why?*
+
+        ## Actual Behavior
+        *What did you observe? If possible please attach relevant information.*
+
+        # Workaround Suggestion
+        *If a workaround has been found, you are welcome to share it.*
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Accept Public visibility
+      description: By submitting this issue, you agree to publicly share this information on the github [issue track](../)
+      options:
+        - label: I agree to make this context public
+          required: true
