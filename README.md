@@ -88,8 +88,8 @@ This repository contains the new **ur_robot_driver** and a couple of helper pack
   * **ur_robot_driver**: The actual driver package.
 
 ## Requirements
-This driver requires a system setup with ROS. It is recommended to use **Ubuntu 18.04 with ROS
-melodic**, however using Ubuntu 20.04 with ROS noetic should also work.
+This driver requires a system setup with ROS. It is recommended to use **Ubuntu 20.04 with ROS
+noetic**.
 
 To make sure that robot control isn't affected by system latencies, it is highly recommended to use
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
@@ -113,7 +113,7 @@ it is not a catkin package and therefore requires a different treatment when bei
 workspace. See The alternative build method below if you'd like to build the library from source.
 
 If you don't want to build the library from source, it is available as a binary package through the
-ROS distribution of ROS melodic and noetic. It will be installed automatically if you
+ROS distribution of ROS noetic. It will be installed automatically if you
 follow the steps below. If you'd like to also build the library from source, please follow the steps
 explained in the [next section](#alternative-all-source-build).
 

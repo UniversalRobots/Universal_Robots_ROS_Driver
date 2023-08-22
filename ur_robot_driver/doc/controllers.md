@@ -47,14 +47,14 @@ not the actual *efforts* in a physical sense.
 **Type:** [`industrial_robot_status_controller/IndustrialRobotStatusController`](http://wiki.ros.org/industrial_robot_status_controller)
 
 Controller that publishes robot/controller state (e-stopped, in motion, etc) as
-[`industrial_msgs/RobotStatus`](http://docs.ros.org/en/melodic/api/industrial_msgs/html/msg/RobotStatus.html)
+[`industrial_msgs/RobotStatus`](http://docs.ros.org/en/noetic/api/industrial_msgs/html/msg/RobotStatus.html)
 messages on the `/robot_status` topic.
 
 ### `force_torque_sensor_controller`
 **Type:** [`force_torque_sensor_controller/ForceTorqueSensorController`](http://wiki.ros.org/force_torque_sensor_controller)
 
 This controller publishes the wrench measured from the robot at its TCP as
-[`geometry_msgs/WrenchStamped`](http://docs.ros.org/en/melodic/api/geometry_msgs/html/msg/WrenchStamped.html)
+[`geometry_msgs/WrenchStamped`](http://docs.ros.org/en/noetic/api/geometry_msgs/html/msg/WrenchStamped.html)
 on the topic `/wrench`. Note that the wrench can be tared to 0 using the
 `zero_ftsensor`(https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#zero_ftsensor-std_srvstrigger)
 service.
