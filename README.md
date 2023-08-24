@@ -85,6 +85,7 @@ This repository contains the new **ur_robot_driver** and a couple of helper pack
 
   * **ur_calibration**: Package around extracting and converting a robot's factory calibration
     information to make it usable by the robot_description.
+  * **ur_dashboard_msgs**: Message definitions used for interacting with the dashboard node.
   * **ur_robot_driver**: The actual driver package.
 
 ## Requirements
