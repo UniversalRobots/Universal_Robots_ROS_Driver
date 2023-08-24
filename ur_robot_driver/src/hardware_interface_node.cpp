@@ -90,7 +90,7 @@ int main(int argc, char** argv)
       ret = pthread_getschedparam(this_thread, &policy, &params);
       if (ret != 0)
       {
-        std::cout << "Couldn't retrieve real-time scheduling paramers" << std::endl;
+        ROS_ERROR("Couldn't retrieve real-time scheduling parameters");
       }
 
       // Check the correct policy was applied
