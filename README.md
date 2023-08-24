@@ -95,15 +95,6 @@ To make sure that robot control isn't affected by system latencies, it is highly
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
-## Preliminary UR16e support
-This driver supports all UR variants including the UR16e. However, upstream support for the UR16e is
-not finished, yet. When using the UR16e there is currently no support for gazebo or MoveIt!.
-
-See [#97](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/pull/97) for details on
-using the latest upstream develop branch of
-[ros_industrial/universal_robot](https://github.com/ros-industrial/universal_robot) which includes
-gazebo support for the ur16e, but no working MoveIt! support at the time of writing.
-
 ## Building
 
 **Note:** The driver consists of a [C++
