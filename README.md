@@ -96,18 +96,24 @@ To make sure that robot control isn't affected by system latencies, it is highly
 a real-time kernel with the system. See the [real-time setup guide](ur_robot_driver/doc/real_time.md)
 on information how to set this up.
 
-## Building
+## Install from binary packages
+
+1. [Install ROS](http://wiki.ros.org/noetic/Installation/Ubuntu). This package only supports ROS
+noetic. If you want to use a UR robot arm with ROS 2, please see the
+[ROS 2 driver](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/).
+2. Install the driver using
+```bash
+sudo apt install ros-${ROS_DISTRO}-ur-robot-driver
+```
+## Building from source
+
+Before building from source make sure that you actually need to do that. We recommend you install the driver package from source unless you want to join development and submit changes.
 
 **Note:** The driver consists of a [C++
 library](https://github.com/UniversalRobots/Universal_Robots_Client_Library) that abstracts the
 robot's interfaces and a ROS driver on top of that. As the library can be built without ROS support,
 it is not a catkin package and therefore requires a different treatment when being built inside the
 workspace. See The alternative build method below if you'd like to build the library from source.
-
-If you don't want to build the library from source, it is available as a binary package through the
-ROS distribution of ROS noetic. It will be installed automatically if you
-follow the steps below. If you'd like to also build the library from source, please follow the steps
-explained in the [next section](#alternative-all-source-build).
 
 ```bash
 # source global ros
