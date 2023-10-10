@@ -1204,11 +1204,11 @@ bool HardwareInterface::activateSplineInterpolation(std_srvs::SetBoolRequest& re
   use_spline_interpolation_ = req.data;
   if (use_spline_interpolation_)
   {
-    res.message = "Activated spline interpolation in forward trajectory mode";
+    res.message = "Activated spline interpolation in forward trajectory mode.";
   }
   else
   {
-    res.message = "Deactivated spline interpolation in forward trajectory mode";
+    res.message = "Deactivated spline interpolation in forward trajectory mode.";
   }
   res.success = true;
   return true;
