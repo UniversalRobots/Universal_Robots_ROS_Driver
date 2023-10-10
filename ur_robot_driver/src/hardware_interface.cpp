@@ -1314,7 +1314,8 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
         v[5] = point.velocities[5];
         ur_driver_->writeTrajectorySplinePoint(p, v, next_time - last_time);
       }
-      else{
+      else
+      {
         ROS_ERROR_THROTTLE(1, "Spline interpolation using positions only is not supported.");
       }
     }
