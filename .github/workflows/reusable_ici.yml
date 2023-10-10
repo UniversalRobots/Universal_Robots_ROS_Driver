@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_RUN_OPTS: '-v /var/run/docker.sock:/var/run/docker.sock --network ursim_net'
+      ADDITIONAL_DEBS: 'docker.io'
     steps:
       - name: Checkout ${{ inputs.ref }} when build is not scheduled
         if: ${{ github.event_name != 'schedule' }}
