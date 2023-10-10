@@ -53,42 +53,45 @@ class IntegrationTest(unittest.TestCase):
         """Make sure the robot is booted and ready to receive commands"""
 
         rospy.init_node('ur_robot_driver_integration_test')
+        # In CI we pull the docker image when this test is started. So, we wait a little longer for
+        # the first service...
+        initial_timeout = rospy.Duration(300)
         timeout = rospy.Duration(30)
 
         self.set_mode_client = actionlib.SimpleActionClient(
             '/ur_hardware_interface/set_mode', SetModeAction)
-        if not self.set_mode_client.wait_for_server(timeout):
+        if not self.set_mode_client.wait_for_server(initial_timeout):
             self.fail(
                 "Could not reach set_mode action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+            )
 
         self.trajectory_client = actionlib.SimpleActionClient(
             'follow_joint_trajectory', FollowJointTrajectoryAction)
         if not self.trajectory_client.wait_for_server(timeout):
             self.fail(
                 "Could not reach controller action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+            )
 
         self.cartesian_passthrough_trajectory_client = actionlib.SimpleActionClient(
             'forward_cartesian_trajectory', FollowCartesianTrajectoryAction)
         if not self.cartesian_passthrough_trajectory_client.wait_for_server(timeout):
             self.fail(
                 "Could not reach cartesian passthrough controller action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+            )
 
         self.joint_passthrough_trajectory_client = actionlib.SimpleActionClient(
             'forward_joint_trajectory', FollowJointTrajectoryAction)
         if not self.joint_passthrough_trajectory_client.wait_for_server(timeout):
             self.fail(
                 "Could not reach joint passthrough controller action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+            )
 
         self.cartesian_trajectory_client = actionlib.SimpleActionClient(
             'follow_cartesian_trajectory', FollowCartesianTrajectoryAction)
         if not self.cartesian_trajectory_client.wait_for_server(timeout):
             self.fail(
                 "Could not reach cartesian controller action. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
+            )
 
         self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
         try:

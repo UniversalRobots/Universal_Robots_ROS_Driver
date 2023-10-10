@@ -1,0 +1,20 @@
+name: Clang-Format check
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  format_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'ros-industrial/industrial_ci@master'
+        env:
+          ROS_DISTRO: noetic
+          CLANG_FORMAT_CHECK: file
+          CLANG_FORMAT_VERSION: "9"

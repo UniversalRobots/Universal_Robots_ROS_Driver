@@ -1,0 +1,22 @@
+name: Noetic Binary Build Main
+on:
+  workflow_dispatch:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  schedule:
+    # Run every morning to detect flakiness and broken dependencies
+    - cron: '32 5 * * *'
+
+jobs:
+  binary:
+    uses: ./.github/workflows/reusable_ici.yml
+    with:
+      ros_distro: noetic
+      ros_repo: main
+      ref_for_scheduled_build: master

@@ -1,0 +1,50 @@
+name: Reusable industrial_ci workflow
+# original author: Denis Štogl <denis@stoglrobotics.de>
+
+on:
+  workflow_call:
+    inputs:
+      ref_for_scheduled_build:
+        description: 'Reference on which the repo should be checkout for scheduled build. Usually is this name of a branch or a tag.'
+        default: ''
+        required: false
+        type: string
+
+      upstream_workspace:
+        description: 'UPSTREAM_WORKSPACE variable for industrial_ci. Usually path to local .repos file.'
+        default: ''
+        required: false
+        type: string
+      ros_distro:
+        description: 'ROS_DISTRO variable for industrial_ci'
+        required: false
+        type: string
+      ros_repo:
+        description: 'ROS_REPO to run for industrial_ci. Possible values: "main", "testing"'
+        default: 'main'
+        required: false
+        type: string
+
+jobs:
+  reusable_ici:
+    name: ${{ inputs.ros_distro }} ${{ inputs.ros_repo }} ${{ inputs.os_code_name }}
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_RUN_OPTS: '-v /var/run/docker.sock:/var/run/docker.sock --network ursim_net'
+      ADDITIONAL_DEBS: 'docker.io'
+    steps:
+      - name: Checkout ${{ inputs.ref }} when build is not scheduled
+        if: ${{ github.event_name != 'schedule' }}
+        uses: actions/checkout@v3
+      - name: Checkout ${{ inputs.ref }} on scheduled build
+        if: ${{ github.event_name == 'schedule' }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.ref_for_scheduled_build }}
+      - run: docker network create --subnet=192.168.56.0/24 ursim_net
+      - uses: 'ros-industrial/industrial_ci@master'
+        env:
+          UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }}
+          ROS_DISTRO: ${{ inputs.ros_distro }}
+          ROS_REPO: ${{ inputs.ros_repo }}
+          CMAKE_ARGS: -DUR_ROBOT_DRIVER_BUILD_INTEGRATION_TESTS=ON
