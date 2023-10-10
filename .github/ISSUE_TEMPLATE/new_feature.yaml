@@ -1,0 +1,28 @@
+name: New feature
+description: New feature to be suggested
+title: "[FEATURE NAME]"
+labels: ["enhancement"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature summary
+      value: |
+        *Short introduction to the feature and why it should be implemented*
+
+        *Followed by a longer description*
+
+        ### Related issues
+        *Links to related issues internal or external to this repo*
+
+        ### Tasks
+        *To complete this issue involves*
+        - [ ] Implement the feature
+        - [ ] Make documentation
+        - [ ] Make Unit test
+        - [ ] Make example
+        - [ ] Test on real hardware
+
+    validations:
+      required: true
