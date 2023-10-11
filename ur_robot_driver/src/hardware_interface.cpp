@@ -176,6 +176,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     return false;
   }
 
+  // True if splines should be used as interpolation on the robot controller when forwarding trajectory, if false movej
+  // or movel commands are used
+  use_spline_interpolation_ = robot_hw_nh.param<bool>("use_spline_interpolation", "true");
+
   // Whenever the runtime state of the "External Control" program node in the UR-program changes, a
   // message gets published here. So this is equivalent to the information whether the robot accepts
   // commands from ROS side.
@@ -450,6 +454,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
 
   // Setup the mounted payload through a ROS service
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
+
+  // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
+  // trajectories to the UR robot.
+  activate_spline_interpolation_srv_ = robot_hw_nh.advertiseService(
+      "activate_spline_interpolation", &HardwareInterface::activateSplineInterpolation, this);
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
@@ -1190,6 +1199,21 @@ void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
   }
 }
 
+bool HardwareInterface::activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+{
+  use_spline_interpolation_ = req.data;
+  if (use_spline_interpolation_)
+  {
+    res.message = "Activated spline interpolation in forward trajectory mode.";
+  }
+  else
+  {
+    res.message = "Deactivated spline interpolation in forward trajectory mode.";
+  }
+  res.success = true;
+  return true;
+}
+
 void HardwareInterface::publishRobotAndSafetyMode()
 {
   if (robot_mode_pub_)
@@ -1255,7 +1279,46 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
     p[4] = point.positions[4];
     p[5] = point.positions[5];
     double next_time = point.time_from_start.toSec();
-    ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    if (!use_spline_interpolation_)
+    {
+      ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
+    }
+    else  // Use spline interpolation
+    {
+      if (point.velocities.size() == 6 && point.accelerations.size() == 6)
+      {
+        urcl::vector6d_t v, a;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
+
+        a[0] = point.accelerations[0];
+        a[1] = point.accelerations[1];
+        a[2] = point.accelerations[2];
+        a[3] = point.accelerations[3];
+        a[4] = point.accelerations[4];
+        a[5] = point.accelerations[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, a, next_time - last_time);
+      }
+      else if (point.velocities.size() == 6)
+      {
+        urcl::vector6d_t v;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, next_time - last_time);
+      }
+      else
+      {
+        ROS_ERROR_THROTTLE(1, "Spline interpolation using positions only is not supported.");
+      }
+    }
     last_time = next_time;
   }
   ROS_DEBUG("Finished Sending Trajectory");

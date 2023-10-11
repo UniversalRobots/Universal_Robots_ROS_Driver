@@ -38,6 +38,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/String.h>
 #include <std_srvs/Trigger.h>
+#include <std_srvs/SetBool.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <tf2_msgs/TFMessage.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -213,6 +214,7 @@ protected:
   bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res);
+  bool activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
 
   std::unique_ptr<urcl::UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
@@ -236,6 +238,7 @@ protected:
   ros::ServiceServer deactivate_srv_;
   ros::ServiceServer tare_sensor_srv_;
   ros::ServiceServer set_payload_srv_;
+  ros::ServiceServer activate_spline_interpolation_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
   scaled_controllers::ScaledPositionJointInterface spj_interface_;
@@ -325,6 +328,7 @@ protected:
   std::atomic<bool> cartesian_forward_controller_running_;
   std::atomic<bool> twist_controller_running_;
   std::atomic<bool> pose_controller_running_;
+  std::atomic<bool> use_spline_interpolation_;
 
   PausingState pausing_state_;
   double pausing_ramp_up_increment_;
