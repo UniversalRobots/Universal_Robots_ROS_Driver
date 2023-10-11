@@ -58,11 +58,11 @@ static const std::bitset<11>
 HardwareInterface::HardwareInterface()
   : joint_position_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_velocity_command_({ 0, 0, 0, 0, 0, 0 })
-  , cartesian_velocity_command_({ 0, 0, 0, 0, 0, 0 })
-  , cartesian_pose_command_({ 0, 0, 0, 0, 0, 0 })
   , joint_positions_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_velocities_{ { 0, 0, 0, 0, 0, 0 } }
   , joint_efforts_{ { 0, 0, 0, 0, 0, 0 } }
+  , cartesian_velocity_command_({ 0, 0, 0, 0, 0, 0 })
+  , cartesian_pose_command_({ 0, 0, 0, 0, 0, 0 })
   , standard_analog_input_{ { 0, 0 } }
   , standard_analog_output_{ { 0, 0 } }
   , joint_names_(6)
