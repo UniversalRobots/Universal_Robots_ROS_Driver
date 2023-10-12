@@ -107,7 +107,7 @@ sudo apt install ros-${ROS_DISTRO}-ur-robot-driver
 ```
 ## Building from source
 
-Before building from source make sure that you actually need to do that. We recommend you install the driver package from source unless you want to join development and submit changes.
+Before building from source make sure that you actually need to do that. We recommend you install the driver from its binary packages unless you want to join development and submit changes.
 
 **Note:** The driver consists of a [C++
 library](https://github.com/UniversalRobots/Universal_Robots_Client_Library) that abstracts the
