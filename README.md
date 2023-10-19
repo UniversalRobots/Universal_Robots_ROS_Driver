@@ -336,7 +336,7 @@ end user.
 ### Can this driver be used inside a combined hardware interface?
 Yes, this is possible. However, if used inside a [combined HW
 interface](http://wiki.ros.org/combined_robot_hw) we recommend to enable [non-blocking read
-functinality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
+functionality](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/ROS_INTERFACE.md#non_blocking_read-default-false).
 
 ### I sent raw script code to the robot but it is not executed
 On the e-Series the robot has to be in [remote control
