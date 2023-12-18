@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.1.3 (2023-12-18)
+------------------
 * Added support for UR20 (`#659 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/659>`_)
 * Update documentation (`#655 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/655>`_)
 * Bump required cmake version to fix the CMake warning about CMP0048
