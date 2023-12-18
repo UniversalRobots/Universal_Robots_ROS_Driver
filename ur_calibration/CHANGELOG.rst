@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* Bump cmake minimum version for all packages in repo
+* Contributors: Felix Exner
+
 2.1.2 (2023-01-23)
 ------------------
 

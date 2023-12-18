@@ -1,3 +1,14 @@
+Forthcoming
+-----------
+* Added support for UR20 (`#659 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/659>`_)
+* Update documentation (`#655 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/655>`_)
+* Bump required cmake version to fix the CMake warning about CMP0048
+* Change initializer list ordering to match declaration in header file
+* Implemented spline interpolation in joint space (`#543 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/543>`_)
+* Use dedicated build for noetic main (`#640 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/640>`_)
+* fix typo and use ros logging
+* Contributors: Felix Exner, Felix Exner (fexner), Mads Holm Peters, RobertWilbrandt, Simon Schmeisser
+
 2.1.2 (2023-01-23)
 ------------------
 
