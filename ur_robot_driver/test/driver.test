@@ -5,6 +5,7 @@
     -->
   <arg name="robot_ip" default="192.168.56.101"/>
   <arg name="robot_type" default="ur5e"/>
+  <arg name="launch_ursim" default="true"/>
 
   <include file="$(find ur_robot_driver)/launch/$(arg robot_type)_bringup.launch">
     <arg name="robot_ip" value="$(arg robot_ip)"/>
@@ -12,8 +13,10 @@
     <arg name="stopped_controllers" value="forward_joint_traj_controller forward_cartesian_traj_controller twist_controller pose_based_cartesian_traj_controller joint_based_cartesian_traj_controller"/>
   </include>
 
-  <node name="ursim" pkg="ur_client_library" type="start_ursim.sh" respawn="false" output="screen">
-  </node>
+  <group if="$(arg launch_ursim)">
+    <node name="ursim" pkg="ur_client_library" type="start_ursim.sh" respawn="false" output="screen">
+    </node>
+  </group>
 
   <!--If the default controller changes, this remap has to be adapted, as well-->
   <remap from="follow_joint_trajectory" to="/scaled_pos_joint_traj_controller/follow_joint_trajectory" />
