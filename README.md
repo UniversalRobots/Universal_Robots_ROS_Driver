@@ -46,7 +46,7 @@ To create an issue on the [Issue Board](https://github.com/UniversalRobots/Unive
 If you need help using this driver, please see the ROS-category in the [UR+ Developer Forum](https://forum.universal-robots.com/c/ros). 
 
 ## Features
- * Works for all **CB3 (with software version >= 3.12.0) and e-Series (software >= 5.5.1)** robots and uses the RTDE interface for communication, whenever possible.
+ * Works for all **CB3 (with software version >= 3.14.3) and e-Series (software >= 5.9.4)** robots and uses the RTDE interface for communication, whenever possible.
  * **Factory calibration** of the robot inside ROS to reach Cartesian
    targets precisely.
  * **Realtime-enabled** communication structure to robustly cope with the 2ms cycle time of the
