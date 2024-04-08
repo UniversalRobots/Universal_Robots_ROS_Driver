@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.1.4 (2024-04-08)
+------------------
 * Added support for UR30 (`#688 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/688>`_)
 * Added arg to enable/disable launch of ursim (`#679 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/pull/679>`_)
 * Contributors: Vincenzo Di Pentima, mahp
