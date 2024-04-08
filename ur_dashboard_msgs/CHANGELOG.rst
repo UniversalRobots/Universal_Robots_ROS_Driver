@@ -2,6 +2,9 @@
 Changelog for package ur_dashboard_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.1.3 (2023-12-18)
 ------------------
 * Bump cmake minimum version for all packages in repo
