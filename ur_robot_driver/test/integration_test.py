@@ -279,11 +279,11 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(pin_state, 1)
 
     def test_tool_contact(self):
-            start_response = self.start_tool_contact.call()
-            self.assertEqual(start_response.success,True)
+        start_response = self.start_tool_contact.call()
+        self.assertEqual(start_response.success,True)
 
-            end_response = self.end_tool_contact.call()
-            self.assertEqual(end_response.success, True)
+        end_response = self.end_tool_contact.call()
+        self.assertEqual(end_response.success, True)
 
     def test_cartesian_passthrough(self):
         #### Power cycle the robot in order to make sure it is running correctly####
