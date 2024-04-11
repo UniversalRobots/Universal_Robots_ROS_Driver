@@ -12,7 +12,7 @@ from control_msgs.msg import (
     FollowJointTrajectoryResult,
     JointTolerance)
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
-from std_srvs.srv import Trigger, TriggerRequest
+from std_srvs.srv import Trigger
 import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
 from ur_msgs.srv import SetIO, SetIORequest
@@ -118,6 +118,22 @@ class IntegrationTest(unittest.TestCase):
             self.fail(
                 "Could not reach resend_robot_program service. Make sure that the driver is "
                 "actually running in headless mode."
+                " Msg: {}".format(err))
+
+        self.start_tool_contact = rospy.ServiceProxy('ur_hardware_interface/start_tool_contact', Trigger)
+        try:
+            self.start_tool_contact.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach 'start tool contact' service. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
+        self.end_tool_contact = rospy.ServiceProxy('ur_hardware_interface/end_tool_contact', Trigger)
+        try:
+            self.end_tool_contact.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach 'end tool contact' service. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
         self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
@@ -261,6 +277,13 @@ class IntegrationTest(unittest.TestCase):
             pin_state = io_state.digital_out_states[pin].state
             messages += 1
         self.assertEqual(pin_state, 1)
+
+    def test_tool_contact(self):
+            start_response = self.start_tool_contact.call()
+            self.assertEqual(start_response.success,True)
+
+            end_response = self.end_tool_contact.call()
+            self.assertEqual(end_response.success, True)
 
     def test_cartesian_passthrough(self):
         #### Power cycle the robot in order to make sure it is running correctly####
