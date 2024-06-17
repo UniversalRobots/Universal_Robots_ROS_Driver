@@ -188,6 +188,9 @@ TEST_P(CalibrationTest, calibration)
   }
 }
 
+// Tests are parametrized by both, the robot model (e.g. "ur10e") and the DH diff as they are stored on the robot
+// controller's calibration file.
+// The test will then assemble the DH parameters using the ones from the base model and the calibration.
 INSTANTIATE_TEST_SUITE_P(
     CalibrationTests, CalibrationTest,
     ::testing::Values(
