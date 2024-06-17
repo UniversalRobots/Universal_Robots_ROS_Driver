@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* Fix calibration (`#704 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/704>`_)
+* Contributors: Felix Exner (fexner)
+
 2.1.4 (2024-04-08)
 ------------------
 

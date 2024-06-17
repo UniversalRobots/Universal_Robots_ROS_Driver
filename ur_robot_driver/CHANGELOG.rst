@@ -1,3 +1,6 @@
+Forthcoming
+-----------
+
 2.1.4 (2024-04-08)
 ------------------
 * Added support for UR30 (`#688 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/688>`_)
