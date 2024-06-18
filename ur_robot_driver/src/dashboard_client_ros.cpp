@@ -359,7 +359,8 @@ bool DashboardClientROS::connect()
   // been received.
   tv.tv_sec = nh_.param("receive_timeout", 1);
   tv.tv_usec = 0;
+  bool ret = client_.connect();
   client_.setReceiveTimeout(tv);
-  return client_.connect();
+  return ret;
 }
 }  // namespace ur_driver
