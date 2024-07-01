@@ -461,7 +461,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
       "activate_spline_interpolation", &HardwareInterface::activateSplineInterpolation, this);
 
   // Calling this service will return the software version of the robot.
-  get_version_srv = robot_hw_nh.advertiseService("get_version", &HardwareInterface::getVersion, this);
+  get_robot_software_version_srv = robot_hw_nh.advertiseService("get_robot_software_version", &HardwareInterface::getRobotSoftwareVersion, this);
 
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
@@ -1178,7 +1178,7 @@ bool HardwareInterface::setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::Set
   return true;
 }
 
-bool HardwareInterface::getVersion(ur_msgs::GetVersionRequest& req, ur_msgs::GetVersionResponse& res)
+bool HardwareInterface::getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req, ur_msgs::GetRobotSoftwareVersionResponse& res)
 {
   urcl::VersionInformation version_info = this->ur_driver_->getVersion();
   res.major = version_info.major;
