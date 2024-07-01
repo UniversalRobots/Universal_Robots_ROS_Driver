@@ -15,7 +15,7 @@ from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
-from ur_msgs.srv import SetIO, SetIORequest, GetVersion
+from ur_msgs.srv import SetIO, SetIORequest, GetRobotSoftwareVersion
 from ur_msgs.msg import IOStates
 
 from cartesian_control_msgs.msg import (
@@ -120,9 +120,9 @@ class IntegrationTest(unittest.TestCase):
                 "actually running in headless mode."
                 " Msg: {}".format(err))
 
-        self.get_version = rospy.ServiceProxy("ur_hardware_interface/get_version", GetVersion)
+        self.get_robot_software_version = rospy.ServiceProxy("ur_hardware_interface/get_robot_software_version", GetRobotSoftwareVersion)
         try:
-            self.get_version.wait_for_service(timeout)
+            self.get_robot_software_version.wait_for_service(timeout)
         except rospy.exceptions.ROSException as err:
             self.fail(
                 "Could not reach 'get version' service. Make sure that the driver is actually running."
@@ -287,7 +287,7 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(pin_state, 1)
 
     def test_tool_contact(self):
-        version_info = self.get_version.call()
+        version_info = self.get_robot_software_version.call()
         if version_info.major >= 5:
             start_response = self.start_tool_contact.call()
             self.assertEqual(start_response.success,True)

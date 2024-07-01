@@ -54,7 +54,7 @@
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
 #include <ur_msgs/SetPayload.h>
-#include <ur_msgs/GetVersion.h>
+#include <ur_msgs/GetRobotSoftwareVersion.h>
 
 #include <cartesian_interface/cartesian_command_interface.h>
 #include <cartesian_interface/cartesian_state_handle.h>
@@ -216,7 +216,7 @@ protected:
   void commandCallback(const std_msgs::StringConstPtr& msg);
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res);
   bool activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
-  bool getVersion(ur_msgs::GetVersionRequest& req, ur_msgs::GetVersionResponse& res);
+  bool getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req, ur_msgs::GetRobotSoftwareVersionResponse& res);
 
   std::unique_ptr<urcl::UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
@@ -241,7 +241,7 @@ protected:
   ros::ServiceServer tare_sensor_srv_;
   ros::ServiceServer set_payload_srv_;
   ros::ServiceServer activate_spline_interpolation_srv_;
-  ros::ServiceServer get_version_srv;
+  ros::ServiceServer get_robot_software_version_srv;
 
   hardware_interface::JointStateInterface js_interface_;
   scaled_controllers::ScaledPositionJointInterface spj_interface_;
