@@ -216,7 +216,8 @@ protected:
   void commandCallback(const std_msgs::StringConstPtr& msg);
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res);
   bool activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
-  bool getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req, ur_msgs::GetRobotSoftwareVersionResponse& res);
+  bool getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req,
+                               ur_msgs::GetRobotSoftwareVersionResponse& res);
 
   std::unique_ptr<urcl::UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
