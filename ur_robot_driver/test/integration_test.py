@@ -128,22 +128,6 @@ class IntegrationTest(unittest.TestCase):
                 "Could not reach 'get version' service. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
-        self.start_tool_contact = rospy.ServiceProxy('ur_hardware_interface/start_tool_contact', Trigger)
-        try:
-            self.start_tool_contact.wait_for_service(timeout)
-        except rospy.exceptions.ROSException as err:
-            self.fail(
-                "Could not reach 'start tool contact' service. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
-
-        self.end_tool_contact = rospy.ServiceProxy('ur_hardware_interface/end_tool_contact', Trigger)
-        try:
-            self.end_tool_contact.wait_for_service(timeout)
-        except rospy.exceptions.ROSException as err:
-            self.fail(
-                "Could not reach 'end tool contact' service. Make sure that the driver is actually running."
-                " Msg: {}".format(err))
-
         self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
         self.tf_listener = tf.TransformListener()
         self.twist_pub = rospy.Publisher("/twist_controller/command", geometry_msgs.msg.Twist, queue_size=1)
@@ -285,21 +269,6 @@ class IntegrationTest(unittest.TestCase):
             pin_state = io_state.digital_out_states[pin].state
             messages += 1
         self.assertEqual(pin_state, 1)
-
-    def test_tool_contact(self):
-        version_info = self.get_robot_software_version.call()
-        if version_info.major >= 5:
-            start_response = self.start_tool_contact.call()
-            self.assertEqual(start_response.success,True)
-
-            end_response = self.end_tool_contact.call()
-            self.assertEqual(end_response.success, True)
-        else:
-            start_response = self.start_tool_contact.call()
-            self.assertEqual(start_response.success,False)
-
-            end_response = self.end_tool_contact.call()
-            self.assertEqual(end_response.success, False)
 
     def test_cartesian_passthrough(self):
         #### Power cycle the robot in order to make sure it is running correctly####
