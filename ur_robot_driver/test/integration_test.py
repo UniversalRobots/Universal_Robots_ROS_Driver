@@ -15,7 +15,8 @@ from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
-from ur_msgs.srv import SetIO, SetIORequest, GetRobotSoftwareVersion
+from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point, WrenchStamped, TwistStamped, Wrench, Twist, Vector3
+from ur_msgs.srv import SetIO, SetIORequest, GetRobotSoftwareVersion, SetForceModeRequest, SetForceMode
 from ur_msgs.msg import IOStates
 
 from cartesian_control_msgs.msg import (
@@ -119,6 +120,20 @@ class IntegrationTest(unittest.TestCase):
                 "Could not reach resend_robot_program service. Make sure that the driver is "
                 "actually running in headless mode."
                 " Msg: {}".format(err))
+            
+        self.start_force_mode_srv = rospy.ServiceProxy('/ur_hardware_interface/start_force_mode', SetForceMode)
+        try:
+            self.start_force_mode_srv.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail("Could not reach start force mode service. Make sure that the driver is actually running."
+                      " Msg: {}".format(err))
+    
+        self.end_force_mode_srv = rospy.ServiceProxy('/ur_hardware_interface/end_force_mode', Trigger)
+        try:
+            self.end_force_mode_srv.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail("Could not reach end force mode service. Make sure that the driver is actually running."
+                      " Msg: {}".format(err))
 
         self.get_robot_software_version = rospy.ServiceProxy("ur_hardware_interface/get_robot_software_version", GetRobotSoftwareVersion)
         try:
@@ -142,6 +157,40 @@ class IntegrationTest(unittest.TestCase):
         self.set_mode_client.send_goal(goal)
         self.set_mode_client.wait_for_result()
         return self.set_mode_client.get_result().success
+
+    def test_force_mode_srv(self):
+        point = Point(0.1, 0.1, 0.1)
+        orientation = Quaternion(0, 0, 0, 0)
+        task_frame_pose = Pose(point, orientation)
+        header = std_msgs.msg.Header(seq=1, frame_id="robot")
+        header.stamp.secs = int(time.time())+1
+        header.stamp.nsecs = 0
+        frame_stamp = PoseStamped(header, task_frame_pose)
+        compliance = [0,0,1,0,0,1]
+        wrench_vec = Wrench(Vector3(0,0,1),Vector3(0,0,1))
+        wrench_stamp = WrenchStamped(header,wrench_vec)
+        type_spec = 2
+        limits = Twist(Vector3(0.1,0.1,0.1), Vector3(0.1,0.1,0.1))
+        limits_stamp = TwistStamped(header, limits)
+        damping_factor = 0.8
+        gain_scale = 0.8
+        req = SetForceModeRequest()
+        req.task_frame = frame_stamp
+        req.selection_vector_x = compliance[0]
+        req.selection_vector_y = compliance[1]
+        req.selection_vector_z = compliance[2]
+        req.selection_vector_rx = compliance[3]
+        req.selection_vector_ry = compliance[4]
+        req.selection_vector_rz = compliance[5]  
+        req.wrench = wrench_stamp
+        req.type = type_spec
+        req.limits = limits_stamp
+        req.damping_factor = damping_factor
+        req.gain_scaling = gain_scale
+        res = self.start_force_mode_srv.call(req)
+        self.assertEqual(res.success, True)
+        res = self.end_force_mode_srv.call(TriggerRequest())
+        self.assertEqual(res.success, True)
 
 
     def test_joint_trajectory_position_interface(self):
