@@ -1185,17 +1185,19 @@ bool HardwareInterface::startForceMode(ur_msgs::SetForceModeRequest& req, ur_msg
 {
   bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest & req, ur_msgs::SetForceModeResponse & res)
   {
-    if (req.task_frame.size() != 6 || req.selection_vector.size() != 6 || req.wrench.size() != 6 ||
-        req.limits.size() != 6)
-    {
-      URCL_LOG_WARN("Size of received SetForceMode message is wrong");
-      res.success = false;
-      return false;
-    }
+    // This may need to be added back in depending on the final format of the srv file
+    // if (req.limits.size() != 6)
+    // {
+    //   URCL_LOG_WARN("Size of received SetForceMode message is wrong");
+    //   res.success = false;
+    //   return false;
+    // }
     urcl::vector6d_t task_frame;
     urcl::vector6uint32_t selection_vector;
     urcl::vector6d_t wrench;
     urcl::vector6d_t limits;
+    double damping_factor = req.damping_factor;
+    double gain_scale = req.gain_scaling;
 
     task_frame[0] = req.task_frame.pose.position.x;
     task_frame[1] = req.task_frame.pose.position.x;
@@ -1226,9 +1228,21 @@ bool HardwareInterface::startForceMode(ur_msgs::SetForceModeRequest& req, ur_msg
     limits[3] = req.limits.twist.angular.x;
     limits[4] = req.limits.twist.angular.y;
     limits[5] = req.limits.twist.angular.z;
-
     unsigned int type = req.type;
-    res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits);
+    if (ur_driver_->getVersion().major < 5)
+    {
+      if (gain_scale != 0)
+      {
+        ROS_WARN("Force mode gain scaling cannot be used on CB3 robots. The specified gain scaling will be ignored.");
+      }
+      res.success =
+          this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor);
+    }
+    else
+    {
+      res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor,
+                                                     gain_scale);
+    }
     return res.success;
   }
 
