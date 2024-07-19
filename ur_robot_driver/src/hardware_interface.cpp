@@ -1140,8 +1140,8 @@ bool HardwareInterface::setAnalogOutput(ur_msgs::SetAnalogOutputRequest& req, ur
 {
   if (ur_driver_)
   {
-
-    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOutput(req.data.pin, req.data.state, static_cast<urcl::AnalogOutputType>(req.data.domain));
+    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOutput(
+        req.data.pin, req.data.state, static_cast<urcl::AnalogOutputType>(req.data.domain));
   }
   return true;
 }
