@@ -2,3 +2,11 @@
     uri: https://github.com/ros-industrial/universal_robot.git
     local-name: universal_robot
     version: melodic-devel
+- git:
+    uri: https://github.com/fmauch/ur_msgs.git
+    local-name: ur_msgs
+    version: set_analog
+- git:
+    uri: https://github.com/fmauch/ur_client_library.git
+    local-name: ur_client_library
+    version: analog_domain
