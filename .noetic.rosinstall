@@ -7,6 +7,6 @@
     local-name: ur_msgs
     version: set_analog
 - git:
-    uri: https://github.com/fmauch/ur_client_library.git
+    uri: https://github.com/fmauch/Universal_Robots_Client_Library.git
     local-name: ur_client_library
     version: analog_domain
