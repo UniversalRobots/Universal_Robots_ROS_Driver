@@ -15,7 +15,7 @@ from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
 from std_srvs.srv import Trigger, TriggerRequest
 import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
-from ur_msgs.srv import SetIO, SetIORequest
+from ur_msgs.srv import SetIO, SetIORequest, GetRobotSoftwareVersion
 from ur_msgs.msg import IOStates
 
 from cartesian_control_msgs.msg import (
@@ -118,6 +118,14 @@ class IntegrationTest(unittest.TestCase):
             self.fail(
                 "Could not reach resend_robot_program service. Make sure that the driver is "
                 "actually running in headless mode."
+                " Msg: {}".format(err))
+
+        self.get_robot_software_version = rospy.ServiceProxy("ur_hardware_interface/get_robot_software_version", GetRobotSoftwareVersion)
+        try:
+            self.get_robot_software_version.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach 'get version' service. Make sure that the driver is actually running."
                 " Msg: {}".format(err))
 
         self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
