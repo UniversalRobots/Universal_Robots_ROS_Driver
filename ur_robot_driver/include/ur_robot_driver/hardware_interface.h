@@ -54,6 +54,7 @@
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
 #include <ur_msgs/SetPayload.h>
+#include <ur_msgs/SetForceMode.h>
 
 #include <cartesian_interface/cartesian_command_interface.h>
 #include <cartesian_interface/cartesian_state_handle.h>
@@ -215,6 +216,8 @@ protected:
   void commandCallback(const std_msgs::StringConstPtr& msg);
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res);
   bool activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
+  bool startForceMode(ur_msgs::SetForceModeRequest& req, ur_msgs::SetForceModeResponse& res);
+  bool endForceMode(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
 
   std::unique_ptr<urcl::UrDriver> ur_driver_;
   std::unique_ptr<DashboardClientROS> dashboard_client_;
@@ -239,6 +242,8 @@ protected:
   ros::ServiceServer tare_sensor_srv_;
   ros::ServiceServer set_payload_srv_;
   ros::ServiceServer activate_spline_interpolation_srv_;
+  ros::ServiceServer start_force_mode_srv_;
+  ros::ServiceServer end_force_mode_srv_;
 
   hardware_interface::JointStateInterface js_interface_;
   scaled_controllers::ScaledPositionJointInterface spj_interface_;
