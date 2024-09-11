@@ -460,6 +460,13 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   activate_spline_interpolation_srv_ = robot_hw_nh.advertiseService(
       "activate_spline_interpolation", &HardwareInterface::activateSplineInterpolation, this);
 
+  // Calling this service will enable the tool contact functionality on the robot.
+  start_tool_contact_srv_ =
+      robot_hw_nh.advertiseService("start_tool_contact", &HardwareInterface::startToolContact, this);
+
+  // Calling this service will disable the tool contact functionality on the robot.
+  end_tool_contact_srv_ = robot_hw_nh.advertiseService("end_tool_contact", &HardwareInterface::endToolContact, this);
+
   ur_driver_->startRTDECommunication();
   ROS_INFO_STREAM_NAMED("hardware_interface", "Loaded ur_robot_driver hardware_interface");
 
@@ -1172,6 +1179,18 @@ bool HardwareInterface::setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::Set
   cog[1] = req.center_of_gravity.y;
   cog[2] = req.center_of_gravity.z;
   res.success = this->ur_driver_->setPayload(req.mass, cog);
+  return true;
+}
+
+bool HardwareInterface::startToolContact(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = this->ur_driver_->startToolContact();
+  return true;
+}
+
+bool HardwareInterface::endToolContact(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = this->ur_driver_->endToolContact();
   return true;
 }
 
