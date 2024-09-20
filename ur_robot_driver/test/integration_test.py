@@ -328,6 +328,7 @@ class IntegrationTest(unittest.TestCase):
         for i, position in enumerate(position_list):
             point = JointTrajectoryPoint()
             point.positions = position
+            point.velocities = [0, 0, 0, 0, 0, 0]
             point.time_from_start = rospy.Duration(duration_list[i])
             goal.trajectory.points.append(point)
         for i, joint_name in enumerate(goal.trajectory.joint_names):
