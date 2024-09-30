@@ -51,6 +51,7 @@
 #include <ur_client_library/control/trajectory_point_interface.h>
 #include <ur_msgs/IOStates.h>
 #include <ur_msgs/ToolDataMsg.h>
+#include <ur_msgs/SetAnalogOutput.h>
 #include <ur_msgs/SetIO.h>
 #include <ur_msgs/SetSpeedSliderFraction.h>
 #include <ur_msgs/SetPayload.h>
@@ -211,6 +212,7 @@ protected:
 
   bool setSpeedSlider(ur_msgs::SetSpeedSliderFractionRequest& req, ur_msgs::SetSpeedSliderFractionResponse& res);
   bool setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse& res);
+  bool setAnalogOutput(ur_msgs::SetAnalogOutputRequest& req, ur_msgs::SetAnalogOutputResponse& res);
   bool resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
@@ -319,6 +321,7 @@ protected:
 
   ros::ServiceServer set_speed_slider_srv_;
   ros::ServiceServer set_io_srv_;
+  ros::ServiceServer set_analog_output_srv_;
   ros::ServiceServer resend_robot_program_srv_;
   ros::Subscriber command_sub_;
 

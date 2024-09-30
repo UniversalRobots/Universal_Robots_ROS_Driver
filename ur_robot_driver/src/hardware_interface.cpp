@@ -435,8 +435,9 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // doing. Using this with other controllers might lead to unexpected behaviors.
   set_speed_slider_srv_ = robot_hw_nh.advertiseService("set_speed_slider", &HardwareInterface::setSpeedSlider, this);
 
-  // Service to set any of the robot's IOs
+  // Services to set any of the robot's IOs
   set_io_srv_ = robot_hw_nh.advertiseService("set_io", &HardwareInterface::setIO, this);
+  set_analog_output_srv_ = robot_hw_nh.advertiseService("set_analog_output", &HardwareInterface::setAnalogOutput, this);
 
   if (headless_mode)
   {
@@ -1132,6 +1133,16 @@ bool HardwareInterface::setIO(ur_msgs::SetIORequest& req, ur_msgs::SetIOResponse
     res.success = false;
   }
 
+  return true;
+}
+
+bool HardwareInterface::setAnalogOutput(ur_msgs::SetAnalogOutputRequest& req, ur_msgs::SetAnalogOutputResponse& res)
+{
+  if (ur_driver_)
+  {
+    res.success = ur_driver_->getRTDEWriter().sendStandardAnalogOutput(
+        req.data.pin, req.data.state, static_cast<urcl::AnalogOutputType>(req.data.domain));
+  }
   return true;
 }
 
