@@ -103,7 +103,7 @@ noetic. If you want to use a UR robot arm with ROS 2, please see the
 [ROS 2 driver](https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/).
 2. Install the driver using
 ```bash
-sudo apt install ros-${ROS_DISTRO}-ur-robot-driver
+sudo apt install ros-${ROS_DISTRO}-ur-robot-driver ros-${ROS_DISTRO}-ur-calibration
 ```
 ## Building from source
 
