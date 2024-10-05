@@ -125,11 +125,16 @@ $ mkdir -p catkin_ws/src && cd catkin_ws
 # clone the driver
 $ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 
-# clone the description. Currently, it is necessary to use the melodic-devel branch.
-$ git clone -b melodic-devel https://github.com/ros-industrial/universal_robot.git src/universal_robot
+# Install vcstool
+$ sudo apt update -qq
+$ sudo apt install python3-vcstool
+
+# clone the direct dependencies. As the latest version might require the latest upstream version,
+# we'll build things from source. Note: This does not include the client library. If there are API
+# changes there, you might have to use the all-source build as explained below.
+$ vcs import --input src/Universal_Robots_ROS_Driver/.noetic.rosinstall src
 
 # install dependencies
-$ sudo apt update -qq
 $ rosdep update
 $ rosdep install --from-paths src --ignore-src -y
 
@@ -149,9 +154,10 @@ build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html).
 $ source /opt/ros/<your_ros_version>/setup.bash
 $ mkdir -p catkin_ws/src && cd catkin_ws
 $ git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git src/Universal_Robots_Client_Library
-$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
-$ git clone -b melodic-devel https://github.com/ros-industrial/universal_robot.git src/universal_robot
 $ sudo apt update -qq
+$ sudo apt install python3-vcstool
+$ vcs import --input src/Universal_Robots_ROS_Driver/.noetic.rosinstall src
+$ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 $ rosdep update
 $ rosdep install --from-paths src --ignore-src -y
 $ catkin_make_isolated

@@ -1,4 +1,8 @@
 - git:
     uri: https://github.com/ros-industrial/universal_robot.git
     local-name: universal_robot
-    version: melodic-devel
+    version: noetic-devel
+- git:
+    uri: https://github.com/ros-industrial/ur_msgs.git
+    local-name: ur_msgs
+    version: noetic-devel
