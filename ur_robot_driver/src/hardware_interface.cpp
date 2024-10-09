@@ -247,7 +247,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     }
     tool_comm_setup->setStopBits(stop_bits);
 
-    int rx_idle_chars;
+    float rx_idle_chars;
     // Number of idle chars for the RX unit used for tool communication. Will be set as soon as the UR-Program on the
     // robot is started. Valid values: min=1.0, max=40.0
     //
@@ -261,7 +261,7 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
     tool_comm_setup->setRxIdleChars(rx_idle_chars);
     tool_comm_setup->setParity(static_cast<urcl::Parity>(parity));
 
-    int tx_idle_chars;
+    float tx_idle_chars;
     // Number of idle chars for the TX unit used for tool communication. Will be set as soon as the UR-Program on the
     // robot is started. Valid values: min=0.0, max=40.0
     //
