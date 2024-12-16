@@ -4,7 +4,9 @@
   <version>2.1.5</version>
   <description>Messages around the UR Dashboard server.</description>
 
-  <maintainer email="exner@FZI.de">Felix Exner</maintainer>
+  <maintainer email="feex@universal-robots.com">Felix Exner</maintainer>
+  <maintainer email="rsk@universal-robots.com">Rune Søe-Knudsen</maintainer>
+  <maintainer email="ros@universal-robots.com">Universal Robots A/S</maintainer>
 
   <license>Apache-2.0</license>
 
