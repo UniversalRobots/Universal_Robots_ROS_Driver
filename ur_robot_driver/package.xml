@@ -9,7 +9,11 @@
   <author>Felix Exner</author>
   <author>Lea Steffen</author>
   <author>Tristan Schnell</author>
-  <maintainer email="exner@fzi.de">Felix Exner</maintainer>
+
+  <maintainer email="feex@universal-robots.com">Felix Exner</maintainer>
+  <maintainer email="rsk@universal-robots.com">Rune Søe-Knudsen</maintainer>
+  <maintainer email="ros@universal-robots.com">Universal Robots A/S</maintainer>
+
   <license>Apache-2.0</license>
   <license>BSD-2-Clause</license>
   <license>Zlib</license>
