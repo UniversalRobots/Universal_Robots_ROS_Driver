@@ -457,11 +457,10 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
 
   // Calling this service will set the robot in force mode
-  set_force_mode_srv_ = robot_hw_nh.advertiseService("set_force_mode", &HardwareInterface::setForceMode, this);
+  set_force_mode_srv_ = robot_hw_nh.advertiseService("start_force_mode", &HardwareInterface::setForceMode, this);
 
   // Calling this service will stop the robot from being in force mode
-  disable_force_mode_srv_ =
-      robot_hw_nh.advertiseService("disable_force_mode", &HardwareInterface::disableForceMode, this);
+  disable_force_mode_srv_ = robot_hw_nh.advertiseService("stop_force_mode", &HardwareInterface::disableForceMode, this);
 
   // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
   // trajectories to the UR robot.
@@ -1240,20 +1239,29 @@ bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest& req, ur_msgs:
   selection_vector[4] = req.selection_vector_ry;
   selection_vector[5] = req.selection_vector_rz;
 
-  wrench[0] = req.wrench.wrench.force.x;
-  wrench[1] = req.wrench.wrench.force.y;
-  wrench[2] = req.wrench.wrench.force.z;
-  wrench[3] = req.wrench.wrench.torque.x;
-  wrench[4] = req.wrench.wrench.torque.y;
-  wrench[5] = req.wrench.wrench.torque.z;
+  wrench[0] = req.wrench.force.x;
+  wrench[1] = req.wrench.force.y;
+  wrench[2] = req.wrench.force.z;
+  wrench[3] = req.wrench.torque.x;
+  wrench[4] = req.wrench.torque.y;
+  wrench[5] = req.wrench.torque.z;
 
-  limits[0] = req.limits.twist.linear.x;
-  limits[1] = req.limits.twist.linear.y;
-  limits[2] = req.limits.twist.linear.z;
-  limits[3] = req.limits.twist.angular.x;
-  limits[4] = req.limits.twist.angular.y;
-  limits[5] = req.limits.twist.angular.z;
+  limits[0] = req.selection_vector_x ? req.speed_limits.linear.x : req.deviation_limits[0];
+  limits[1] = req.selection_vector_y ? req.speed_limits.linear.y : req.deviation_limits[1];
+  limits[2] = req.selection_vector_z ? req.speed_limits.linear.z : req.deviation_limits[2];
+  limits[3] = req.selection_vector_rx ? req.speed_limits.angular.x : req.deviation_limits[3];
+  limits[4] = req.selection_vector_ry ? req.speed_limits.angular.y : req.deviation_limits[4];
+  limits[5] = req.selection_vector_rz ? req.speed_limits.angular.z : req.deviation_limits[5];
+
+  if (req.type < 1 || req.type > 3)
+  {
+    ROS_ERROR("The force mode type has to be 1, 2, or 3. Received %u", req.type);
+    res.success = false;
+    return false;
+  }
+
   unsigned int type = req.type;
+
   if (ur_driver_->getVersion().major < 5)
   {
     if (gain_scale != 0)
