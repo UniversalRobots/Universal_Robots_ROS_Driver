@@ -248,7 +248,7 @@ protected:
   ros::ServiceServer set_payload_srv_;
   ros::ServiceServer activate_spline_interpolation_srv_;
   ros::ServiceServer get_robot_software_version_srv;
-  ros::ServiceServer start_force_mode_srv_;
+  ros::ServiceServer set_force_mode_srv_;
   ros::ServiceServer end_force_mode_srv_;
 
   hardware_interface::JointStateInterface js_interface_;

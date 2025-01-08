@@ -457,10 +457,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   set_payload_srv_ = robot_hw_nh.advertiseService("set_payload", &HardwareInterface::setPayload, this);
 
   // Calling this service will set the robot in force mode
-  start_force_mode_srv_ = robot_hw_nh.advertiseService("start_force_mode", &HardwareInterface::startForceMode, this);
+  set_force_mode_srv_ = robot_hw_nh.advertiseService("set_force_mode", &HardwareInterface::setForceMode, this);
 
   // Calling this service will stop the robot from being in force mode
-  end_force_mode_srv_ = robot_hw_nh.advertiseService("end_force_mode", &HardwareInterface::endForceMode, this);
+  disable_force_mode_srv_ =
+      robot_hw_nh.advertiseService("disable_force_mode", &HardwareInterface::disableForceMode, this);
 
   // Call this to activate or deactivate using spline interpolation locally on the UR controller, when forwarding
   // trajectories to the UR robot.
@@ -1199,302 +1200,309 @@ bool HardwareInterface::setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::Set
 bool HardwareInterface::getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req,
                                                 ur_msgs::GetRobotSoftwareVersionResponse& res)
 {
-  bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest & req, ur_msgs::SetForceModeResponse & res)
+  urcl::VersionInformation version_info = this->ur_driver_->getVersion();
+  res.major = version_info.major;
+  res.minor = version_info.minor;
+  res.bugfix = version_info.bugfix;
+  res.build = version_info.build;
+  return true;
+}
+
+bool HardwareInterface::setForceMode(ur_msgs::SetForceModeRequest& req, ur_msgs::SetForceModeResponse& res)
+{
+  // This may need to be added back in depending on the final format of the srv file
+  // if (req.limits.size() != 6)
+  // {
+  //   URCL_LOG_WARN("Size of received SetForceMode message is wrong");
+  //   res.success = false;
+  //   return false;
+  // }
+  urcl::vector6d_t task_frame;
+  urcl::vector6uint32_t selection_vector;
+  urcl::vector6d_t wrench;
+  urcl::vector6d_t limits;
+  double damping_factor = req.damping_factor;
+  double gain_scale = req.gain_scaling;
+
+  task_frame[0] = req.task_frame.pose.position.x;
+  task_frame[1] = req.task_frame.pose.position.x;
+  task_frame[2] = req.task_frame.pose.position.x;
+  KDL::Rotation rot = KDL::Rotation::Quaternion(req.task_frame.pose.orientation.x, req.task_frame.pose.orientation.y,
+                                                req.task_frame.pose.orientation.z, req.task_frame.pose.orientation.w);
+  task_frame[3] = rot.GetRot().x();
+  task_frame[4] = rot.GetRot().y();
+  task_frame[5] = rot.GetRot().z();
+
+  selection_vector[0] = req.selection_vector_x;
+  selection_vector[1] = req.selection_vector_y;
+  selection_vector[2] = req.selection_vector_z;
+  selection_vector[3] = req.selection_vector_rx;
+  selection_vector[4] = req.selection_vector_ry;
+  selection_vector[5] = req.selection_vector_rz;
+
+  wrench[0] = req.wrench.wrench.force.x;
+  wrench[1] = req.wrench.wrench.force.y;
+  wrench[2] = req.wrench.wrench.force.z;
+  wrench[3] = req.wrench.wrench.torque.x;
+  wrench[4] = req.wrench.wrench.torque.y;
+  wrench[5] = req.wrench.wrench.torque.z;
+
+  limits[0] = req.limits.twist.linear.x;
+  limits[1] = req.limits.twist.linear.y;
+  limits[2] = req.limits.twist.linear.z;
+  limits[3] = req.limits.twist.angular.x;
+  limits[4] = req.limits.twist.angular.y;
+  limits[5] = req.limits.twist.angular.z;
+  unsigned int type = req.type;
+  if (ur_driver_->getVersion().major < 5)
   {
-    // This may need to be added back in depending on the final format of the srv file
-    // if (req.limits.size() != 6)
-    // {
-    //   URCL_LOG_WARN("Size of received SetForceMode message is wrong");
-    //   res.success = false;
-    //   return false;
-    // }
-    urcl::vector6d_t task_frame;
-    urcl::vector6uint32_t selection_vector;
-    urcl::vector6d_t wrench;
-    urcl::vector6d_t limits;
-    double damping_factor = req.damping_factor;
-    double gain_scale = req.gain_scaling;
-
-    task_frame[0] = req.task_frame.pose.position.x;
-    task_frame[1] = req.task_frame.pose.position.x;
-    task_frame[2] = req.task_frame.pose.position.x;
-    KDL::Rotation rot = KDL::Rotation::Quaternion(req.task_frame.pose.orientation.x, req.task_frame.pose.orientation.y,
-                                                  req.task_frame.pose.orientation.z, req.task_frame.pose.orientation.w);
-    task_frame[3] = rot.GetRot().x();
-    task_frame[4] = rot.GetRot().y();
-    task_frame[5] = rot.GetRot().z();
-
-    selection_vector[0] = req.selection_vector_x;
-    selection_vector[1] = req.selection_vector_y;
-    selection_vector[2] = req.selection_vector_z;
-    selection_vector[3] = req.selection_vector_rx;
-    selection_vector[4] = req.selection_vector_ry;
-    selection_vector[5] = req.selection_vector_rz;
-
-    wrench[0] = req.wrench.wrench.force.x;
-    wrench[1] = req.wrench.wrench.force.y;
-    wrench[2] = req.wrench.wrench.force.z;
-    wrench[3] = req.wrench.wrench.torque.x;
-    wrench[4] = req.wrench.wrench.torque.y;
-    wrench[5] = req.wrench.wrench.torque.z;
-
-    limits[0] = req.limits.twist.linear.x;
-    limits[1] = req.limits.twist.linear.y;
-    limits[2] = req.limits.twist.linear.z;
-    limits[3] = req.limits.twist.angular.x;
-    limits[4] = req.limits.twist.angular.y;
-    limits[5] = req.limits.twist.angular.z;
-    unsigned int type = req.type;
-    if (ur_driver_->getVersion().major < 5)
+    if (gain_scale != 0)
     {
-      if (gain_scale != 0)
+      ROS_WARN("Force mode gain scaling cannot be used on CB3 robots. The specified gain scaling will be ignored.");
+    }
+    res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor);
+  }
+  else
+  {
+    res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor,
+                                                   gain_scale);
+  }
+  return res.success;
+}
+
+bool HardwareInterface::disableForceMode(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
+{
+  res.success = this->ur_driver_->endForceMode();
+  return res.success;
+}
+
+void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
+{
+  std::string str = msg->data;
+  if (str.back() != '\n')
+  {
+    str.append("\n");
+  }
+
+  if (ur_driver_ == nullptr)
+  {
+    throw std::runtime_error("Trying to use the ur_driver_ member before it is initialized. This should not happen, "
+                             "please contact the package maintainer.");
+  }
+
+  if (ur_driver_->sendScript(str))
+  {
+    ROS_DEBUG_STREAM("Sent script to robot");
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Error sending script to robot");
+  }
+}
+
+bool HardwareInterface::activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res)
+{
+  use_spline_interpolation_ = req.data;
+  if (use_spline_interpolation_)
+  {
+    res.message = "Activated spline interpolation in forward trajectory mode.";
+  }
+  else
+  {
+    res.message = "Deactivated spline interpolation in forward trajectory mode.";
+  }
+  res.success = true;
+  return true;
+}
+
+void HardwareInterface::publishRobotAndSafetyMode()
+{
+  if (robot_mode_pub_)
+  {
+    if (robot_mode_pub_->msg_.mode != robot_mode_)
+    {
+      if (robot_mode_pub_->trylock())
       {
-        ROS_WARN("Force mode gain scaling cannot be used on CB3 robots. The specified gain scaling will be ignored.");
-      }
-      res.success =
-          this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor);
-    }
-    else
-    {
-      res.success = this->ur_driver_->startForceMode(task_frame, selection_vector, wrench, type, limits, damping_factor,
-                                                     gain_scale);
-    }
-    return res.success;
-  }
-
-  bool HardwareInterface::endForceMode(std_srvs::TriggerRequest & req, std_srvs::TriggerResponse & res)
-  {
-    res.success = this->ur_driver_->endForceMode();
-    return res.success;
-  }
-
-  void HardwareInterface::commandCallback(const std_msgs::StringConstPtr& msg)
-  {
-    std::string str = msg->data;
-    if (str.back() != '\n')
-    {
-      str.append("\n");
-    }
-
-    if (ur_driver_ == nullptr)
-    {
-      throw std::runtime_error("Trying to use the ur_driver_ member before it is initialized. This should not happen, "
-                               "please contact the package maintainer.");
-    }
-
-    if (ur_driver_->sendScript(str))
-    {
-      ROS_DEBUG_STREAM("Sent script to robot");
-    }
-    else
-    {
-      ROS_ERROR_STREAM("Error sending script to robot");
-    }
-  }
-
-  bool HardwareInterface::activateSplineInterpolation(std_srvs::SetBoolRequest & req, std_srvs::SetBoolResponse & res)
-  {
-    use_spline_interpolation_ = req.data;
-    if (use_spline_interpolation_)
-    {
-      res.message = "Activated spline interpolation in forward trajectory mode.";
-    }
-    else
-    {
-      res.message = "Deactivated spline interpolation in forward trajectory mode.";
-    }
-    res.success = true;
-    return true;
-  }
-
-  void HardwareInterface::publishRobotAndSafetyMode()
-  {
-    if (robot_mode_pub_)
-    {
-      if (robot_mode_pub_->msg_.mode != robot_mode_)
-      {
-        if (robot_mode_pub_->trylock())
-        {
-          robot_mode_pub_->msg_.mode = robot_mode_;
-          robot_mode_pub_->unlockAndPublish();
-        }
-      }
-    }
-    if (safety_mode_pub_)
-    {
-      if (safety_mode_pub_->msg_.mode != safety_mode_)
-      {
-        if (safety_mode_pub_->trylock())
-        {
-          safety_mode_pub_->msg_.mode = safety_mode_;
-          safety_mode_pub_->unlockAndPublish();
-        }
+        robot_mode_pub_->msg_.mode = robot_mode_;
+        robot_mode_pub_->unlockAndPublish();
       }
     }
   }
-
-  bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claimed_resources)
+  if (safety_mode_pub_)
   {
-    for (const std::string& it : joint_names_)
+    if (safety_mode_pub_->msg_.mode != safety_mode_)
     {
-      for (const std::string& jt : claimed_resources)
+      if (safety_mode_pub_->trylock())
       {
-        if (it == jt)
-        {
-          return true;
-        }
+        safety_mode_pub_->msg_.mode = safety_mode_;
+        safety_mode_pub_->unlockAndPublish();
       }
     }
+  }
+}
+
+bool HardwareInterface::checkControllerClaims(const std::set<std::string>& claimed_resources)
+{
+  for (const std::string& it : joint_names_)
+  {
     for (const std::string& jt : claimed_resources)
     {
-      if ("tool0_controller" == jt)
+      if (it == jt)
       {
         return true;
       }
     }
-    return false;
   }
-
-  void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
+  for (const std::string& jt : claimed_resources)
   {
-    size_t point_number = trajectory.trajectory.points.size();
-    ROS_DEBUG("Starting joint-based trajectory forward");
-    ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
-    double last_time = 0.0;
-    for (size_t i = 0; i < point_number; i++)
+    if ("tool0_controller" == jt)
     {
-      trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
-      urcl::vector6d_t p;
-      p[0] = point.positions[0];
-      p[1] = point.positions[1];
-      p[2] = point.positions[2];
-      p[3] = point.positions[3];
-      p[4] = point.positions[4];
-      p[5] = point.positions[5];
-      double next_time = point.time_from_start.toSec();
-      if (!use_spline_interpolation_)
-      {
-        ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
-      }
-      else  // Use spline interpolation
-      {
-        if (point.velocities.size() == 6 && point.accelerations.size() == 6)
-        {
-          urcl::vector6d_t v, a;
-          v[0] = point.velocities[0];
-          v[1] = point.velocities[1];
-          v[2] = point.velocities[2];
-          v[3] = point.velocities[3];
-          v[4] = point.velocities[4];
-          v[5] = point.velocities[5];
-
-          a[0] = point.accelerations[0];
-          a[1] = point.accelerations[1];
-          a[2] = point.accelerations[2];
-          a[3] = point.accelerations[3];
-          a[4] = point.accelerations[4];
-          a[5] = point.accelerations[5];
-          ur_driver_->writeTrajectorySplinePoint(p, v, a, next_time - last_time);
-        }
-        else if (point.velocities.size() == 6)
-        {
-          urcl::vector6d_t v;
-          v[0] = point.velocities[0];
-          v[1] = point.velocities[1];
-          v[2] = point.velocities[2];
-          v[3] = point.velocities[3];
-          v[4] = point.velocities[4];
-          v[5] = point.velocities[5];
-          ur_driver_->writeTrajectorySplinePoint(p, v, next_time - last_time);
-        }
-        else
-        {
-          ROS_ERROR_THROTTLE(1, "Spline interpolation using positions only is not supported.");
-        }
-      }
-      last_time = next_time;
+      return true;
     }
-    ROS_DEBUG("Finished Sending Trajectory");
   }
+  return false;
+}
 
-  void HardwareInterface::startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory)
+void HardwareInterface::startJointInterpolation(const hardware_interface::JointTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  ROS_DEBUG("Starting joint-based trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
   {
-    size_t point_number = trajectory.trajectory.points.size();
-    ROS_DEBUG("Starting cartesian trajectory forward");
-    ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
-    double last_time = 0.0;
-    for (size_t i = 0; i < point_number; i++)
+    trajectory_msgs::JointTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.positions[0];
+    p[1] = point.positions[1];
+    p[2] = point.positions[2];
+    p[3] = point.positions[3];
+    p[4] = point.positions[4];
+    p[5] = point.positions[5];
+    double next_time = point.time_from_start.toSec();
+    if (!use_spline_interpolation_)
     {
-      cartesian_control_msgs::CartesianTrajectoryPoint point = trajectory.trajectory.points[i];
-      urcl::vector6d_t p;
-      p[0] = point.pose.position.x;
-      p[1] = point.pose.position.y;
-      p[2] = point.pose.position.z;
-
-      KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
-                                                    point.pose.orientation.z, point.pose.orientation.w);
-
-      // UR robots use axis angle representation.
-      p[3] = rot.GetRot().x();
-      p[4] = rot.GetRot().y();
-      p[5] = rot.GetRot().z();
-      double next_time = point.time_from_start.toSec();
-      ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
-      last_time = next_time;
+      ur_driver_->writeTrajectoryPoint(p, false, next_time - last_time);
     }
-    ROS_DEBUG("Finished Sending Trajectory");
-  }
+    else  // Use spline interpolation
+    {
+      if (point.velocities.size() == 6 && point.accelerations.size() == 6)
+      {
+        urcl::vector6d_t v, a;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
 
-  void HardwareInterface::cancelInterpolation()
+        a[0] = point.accelerations[0];
+        a[1] = point.accelerations[1];
+        a[2] = point.accelerations[2];
+        a[3] = point.accelerations[3];
+        a[4] = point.accelerations[4];
+        a[5] = point.accelerations[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, a, next_time - last_time);
+      }
+      else if (point.velocities.size() == 6)
+      {
+        urcl::vector6d_t v;
+        v[0] = point.velocities[0];
+        v[1] = point.velocities[1];
+        v[2] = point.velocities[2];
+        v[3] = point.velocities[3];
+        v[4] = point.velocities[4];
+        v[5] = point.velocities[5];
+        ur_driver_->writeTrajectorySplinePoint(p, v, next_time - last_time);
+      }
+      else
+      {
+        ROS_ERROR_THROTTLE(1, "Spline interpolation using positions only is not supported.");
+      }
+    }
+    last_time = next_time;
+  }
+  ROS_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::startCartesianInterpolation(const hardware_interface::CartesianTrajectory& trajectory)
+{
+  size_t point_number = trajectory.trajectory.points.size();
+  ROS_DEBUG("Starting cartesian trajectory forward");
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  double last_time = 0.0;
+  for (size_t i = 0; i < point_number; i++)
   {
-    ROS_DEBUG("Cancelling Trajectory");
-    ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_CANCEL);
-  }
+    cartesian_control_msgs::CartesianTrajectoryPoint point = trajectory.trajectory.points[i];
+    urcl::vector6d_t p;
+    p[0] = point.pose.position.x;
+    p[1] = point.pose.position.y;
+    p[2] = point.pose.position.z;
 
-  void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryResult result)
+    KDL::Rotation rot = KDL::Rotation::Quaternion(point.pose.orientation.x, point.pose.orientation.y,
+                                                  point.pose.orientation.z, point.pose.orientation.w);
+
+    // UR robots use axis angle representation.
+    p[3] = rot.GetRot().x();
+    p[4] = rot.GetRot().y();
+    p[5] = rot.GetRot().z();
+    double next_time = point.time_from_start.toSec();
+    ur_driver_->writeTrajectoryPoint(p, true, next_time - last_time);
+    last_time = next_time;
+  }
+  ROS_DEBUG("Finished Sending Trajectory");
+}
+
+void HardwareInterface::cancelInterpolation()
+{
+  ROS_DEBUG("Cancelling Trajectory");
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_CANCEL);
+}
+
+void HardwareInterface::passthroughTrajectoryDoneCb(urcl::control::TrajectoryResult result)
+{
+  hardware_interface::ExecutionState final_state;
+  switch (result)
   {
-    hardware_interface::ExecutionState final_state;
-    switch (result)
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_SUCCESS:
     {
-      case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_SUCCESS:
-      {
-        final_state = hardware_interface::ExecutionState::SUCCESS;
-        ROS_INFO_STREAM("Forwarded trajectory finished successful.");
-        break;
-      }
-      case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_CANCELED:
-      {
-        final_state = hardware_interface::ExecutionState::PREEMPTED;
-        ROS_INFO_STREAM("Forwarded trajectory execution preempted by user.");
-        break;
-      }
-      case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_FAILURE:
-      {
-        final_state = hardware_interface::ExecutionState::ABORTED;
-        ROS_INFO_STREAM("Forwarded trajectory execution failed.");
-        break;
-      }
-      default:
-      {
-        std::stringstream ss;
-        ss << "Unknown trajectory result: " << urcl::toUnderlying(result);
-        throw(std::invalid_argument(ss.str()));
-      }
+      final_state = hardware_interface::ExecutionState::SUCCESS;
+      ROS_INFO_STREAM("Forwarded trajectory finished successful.");
+      break;
     }
-
-    if (joint_forward_controller_running_)
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_CANCELED:
     {
-      jnt_traj_interface_.setDone(final_state);
+      final_state = hardware_interface::ExecutionState::PREEMPTED;
+      ROS_INFO_STREAM("Forwarded trajectory execution preempted by user.");
+      break;
     }
-    else if (cartesian_forward_controller_running_)
+    case urcl::control::TrajectoryResult::TRAJECTORY_RESULT_FAILURE:
     {
-      cart_traj_interface_.setDone(final_state);
+      final_state = hardware_interface::ExecutionState::ABORTED;
+      ROS_INFO_STREAM("Forwarded trajectory execution failed.");
+      break;
     }
-    else
+    default:
     {
-      ROS_ERROR_STREAM("Received forwarded trajectory result with no forwarding controller running.");
+      std::stringstream ss;
+      ss << "Unknown trajectory result: " << urcl::toUnderlying(result);
+      throw(std::invalid_argument(ss.str()));
     }
   }
+
+  if (joint_forward_controller_running_)
+  {
+    jnt_traj_interface_.setDone(final_state);
+  }
+  else if (cartesian_forward_controller_running_)
+  {
+    cart_traj_interface_.setDone(final_state);
+  }
+  else
+  {
+    ROS_ERROR_STREAM("Received forwarded trajectory result with no forwarding controller running.");
+  }
+}
 }  // namespace ur_driver
 
 PLUGINLIB_EXPORT_CLASS(ur_driver::HardwareInterface, hardware_interface::RobotHW)
