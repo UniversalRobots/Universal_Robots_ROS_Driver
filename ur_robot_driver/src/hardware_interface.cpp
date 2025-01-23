@@ -1091,7 +1091,7 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
 bool HardwareInterface::setSpeedSlider(ur_msgs::SetSpeedSliderFractionRequest& req,
                                        ur_msgs::SetSpeedSliderFractionResponse& res)
 {
-  if (req.speed_slider_fraction >= 0.01 && req.speed_slider_fraction <= 1.0 && ur_driver_ != nullptr)
+  if (req.speed_slider_fraction >= 0.0 && req.speed_slider_fraction <= 1.0 && ur_driver_ != nullptr)
   {
     res.success = ur_driver_->getRTDEWriter().sendSpeedSlider(req.speed_slider_fraction);
   }
