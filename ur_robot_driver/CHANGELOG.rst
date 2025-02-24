@@ -1,3 +1,15 @@
+Forthcoming
+-----------
+* Allow setting the speed slider fraction to 0.0 from service (`#738 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/738>`_)
+* Update package maintainers (`#735 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/735>`_)
+* Parse the rx and tx idle chars as floats (`#729 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/729>`_)
+* Add a set_analog_output service (`#714 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/714>`_)
+* set receive timeout after connecting the client (`#596 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/596>`_)
+* Implemented get version service (`#695 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/695>`_)
+* Specify velocities for trajectory forwarding test (`#721 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/721>`_)
+* Updated the UR family photo on the readme (`#713 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/713>`_)
+* Contributors: Felix Exner, Rune Søe-Knudsen, URJala, steffen-roperobotics
+
 2.1.5 (2024-06-17)
 ------------------
 
