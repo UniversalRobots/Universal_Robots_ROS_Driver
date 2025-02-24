@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.2.0 (2025-02-24)
+------------------
 * Allow setting the speed slider fraction to 0.0 from service (`#738 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/738>`_)
 * Update package maintainers (`#735 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/735>`_)
 * Parse the rx and tx idle chars as floats (`#729 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/729>`_)
