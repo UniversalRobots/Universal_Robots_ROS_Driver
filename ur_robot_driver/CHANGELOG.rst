@@ -1,3 +1,9 @@
+Forthcoming
+-----------
+* Add launchfiles for ur7e and ur12e (`#743 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/743>`_)
+* Add support for ur7e and ur12e (`#742 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/742>`_)
+* Contributors: Felix Exner
+
 2.2.0 (2025-02-24)
 ------------------
 * Allow setting the speed slider fraction to 0.0 from service (`#738 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/738>`_)
