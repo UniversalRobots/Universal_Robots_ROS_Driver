@@ -64,6 +64,7 @@
 #include <scaled_joint_trajectory_controller/scaled_joint_command_interface.h>
 
 #include <ur_client_library/ur/ur_driver.h>
+#include <ur_client_library/ur/robot_receive_timeout.h>
 #include <ur_robot_driver/dashboard_client_ros.h>
 
 #include <ur_dashboard_msgs/RobotMode.h>
@@ -352,6 +353,7 @@ protected:
 
   std::string robot_ip_;
   std::string tf_prefix_;
+  urcl::RobotReceiveTimeout robot_receive_timeout_ = urcl::RobotReceiveTimeout::millisec(20);
 };
 
 }  // namespace ur_driver

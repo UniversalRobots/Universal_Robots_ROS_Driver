@@ -158,6 +158,11 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // not used with combined_robot_hw can suppress important errors and affect real-time performance.
   robot_hw_nh.param("non_blocking_read", non_blocking_read_, false);
 
+  // Timeout for robot receive operations in seconds
+  double timeout_seconds;
+  robot_hw_nh.param("robot_receive_timeout", timeout_seconds, 0.02);
+  robot_receive_timeout_ = urcl::RobotReceiveTimeout::sec(timeout_seconds);  
+
   // Specify gain for servoing to position in joint space.
   // A higher gain can sharpen the trajectory.
   int servoj_gain = robot_hw_nh.param("servoj_gain", 2000);
@@ -693,11 +698,11 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
   {
     if (position_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_position_command_, urcl::comm::ControlMode::MODE_SERVOJ);
+      ur_driver_->writeJointCommand(joint_position_command_, urcl::comm::ControlMode::MODE_SERVOJ, robot_receive_timeout_);
     }
     else if (velocity_controller_running_)
     {
-      ur_driver_->writeJointCommand(joint_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDJ);
+      ur_driver_->writeJointCommand(joint_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDJ, robot_receive_timeout_);
     }
     else if (joint_forward_controller_running_)
     {
@@ -715,7 +720,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
       cartesian_velocity_command_[3] = twist_command_.angular.x;
       cartesian_velocity_command_[4] = twist_command_.angular.y;
       cartesian_velocity_command_[5] = twist_command_.angular.z;
-      ur_driver_->writeJointCommand(cartesian_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDL);
+      ur_driver_->writeJointCommand(cartesian_velocity_command_, urcl::comm::ControlMode::MODE_SPEEDL, robot_receive_timeout_);
     }
     else if (pose_controller_running_)
     {
@@ -729,11 +734,11 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
       cartesian_pose_command_[4] = rot.GetRot().y();
       cartesian_pose_command_[5] = rot.GetRot().z();
 
-      ur_driver_->writeJointCommand(cartesian_pose_command_, urcl::comm::ControlMode::MODE_POSE);
+      ur_driver_->writeJointCommand(cartesian_pose_command_, urcl::comm::ControlMode::MODE_POSE, robot_receive_timeout_);
     }
     else
     {
-      ur_driver_->writeKeepalive();
+      ur_driver_->writeKeepalive(robot_receive_timeout_);
     }
     packet_read_ = false;
   }
@@ -1292,7 +1297,7 @@ void HardwareInterface::startJointInterpolation(const hardware_interface::JointT
 {
   size_t point_number = trajectory.trajectory.points.size();
   ROS_DEBUG("Starting joint-based trajectory forward");
-  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number, robot_receive_timeout_);
   double last_time = 0.0;
   for (size_t i = 0; i < point_number; i++)
   {
@@ -1354,7 +1359,7 @@ void HardwareInterface::startCartesianInterpolation(const hardware_interface::Ca
 {
   size_t point_number = trajectory.trajectory.points.size();
   ROS_DEBUG("Starting cartesian trajectory forward");
-  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number);
+  ur_driver_->writeTrajectoryControlMessage(urcl::control::TrajectoryControlMessage::TRAJECTORY_START, point_number, robot_receive_timeout_);
   double last_time = 0.0;
   for (size_t i = 0; i < point_number; i++)
   {

@@ -25,6 +25,7 @@
   <arg name="headless_mode" default="false" doc="Automatically send URScript to robot to execute. On e-Series this does require the robot to be in 'remote-control' mode. With this, the URCap is not needed on the robot."/>
   <arg name="ur_hardware_interface_node_required" default="true" doc="Shut down ros environment if ur_hardware_interface-node dies."/>
   <arg name="use_spline_interpolation" default="true" doc="True if splines should be used as interpolation on the robot controller when forwarding trajectory, if false movej or movel commands are used"/>
+  <arg name="robot_receive_timeout" default="0.02" doc="Timeout for the robot to respond to a command. This is used to prevent the robot from hanging if it does not respond to a command. Most be a multiple of 0.02"/>
 
   <!-- robot model -->
   <include file="$(arg robot_description_file)">
@@ -59,5 +60,6 @@
     <arg name="tool_tcp_port" value="$(arg tool_tcp_port)"/>
     <arg name="ur_hardware_interface_node_required" value="$(arg ur_hardware_interface_node_required)"/>
     <arg name="use_spline_interpolation" value="$(arg use_spline_interpolation)"/>
+    <arg name="robot_receive_timeout" value="$(arg robot_receive_timeout)"/>
   </include>
 </launch>
