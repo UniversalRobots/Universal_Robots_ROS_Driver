@@ -742,7 +742,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
     }
     else
     {
-      ur_driver_->writeKeepalive(robot_receive_timeout_);
+      ur_driver_->writeKeepalive();
     }
     packet_read_ = false;
   }
