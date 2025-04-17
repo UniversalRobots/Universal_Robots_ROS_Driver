@@ -1,3 +1,6 @@
+2.3.0 (2025-04-17)
+------------------
+
 2.2.0 (2025-02-24)
 ------------------
 * Update package maintainers (`#735 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/735>`_)
