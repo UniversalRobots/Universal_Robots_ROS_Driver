@@ -217,6 +217,7 @@ protected:
   bool resendRobotProgram(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   bool zeroFTSensor(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res);
   void commandCallback(const std_msgs::StringConstPtr& msg);
+  void freeDriveModeCallback(const std_msgs::BoolConstPtr& msg);
   bool setPayload(ur_msgs::SetPayloadRequest& req, ur_msgs::SetPayloadResponse& res);
   bool activateSplineInterpolation(std_srvs::SetBoolRequest& req, std_srvs::SetBoolResponse& res);
   bool getRobotSoftwareVersion(ur_msgs::GetRobotSoftwareVersionRequest& req,
@@ -325,6 +326,12 @@ protected:
   ros::ServiceServer set_analog_output_srv_;
   ros::ServiceServer resend_robot_program_srv_;
   ros::Subscriber command_sub_;
+
+  ros::Subscriber free_drive_mode_sub_;
+  double free_drive_mode_timeout_;
+  bool free_drive_mode_requested_;
+  ros::Time free_drive_mode_latest_request_;
+  urcl::control::FreedriveControlMessage free_drive_mode_control_msg_;
 
   industrial_robot_status_interface::RobotStatus robot_status_resource_{};
   industrial_robot_status_interface::IndustrialRobotStatusInterface robot_status_interface_{};
