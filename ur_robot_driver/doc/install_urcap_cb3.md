@@ -33,6 +33,9 @@ Note that the robot and the external PC have to be in the same network, ideally 
 connection with each other to minimize network disturbances. The custom port should be left
 untouched for now.
 
+In some cases the custom port should be set to blank.
+If you recieve a warning/exeption when attempting to connect you may need to remove the custom port number.
+
  ![Insert the external control node](initial_setup_images/cb3_10_prog_structure_urcaps.png)
 
 To use the new URCaps, create a new program and insert the **External Control** program node into
