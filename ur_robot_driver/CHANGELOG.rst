@@ -1,5 +1,5 @@
-Forthcoming
------------
+2.4.0 (2025-05-13)
+------------------
 * Add support for UR15 (`#747 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/747>`_)
 * Contributors: Felix Exner
 

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ur_dashboard_msgs</name>
-  <version>2.3.0</version>
+  <version>2.4.0</version>
   <description>Messages around the UR Dashboard server.</description>
 
   <maintainer email="feex@universal-robots.com">Felix Exner</maintainer>
