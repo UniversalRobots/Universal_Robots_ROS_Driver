@@ -1,3 +1,8 @@
+Forthcoming
+-----------
+* Add support for UR15 (`#747 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/747>`_)
+* Contributors: Felix Exner
+
 2.3.0 (2025-04-17)
 ------------------
 * Add ROS param (robot_receive_timeout) to control reverse interface timeouts (`#745 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/745>`_)
