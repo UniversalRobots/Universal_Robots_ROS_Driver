@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ur_calibration</name>
-  <version>2.4.0</version>
+  <version>2.4.1</version>
   <description>Package for extracting the factory calibration from a UR robot and change it such that it can be used by ur_description to gain a correct URDF</description>
 
   <maintainer email="feex@universal-robots.com">Felix Exner</maintainer>
