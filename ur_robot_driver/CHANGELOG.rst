@@ -1,3 +1,10 @@
+Forthcoming
+-----------
+* Fix minimum required polyscope version in the output (`#751 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/751>`_)
+  When we raised the version requirements to 3.14/5.9 we didn't update the
+  output in the ROS driver.
+* Contributors: Felix Exner
+
 2.4.0 (2025-05-13)
 ------------------
 * Add support for UR15 (`#747 <https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/747>`_)
