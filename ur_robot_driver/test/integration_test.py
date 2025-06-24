@@ -2,6 +2,7 @@
 import sys
 import time
 import unittest
+import re
 
 import rospy
 import actionlib
@@ -12,6 +13,7 @@ from control_msgs.msg import (
     FollowJointTrajectoryResult,
     JointTolerance)
 from ur_dashboard_msgs.msg import SetModeAction, SetModeGoal, RobotMode
+from ur_dashboard_msgs.srv import RawRequest
 from std_srvs.srv import Trigger, TriggerRequest
 import tf
 from trajectory_msgs.msg import JointTrajectoryPoint
@@ -93,6 +95,13 @@ class IntegrationTest(unittest.TestCase):
                 "Could not reach cartesian controller action. Make sure that the driver is actually running."
             )
 
+        self.joint_based_cartesian_trajectory_client = actionlib.SimpleActionClient(
+            'follow_joint_based_cartesian_trajectory', FollowCartesianTrajectoryAction)
+        if not self.cartesian_trajectory_client.wait_for_server(timeout):
+            self.fail(
+                "Could not reach cartesian controller action. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+
         self.set_io_client = rospy.ServiceProxy('/ur_hardware_interface/set_io', SetIO)
         try:
             self.set_io_client.wait_for_service(timeout)
@@ -131,6 +140,19 @@ class IntegrationTest(unittest.TestCase):
         self.script_publisher = rospy.Publisher("/ur_hardware_interface/script_command", std_msgs.msg.String, queue_size=1)
         self.tf_listener = tf.TransformListener()
         self.twist_pub = rospy.Publisher("/twist_controller/command", geometry_msgs.msg.Twist, queue_size=1)
+
+        # Get polyscope major version
+        raw_request_srv = rospy.ServiceProxy('/ur_hardware_interface/dashboard/raw_request',
+                                             RawRequest)
+        try:
+            raw_request_srv.wait_for_service(timeout)
+        except rospy.exceptions.ROSException as err:
+            self.fail(
+                "Could not reach raw request service. Make sure that the driver is actually running."
+                " Msg: {}".format(err))
+        result = str(raw_request_srv("PolyscopeVersion"))
+        match = re.search(r"\d", str(result))
+        self.major_version = int(result[match.start()])
 
     def set_robot_to_mode(self, target_mode):
         goal = SetModeGoal()
@@ -376,6 +398,18 @@ class IntegrationTest(unittest.TestCase):
                          FollowCartesianTrajectoryResult.SUCCESSFUL)
         rospy.loginfo("Received result SUCCESSFUL")
 
+        # This will test that the controller is not moving the robot slightly, when no trajectory is running
+        (trans_before, rot_before) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+        rospy.sleep(5)
+        (trans_after, rot_after) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+
+        self.assertAlmostEqual(rot_before[0], rot_after[0], delta=3e-6)
+        self.assertAlmostEqual(rot_before[1], rot_after[1], delta=3e-6)
+        self.assertAlmostEqual(rot_before[2], rot_after[2], delta=3e-6)
+        self.assertAlmostEqual(trans_before[0], trans_after[0], delta=3e-6)
+        self.assertAlmostEqual(trans_before[1], trans_after[1], delta=3e-6)
+        self.assertAlmostEqual(trans_before[2], trans_after[2], delta=3e-6)
+
     def test_twist_interface(self):
         #### Power cycle the robot in order to make sure it is running correctly####
         self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
@@ -417,13 +451,67 @@ class IntegrationTest(unittest.TestCase):
 
         (trans_end, rot_end) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
 
-        self.assertAlmostEqual(rot_start[0], rot_end[0], delta=3e-6)
-        self.assertAlmostEqual(rot_start[1], rot_end[1], delta=1e-6)
-        self.assertAlmostEqual(rot_start[2], rot_end[2], delta=1e-6)
-        self.assertAlmostEqual(trans_start[1], trans_end[1], delta=1e-6)
-        self.assertAlmostEqual(trans_start[2], trans_end[2], delta=1e-6)
-        self.assertTrue(trans_end[0] > trans_start[0])
+        if self.major_version == 3:
+            self.assertAlmostEqual(rot_start[0], rot_end[0], delta=3e-6)
+            self.assertAlmostEqual(rot_start[1], rot_end[1], delta=3e-6)
+            self.assertAlmostEqual(rot_start[2], rot_end[2], delta=3e-6)
+            self.assertAlmostEqual(trans_start[1], trans_end[1], delta=3e-6)
+            self.assertAlmostEqual(trans_start[2], trans_end[2], delta=3e-6)
+            self.assertTrue(trans_end[0] > trans_start[0])
+        else:
+            self.assertAlmostEqual(rot_start[0], rot_end[0], delta=3e-6)
+            self.assertAlmostEqual(rot_start[1], rot_end[1], delta=1e-6)
+            self.assertAlmostEqual(rot_start[2], rot_end[2], delta=1e-6)
+            self.assertAlmostEqual(trans_start[1], trans_end[1], delta=1e-6)
+            self.assertAlmostEqual(trans_start[2], trans_end[2], delta=1e-6)
+            self.assertTrue(trans_end[0] > trans_start[0])
 
+
+    def test_joint_based_cartesian_trajectory_interface(self):
+        #### Power cycle the robot in order to make sure it is running correctly####
+        self.assertTrue(self.set_robot_to_mode(RobotMode.POWER_OFF))
+        rospy.sleep(0.5)
+        self.assertTrue(self.set_robot_to_mode(RobotMode.RUNNING))
+        rospy.sleep(0.5)
+
+        # Make sure the robot is at a valid start position for our cartesian motions
+        self.script_publisher.publish("movej([1, -1.7, -1.7, -1, -1.57, -2])")
+        # As we don't have any feedback from that interface, sleep for a while
+        rospy.sleep(5)
+
+
+        self.send_program_srv.call()
+        rospy.sleep(0.5) # TODO properly wait until the controller is running
+
+        self.switch_on_controller("joint_based_cartesian_traj_controller")
+
+        position_list = [geometry_msgs.msg.Vector3(0.4,0.4,0.4)]
+        position_list.append(geometry_msgs.msg.Vector3(0.5,0.5,0.5))
+        duration_list = [3.0, 6.0]
+        goal = FollowCartesianTrajectoryGoal()
+
+        for i, position in enumerate(position_list):
+            point = CartesianTrajectoryPoint()
+            point.pose = geometry_msgs.msg.Pose(position, geometry_msgs.msg.Quaternion(0,0,0,1))
+            point.time_from_start = rospy.Duration(duration_list[i])
+            goal.trajectory.points.append(point)
+        self.joint_based_cartesian_trajectory_client.send_goal(goal)
+        self.joint_based_cartesian_trajectory_client.wait_for_result()
+        self.assertEqual(self.joint_based_cartesian_trajectory_client.get_result().error_code,
+                         FollowCartesianTrajectoryResult.SUCCESSFUL)
+        rospy.loginfo("Received result SUCCESSFUL")
+
+        # This will test that the controller is not moving the robot slightly, when no trajectory is running
+        (trans_before, rot_before) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+        rospy.sleep(5)
+        (trans_after, rot_after) = self.tf_listener.lookupTransform('base', 'tool0_controller', rospy.Time(0))
+
+        self.assertAlmostEqual(rot_before[0], rot_after[0], delta=3e-6)
+        self.assertAlmostEqual(rot_before[1], rot_after[1], delta=3e-6)
+        self.assertAlmostEqual(rot_before[2], rot_after[2], delta=3e-6)
+        self.assertAlmostEqual(trans_before[0], trans_after[0], delta=3e-6)
+        self.assertAlmostEqual(trans_before[1], trans_after[1], delta=3e-6)
+        self.assertAlmostEqual(trans_before[2], trans_after[2], delta=3e-6)
 
     def switch_on_controller(self, controller_name):
         """Switches on the given controller stopping all other known controllers with best_effort
