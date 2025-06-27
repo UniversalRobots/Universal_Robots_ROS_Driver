@@ -39,9 +39,12 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "target_moment", vector6d_t() },
   { "actual_q", vector6d_t() },
   { "actual_qd", vector6d_t() },
-  { "actual_qdd", vector6d_t() },
+  // NB: Not available over RTDE
+  //{ "actual_qdd", vector6d_t() },
   { "actual_current", vector6d_t() },
-  { "actual_moment", vector6d_t() },
+  { "actual_current_window", vector6d_t() },
+  // NB: Not available over RTDE
+  //{ "actual_moment", vector6d_t() },
   { "joint_control_output", vector6d_t() },
   { "actual_TCP_pose", vector6d_t() },
   { "actual_TCP_speed", vector6d_t() },
@@ -70,6 +73,7 @@ std::unordered_map<std::string, DataPackage::_rtde_type_variant> DataPackage::g_
   { "safety_status_bits", uint32_t() },
   { "joint_position_deviation_ratio", double() },
   { "collision_detection_ratio", double() },
+  { "time_scale_source", int32_t() },
   { "analog_io_types", uint32_t() },
   { "standard_analog_input0", double() },
   { "standard_analog_input1", double() },

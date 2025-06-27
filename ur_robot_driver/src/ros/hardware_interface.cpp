@@ -364,6 +364,8 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   pstop_ratios_pub_.reset(
       new realtime_tools::RealtimePublisher<ur_extra_msgs::ProtectiveStopRatios>(robot_hw_nh, "protective_stop_ratios",
                                                                                  1));
+  joint_state_extended_pub_.reset(
+      new realtime_tools::RealtimePublisher<ur_extra_msgs::JointStateExtended>(robot_hw_nh, "joint_state_extended", 1));
 
   // Set the speed slider fraction used by the robot's execution. Values should be between 0 and 1.
   // Only set this smaller than 1 if you are using the scaled controllers (as by default) or you know what you're
@@ -403,27 +405,43 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
         resp.success = this->ur_driver_->sendScript(cmd.str());
         return true;
       });
+    
+  // joint temperature publisher: reserve capacity for temperatures.
+  const size_t N = joint_names_.size();
+  auto& temperatures_msg = joint_temperatures_pub_->msg_;
+  temperatures_msg.joint_names = joint_names_;
+  temperatures_msg.temperatures.reserve(N);
+
+  // joint state extended publisher: copy joint names and reserve capacity.
+  auto& joint_state_extended_msg = joint_state_extended_pub_->msg_;
+  joint_state_extended_msg.names = joint_names_;
+  joint_state_extended_msg.target_currents.reserve(N);
+  joint_state_extended_msg.actual_currents.reserve(N);
+  joint_state_extended_msg.actual_current_windows.reserve(N);
+  joint_state_extended_msg.actual_voltages.reserve(N);
+  joint_state_extended_msg.target_torques.reserve(N);
+  joint_state_extended_msg.joint_control_modes.reserve(N);
+  joint_state_extended_msg.joint_control_outputs.reserve(N);
 
   return true;
 }
 
 template <typename T>
-void HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
+bool HardwareInterface::readData(const std::unique_ptr<rtde_interface::DataPackage>& data_pkg,
                                  const std::string& var_name, T& data, bool throw_on_error, const T& default_value)
 {
-  if (!data_pkg->getData(var_name, data))
+  if (data_pkg->getData(var_name, data))
   {
-    if (throw_on_error)
-    {
-      // This throwing should never happen unless misconfigured
-      std::string error_msg = "Did not find '" + var_name + "' in data sent from robot. This should not happen!";
-      throw std::runtime_error(error_msg);
-    }
-    else
-    {
-      data = default_value;
-    }
+    return true;
   }
+  if (throw_on_error)
+  {
+    std::string error_msg =
+      "Did not find '" + var_name + "' in data sent from robot. This should not happen!";
+    throw std::runtime_error(error_msg);
+  }
+  data = default_value;
+  return false;
 }
 
 template <typename T, size_t N>
@@ -457,8 +475,14 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
   if (data_pkg)
   {
     packet_read_ = true;
+    has_target_joint_efforts_ = readData(data_pkg, "target_current", target_joint_efforts_, false);
+    has_target_joint_moments_ = readData(data_pkg, "target_moment", target_joint_moments_, false);
     readData(data_pkg, "actual_q", joint_positions_);
     readData(data_pkg, "actual_qd", joint_velocities_);
+    readData(data_pkg, "actual_current", joint_efforts_);
+    has_joint_current_windows_ = readData(data_pkg, "actual_current_window", joint_current_windows_, false);
+    has_joint_temperatures_ = readData(data_pkg, "joint_temperatures", joint_temperatures_, false);
+    has_joint_voltages_ = readData(data_pkg, "actual_joint_voltage", joint_voltages_, false);
     readData(data_pkg, "target_speed_fraction", target_speed_fraction_);
     readData(data_pkg, "speed_scaling", speed_scaling_);
     readData(data_pkg, "runtime_state", runtime_state_);
@@ -475,19 +499,20 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     readData(data_pkg, "tool_output_current", tool_output_current_);
     readData(data_pkg, "tool_temperature", tool_temperature_);
     readData(data_pkg, "robot_mode", robot_mode_);
+    has_joint_control_modes_ = readData(data_pkg, "joint_mode", joint_control_modes_, false);
+    has_joint_control_outputs_ = readData(data_pkg, "joint_control_output", joint_control_outputs_, false);
     readData(data_pkg, "safety_mode", safety_mode_);
     readBitsetData<uint32_t>(data_pkg, "robot_status_bits", robot_status_bits_);
     readBitsetData<uint32_t>(data_pkg, "safety_status_bits", safety_status_bits_);
-    readData(data_pkg, "actual_current", joint_efforts_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_input_bits", actual_dig_in_bits_);
     readBitsetData<uint64_t>(data_pkg, "actual_digital_output_bits", actual_dig_out_bits_);
     readBitsetData<uint32_t>(data_pkg, "analog_io_types", analog_io_types_);
     readBitsetData<uint32_t>(data_pkg, "tool_analog_input_types", tool_analog_input_types_);
-    readData(data_pkg, "joint_temperatures", joint_temperatures_);
     readData(data_pkg, "joint_position_deviation_ratio", joint_position_deviation_ratio_, false,
              ur_extra_msgs::ProtectiveStopRatios::UNKNOWN_RATIO);
     readData(data_pkg, "collision_detection_ratio", collision_detection_ratio_, false,
              ur_extra_msgs::ProtectiveStopRatios::UNKNOWN_RATIO);
+    readData(data_pkg, "time_scale_source", time_scale_source_, false, 0);
 
     extractRobotStatus();
 
@@ -499,6 +524,7 @@ void HardwareInterface::read(const ros::Time& time, const ros::Duration& period)
     transformForceTorque();
     publishPose();
     publishRobotAndSafetyMode();
+    publishJointStateExtended(time);
     publishProtectiveStopRatios(time);
     if (this->enable_temperature_log_) {
       publishJointTemperatures(time);
@@ -741,23 +767,21 @@ void HardwareInterface::publishPose()
 
 void HardwareInterface::publishJointTemperatures(const ros::Time& timestamp)
 {
-  if (joint_temperatures_pub_)
-  {
-    if (joint_temperatures_pub_->trylock())
-    {
-      joint_temperatures_pub_->msg_.header.stamp = timestamp;
-      joint_temperatures_pub_->msg_.joint_names.clear();
-      joint_temperatures_pub_->msg_.temperatures.clear();
+  if (!joint_temperatures_pub_)
+    return;
+  if (!joint_temperatures_pub_->trylock())
+    return;
 
-      for (size_t i = 0; i < joint_names_.size(); i++)
-      {
-        joint_temperatures_pub_->msg_.joint_names.push_back(joint_names_[i]);
-        joint_temperatures_pub_->msg_.temperatures.push_back(joint_temperatures_[i]);
-      }
+  auto& msg = joint_temperatures_pub_->msg_;
+  msg.header.stamp = timestamp;
 
-      joint_temperatures_pub_->unlockAndPublish();
-    }
+  if (has_joint_temperatures_) {
+    msg.temperatures.assign(joint_temperatures_.begin(), joint_temperatures_.end());
+  } else {
+    msg.temperatures.clear();
   }
+
+  joint_temperatures_pub_->unlockAndPublish();
 }
 
 void HardwareInterface::publishProtectiveStopRatios(const ros::Time& timestamp)
@@ -769,11 +793,64 @@ void HardwareInterface::publishProtectiveStopRatios(const ros::Time& timestamp)
       pstop_ratios_pub_->msg_.header.stamp = timestamp;
       pstop_ratios_pub_->msg_.collision_detection_ratio = collision_detection_ratio_;
       pstop_ratios_pub_->msg_.joint_position_deviation_ratio = joint_position_deviation_ratio_;
+      pstop_ratios_pub_->msg_.time_scale_source = time_scale_source_;
       pstop_ratios_pub_->unlockAndPublish();
     }
   }
 }
 
+void HardwareInterface::publishJointStateExtended(const ros::Time& timestamp)
+{
+  if (!joint_state_extended_pub_) {
+    return;
+  }
+  if (!joint_state_extended_pub_->trylock()) {
+    return;
+  }
+
+  auto& msg = joint_state_extended_pub_->msg_;
+  msg.header.stamp = timestamp;
+
+  if (has_target_joint_efforts_) {
+    msg.target_currents.assign(target_joint_efforts_.begin(), target_joint_efforts_.end());
+  } else {
+    msg.target_currents.clear();
+  }
+
+  msg.actual_currents.assign(joint_efforts_.begin(), joint_efforts_.end());
+
+  if (has_joint_current_windows_) {
+    msg.actual_current_windows.assign(joint_current_windows_.begin(), joint_current_windows_.end());
+  } else {
+    msg.actual_current_windows.clear();
+  }
+
+  if (has_joint_voltages_) {
+    msg.actual_voltages.assign(joint_voltages_.begin(), joint_voltages_.end());
+  } else {
+    msg.actual_voltages.clear();
+  }
+
+  if (has_target_joint_moments_) {
+    msg.target_torques.assign(target_joint_moments_.begin(), target_joint_moments_.end());
+  } else {
+    msg.target_torques.clear();
+  }
+
+  if (has_joint_control_modes_) {
+    msg.joint_control_modes.assign(joint_control_modes_.begin(), joint_control_modes_.end());
+  } else {
+    msg.joint_control_modes.clear();
+  }
+
+  if (has_joint_control_outputs_) {
+    msg.joint_control_outputs.assign(joint_control_outputs_.begin(), joint_control_outputs_.end());
+  } else {
+    msg.joint_control_outputs.clear();
+  }
+
+  joint_state_extended_pub_->unlockAndPublish();
+}
 
 void HardwareInterface::extractRobotStatus()
 {
