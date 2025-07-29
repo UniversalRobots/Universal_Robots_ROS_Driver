@@ -1,6 +1,13 @@
 [![Build badge](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/workflows/Industrial%20CI%20pipeline/badge.svg?branch=master&event=push)](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/actions)
 
 # Universal_Robots_ROS_Driver
+
+> [!IMPORTANT]
+> ROS 1 is End Of Live since end of May 2025. This repository isn't further developed anymore.
+> Bugfixes may or may not be added to this repository. There are no further binary releases for any
+> ROS 1 distribution. If you want to use a newer version than the last one released, please either
+> build from source or use the [ROS One project](https://github.com/ros-o).
+
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
 <div align="center"><img src="ur_robot_driver/doc/initial_setup_images/family_photo.png" alt="Universal Robot e-Series family" style="width: 90%;"/></div>
@@ -17,24 +24,24 @@ Developed in collaboration between:
 [<img height="60" alt="Universal Robots A/S" src="ur_robot_driver/doc/resources/ur_logo.jpg">](https://www.universal-robots.com/) &nbsp; and &nbsp;
 [<img height="60" alt="FZI Research Center for Information Technology" src="ur_robot_driver/doc/resources/fzi-logo_transparenz.png">](https://www.fzi.de).
 
-<!-- 
+<!--
     ROSIN acknowledgement from the ROSIN press kit
     @ https://github.com/rosin-project/press_kit
 -->
 
 <a href="http://rosin-project.eu">
-  <img src="https://raw.githubusercontent.com/rosin-project/press_kit/master/img/rosin_ack_logo_wide.png" 
+  <img src="https://raw.githubusercontent.com/rosin-project/press_kit/master/img/rosin_ack_logo_wide.png"
        alt="rosin_logo" height="60" >
 </a>
 
-Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.  
+Supported by ROSIN - ROS-Industrial Quality-Assured Robot Software Components.
 More information: <a href="http://rosin-project.eu">rosin-project.eu</a>
 
-<img src="https://raw.githubusercontent.com/rosin-project/press_kit/master/img/rosin_eu_flag.jpg" 
-     alt="eu_flag" height="45" align="left" >  
+<img src="https://raw.githubusercontent.com/rosin-project/press_kit/master/img/rosin_eu_flag.jpg"
+     alt="eu_flag" height="45" align="left" >
 
-This project has received funding from the European Union’s Horizon 2020  
-research and innovation programme under grant agreement no. 732287. 
+This project has received funding from the European Union’s Horizon 2020
+research and innovation programme under grant agreement no. 732287.
 
 
 ## How to report an issue
@@ -43,7 +50,7 @@ Before creating an issue, please have a look at the [Troubleshooting section](#T
 To create an issue on the [Issue Board](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/issues/new) please use the default template.
 
 ## How to get help
-If you need help using this driver, please see the ROS-category in the [UR+ Developer Forum](https://forum.universal-robots.com/c/ros). 
+If you need help using this driver, please see the ROS-category in the [UR+ Developer Forum](https://forum.universal-robots.com/c/ros).
 
 ## Features
  * Works for all **CB3 (with software version >= 3.14.3) and e-Series (software >= 5.9.4)** robots and uses the RTDE interface for communication, whenever possible.
@@ -105,6 +112,13 @@ noetic. If you want to use a UR robot arm with ROS 2, please see the
 ```bash
 sudo apt install ros-${ROS_DISTRO}-ur-robot-driver ros-${ROS_DISTRO}-ur-calibration
 ```
+
+> [!NOTE]
+> ROS 1 is end of life since End of May 2025. Please consider switching to ROS 2 instead.
+> The ROS noetic binary packages will not receive any updates anymore. Even if bugfixes are
+> commited to this repository (or other packages), they will not end up in binary packages. In This
+> case you can either build the packages from source (see below) or use the [ROS One project](https://github.com/ros-o).
+
 ## Building from source
 
 Before building from source make sure that you actually need to do that. We recommend you install the driver from its binary packages unless you want to join development and submit changes.
@@ -117,7 +131,7 @@ workspace. See The alternative build method below if you'd like to build the lib
 
 ```bash
 # source global ros
-$ source /opt/ros/<your_ros_version>/setup.bash
+$ source /opt/ros/noetic/setup.bash
 
 # create a catkin workspace
 $ mkdir -p catkin_ws/src && cd catkin_ws
@@ -125,17 +139,8 @@ $ mkdir -p catkin_ws/src && cd catkin_ws
 # clone the driver
 $ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 
-# Install vcstool
-$ sudo apt update -qq
-$ sudo apt install python3-vcstool
-
-# clone the direct dependencies. As the latest version might require the latest upstream version,
-# we'll build things from source. Note: This does not include the client library. If there are API
-# changes there, you might have to use the all-source build as explained below.
-$ vcs import --input src/Universal_Robots_ROS_Driver/.noetic.rosinstall src
-
 # install dependencies
-$ rosdep update
+$ rosdep update --include-eol-distros
 $ rosdep install --from-paths src --ignore-src -y
 
 # build the workspace
@@ -151,7 +156,7 @@ well and build it using either `catkin_make_isolated` or [`catkin
 build`](https://catkin-tools.readthedocs.io/en/latest/verbs/catkin_build.html).
 
 ```bash
-$ source /opt/ros/<your_ros_version>/setup.bash
+$ source /opt/ros/noetic/setup.bash
 $ mkdir -p catkin_ws/src && cd catkin_ws
 $ git clone https://github.com/UniversalRobots/Universal_Robots_Client_Library.git src/Universal_Robots_Client_Library
 $ sudo apt update -qq
@@ -243,7 +248,7 @@ Use this with any client interface such as [MoveIt!](https://moveit.ros.org/) or
 rosrun rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 ```
 
-You may need to install rqt_joint_trajectory_controller by running: 
+You may need to install rqt_joint_trajectory_controller by running:
 ```
 sudo apt install ros-<ROS-DISTRO>-rqt-joint-trajectory-controller
 ```
@@ -311,7 +316,7 @@ save installation and program, then no exception is raised when no connection
 to the fieldbus scanner can be established (note: This is only to get the
 `External Control` running. You probably want to make sure that a connection to
 the fieldbus scanner can indeed be made). If you don't use EtherNet/IP
-fieldbusses at all, you can disable it in the same installation screen. 
+fieldbusses at all, you can disable it in the same installation screen.
 
 ### When starting the driver, it crashes with `Variable 'speed_slider_mask' is currently controlled by another RTDE client`
 Probably, you are running into [#204](../../issues/204). Currently, this driver cannot be used together with an enabled
