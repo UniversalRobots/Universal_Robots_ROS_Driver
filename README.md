@@ -5,8 +5,9 @@
 > [!IMPORTANT]
 > ROS 1 is End Of Live since end of May 2025. This repository isn't further developed anymore.
 > Bugfixes may or may not be added to this repository. There are no further binary releases for any
-> ROS 1 distribution. If you want to use a newer version than the last one released, please either
-> build from source or use the [ROS One project](https://github.com/ros-o).
+> ROS 1 distribution from the ROS repositories. If you want to use a newer version than the last
+> one released, please either build from source or use the binary packages from the [ROS-O
+> project](https://github.com/ros-o).
 
 Universal Robots have become a dominant supplier of lightweight, robotic manipulators for industry, as well as for scientific research and education. The Robot Operating System (ROS) has developed from a community-centered movement to a mature framework and quasi standard, providing a rich set of powerful tools for robot engineers and researchers, working in many different domains.
 
@@ -116,8 +117,10 @@ sudo apt install ros-${ROS_DISTRO}-ur-robot-driver ros-${ROS_DISTRO}-ur-calibrat
 > [!NOTE]
 > ROS 1 is end of life since End of May 2025. Please consider switching to ROS 2 instead.
 > The ROS noetic binary packages will not receive any updates anymore. Even if bugfixes are
-> commited to this repository (or other packages), they will not end up in binary packages. In This
-> case you can either build the packages from source (see below) or use the [ROS One project](https://github.com/ros-o).
+> commited to this repository (or other packages), they will not end up in the ROS binary packages.
+> However, the [ROS-O project](https://github.com/ros-o) builds binary packages for ROS 1. See
+> their website for further information.
+> Alternatively, you can build the driver from source (see below).
 
 ## Building from source
 
