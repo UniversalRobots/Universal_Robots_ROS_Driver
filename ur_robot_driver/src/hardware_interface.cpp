@@ -286,9 +286,6 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   // endeffector might be inaccurate. See the "ur_calibration" package on help how to generate your
   // own hash matching your actual robot.
   std::string calibration_checksum = robot_hw_nh.param<std::string>("kinematics/hash", "");
-  ROS_INFO_STREAM("Initializing dashboard client");
-  ros::NodeHandle dashboard_nh(robot_hw_nh, "dashboard");
-  dashboard_client_.reset(new DashboardClientROS(dashboard_nh, robot_ip_));
   ROS_INFO_STREAM("Initializing urdriver");
   try
   {
@@ -327,6 +324,15 @@ bool HardwareInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw
   }
   ur_driver_->registerTrajectoryDoneCallback(
       std::bind(&HardwareInterface::passthroughTrajectoryDoneCb, this, std::placeholders::_1));
+
+  // Export version information to state interfaces
+  urcl::VersionInformation version_info = ur_driver_->getVersion();
+  if (version_info.major < 10)
+  {
+    ROS_INFO_STREAM("Initializing dashboard client");
+    ros::NodeHandle dashboard_nh(robot_hw_nh, "dashboard");
+    dashboard_client_.reset(new DashboardClientROS(dashboard_nh, robot_ip_));
+  }
 
   // Send arbitrary script commands to this topic. Note: On e-Series the robot has to be in
   // remote-control mode.
