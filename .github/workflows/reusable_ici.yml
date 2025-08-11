@@ -35,10 +35,10 @@ jobs:
     steps:
       - name: Checkout ${{ inputs.ref }} when build is not scheduled
         if: ${{ github.event_name != 'schedule' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Checkout ${{ inputs.ref }} on scheduled build
         if: ${{ github.event_name == 'schedule' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref_for_scheduled_build }}
       - run: docker network create --subnet=192.168.56.0/24 ursim_net
