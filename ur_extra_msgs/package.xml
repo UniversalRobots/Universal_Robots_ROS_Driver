@@ -16,5 +16,6 @@
 
   <!-- Message dependencies should be declared with `depend` -->
   <depend>std_msgs</depend>
+  <depend>ur_msgs</depend>
 
 </package>

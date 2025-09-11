@@ -3,6 +3,7 @@ project(ur_extra_msgs)
 
 set(MESSAGE_DEPENDENCIES
   std_msgs
+  ur_msgs
 )
 
 ## Find catkin macros and libraries
