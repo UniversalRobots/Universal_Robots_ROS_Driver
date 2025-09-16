@@ -3,7 +3,7 @@
 # Universal_Robots_ROS_Driver
 
 > [!IMPORTANT]
-> ROS 1 is End Of Live since end of May 2025. This repository isn't further developed anymore.
+> ROS 1 is End Of Life since end of May 2025. This repository isn't further developed anymore.
 > Bugfixes may or may not be added to this repository. There are no further binary releases for any
 > ROS 1 distribution from the ROS repositories. If you want to use a newer version than the last
 > one released, please either build from source or use the binary packages from the [ROS-O
