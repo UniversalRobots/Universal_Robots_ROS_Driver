@@ -343,6 +343,7 @@ protected:
 
   std::string tcp_link_;
   std::atomic<bool> robot_program_running_;
+  std::atomic<bool> stop_requested_;
   ros::Publisher program_state_pub_;
 
   std::atomic<bool> controller_reset_necessary_;

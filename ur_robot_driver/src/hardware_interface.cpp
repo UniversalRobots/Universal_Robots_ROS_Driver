@@ -76,6 +76,8 @@ HardwareInterface::HardwareInterface()
   , pose_controller_running_(false)
   , pausing_state_(PausingState::RUNNING)
   , pausing_ramp_up_increment_(0.01)
+  , robot_program_running_(false)
+  , stop_requested_(false)
   , controllers_initialized_(false)
 {
 }
@@ -702,7 +704,12 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
        runtime_state_ == static_cast<uint32_t>(rtde::RUNTIME_STATE::PAUSING)) &&
       robot_program_running_ && (!non_blocking_read_ || packet_read_))
   {
-    if (position_controller_running_)
+    if (stop_requested_)
+    {
+      ur_driver_->writeJointCommand(joint_position_command_, urcl::comm::ControlMode::MODE_STOPPED);
+      stop_requested_ = false;
+    }
+    else if (position_controller_running_)
     {
       ur_driver_->writeJointCommand(joint_position_command_, urcl::comm::ControlMode::MODE_SERVOJ,
                                     robot_receive_timeout_);
@@ -1091,7 +1098,7 @@ bool HardwareInterface::stopControl(std_srvs::TriggerRequest& req, std_srvs::Tri
 {
   if (isRobotProgramRunning())
   {
-    robot_program_running_ = false;
+    stop_requested_ = true;
     res.success = true;
     res.message = "Deactivated control";
   }
