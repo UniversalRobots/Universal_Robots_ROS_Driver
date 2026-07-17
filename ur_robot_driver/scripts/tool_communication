@@ -37,17 +37,17 @@ def main():
 
     rospy.loginfo("Remote device is available at '" + local_device + "'")
 
-    cfg_params = ["pty"]
-    cfg_params.append("link=" + local_device)
-    cfg_params.append("raw")
-    cfg_params.append("ignoreeof")
-    cfg_params.append("waitslave")
+    cmd = [
+        "rosrun",
+        "ur_client_library",
+        "tool_communication.py",
+        robot_ip,
+        "--tcp-port",
+        tcp_port,
+        "--device-name",
+        local_device,
+    ]
 
-    cmd = ["socat"]
-    cmd.append(",".join(cfg_params))
-    cmd.append(":".join(["tcp", robot_ip, tcp_port]))
-
-    rospy.loginfo("Starting socat with following command:\n" + " ".join(cmd))
     subprocess.call(cmd)
 
 
